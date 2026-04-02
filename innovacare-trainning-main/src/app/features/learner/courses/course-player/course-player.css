@@ -376,6 +376,151 @@
 
 .viewer-footer{ height: 6px; }
 
+/* =========================
+   Narrated Slides block
+========================= */
+
+.narrated-shell {
+  margin-top: 12px;
+}
+
+.narrated {
+  border: 1px solid #e6eaf2;
+  border-radius: 18px;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.narrated-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.narrated-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.narrated-image {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e9eef5;
+  border-radius: 18px;
+  overflow: hidden;
+  min-height: 420px;
+  max-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.narrated-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain; /* use cover if you want cropping instead */
+  background: #fff;
+}
+
+.narrated-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.narrated-content h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.narrated-content p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.narrated-content audio {
+  width: 100%;
+}
+
+.narrated-content details {
+  border: 1px solid #e6eaf2;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 10px 12px;
+}
+
+.narrated-content details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.narrated-content details pre {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.narrated-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef2f7;
+}
+
+.narrated-footer .muted {
+  flex: 1;
+  text-align: center;
+}
+
+.narrated .chip {
+  white-space: nowrap;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1e3a8a;
+  border: 1px solid #dbe7ff;
+}
+
+@media (max-width: 900px) {
+  .narrated {
+    padding: 14px;
+  }
+
+  .narrated-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .narrated-image {
+    min-height: 260px;
+    max-height: 52vh;
+  }
+
+  .narrated-footer {
+    flex-wrap: wrap;
+  }
+
+  .narrated-footer .muted {
+    width: 100%;
+    text-align: center;
+    order: 3;
+  }
+}
+
 /* =========================================================
    QUIZ UI (INTERACTIVE) — SCOPED ADD-ON
    Works with:

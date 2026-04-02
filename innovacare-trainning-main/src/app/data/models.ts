@@ -283,17 +283,37 @@ export interface Lesson {
   updatedAt?: any;
 }
 
+export type SlideItem = {
+  id: string;
+  title?: string;
+  body?: string;
+  imageUrl: string;
+  caption?: string;
+  transcript?: string;
+  audioUrl?: string;
+  autoAdvance?: boolean;
+};
+
 export type Block =
   | { type: 'heading'; level?: 1|2|3; text: string }
-  | { type: 'text'; html: string }                 // sanitized HTML or markdown->HTML
+  | { type: 'text'; html: string }
   | { type: 'image'; url: string; alt?: string; caption?: string }
   | { type: 'audio'; url: string; transcript?: string }
   | { type: 'video'; url: string; transcript?: string }
   | { type: 'callout'; style?: 'info'|'warn'|'success'; html: string }
-  | { type: 'quiz'; mode: 'single'|'multi'| 'caseStudy'; question: string; choices: { id:string; text:string; correct:boolean }[] };
-
-
-  export interface Enrollment {
+  | { type: 'quiz'; mode: 'single'|'multi'|'caseStudy'; question: string; choices: { id:string; text:string; correct:boolean }[] }
+  | {
+      type: 'narrated_slides';
+      title?: string;
+      description?: string;
+      autoplay?: boolean;
+      allowManualNavigation?: boolean;
+      showTranscript?: boolean;
+      completionMode?: 'last_slide' | 'all_slides_viewed' | 'all_audio_finished';
+      slides: SlideItem[];
+      audioUrl?: string;
+    };
+export interface Enrollment {
     startedAt: any;              // serverTimestamp
     completedAt?: any;
     // gatekeeping: which lessons are done
@@ -497,6 +517,85 @@ export interface AppNotification {
   archivedAt?: any | null;
   data?: { courseId?: string; link?: string; [k: string]: any };
   actor?: { uid?: string; name?: string };
+}
+
+export type CourseBlockType = 'text' | 'callout' | 'video' | 'quiz' | 'narrated_slides';
+
+export interface BaseCourseBlock {
+  id: string;
+  type: CourseBlockType;
+  title?: string;
+  description?: string;
+  required?: boolean;
+  order: number;
+}
+
+export interface TextBlock extends BaseCourseBlock {
+  type: 'text';
+  content: string;
+}
+
+export interface CalloutBlock extends BaseCourseBlock {
+  type: 'callout';
+  variant?: 'info' | 'warning' | 'success' | 'critical';
+  content: string;
+}
+
+export interface VideoBlock extends BaseCourseBlock {
+  type: 'video';
+  videoUrl: string;
+  provider?: 'vimeo' | 'youtube' | 'upload' | 'external';
+  transcript?: string;
+  durationSec?: number;
+}
+
+export interface CourseAttempt {
+  id: string;
+  userId: string;
+  courseId: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'passed' | 'failed';
+  percentComplete: number;
+  currentBlockId?: string;
+  startedAt?: any;
+  lastAccessAt?: any;
+  totalTimeSec?: number;
+  blockStates?: Record<string, BlockProgressState>;
+}
+
+export interface BlockProgressState {
+  status?: 'not_started' | 'in_progress' | 'completed';
+  progressPercent?: number;
+  lastPositionSec?: number;
+  currentSlideIndex?: number;
+  slidesCompleted?: string[];
+  audioCompletedSlides?: string[];
+  updatedAt?: any;
+}
+export interface QuizBlock extends BaseCourseBlock {
+  type: 'quiz';
+  quizId: string;
+  passingScore?: number;
+  maxAttempts?: number;
+}
+
+export interface NarratedSlidesBlock extends BaseCourseBlock {
+  type: 'narrated_slides';
+  autoplay?: boolean;
+  allowManualNavigation?: boolean;
+  showTranscript?: boolean;
+  completionMode?: 'last_slide' | 'all_slides_viewed' | 'all_audio_finished';
+  slides: NarratedSlideItem[];
+}
+
+export interface NarratedSlideItem {
+  id: string;
+  title?: string;
+  body?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  transcript?: string;
+  durationSec?: number;
+  autoAdvance?: boolean;
 }
 
 

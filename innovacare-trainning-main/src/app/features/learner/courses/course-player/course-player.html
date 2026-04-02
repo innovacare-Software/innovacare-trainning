@@ -87,9 +87,9 @@
 
   <!-- Heading / Text / Image / Audio / Callout -->
   <div class="block"
-       *ngIf="b.type !== 'quiz' && b.type !== 'video'"
-       [innerHTML]="blockHtml(b)">
-  </div>
+     *ngIf="b.type !== 'quiz' && b.type !== 'video' && b.type !== 'narrated_slides'"
+     [innerHTML]="blockHtml(b)">
+</div>
 
   <!-- Video block: native render to preserve state better -->
   <div class="block video-block-shell" *ngIf="b.type === 'video'">
@@ -137,6 +137,68 @@
       </details>
     </div>
   </div>
+  <!-- Narrated Slides -->
+<div class="block narrated-shell" *ngIf="b.type === 'narrated_slides'">
+  <div class="narrated card" *ngIf="currentSlide(cur.id, bi, b) as slide">
+    <div class="narrated-head">
+      <div>
+        <div class="quiz-q">{{ b.title || 'Narrated Slides' }}</div>
+        <p class="muted" *ngIf="b.description">{{ b.description }}</p>
+      </div>
+
+      <div class="chip">
+        {{ slideProgressPct(cur.id, bi, b) }}%
+      </div>
+    </div>
+
+    <div class="narrated-stage">
+      <div class="narrated-image" *ngIf="slide.imageUrl">
+        <img [src]="slide.imageUrl" [alt]="slide.title || 'Slide image'" />
+      </div>
+
+      <div class="narrated-content">
+        <h3 *ngIf="slide.title">{{ slide.title }}</h3>
+        <p *ngIf="slide.body">{{ slide.body }}</p>
+        <p class="muted" *ngIf="slide.caption">{{ slide.caption }}</p>
+
+        <audio
+          *ngIf="slideAudioUrl(cur.id, bi, b)"
+          controls
+          [autoplay]="b.autoplay"
+          [src]="slideAudioUrl(cur.id, bi, b)"
+          (ended)="onNarratedAudioEnded(cur.id, bi, b)">
+        </audio>
+
+        <details *ngIf="b.showTranscript && slide.transcript">
+          <summary>Transcript</summary>
+          <pre>{{ slide.transcript }}</pre>
+        </details>
+      </div>
+    </div>
+
+    <div class="narrated-footer">
+      <button
+        class="btn soft"
+        type="button"
+        (click)="prevSlide(cur.id, bi, b)"
+        [disabled]="slideIndex(cur.id, bi, b) === 0">
+        ← Prev
+      </button>
+
+      <span class="muted">
+        Slide {{ slideIndex(cur.id, bi, b) + 1 }} / {{ b.slides?.length || 0 }}
+      </span>
+
+      <button
+        class="btn soft"
+        type="button"
+        (click)="nextSlide(cur.id, bi, b)"
+        [disabled]="slideIndex(cur.id, bi, b) >= ((b.slides?.length || 1) - 1)">
+        Next →
+      </button>
+    </div>
+  </div>
+</div>
 
   <!-- Quiz -->
   <div class="block quiz-ui" *ngIf="b.type === 'quiz'">

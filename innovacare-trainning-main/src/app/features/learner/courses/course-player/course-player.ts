@@ -21,7 +21,26 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 
 type Lang = 'EN' | 'FR' | 'ES';
-type BlockType = 'heading' | 'text' | 'image' | 'audio' | 'video' | 'callout' | 'quiz';
+type BlockType =
+  | 'heading'
+  | 'text'
+  | 'image'
+  | 'audio'
+  | 'video'
+  | 'callout'
+  | 'quiz'
+  | 'narrated_slides';
+
+interface SlideItem {
+  id: string;
+  title?: string;
+  body?: string;
+  imageUrl: string;
+  caption?: string;
+  transcript?: string;
+  audioUrl?: string;
+  autoAdvance?: boolean;
+}
 
 interface Block {
   type: BlockType;
@@ -36,6 +55,15 @@ interface Block {
   mode?: 'single' | 'multi' | 'caseStudy';
   question?: string;
   choices?: Array<{ id: string; text: string; correct: boolean }>;
+
+  title?: string;
+  description?: string;
+  audioUrl?: string;
+  autoplay?: boolean;
+  allowManualNavigation?: boolean;
+  showTranscript?: boolean;
+  completionMode?: 'last_slide' | 'all_slides_viewed' | 'all_audio_finished';
+  slides?: SlideItem[];
 }
 
 interface Lesson {
@@ -91,6 +119,74 @@ export class CoursePlayer implements OnInit, OnDestroy {
   private afs = inject(Firestore);
   private auth = inject(Auth);
   private sanitizer = inject(DomSanitizer);
+  private slideIndexes = new Map<string, number>();
+private slideAudioDone = new Map<string, Set<number>>();
+
+private slideKey(lessonId: string, bi: number): string {
+  return `${lessonId}::slides::${bi}`;
+}
+
+slideIndex(lessonId: string, bi: number, block: Block): number {
+  const total = block.slides?.length ?? 0;
+  if (!total) return 0;
+
+  const raw = this.slideIndexes.get(this.slideKey(lessonId, bi)) ?? 0;
+  return Math.max(0, Math.min(raw, total - 1));
+}
+
+currentSlide(lessonId: string, bi: number, block: Block): SlideItem | null {
+  const slides = block.slides ?? [];
+  if (!slides.length) return null;
+  return slides[this.slideIndex(lessonId, bi, block)] ?? null;
+}
+
+setSlide(lessonId: string, bi: number, block: Block, index: number): void {
+  const total = block.slides?.length ?? 0;
+  if (!total) return;
+
+  const next = Math.max(0, Math.min(index, total - 1));
+  this.slideIndexes.set(this.slideKey(lessonId, bi), next);
+}
+
+prevSlide(lessonId: string, bi: number, block: Block): void {
+  this.setSlide(lessonId, bi, block, this.slideIndex(lessonId, bi, block) - 1);
+}
+
+nextSlide(lessonId: string, bi: number, block: Block): void {
+  this.setSlide(lessonId, bi, block, this.slideIndex(lessonId, bi, block) + 1);
+}
+
+slideAudioUrl(lessonId: string, bi: number, block: Block): string {
+  const slide = this.currentSlide(lessonId, bi, block);
+  return (slide?.audioUrl || block.audioUrl || '').trim();
+}
+
+slideProgressPct(lessonId: string, bi: number, block: Block): number {
+  const total = block.slides?.length ?? 0;
+  if (!total) return 0;
+
+  const done = this.slideAudioDone.get(this.slideKey(lessonId, bi))?.size ?? 0;
+  const mode = block.completionMode ?? 'all_audio_finished';
+
+  if (mode === 'all_audio_finished') {
+    return Math.round((done / total) * 100);
+  }
+
+  return Math.round(((this.slideIndex(lessonId, bi, block) + 1) / total) * 100);
+}
+
+onNarratedAudioEnded(lessonId: string, bi: number, block: Block): void {
+  const key = this.slideKey(lessonId, bi);
+  const idx = this.slideIndex(lessonId, bi, block);
+  const set = new Set(this.slideAudioDone.get(key) ?? []);
+  set.add(idx);
+  this.slideAudioDone.set(key, set);
+
+  const slide = this.currentSlide(lessonId, bi, block);
+  if (slide?.autoAdvance && idx < ((block.slides?.length ?? 1) - 1)) {
+    this.nextSlide(lessonId, bi, block);
+  }
+}
 
   notice = '';
   busyId: string | null = null;

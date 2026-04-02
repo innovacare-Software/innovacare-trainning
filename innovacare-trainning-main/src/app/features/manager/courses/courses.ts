@@ -25,6 +25,16 @@ type ChoiceForm = FormGroup<{
   text: FormControl<string>;
   correct: FormControl<boolean>;
 }>;
+type SlideForm = FormGroup<{
+  id: FormControl<string>;
+  title: FormControl<string>;
+  body: FormControl<string>;
+  imageUrl: FormControl<string>;
+  caption: FormControl<string>;
+  transcript: FormControl<string>;
+  audioUrl: FormControl<string>;
+  autoAdvance: FormControl<boolean>;
+}>;
 
 type BlockForm = FormGroup<{
   type: FormControl<Block['type']>;
@@ -39,7 +49,19 @@ type BlockForm = FormGroup<{
   mode: FormControl<'single' | 'multi' | 'caseStudy'>;
   question: FormControl<string>;
   choices: FormArray<ChoiceForm>;
+
+  // narrated slides
+  title2: FormControl<string>;
+  description2: FormControl<string>;
+  audioUrl: FormControl<string>;
+  autoplay: FormControl<boolean>;
+  allowManualNavigation: FormControl<boolean>;
+  showTranscript: FormControl<boolean>;
+  completionMode: FormControl<'last_slide' | 'all_slides_viewed' | 'all_audio_finished'>;
+  slides: FormArray<SlideForm>;
 }>;
+
+
 
 type LessonForm = FormGroup<{
   id: FormControl<string>;
@@ -143,27 +165,59 @@ export class Courses {
       correct: this.fb.control<boolean>(correct),
     });
   }
+private newBlock(kind: Block['type'] = 'text'): BlockForm {
+  return this.fb.group({
+    type: this.fb.control<Block['type']>(kind),
+    level: this.fb.control<1 | 2 | 3>(2),
+    text: this.fb.control<string>(''),
+    html: this.fb.control<string>(''),
+    url: this.fb.control<string>(''),
+    alt: this.fb.control<string>(''),
+    caption: this.fb.control<string>(''),
+    transcript: this.fb.control<string>(''),
+    style: this.fb.control<'info' | 'warn' | 'success'>('info'),
+    mode: this.fb.control<'single' | 'multi' | 'caseStudy'>('single'),
+    question: this.fb.control<string>(''),
+    choices: this.fb.array<ChoiceForm>([
+      this.newChoice('Option A'),
+      this.newChoice('Option B'),
+      this.newChoice('Option C'),
+    ]),
 
-  private newBlock(kind: Block['type'] = 'text'): BlockForm {
-    return this.fb.group({
-      type: this.fb.control<Block['type']>(kind),
-      level: this.fb.control<1 | 2 | 3>(2),
-      text: this.fb.control<string>(''),
-      html: this.fb.control<string>(''),
-      url: this.fb.control<string>(''),
-      alt: this.fb.control<string>(''),
-      caption: this.fb.control<string>(''),
-      transcript: this.fb.control<string>(''),
-      style: this.fb.control<'info' | 'warn' | 'success'>('info'),
-      mode: this.fb.control<'single' | 'multi' | 'caseStudy'>('single'),
-      question: this.fb.control<string>(''),
-      choices: this.fb.array<ChoiceForm>([
-        this.newChoice('Option A'),
-        this.newChoice('Option B'),
-        this.newChoice('Option C'),
-      ]),
-    });
-  }
+    title2: this.fb.control<string>(''),
+    description2: this.fb.control<string>(''),
+    audioUrl: this.fb.control<string>(''),
+    autoplay: this.fb.control<boolean>(true),
+    allowManualNavigation: this.fb.control<boolean>(true),
+    showTranscript: this.fb.control<boolean>(true),
+    completionMode: this.fb.control<'last_slide' | 'all_slides_viewed' | 'all_audio_finished'>('all_audio_finished'),
+    slides: this.fb.array<SlideForm>(kind === 'narrated_slides' ? [this.newSlide()] : []),
+  });
+}
+  private newSlide(): SlideForm {
+  return this.fb.group({
+    id: this.fb.control<string>(crypto.randomUUID()),
+    title: this.fb.control<string>(''),
+    body: this.fb.control<string>(''),
+    imageUrl: this.fb.control<string>(''),
+    caption: this.fb.control<string>(''),
+    transcript: this.fb.control<string>(''),
+    audioUrl: this.fb.control<string>(''),
+    autoAdvance: this.fb.control<boolean>(true),
+  });
+}
+
+slidesFA(si: number, li: number, bi: number) {
+  return this.blocksFA(si, li).at(bi).controls.slides;
+}
+
+addSlide(si: number, li: number, bi: number) {
+  this.slidesFA(si, li, bi).push(this.newSlide());
+}
+
+removeSlide(si: number, li: number, bi: number, sj: number) {
+  this.slidesFA(si, li, bi).removeAt(sj);
+}
 
   private newLesson(): LessonForm {
     return this.fb.group({
@@ -323,6 +377,34 @@ export class Courses {
           : ''
       );
     }
+    if (t === 'narrated_slides') {
+  const slides = b.controls.slides.controls ?? [];
+  const first = slides[0]?.value;
+
+  return this.sanitizer.bypassSecurityTrustHtml(`
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <strong>${this.escapeHtml(b.value.title2 ?? 'Narrated Slides')}</strong>
+      <div>${slides.length} slide(s)</div>
+      ${
+        first?.imageUrl
+          ? `<img src="${this.escapeAttr(first.imageUrl)}" style="max-width:100%;border-radius:12px;" />`
+          : ''
+      }
+      ${
+        first?.caption
+          ? `<div>${this.escapeHtml(first.caption)}</div>`
+          : ''
+      }
+      ${
+        b.value.audioUrl || first?.audioUrl
+          ? `<audio controls style="width:100%;">
+               <source src="${this.escapeAttr(b.value.audioUrl || first?.audioUrl || '')}">
+             </audio>`
+          : ''
+      }
+    </div>
+  `);
+}
 
     if (t === 'quiz') {
       const q = this.escapeHtml(b.value.question ?? '');
@@ -487,7 +569,38 @@ export class Courses {
                     url: b.url ?? '',
                     transcript: b.transcript ?? '',
                   });
-                } else if (b.type === 'callout') {
+                } else if (b.type === 'narrated_slides') {
+  bfg.patchValue({
+    title2: b.title ?? '',
+    description2: b.description ?? '',
+    audioUrl: b.audioUrl ?? '',
+    autoplay: b.autoplay ?? true,
+    allowManualNavigation: b.allowManualNavigation ?? true,
+    showTranscript: b.showTranscript ?? true,
+    completionMode: b.completionMode ?? 'all_audio_finished',
+  });
+
+  bfg.controls.slides.clear();
+
+  (b.slides ?? []).forEach((sl) => {
+    bfg.controls.slides.push(
+      this.fb.group({
+        id: this.fb.control<string>(sl.id ?? crypto.randomUUID()),
+        title: this.fb.control<string>(sl.title ?? ''),
+        body: this.fb.control<string>(sl.body ?? ''),
+        imageUrl: this.fb.control<string>(sl.imageUrl ?? ''),
+        caption: this.fb.control<string>(sl.caption ?? ''),
+        transcript: this.fb.control<string>(sl.transcript ?? ''),
+        audioUrl: this.fb.control<string>(sl.audioUrl ?? ''),
+        autoAdvance: this.fb.control<boolean>(sl.autoAdvance ?? true),
+      })
+    );
+  });
+
+  if (bfg.controls.slides.length === 0) {
+    bfg.controls.slides.push(this.newSlide());
+  }
+}else if (b.type === 'callout') {
                   bfg.patchValue({
                     style: (b.style ?? 'info') as 'info' | 'warn' | 'success',
                     html: b.html ?? '',
@@ -670,6 +783,28 @@ export class Courses {
                   transcript: b.transcript ?? '',
                 } as Block;
               }
+              if (b.type === 'narrated_slides') {
+  return {
+    type: 'narrated_slides',
+    title: b.title ?? '',
+    description: b.description ?? '',
+    audioUrl: b.audioUrl ?? '',
+    autoplay: b.autoplay ?? true,
+    allowManualNavigation: b.allowManualNavigation ?? true,
+    showTranscript: b.showTranscript ?? true,
+    completionMode: b.completionMode ?? 'all_audio_finished',
+    slides: (b.slides ?? []).map((s) => ({
+      id: crypto.randomUUID(),
+      title: s.title ?? '',
+      body: s.body ?? '',
+      imageUrl: s.imageUrl ?? '',
+      caption: s.caption ?? '',
+      transcript: s.transcript ?? '',
+      audioUrl: s.audioUrl ?? '',
+      autoAdvance: s.autoAdvance ?? true,
+    })),
+  } as Block;
+}
 
               if (b.type === 'callout') {
                 return {
@@ -679,17 +814,20 @@ export class Courses {
                 } as Block;
               }
 
-              return {
-                type: 'quiz',
-                mode: b.mode ?? 'single',
-                question: b.question ?? '',
-                choices: (b.choices ?? []).map((ch) => ({
-                  id: crypto.randomUUID(),
-                  text: ch.text ?? '',
-                  correct: !!ch.correct,
-                })),
-              } as Block;
-            }),
+              if (b.type === 'quiz') {
+                return {
+                  type: 'quiz',
+                  mode: b.mode ?? 'single',
+                  question: b.question ?? '',
+                  choices: (b.choices ?? []).map((ch) => ({
+                    id: crypto.randomUUID(),
+                    text: ch.text ?? '',
+                    correct: !!ch.correct,
+                  })),
+                } as Block;
+              }
+              return undefined as unknown as Block;
+            }).filter((b): b is Block => b !== undefined),
           })),
         })),
       };
@@ -797,16 +935,46 @@ export class Courses {
               };
             }
 
-            return {
-              type: 'quiz',
-              mode: b.value.mode ?? 'single',
-              question: b.value.question ?? '',
-              choices: b.controls.choices.controls.map((c) => ({
-                id: c.value.id!,
-                text: c.value.text ?? '',
-                correct: !!c.value.correct,
-              })),
-            };
+           if (t === 'quiz') {
+  return {
+    type: 'quiz',
+    mode: b.value.mode ?? 'single',
+    question: b.value.question ?? '',
+    choices: b.controls.choices.controls.map((c) => ({
+      id: c.value.id!,
+      text: c.value.text ?? '',
+      correct: !!c.value.correct,
+    })),
+  };
+}
+
+if (t === 'narrated_slides') {
+  return {
+    type: 'narrated_slides',
+    title: b.value.title2 ?? '',
+    description: b.value.description2 ?? '',
+    audioUrl: b.value.audioUrl ?? '',
+    autoplay: !!b.value.autoplay,
+    allowManualNavigation: !!b.value.allowManualNavigation,
+    showTranscript: !!b.value.showTranscript,
+    completionMode: b.value.completionMode ?? 'all_audio_finished',
+    slides: b.controls.slides.controls.map((s) => ({
+      id: s.value.id!,
+      title: s.value.title ?? '',
+      body: s.value.body ?? '',
+      imageUrl: s.value.imageUrl ?? '',
+      caption: s.value.caption ?? '',
+      transcript: s.value.transcript ?? '',
+      audioUrl: s.value.audioUrl ?? '',
+      autoAdvance: !!s.value.autoAdvance,
+    })),
+  };
+}
+
+return {
+  type: 'text',
+  html: '',
+};
           }),
         })),
       })),

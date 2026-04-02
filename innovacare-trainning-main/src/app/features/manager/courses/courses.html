@@ -180,6 +180,9 @@
                   <button type="button" class="btn tiny outline" (click)="addBlock(si, li, 'video')">+ Video</button>
                   <button type="button" class="btn tiny outline" (click)="addBlock(si, li, 'callout')">+ Callout</button>
                   <button type="button" class="btn tiny outline" (click)="addBlock(si, li, 'quiz')">+ Quiz</button>
+                  <button type="button" class="btn tiny outline" (click)="addBlock(si, li, 'narrated_slides')">
+  + Narrated Slides
+</button>
                 </div>
               </div>
 
@@ -200,6 +203,7 @@
                     <option value="video">Video</option>
                     <option value="callout">Callout</option>
                     <option value="quiz">Quiz</option>
+                    <option value="narrated_slides">Narrated Slides</option>
                   </select>
 
                   <button type="button" class="btn tiny ghost" (click)="removeBlock(si, li, bi)">Remove</button>
@@ -299,6 +303,56 @@
                     </div>
                   </div>
                 </div>
+                <!-- Narrated Slides -->
+<div *ngIf="b.value.type === 'narrated_slides'" class="block-body">
+  <div class="editor">
+    <input formControlName="title2" placeholder="Block title" />
+    <textarea rows="2" formControlName="description2" placeholder="Block description"></textarea>
+
+    <div class="grid">
+      <label><input type="checkbox" formControlName="autoplay" /> Autoplay</label>
+      <label><input type="checkbox" formControlName="allowManualNavigation" /> Manual navigation</label>
+      <label><input type="checkbox" formControlName="showTranscript" /> Show transcript</label>
+    </div>
+
+    <select formControlName="completionMode">
+      <option value="last_slide">Last slide</option>
+      <option value="all_slides_viewed">All slides viewed</option>
+      <option value="all_audio_finished">All audio finished</option>
+    </select>
+
+    <input formControlName="audioUrl" placeholder="Global audio URL (optional)" />
+
+    <div formArrayName="slides" class="slides-editor">
+      <div
+        class="slide-card"
+        *ngFor="let s of b.controls.slides.controls; let sj = index"
+        [formGroup]="s"
+      >
+        <input formControlName="title" placeholder="Slide title" />
+        <textarea rows="2" formControlName="body" placeholder="Slide body"></textarea>
+        <input formControlName="imageUrl" placeholder="Image URL" />
+        <input formControlName="caption" placeholder="Caption" />
+        <textarea rows="2" formControlName="transcript" placeholder="Transcript"></textarea>
+        <input formControlName="audioUrl" placeholder="Slide audio URL (optional)" />
+        <label><input type="checkbox" formControlName="autoAdvance" /> Auto advance</label>
+
+        <button type="button" class="btn tiny ghost" (click)="removeSlide(si, li, bi, sj)">
+          Remove slide
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="btn tiny outline" (click)="addSlide(si, li, bi)">
+      + Add slide
+    </button>
+  </div>
+
+  <div class="preview">
+    <div class="preview-title">Preview</div>
+    <div class="preview-box" [innerHTML]="previewFor(b)"></div>
+  </div>
+</div>
 
                 <!-- Quiz -->
                 <div *ngIf="b.value.type === 'quiz'" class="block-body">
