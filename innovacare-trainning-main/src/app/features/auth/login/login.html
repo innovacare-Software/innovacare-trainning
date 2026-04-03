@@ -6,11 +6,41 @@
             <h1 class="title">Welcome Back</h1>
             <p class="subtitle">INNOVACARE TRAINING PLATFORM</p>
           </div>
+
+          <!-- Tab Switch Buttons -->
+          <div class="tab-switch-container">
+            <button 
+              class="tab-switch" 
+              [class.active]="currentTab() === 'guest'"
+              (click)="switchTab('guest')"
+              type="button">
+              Guest Login
+            </button>
+            <button 
+              class="tab-switch" 
+              [class.active]="currentTab() === 'org'"
+              (click)="switchTab('org')"
+              type="button">
+              Organization Login
+            </button>
+            <button 
+              class="tab-switch" 
+              [class.active]="currentTab() === 'register'"
+              (click)="switchTab('register')"
+              type="button">
+              Register
+            </button>
+          </div>
         </div>
 
         <div class="card-body">
-          <form [formGroup]="form" (ngSubmit)="submit()" class="form">
-            <!-- Email Field -->
+          <!-- Guest Login Form -->
+          <form 
+            *ngIf="currentTab() === 'guest'" 
+            [@slideAnimation]
+            [formGroup]="guestForm" 
+            (ngSubmit)="submitGuest()" 
+            class="form">
             <div class="form-group">
               <label class="label">Email Address</label>
               <div class="input-wrapper">
@@ -19,16 +49,15 @@
                   class="input" 
                   type="email" 
                   formControlName="email" 
-                  placeholder="you@clinic.com"
+                  placeholder="guest@example.com"
                   autocomplete="email"
                 />
               </div>
-              <small class="help error-text" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+              <small class="help error-text" *ngIf="guestForm.controls.email.invalid && guestForm.controls.email.touched">
                 ⚠️ Valid email address required
               </small>
             </div>
 
-            <!-- Password Field -->
             <div class="form-group">
               <label class="label">Password</label>
               <div class="input-wrapper">
@@ -41,18 +70,89 @@
                   autocomplete="current-password"
                 />
               </div>
-              <small class="help error-text" *ngIf="form.controls.password.invalid && form.controls.password.touched">
+              <small class="help error-text" *ngIf="guestForm.controls.password.invalid && guestForm.controls.password.touched">
                 ⚠️ Minimum 6 characters required
               </small>
             </div>
 
-            <!-- Error Message -->
             <div class="error-alert" *ngIf="error()">
               <span class="error-icon">❌</span>
               <p class="error">{{ error() }}</p>
             </div>
 
-            <!-- Sign In Button -->
+            <button 
+              class="btn btn-primary" 
+              type="submit" 
+              [disabled]="loading()"
+              [class.loading]="loading()">
+              <span *ngIf="!loading()">Sign In as Guest</span>
+              <span *ngIf="loading()">Signing in...</span>
+            </button>
+          </form>
+
+          <!-- Organization Login Form -->
+          <form 
+            *ngIf="currentTab() === 'org'" 
+            [@slideAnimation]
+            [formGroup]="orgForm" 
+            (ngSubmit)="submitOrg()" 
+            class="form">
+            <div class="form-group">
+              <label class="label">Organization Code</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🏢</span>
+                <input 
+                  class="input" 
+                  type="text" 
+                  formControlName="orgCode" 
+                  placeholder="ORG123456"
+                  autocomplete="off"
+                />
+              </div>
+              <small class="help error-text" *ngIf="orgForm.controls.orgCode.invalid && orgForm.controls.orgCode.touched">
+                ⚠️ Organization code required
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input 
+                  class="input" 
+                  type="email" 
+                  formControlName="email" 
+                  placeholder="you@clinic.com"
+                  autocomplete="email"
+                />
+              </div>
+              <small class="help error-text" *ngIf="orgForm.controls.email.invalid && orgForm.controls.email.touched">
+                ⚠️ Valid email address required
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Password</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input 
+                  class="input" 
+                  type="password" 
+                  formControlName="password" 
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                />
+              </div>
+              <small class="help error-text" *ngIf="orgForm.controls.password.invalid && orgForm.controls.password.touched">
+                ⚠️ Minimum 6 characters required
+              </small>
+            </div>
+
+            <div class="error-alert" *ngIf="error()">
+              <span class="error-icon">❌</span>
+              <p class="error">{{ error() }}</p>
+            </div>
+
             <button 
               class="btn btn-primary" 
               type="submit" 
@@ -62,12 +162,10 @@
               <span *ngIf="loading()">Signing in...</span>
             </button>
 
-            <!-- Divider -->
             <div class="divider">
               <span>or</span>
             </div>
 
-            <!-- Google Sign In Button -->
             <button 
               class="btn btn-google" 
               type="button" 
@@ -78,8 +176,98 @@
             </button>
           </form>
 
+          <!-- Register Form -->
+          <form 
+            *ngIf="currentTab() === 'register'" 
+            [@slideAnimation]
+            [formGroup]="registerForm" 
+            (ngSubmit)="submitRegister()" 
+            class="form">
+            <div class="form-group">
+              <label class="label">Full Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input 
+                  class="input" 
+                  type="text" 
+                  formControlName="fullName" 
+                  placeholder="John Doe"
+                  autocomplete="name"
+                />
+              </div>
+              <small class="help error-text" *ngIf="registerForm.controls.fullName.invalid && registerForm.controls.fullName.touched">
+                ⚠️ Full name required
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input 
+                  class="input" 
+                  type="email" 
+                  formControlName="email" 
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                />
+              </div>
+              <small class="help error-text" *ngIf="registerForm.controls.email.invalid && registerForm.controls.email.touched">
+                ⚠️ Valid email address required
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Password</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input 
+                  class="input" 
+                  type="password" 
+                  formControlName="password" 
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                />
+              </div>
+              <small class="help error-text" *ngIf="registerForm.controls.password.invalid && registerForm.controls.password.touched">
+                ⚠️ Minimum 6 characters required
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Confirm Password</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input 
+                  class="input" 
+                  type="password" 
+                  formControlName="confirmPassword" 
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                />
+              </div>
+              <small class="help error-text" *ngIf="registerForm.controls.confirmPassword.invalid && registerForm.controls.confirmPassword.touched">
+                ⚠️ Passwords must match
+              </small>
+            </div>
+
+            <div class="error-alert" *ngIf="error()">
+              <span class="error-icon">❌</span>
+              <p class="error">{{ error() }}</p>
+            </div>
+
+            <button 
+              class="btn btn-primary" 
+              type="submit" 
+              [disabled]="loading()"
+              [class.loading]="loading()">
+              <span *ngIf="!loading()">Create Account</span>
+              <span *ngIf="loading()">Creating...</span>
+            </button>
+          </form>
+
           <!-- Forgot Password & Back to Home -->
-          <div class="footer-links">
+          <div class="footer-links" *ngIf="currentTab() !== 'register'">
             <p class="forgot-password">
               Forgot your password? <a routerLink="/reset" class="link">Reset it here</a>
             </p>

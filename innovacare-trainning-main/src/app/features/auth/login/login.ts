@@ -6,6 +6,8 @@ import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AuthService, AppProfile } from '../../../core/auth';
 
+type TabType = 'guest' | 'org' | 'register';
+
 function defaultRouteForRole(role: AppProfile['role']): string {
   switch (role) {
     case 'super_admin':
@@ -36,10 +38,24 @@ export class LoginComponent {
 
   loading = signal(false);
   error = signal<string | null>(null);
+  currentTab = signal<TabType>('guest');
 
-  form = this.fb.group({
+  guestForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  orgForm = this.fb.group({
+    orgCode: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  registerForm = this.fb.group({
+    fullName: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', Validators.required],
   });
 
   private async waitForFreshProfile(): Promise<AppProfile> {
@@ -57,20 +73,69 @@ export class LoginComponent {
     );
   }
 
-  async submit() {
-    if (this.form.invalid) return;
+  switchTab(tab: TabType) {
+    this.currentTab.set(tab);
+    this.error.set(null);
+  }
+
+  async submitGuest() {
+    if (this.guestForm.invalid) return;
 
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      const { email, password } = this.form.getRawValue();
+      const { email, password } = this.guestForm.getRawValue();
       await this.auth.loginWithEmail(email!, password!);
 
       const profile = await this.waitForFreshProfile();
       await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
     } catch (e: any) {
       this.error.set(e?.message ?? 'Login failed');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async submitOrg() {
+    if (this.orgForm.invalid) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      const { email, password, orgCode } = this.orgForm.getRawValue();
+      await this.auth.loginWithEmail(email!, password!);
+
+      const profile = await this.waitForFreshProfile();
+      await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
+    } catch (e: any) {
+      this.error.set(e?.message ?? 'Login failed');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async submitRegister() {
+    if (this.registerForm.invalid) return;
+
+    const { password, confirmPassword } = this.registerForm.getRawValue();
+    if (password !== confirmPassword) {
+      this.error.set('Passwords do not match');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      const { email, password, fullName } = this.registerForm.getRawValue();
+      await this.auth.loginWithEmail(email!, password!);
+
+      const profile = await this.waitForFreshProfile();
+      await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
+    } catch (e: any) {
+      this.error.set(e?.message ?? 'Registration failed');
     } finally {
       this.loading.set(false);
     }

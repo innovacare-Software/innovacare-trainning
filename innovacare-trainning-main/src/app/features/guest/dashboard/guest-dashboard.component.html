@@ -1,0 +1,33 @@
+<section>
+  <h1>Guest Dashboard</h1>
+  <p *ngIf="user() as u">Welcome{{ u?.displayName ? ', ' + u.displayName : '' }}.</p>
+</section>
+
+<section class="grid-cards">
+  <div class="card">
+    <h3>My Courses</h3>
+    <p>{{ myCourses().length }} active item(s)</p>
+  </div>
+
+  <div class="card">
+    <h3>My Programs</h3>
+    <p>{{ myPrograms().length }} active program(s)</p>
+  </div>
+
+  <div class="card">
+    <h3>Live Classes</h3>
+    <p>{{ myBookings().length }} booking(s)</p>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Continue Learning</h3>
+  <div *ngIf="myCourses().length; else noCourses">
+    <div *ngFor="let c of myCourses()">
+      <strong>{{ c.courseId }}</strong> — {{ c.progressPct || 0 }}%
+    </div>
+  </div>
+  <ng-template #noCourses>
+    <p>No purchased courses yet.</p>
+  </ng-template>
+</section>

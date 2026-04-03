@@ -80,6 +80,11 @@ export const routes: Routes = [
         (m) => m.CourseDetailPage
       ),
   },
+  {
+  path: 'guest',
+  loadChildren: () =>
+    import('./features/guest/guest.routes').then((m) => m.GUEST_ROUTES),
+},
 
   { path: '**', redirectTo: '/home' }
 ];
