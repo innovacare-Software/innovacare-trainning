@@ -48,7 +48,7 @@
     <section class="card">
       <h2>System Health</h2>
       <div class="health-indicators">
-        <div *ngFor="let indicator of healthIndicators" class="health-item">
+        <div *ngFor="let indicator of healthIndicators()" class="health-item">
           <span class="indicator" [class.healthy]="indicator.status === 'healthy'"></span>
           <span>{{ indicator.name }}: {{ indicator.status }}</span>
         </div>
@@ -60,7 +60,7 @@
       <h2>Platform Overview</h2>
       <p>Monitor global platform health, tenant onboarding, and course distribution.</p>
       <div class="activity-summary">
-        <p *ngFor="let activity of recentActivities" class="activity-item">{{ activity }}</p>
+        <p *ngFor="let activity of recentActivities()" class="activity-item">{{ activity }}</p>
       </div>
     </section>
 

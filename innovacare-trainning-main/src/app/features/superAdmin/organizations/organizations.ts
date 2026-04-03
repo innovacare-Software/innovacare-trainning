@@ -79,6 +79,19 @@ export class Organizations {
     formElement?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  resetForm() {
+    this.newOrg = {
+      orgId: '',
+      name: '',
+      type: 'health',
+      plan: 'free',
+      ownerUid: '',
+      ownerEmail: '',
+      ownerDisplayName: '',
+    };
+    this.notice.set('');
+  }
+
   async createWithOwner() {
     if (!this.newOrg.name || !this.newOrg.ownerUid || !this.newOrg.ownerEmail) {
       this.notice.set('Name, owner UID and owner email are required.');

@@ -78,4 +78,8 @@ export class WoundLibraryDetailComponent implements OnInit {
     const img = ev.target as HTMLImageElement;
     img.style.display = 'none';
   }
+
+  hasPatientEducation(): boolean {
+    return !!(this.wound?.patientEducation?.shortHandout);
+  }
 }
