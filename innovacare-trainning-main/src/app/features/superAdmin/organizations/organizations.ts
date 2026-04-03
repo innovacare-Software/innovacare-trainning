@@ -74,6 +74,11 @@ export class Organizations {
     }
   }
 
+  scrollToForm() {
+    const formElement = document.querySelector('app-organizations');
+    formElement?.scrollIntoView({ behavior: 'smooth' });
+  }
+
   async createWithOwner() {
     if (!this.newOrg.name || !this.newOrg.ownerUid || !this.newOrg.ownerEmail) {
       this.notice.set('Name, owner UID and owner email are required.');

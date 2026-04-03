@@ -30,6 +30,7 @@ export class Dashboard {
     billingActive: 0,
     criticalLogs: 0,
   });
+  healthIndicators = signal<any>({});
 
   async ngOnInit(): Promise<void> {
     try {

@@ -4,18 +4,19 @@
     <p>Manage platform-wide setup, organizations, users, billing, and audit controls.</p>
   </div>
 
+  <!-- Key Metrics -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-value">{{ stats().organizations }}</div>
-      <div class="stat-label">Organizations</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats().users }}</div>
-      <div class="stat-label">Users</div>
+      <div class="stat-label">Total Organizations</div>
     </div>
     <div class="stat-card">
       <div class="stat-value">{{ stats().activeOrganizations }}</div>
       <div class="stat-label">Active Organizations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().users }}</div>
+      <div class="stat-label">Total Users</div>
     </div>
     <div class="stat-card">
       <div class="stat-value">{{ stats().activeUsers }}</div>
@@ -27,39 +28,68 @@
     </div>
     <div class="stat-card">
       <div class="stat-value">{{ stats().criticalLogs }}</div>
-      <div class="stat-label">Critical Logs</div>
+      <div class="stat-label">Critical Alerts</div>
     </div>
   </div>
 
   <div class="grid">
+    <!-- Quick Actions -->
     <section class="card">
-      <h2>Platform overview</h2>
-      <p>Use this area to monitor global platform health, tenant onboarding, and course distribution.</p>
-    </section>
-
-    <section class="card">
-      <h2>Quick actions</h2>
-      <ul>
-        <li> <a href="/super-admin/Organizations">Create organization</a></li>
-        <li>Assign courses to organization</li>
-        <li>Review billing status</li>
-        <li>Check audit logs</li>
+      <h2>Quick Actions</h2>
+      <ul class="action-list">
+        <li><a href="/super-admin/Organizations" class="btn-primary">+ Create Organization</a></li>
+        <li><a href="/super-admin/courses" class="btn-secondary">Assign Courses</a></li>
+        <li><a href="/super-admin/billing" class="btn-secondary">Review Billing</a></li>
+        <li><a href="/super-admin/audit-logs" class="btn-secondary">View Audit Logs</a></li>
       </ul>
     </section>
 
-     <div class="cards">
-    <article class="card" *ngFor="let c of cards">
-      <div class="label">{{ c.label }}</div>
-      <div class="value">{{ c.value }}</div>
-    </article>
+    <!-- System Health -->
+    <section class="card">
+      <h2>System Health</h2>
+      <div class="health-indicators">
+        <div *ngFor="let indicator of healthIndicators" class="health-item">
+          <span class="indicator" [class.healthy]="indicator.status === 'healthy'"></span>
+          <span>{{ indicator.name }}: {{ indicator.status }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="card">
+      <h2>Platform Overview</h2>
+      <p>Monitor global platform health, tenant onboarding, and course distribution.</p>
+      <div class="activity-summary">
+        <p *ngFor="let activity of recentActivities" class="activity-item">{{ activity }}</p>
+      </div>
+    </section>
+
+    <!-- Custom Cards -->
+    <div class="cards" *ngIf="cards && cards.length">
+      <article class="card" *ngFor="let c of cards">
+        <div class="label">{{ c.label }}</div>
+        <div class="value">{{ c.value }}</div>
+      </article>
+    </div>
   </div>
 
+  <!-- System Overview Panel -->
   <div class="panel">
     <h2>System Overview</h2>
-    <p>This area will host global KPIs, recent activity, alerts, and platform health.</p>
+    <div class="overview-content">
+      <div class="overview-section">
+        <h3>Global KPIs</h3>
+        <p>Key performance indicators and metrics tracking platform performance.</p>
+      </div>
+      <div class="overview-section">
+        <h3>Recent Alerts</h3>
+        <p>Critical events and system notifications requiring attention.</p>
+      </div>
+      <div class="overview-section">
+        <h3>Platform Status</h3>
+        <p>Real-time status of all platform components and services.</p>
+      </div>
+    </div>
   </div>
-  </div>
-
-  
 </section>
 

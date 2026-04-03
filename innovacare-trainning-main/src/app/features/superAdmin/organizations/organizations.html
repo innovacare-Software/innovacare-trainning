@@ -1,88 +1,165 @@
 <section class="page">
   <div class="page-head">
-    <h1>Organizations</h1>
-    <p>Manage tenant organizations, owner users, filters, and pagination.</p>
-  </div>
-
-  <div class="panel form-panel">
-    <h2>Create organization + owner</h2>
-
-    <div class="form-grid">
-      <input [(ngModel)]="newOrg.name" placeholder="Organization name" />
-      <input [(ngModel)]="newOrg.orgId" placeholder="Organization ID" />
-      <select [(ngModel)]="newOrg.type">
-        <option value="health">Health</option>
-        <option value="IT">IT</option>
-        <option value="school">School</option>
-      </select>
-      <select [(ngModel)]="newOrg.plan">
-        <option value="free">Free</option>
-        <option value="pro">Pro</option>
-        <option value="enterprise">Enterprise</option>
-      </select>
-
-      <input [(ngModel)]="newOrg.ownerUid" placeholder="Owner UID" />
-      <input [(ngModel)]="newOrg.ownerEmail" placeholder="Owner email" />
-      <input [(ngModel)]="newOrg.ownerDisplayName" placeholder="Owner display name" />
-    </div>
-
-    <div class="actions">
-      <button class="btn primary" (click)="createWithOwner()" [disabled]="loading()">
-        {{ loading() ? 'Creating…' : 'Create organization' }}
+    <div class="head-content">
+      <div>
+        <h1>Organizations</h1>
+        <p>Manage tenant organizations, owner users, filters, and pagination.</p>
+      </div>
+      <button class="btn primary lg" (click)="scrollToForm()">
+        <span>+ New Organization</span>
       </button>
     </div>
-
-    <p class="notice" *ngIf="notice()">{{ notice() }}</p>
   </div>
 
-  <div class="panel">
-    <h2>Search & filters</h2>
-
-    <div class="filters">
-      <input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search name / email / id" />
-      <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
-        <option value="all">All types</option>
-        <option value="health">Health</option>
-        <option value="IT">IT</option>
-        <option value="school">School</option>
-      </select>
-      <select [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)">
-        <option value="all">All plans</option>
-        <option value="free">Free</option>
-        <option value="pro">Pro</option>
-        <option value="enterprise">Enterprise</option>
-      </select>
-      <button class="btn" (click)="applyFilters()">Apply</button>
+  <!-- Create Organization Panel -->
+  <div class="panel form-panel" #formSection>
+    <div class="panel-header">
+      <h2>Create Organization & Owner</h2>
+      <p class="subtitle">Set up a new organization with an owner account</p>
     </div>
-  </div>
 
-  <div class="panel">
-    <h2>Organizations ({{ result().total }})</h2>
-
-    <div class="table">
-      <div class="thead">
-        <div>ID</div>
-        <div>Name</div>
-        <div>Type</div>
-        <div>Plan</div>
-        <div>Owner</div>
+    <div class="form-container">
+      <div class="form-section">
+        <h3>Organization Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Organization Name</label>
+            <input [(ngModel)]="newOrg.name" placeholder="Enter organization name" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Organization ID</label>
+            <input [(ngModel)]="newOrg.orgId" placeholder="Unique identifier" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="newOrg.type" class="form-select">
+              <option value="">Select type</option>
+              <option value="health">Health</option>
+              <option value="IT">IT</option>
+              <option value="school">School</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Plan</label>
+            <select [(ngModel)]="newOrg.plan" class="form-select">
+              <option value="">Select plan</option>
+              <option value="free">Free</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div class="tbody">
-        <div class="tr" *ngFor="let org of result().items">
-          <div>{{ org.id }}</div>
-          <div>{{ org.name }}</div>
-          <div>{{ org.type }}</div>
-          <div>{{ org.plan }}</div>
-          <div>{{ org.ownerEmail || '—' }}</div>
+      <div class="form-section">
+        <h3>Owner Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Owner UID</label>
+            <input [(ngModel)]="newOrg.ownerUid" placeholder="User ID" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Owner Email</label>
+            <input [(ngModel)]="newOrg.ownerEmail" placeholder="owner@example.com" class="form-input" type="email" />
+          </div>
+          <div class="form-group col-span-2">
+            <label>Owner Display Name</label>
+            <input [(ngModel)]="newOrg.ownerDisplayName" placeholder="Full name" class="form-input" />
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="pager">
-      <button class="btn" (click)="prevPage()" [disabled]="page() <= 1">Previous</button>
-      <span>Page {{ page() }}</span>
-      <button class="btn" (click)="nextPage()" [disabled]="result().items.length < pageSize">Next</button>
+    <div class="form-actions">
+      <button class="btn primary" (click)="createWithOwner()" [disabled]="loading()">
+        {{ loading() ? 'Creating…' : 'Create Organization' }}
+      </button>
+      <button class="btn secondary" (click)="resetForm()">Reset</button>
+    </div>
+
+    <div class="alert" [ngClass]="notice() ? 'show' : ''" *ngIf="notice()">
+      <p>{{ notice() }}</p>
+    </div>
+  </div>
+
+  <!-- Search & Filters Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Search & Filters</h2>
+      <p class="subtitle">Find organizations by name, email, or ID</p>
+    </div>
+
+    <div class="filters-container">
+      <div class="search-box">
+        <input 
+          [ngModel]="search()" 
+          (ngModelChange)="search.set($event)" 
+          placeholder="Search name / email / id" 
+          class="form-input" />
+      </div>
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Type</label>
+          <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)" class="form-select">
+            <option value="all">All types</option>
+            <option value="health">Health</option>
+            <option value="IT">IT</option>
+            <option value="school">School</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Plan</label>
+          <select [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)" class="form-select">
+            <option value="all">All plans</option>
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="filter-group action">
+          <button class="btn secondary" (click)="applyFilters()">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Organizations Table Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Organizations <span class="badge">{{ result().total }}</span></h2>
+      <p class="subtitle">Page {{ page() }} • {{ result().items.length }} items</p>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Plan</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let org of result().items" class="table-row">
+            <td class="cell-id">{{ org.id }}</td>
+            <td class="cell-name"><strong>{{ org.name }}</strong></td>
+            <td class="cell-type"><span class="tag" [ngClass]="org.type">{{ org.type }}</span></td>
+            <td class="cell-plan"><span class="badge badge-plan" [ngClass]="org.plan">{{ org.plan }}</span></td>
+            <td class="cell-owner">{{ org.ownerEmail || '—' }}</td>
+          </tr>
+          <tr *ngIf="!result().items.length" class="empty-row">
+            <td colspan="5" class="text-center">No organizations found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button class="btn secondary" (click)="prevPage()" [disabled]="page() <= 1">← Previous</button>
+      <span class="page-info">Page <strong>{{ page() }}</strong></span>
+      <button class="btn secondary" (click)="nextPage()" [disabled]="result().items.length < pageSize">Next →</button>
     </div>
   </div>
 </section>
