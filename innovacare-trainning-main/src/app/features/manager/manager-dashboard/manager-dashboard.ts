@@ -16,7 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 
 /* ----------------- Types ----------------- */
-type KPI = { completion30: string; overdue: number; avgScore: string };
+type KPI = { completion30: string; overdue: number; avgScore: string; totalLearners: number };
 
 type AssignmentRow = {
   id: string; // courseId
@@ -228,12 +228,13 @@ export class ManagerDashboardComponent {
         completion30: `${completionPct}%`,
         overdue,
         avgScore: String(avgScorePct),
+        totalLearners: rows.length,
       } satisfies KPI;
     })
   );
 
   kpi = toSignal(this.kpi$, {
-    initialValue: { completion30: '0%', overdue: 0, avgScore: '0' },
+    initialValue: { completion30: '0%', overdue: 0, avgScore: '0', totalLearners: 0 },
   });
 
   /* ----------- Open Assignments (group by course) ----------- */
@@ -334,7 +335,7 @@ export class ManagerDashboardComponent {
   private overdueAlerts$ = combineLatest([this.rows$, this.users$]).pipe(
     map(([rows, users]) => {
       const now = nowMs();
-      const alerts: Array<{ uid: string; user: string; email: string; course: string; due: string; dueTs: number }> = [];
+      const alerts: Array<{ uid: string; user: string; email: string; course: string; due: string; dueTs: number; overdueDays: number }> = [];
 
       for (const { enr, course } of rows) {
         if (enr.status === 'completed') continue;
@@ -350,6 +351,7 @@ export class ManagerDashboardComponent {
 
         const uid = safeStr(enr.uid);
         const u = uid ? users.get(uid) : undefined;
+        const overdueDays = Math.floor((now - dueTs) / DAY);
 
         alerts.push({
           uid: uid || '(unknown)',
@@ -358,6 +360,7 @@ export class ManagerDashboardComponent {
           course: safeStr(course?.title) || enr.courseId,
           due: fmtDateShort(dueTs),
           dueTs,
+          overdueDays,
         });
       }
 

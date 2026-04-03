@@ -7,6 +7,7 @@ import {
   FormArray,
   FormControl,
   FormGroup,
+  FormsModule,
 } from '@angular/forms';
 
 import { CoursesRepo } from '../../../data/courses.repo';
@@ -80,7 +81,7 @@ type SectionForm = FormGroup<{
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DragDropModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DragDropModule],
   templateUrl: './courses.html',
   styleUrl: './courses.css',
 })
@@ -93,6 +94,9 @@ export class Courses {
   editId: string | null = null;
   loadingEdit = false;
   duplicatingId: string | null = null;
+  currentStep = 1;
+  searchTerm = '';
+  sortBy = 'newest';
 
   form = this.fb.group({
     title: this.fb.control<string>('', {
@@ -991,6 +995,37 @@ return {
   }
 
   trackById = (_: number, c: Course) => c.id ?? c.title;
+
+  getFilteredAndSortedCourses() {
+    const courses = this.courses() ?? [];
+    
+    // Filter by search term
+    let filtered = courses.filter((c) => {
+      const searchLower = this.searchTerm.toLowerCase();
+      return (
+        (c.title ?? '').toLowerCase().includes(searchLower) ||
+        (c.description ?? '').toLowerCase().includes(searchLower) ||
+        (c.subtitle ?? '').toLowerCase().includes(searchLower)
+      );
+    });
+
+    // Sort by selected option
+    if (this.sortBy === 'newest') {
+      filtered.sort((a, b) => 
+        new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+      );
+    } else if (this.sortBy === 'oldest') {
+      filtered.sort((a, b) => 
+        new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()
+      );
+    } else if (this.sortBy === 'title') {
+      filtered.sort((a, b) => 
+        (a.title ?? '').localeCompare(b.title ?? '')
+      );
+    }
+
+    return filtered;
+  }
 
   open(c: Course) {
     this.router.navigate(['/manager/courses', c.id, 'extras']);

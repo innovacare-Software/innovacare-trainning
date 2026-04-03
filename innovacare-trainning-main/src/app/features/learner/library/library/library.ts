@@ -1,19 +1,20 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, Pipe } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CoursesRepo } from '../../../../data/courses.repo';
 import { Course } from '../../../../data/models';
-import { addDoc, collection, Firestore } from '@angular/fire/firestore';
+import { KeyValuePipe, NgForOf, NgIf } from '@angular/common';
 
 
 @Component({
   selector: 'learner-library',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, KeyValuePipe, NgForOf, NgIf],
   templateUrl: './library.html',
   styleUrl: './library.css'
 })
+
 export class Library {
   private repo = inject(CoursesRepo);
   private router = inject(Router);
@@ -23,14 +24,14 @@ export class Library {
 
   // UI state
   query = signal('');
-  lang = signal<'all'|'en'|'fr'|'es'>('all');
+  lang = signal<'all'|'en'|'fr'|'es'|'EN'|'FR'|'ES'>('all');
 
   // derived view
   view = computed(() => {
     const q = this.query().trim().toLowerCase();
     const lg = this.lang();
     return this.list()
-      .filter(c => (lg === 'all'))
+      .filter(c => (lg === 'all' || (c as any).language === lg))
       .filter(c => !q ? true :
         c.title.toLowerCase().includes(q) ||
         (c.tags ?? []).some(t => t.toLowerCase().includes(q)) ||

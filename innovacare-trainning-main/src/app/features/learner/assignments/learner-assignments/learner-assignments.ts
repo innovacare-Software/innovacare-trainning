@@ -1,13 +1,13 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { Firestore, collection, collectionData, doc, docData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, doc, docData, query, where, orderBy } from '@angular/fire/firestore';
 import { Auth, authState } from '@angular/fire/auth';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { combineLatest, map, of, switchMap } from 'rxjs';
+import { combineLatest, map, of, switchMap, debounceTime, distinctUntilChanged } from 'rxjs';
 
 /* If you don't want an extra lib, use this tiny UID helper instead of uuid: */
 function tinyUid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
@@ -89,7 +89,7 @@ export class LearnerAssignments {
   query = this._query.asReadonly();
 
   setTab(t: TabKey) { this._tab.set(t); }
-  
+  setSortBy(v: SortKey) { this._sortBy.set(v); }
 
   // ----------------- Data (Firestore → assignments) -----------------
   private assignments$ = authState(this.auth).pipe(
@@ -221,13 +221,15 @@ export class LearnerAssignments {
   // ----------------- Helpers for template -----------------
   formatDuration(min: number) { return `${min} min`; }
 
-  isOverdue(a: Assignment) {
+  isOverdue(a: Assignment | null) {
+    if (!a) return false;
     // ✅ overdue applies ONLY for active items
     if (a.status === 'completed') return false;
     return !!(a.dueDate && new Date(a.dueDate).getTime() < Date.now());
   }
 
-  labelDue(a: Assignment) {
+  labelDue(a: Assignment | null) {
+    if (!a) return '';
     if (a.status === 'completed') {
       if (!a.completedAt) return 'Completed';
       return `Completed ${new Date(a.completedAt).toLocaleDateString()}`;
@@ -241,6 +243,37 @@ export class LearnerAssignments {
   openMenuId = signal<string | null>(null);
   toggleMenu(id: string) { this.openMenuId.set(this.openMenuId() === id ? null : id); }
   closeMenu() { this.openMenuId.set(null); }
+
+  // ----------------- Modal Details -----------------
+  showModal = signal<boolean>(false);
+  selectedAssignment = signal<Assignment | null>(null);
+  calendarAssignment = signal<Assignment | null>(null);
+
+  openModal(a: Assignment) {
+    this.calendarAssignment.set(null);
+    this.selectedAssignment.set(a);
+    this.showModal.set(true);
+  }
+
+  closeModal() {
+    this.showModal.set(false);
+    this.selectedAssignment.set(null);
+  }
+
+  closeCalendarModal() {
+    this.calendarAssignment.set(null);
+  }
+
+  addToGoogleCalendar(a: Assignment) {
+    const url = this.getGoogleCalUrl(a);
+    window.open(url, '_blank');
+    this.closeCalendarModal();
+  }
+
+  addToCalendar(a: Assignment | null) {
+    if (!a) return;
+    this.addToGoogleCalendar(a);
+  }
 
   private toIcsDate(d: Date): string {
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -332,4 +365,56 @@ export class LearnerAssignments {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
   }
+
+  // --------- ICS Content Helper ---------
+  getIcsContent(a: Assignment): string {
+    const title = a.courseName || 'Training';
+    const desc = `${a.kind} – assigned course`;
+    const start = a.dueDate ? new Date(a.dueDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const end = new Date(start.getTime() + this.minutesOrDefault(a.durationMin) * 60 * 1000);
+
+    const dtStamp = this.toIcsDate(new Date());
+    const dtStart = this.toIcsDate(start);
+    const dtEnd = this.toIcsDate(end);
+
+    const uid = `${a.id}-${tinyUid()}@innovacare`;
+
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Innovacare//Learner//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${dtStamp}`,
+      `DTSTART:${dtStart}`,
+      `DTEND:${dtEnd}`,
+      `SUMMARY:${this.escapeIcsText(title)}`,
+      `DESCRIPTION:${this.escapeIcsText(desc)}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    return ics;
+  }
+
+  encodeURIComponent(s: string): string {
+    return globalThis.encodeURIComponent(s);
+  }
+
+  copyCalendarLink(a: Assignment) {
+    const url = this.getGoogleCalUrl(a);
+    navigator.clipboard.writeText(url).then(() => {
+      this.closeMenu();
+    });
+  }
+
+  openCalendarModal(a: Assignment) {
+    this.showModal.set(false);
+    this.selectedAssignment.set(null);
+    this.calendarAssignment.set(a);
+    this.closeMenu();
+  }
+
 }

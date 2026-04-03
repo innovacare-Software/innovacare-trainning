@@ -1,175 +1,749 @@
-/* Layout for filters (sort + search) */
-.sort,
-.search {
-  display: inline-flex;
-  align-items: center;
-  margin: 0.5rem 1rem 1rem 0;
-  gap: 0.5rem;
+/* ============================================
+   ASSIGNMENTS CONTAINER & HEADER
+   ============================================ */
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
 }
 
-.sort label {
-  font-weight: 600;
-  font-size: 0.9rem;
+.assignments-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.6s ease-out;
 }
 
-.sort select,
-.search input {
-  padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  min-width: 160px;
+.assignments-header h1 {
+  font-size: 2.5rem;
+  color: white;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.search input {
-  width: 220px;
+.subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
 }
 
-/* Tiny button for sort direction */
-.btn.tiny {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8rem;
-  line-height: 1;
-  border-radius: 4px;
-}
-
-/* Assignment card */
-.assignment.card {
+/* ============================================
+   CONTROLS BAR
+   ============================================ */
+.controls-bar {
   display: flex;
-  align-items: stretch;
-  border: 1px solid #e3e3e3;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
 }
 
-.assignment.card:hover {
+.search-wrapper {
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   transform: translateY(-2px);
 }
 
-.assignment .bar {
-  width: 6px;
-  background: linear-gradient(to bottom, #4e8cff, #1e4ed8);
+.search-input::placeholder {
+  color: #999;
 }
 
-.assignment .body {
-  flex: 1;
-  padding: 1rem;
+.sort-wrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-.assignment .title {
-  font-size: 1rem;
+.sort-label {
+  color: white;
   font-weight: 600;
-  margin-bottom: 0.3rem;
+  white-space: nowrap;
 }
 
-.assignment .meta {
-  font-size: 0.85rem;
+.sort-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sort-select:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: white;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-sort-direction {
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-sort-direction:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite;
+}
+
+.empty-state h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
   color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ============================================
+   ASSIGNMENTS LIST & CARDS
+   ============================================ */
+.assignments-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.assignment-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-left: 5px solid #667eea;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.assignment-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.3);
+}
+
+.assignment-card.urgent {
+  border-left-color: #ff6b6b;
+  background: linear-gradient(135deg, white 0%, rgba(255, 107, 107, 0.05) 100%);
+}
+
+.assignment-card.urgent:hover {
+  box-shadow: 0 15px 50px rgba(255, 107, 107, 0.3);
+}
+
+/* ============================================
+   CARD HEADER
+   ============================================ */
+.card-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f1f5 100%);
+  border-bottom: 1px solid #e8eaf6;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ddd;
+  transition: all 0.3s ease;
+}
+
+.status-indicator.not-started {
+  background: #ffc107;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+}
+
+.status-indicator.in-progress {
+  background: #667eea;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.assignment-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   CARD BODY
+   ============================================ */
+.card-body {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.meta-info {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.due-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f0f7ff;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.due-section.overdue {
+  background: #fff5f5;
+  border-left-color: #ff6b6b;
+}
+
+.due-icon {
+  font-size: 1.25rem;
+}
+
+.due-text {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* ============================================
+   CARD FOOTER & BUTTONS
+   ============================================ */
+.card-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #e8eaf6;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 0.95rem;
 }
 
-.assignment .meta .icon {
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  flex: 1;
+  justify-content: center;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+}
+
+.btn-secondary {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.btn-text {
+  font-size: 0.9rem;
+}
+
+.calendar-dropdown-wrapper {
+  position: relative;
+}
+
+.calendar-btn {
+  flex: 1;
+}
+
+/* ============================================
+   CALENDAR DROPDOWN MENU
+   ============================================ */
+.calendar-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e8eaf6;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 1001;
+  min-width: 220px;
+  margin-top: 0.5rem;
+  animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.calendar-menu-header {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid #e8eaf6;
+}
+
+.calendar-menu-title {
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.calendar-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.calendar-menu-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  padding-left: 1.5rem;
+}
+
+.calendar-menu-icon {
+  font-size: 1.1rem;
+}
+
+.calendar-menu-label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.calendar-menu-external {
+  font-size: 0.9rem;
+  color: #999;
+  transition: all 0.3s ease;
+}
+
+.calendar-menu-item:hover .calendar-menu-external {
+  color: #667eea;
+}
+
+/* ============================================
+   LINK SECONDARY
+   ============================================ */
+.link-secondary {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.link-secondary:hover {
+  color: #764ba2;
+  gap: 0.75rem;
+}
+
+.link-icon {
   font-size: 1rem;
 }
 
-.assignment .meta .dot::before {
-  content: "•";
-  margin: 0 0.25rem;
-  color: #aaa;
-}
-
-/* Right side actions */
-.assignment .side {
+/* ============================================
+   MODAL OVERLAY & CONTENT
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
   padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================
+   MODAL HEADER
+   ============================================ */
+.modal-header {
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-  min-width: 200px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e8eaf6;
 }
 
-.assignment .due {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #444;
+.modal-header h2 {
+  font-size: 1.8rem;
+  margin: 0;
+  flex: 1;
 }
 
-.assignment .due.overdue {
-  color: #d9534f;
-  font-weight: 600;
-}
-
-.assignment .actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.assignment .btn {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  border-radius: 6px;
+.modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
-  border: none;
-  transition: background 0.2s ease;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-weight: 300;
 }
 
-.assignment .btn.primary {
-  background: #1e4ed8;
-  color: #fff;
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
 }
 
-.assignment .btn.outline {
-  border: 1px solid #ccc;
-  background: #fff;
+/* ============================================
+   MODAL BODY
+   ============================================ */
+.modal-body {
+  padding: 2rem;
 }
 
-.assignment .btn.ghost {
-  background: transparent;
-  color: #444;
+.detail-section {
+  margin-bottom: 2rem;
 }
 
-.assignment .more {
-  font-size: 0.8rem;
-  text-decoration: none;
-  margin-top: 0.3rem;
+.detail-section h3 {
+  font-size: 1.4rem;
+  color: #333;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #667eea;
 }
 
-.assignment .more:hover {
-  text-decoration: underline;
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
 }
 
-/* Dropdown placeholder */
-/* learner-assignments.css */
-.dropdown { position: relative; display: block; }
-.dropdown .menu {
-  position: absolute; right: 0; top: 110%;
-  background: #fff; border: 1px solid #e6e6e6; border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  min-width: 220px; padding: 6px; z-index: 10;
+.detail-row:hover {
+  background: #f0f1f5;
+  transform: translateX(4px);
 }
-.menu-item {
-  display: block; width: 100%; text-align: left;
-  background: none; border: none; padding: 10px 12px; cursor: pointer;
-  text-decoration: none; color: inherit; border-radius: 6px;
+
+.detail-label {
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
-.menu-item:hover { background: #f5f5f5; }
 
+.detail-value {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
 
-/* Responsive adjustments */
+.detail-value.overdue {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+/* ============================================
+   MODAL FOOTER
+   ============================================ */
+.modal-footer {
+  padding: 2rem;
+  border-top: 1px solid #e8eaf6;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-footer .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
 @media (max-width: 768px) {
-  .assignment.card {
+  .assignments-header h1 {
+    font-size: 2rem;
+  }
+
+  .controls-bar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .search-wrapper,
+  .sort-wrapper {
+    width: 100%;
+  }
+
+  .sort-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sort-select,
+  .btn-sort-direction {
+    width: 100%;
+  }
+
+  .assignments-list {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1.5rem;
+  }
+
+  .modal-body,
+  .modal-footer {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
     flex-direction: column;
   }
-  .assignment .side {
-    align-items: flex-start;
-    min-width: auto;
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .btn-primary {
     width: 100%;
   }
 }
 
+@media (max-width: 480px) {
+  .assignments-header h1 {
+    font-size: 1.5rem;
+  }
 
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: 1rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+}

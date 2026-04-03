@@ -1,30 +1,66 @@
 <div class="player container" [class.sidebar-collapsed]="!sidebarOpen">
-  <div class="crumbs">
-    <div class="crumbs-left">
-      <button class="btn soft" type="button" (click)="backToCourse()">‹ Back to course</button>
-    </div>
+  <!-- Navigation Header -->
+  <nav class="navbar" role="navigation" aria-label="Course navigation">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <button class="btn btn-ghost btn-icon" type="button" (click)="backToCourse()" title="Back to course">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Back to course
+        </button>
+      </div>
 
-    <div class="crumbs-right">
-      <button
-        class="btn soft icon"
-        type="button"
-        (click)="toggleSidebar()"
-        aria-controls="lessonSidebar"
-        [attr.aria-expanded]="sidebarOpen"
-      >
-        ☰ Lessons
-      </button>
+      <div class="navbar-center">
+        <h1 class="navbar-title">{{ course().title || 'Course' }}</h1>
+      </div>
+
+      <div class="navbar-right">
+        <button
+          class="btn btn-ghost btn-icon"
+          type="button"
+          (click)="toggleSidebar()"
+          aria-controls="lessonSidebar"
+          [attr.aria-expanded]="sidebarOpen"
+          title="Toggle lessons panel"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          Lessons
+        </button>
+      </div>
     </div>
-  </div>
+  </nav>
 
   <div class="backdrop" *ngIf="sidebarOpen" (click)="sidebarOpen = false" aria-hidden="true"></div>
 
-  <header class="header">
-    <h1 class="title">{{ course().title || 'Course' }}</h1>
-    <div class="muted">
-      <span *ngIf="course().subtitle">{{ course().subtitle }}</span>
-      <span *ngIf="course().durationMin"> · {{ course().durationMin }} min</span>
-      <span *ngIf="course().lang"> · {{ course().lang }}</span>
+  <!-- Course Header Info -->
+  <header class="course-header">
+    <div class="course-header-content">
+      <h2 class="course-header-title">{{ course().title || 'Course' }}</h2>
+      <div class="course-header-meta">
+        <span *ngIf="course().subtitle" class="meta-item">{{ course().subtitle }}</span>
+        <span *ngIf="course().durationMin" class="meta-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          {{ course().durationMin }} min
+        </span>
+        <span *ngIf="course().lang" class="meta-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          {{ course().lang }}
+        </span>
+      </div>
     </div>
   </header>
 

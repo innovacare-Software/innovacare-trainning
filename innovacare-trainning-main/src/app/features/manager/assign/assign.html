@@ -1,38 +1,89 @@
-<section class="card">
-    <h2>Assign courses</h2>
+<section class="card modern-assign">
+    <div class="header">
+      <h1>Assign Courses</h1>
+      <p class="subtitle">Select users and courses to assign</p>
+    </div>
 
-    <div class="grid">
-      <div>
-        <h3>Users</h3>
-        <input type="search" placeholder="Search users"
-          [ngModel]="uQuery()" (ngModelChange)="uQuery.set($event)" />
-        <div class="list">
-          <label *ngFor="let u of filteredUsers()">
+    <div class="grid-modern">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Users</h3>
+          <span class="badge">{{ selectedUsers().size }}</span>
+        </div>
+        <div class="search-box">
+          <input type="search" placeholder="Search users…"
+            [ngModel]="uQuery()" (ngModelChange)="uQuery.set($event)" />
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </div>
+        <div class="list-modern">
+          <div *ngIf="filteredUsers().length === 0" class="empty-state">
+            <p>No users found</p>
+          </div>
+          <label *ngFor="let u of filteredUsers()" class="list-item">
             <input type="checkbox" [checked]="selectedUsers().has(u.id)" (change)="toggleUser(u.id, $event.target.checked)" />
-            {{ u.displayName || u.email || u.id }} <span class="muted">({{ u.role || 'n/a' }})</span>
+            <div class="item-content">
+              <span class="item-name">{{ u.displayName || u.email || u.id }}</span>
+              <span class="item-meta">{{ u.role || 'n/a' }}</span>
+            </div>
           </label>
         </div>
       </div>
 
-      <div>
-        <h3>Courses</h3>
-        <input type="search" placeholder="Search courses"
-          [ngModel]="cQuery()" (ngModelChange)="cQuery.set($event)" />
-        <div class="list">
-          <label *ngFor="let c of filteredCourses()">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Courses</h3>
+          <span class="badge">{{ selectedCourses().size }}</span>
+        </div>
+        <div class="search-box">
+          <input type="search" placeholder="Search courses…"
+            [ngModel]="cQuery()" (ngModelChange)="cQuery.set($event)" />
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </div>
+        <div class="list-modern">
+          <div *ngIf="filteredCourses().length === 0" class="empty-state">
+            <p>No courses found</p>
+          </div>
+          <label *ngFor="let c of filteredCourses()" class="list-item">
             <input type="checkbox" [checked]="selectedCourses().has(c.id)" (change)="toggleCourse(c.id, $event.target.checked)" />
-            {{ c.title || c.id }} <span class="muted">({{ c.kind || 'Course' }})</span>
-            <span *ngIf="c.active===false" class="muted">• inactive</span>
+            <div class="item-content">
+              <span class="item-name">{{ c.title || c.id }}</span>
+              <span class="item-meta">
+                {{ c.kind || 'Course' }}
+                <span *ngIf="c.active===false" class="status-inactive">inactive</span>
+              </span>
+            </div>
           </label>
         </div>
       </div>
     </div>
 
-    <div class="actions">
+    <div class="footer">
+      <div class="notice-area">
+        <div *ngIf="notice()" [class.notice-success]="!error()" [class.notice-error]="error()" class="notice">
+          {{ notice() }}
+        </div>
+      </div>
       <button class="btn primary" [disabled]="busy() || selectedUsers().size===0 || selectedCourses().size===0"
               (click)="assign()">
-        {{ busy() ? 'Assigning…' : 'Assign selected' }}
+        <span *ngIf="!busy()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 8px;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Assign Selected
+        </span>
+        <span *ngIf="busy()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; animation: spin 1s linear infinite; margin-right: 8px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+          Assigning…
+        </span>
       </button>
-      <span *ngIf="notice()" [class.error]="error()">{{ notice() }}</span>
     </div>
   </section>

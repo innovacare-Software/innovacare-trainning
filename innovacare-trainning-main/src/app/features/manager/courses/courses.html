@@ -1,132 +1,177 @@
 <!-- Create / Edit Course -->
 <form class="card form" [formGroup]="form" (ngSubmit)="save()">
-  <h2>{{ editId ? 'Edit Course' : 'Create Course' }}</h2>
-
-  <div class="row">
-    <label>Title</label>
-    <input formControlName="title" placeholder="Course title" />
-    <div class="err" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
-      Title is required (min 3)
+  <div class="form-header">
+    <h2>{{ editId ? 'Edit Course' : 'Create Course' }}</h2>
+    <p class="form-subtitle">{{ editId ? 'Update your course details' : 'Create a new educational course' }}</p>
+    
+    <!-- Step Indicator (only for create) -->
+    <div *ngIf="!editId" class="step-indicator">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <span class="step-num">1</span>
+        <span class="step-label">Basic Info</span>
+      </div>
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+        <span class="step-num">2</span>
+        <span class="step-label">Configuration</span>
+      </div>
+      <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+        <span class="step-num">3</span>
+        <span class="step-label">Media & Metadata</span>
+      </div>
+      <div class="step" [class.active]="currentStep === 4" [class.completed]="currentStep > 4">
+        <span class="step-num">4</span>
+        <span class="step-label">Content</span>
+      </div>
     </div>
   </div>
 
-  <div class="row">
-    <label>Subtitle</label>
-    <input formControlName="subtitle" placeholder="Short subtitle" />
-  </div>
-
-  <div class="row">
-    <label>Description</label>
-    <textarea formControlName="description" rows="3" placeholder="Short description"></textarea>
-  </div>
-
-  <div class="row grid">
-    <div>
-      <label>Language</label>
-      <select formControlName="lang">
-        <option value="EN">EN</option>
-        <option value="FR">FR</option>
-        <option value="ES">ES</option>
-      </select>
+  <!-- Step 1: Basic Information -->
+  <div *ngIf="editId || currentStep === 1" class="form-step">
+  <fieldset class="form-section">
+    <legend>Basic Information</legend>
+    
+    <div class="row">
+      <label for="title">Title *</label>
+      <input id="title" formControlName="title" placeholder="Enter course title" aria-required="true" />
+      <div class="err" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
+        Title is required (minimum 3 characters)
+      </div>
     </div>
 
-    <div>
-      <label>Duration (min)</label>
-      <input type="number" formControlName="durationMin" />
+    <div class="row">
+      <label for="subtitle">Subtitle</label>
+      <input id="subtitle" formControlName="subtitle" placeholder="Short subtitle for course preview" />
     </div>
 
-    <div>
-      <label>CE Credit</label>
-      <input type="number" formControlName="ceCredit" />
+    <div class="row">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="3" placeholder="Provide a comprehensive course description"></textarea>
+    </div>
+  </fieldset>
+
+  <!-- Course Configuration Section -->
+  <fieldset class="form-section">
+    <legend>Course Configuration</legend>
+    
+    <div class="row grid">
+      <div>
+        <label for="lang">Language</label>
+        <select id="lang" formControlName="lang">
+          <option value="">Select language</option>
+          <option value="EN">English</option>
+          <option value="FR">Français</option>
+          <option value="ES">Español</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="kind">Type</label>
+        <select id="kind" formControlName="kind">
+          <option value="">Select type</option>
+          <option value="Course">Course</option>
+          <option value="Text">Text</option>
+          <option value="Module">Module</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="type">Category</label>
+        <select id="type" formControlName="type">
+          <option value="">Select category</option>
+          <option value="Health">Health</option>
+          <option value="It">Information Technology</option>
+          <option value="Hr">Human Resources</option>
+          <option value="safety">Safety</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="durationMin">Duration (minutes)</label>
+        <input id="durationMin" type="number" formControlName="durationMin" min="0" />
+      </div>
     </div>
 
-    <div>
-      <label>Kind</label>
-      <select formControlName="kind">
-        <option value="Course">Course</option>
-        <option value="Text">Text</option>
-        <option value="Module">Module</option>
-      </select>
+    <div class="row grid">
+      <div>
+        <label for="ceCredit">CE Credit</label>
+        <input id="ceCredit" type="number" formControlName="ceCredit" min="0" step="0.5" />
+      </div>
+
+      <div>
+        <label for="passingScore">Passing Score (%)</label>
+        <input id="passingScore" type="number" formControlName="passingScore" min="0" max="100" />
+      </div>
+
+      <div class="check">
+        <label><input type="checkbox" id="active" formControlName="active" /> Active</label>
+      </div>
+
+      <div class="check">
+        <label><input type="checkbox" id="isPublic" formControlName="isPublic" /> Public Course</label>
+      </div>
+
+      <div class="check">
+        <label><input type="checkbox" id="lockedSequence" formControlName="lockedSequence" /> Locked Sequence</label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Instructor & Media Section -->
+  <fieldset class="form-section">
+    <legend>Instructor & Media</legend>
+    
+    <div class="row grid">
+      <div>
+        <label for="lecturer">Lecturer/Instructor</label>
+        <input id="lecturer" formControlName="lecturer" placeholder="Instructor name" />
+      </div>
+
+      <div>
+        <label for="url">Canonical URL</label>
+        <input id="url" type="url" formControlName="url" placeholder="https://example.com/course" />
+      </div>
     </div>
 
-    <div class="check">
-      <label><input type="checkbox" formControlName="active" /> Active</label>
+    <div class="row">
+      <label for="imageUrl">Course Image URL</label>
+      <input id="imageUrl" type="url" formControlName="imageUrl" placeholder="https://example.com/image.jpg" />
     </div>
-  </div>
+  </fieldset>
 
-  <div class="row grid">
-    <div>
-      <label>Course Type</label>
-      <select formControlName="type">
-        <option value="Health">Health</option>
-        <option value="It">IT</option>
-        <option value="Hr">HR</option>
-        <option value="safety">Safety</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Lecturer</label>
-      <input formControlName="lecturer" placeholder="Instructor / lecturer" />
+  <!-- Metadata Section -->
+  <fieldset class="form-section">
+    <legend>Metadata & Audience</legend>
+    
+    <div class="row">
+      <label for="tagsText">Tags (comma separated)</label>
+      <input id="tagsText" formControlName="tagsText" placeholder="e.g., ethics, nursing, safety, compliance" />
     </div>
 
-    <div>
-      <label>Canonical URL</label>
-      <input formControlName="url" placeholder="https://…" />
+    <div class="row">
+      <label for="disclosuresText">Disclosures (comma separated)</label>
+      <input id="disclosuresText" formControlName="disclosuresText" placeholder="e.g., no conflicts, vendor disclosure" />
     </div>
 
-    <div>
-      <label>Passing Score (%)</label>
-      <input type="number" formControlName="passingScore" />
+    <div class="row">
+      <label for="targetAudienceText">Target Audience (comma separated)</label>
+      <input id="targetAudienceText" formControlName="targetAudienceText" placeholder="e.g., RN, LPN, CNA, NP" />
     </div>
 
-    <div class="check">
-      <label><input type="checkbox" formControlName="lockedSequence" /> Locked sequence</label>
+    <div class="row">
+      <label for="prerequisitesText">Prerequisites (comma separated)</label>
+      <input id="prerequisitesText" formControlName="prerequisitesText" placeholder="e.g., HIPAA training, basic wound care" />
     </div>
 
-    <div class="check">
-      <label><input type="checkbox" formControlName="isPublic" /> Public course</label>
+    <div class="row">
+      <label for="requirementsText">Requirements (comma separated)</label>
+      <input id="requirementsText" formControlName="requirementsText" placeholder="e.g., Internet, computer, speakers, camera" />
     </div>
-  </div>
 
-  <div class="row">
-    <label>Image URL</label>
-    <input formControlName="imageUrl" placeholder="https://…" />
-  </div>
-
-  <div class="row">
-    <label>Tags (comma separated)</label>
-    <input formControlName="tagsText" placeholder="ethics, nursing, safety" />
-  </div>
-
-  <div class="row">
-    <label>Disclosures (comma separated)</label>
-    <input formControlName="disclosuresText" placeholder="none, conflict of interest" />
-  </div>
-
-  <div class="row">
-    <label>Target audience (comma separated)</label>
-    <input formControlName="targetAudienceText" placeholder="RN, LPN, CNA, NP" />
-  </div>
-
-  <div class="row">
-    <label>Prerequisites (comma separated)</label>
-    <input formControlName="prerequisitesText" placeholder="HIPAA, basic wound care" />
-  </div>
-
-  <div class="row">
-    <label>Requirements (comma separated)</label>
-    <input formControlName="requirementsText" placeholder="Internet, computer, speakers" />
-  </div>
-
-  <div class="row">
-    <label>Accommodations</label>
-    <textarea
-      formControlName="accomodations"
-      rows="3"
-      placeholder="Accessibility / accommodations information"
-    ></textarea>
-  </div>
+    <div class="row">
+      <label for="accomodations">Accommodations & Accessibility</label>
+      <textarea id="accomodations" formControlName="accomodations" rows="3" placeholder="Describe accessibility features and accommodations offered"></textarea>
+    </div>
+  </fieldset>
 
   <!-- Sections (Drag & Drop) -->
   <div class="row">
@@ -417,13 +462,27 @@
 
     <span *ngIf="loadingEdit" class="muted">Loading…</span>
   </div>
+  </div> <!-- /form-step -->
 </form>
 
 <!-- Existing courses -->
 <section class="list">
   <h3>Courses</h3>
 
-  <div class="card item" *ngFor="let c of courses(); trackBy: trackById">
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center;">
+    <input type="text" placeholder="Search courses..." [(ngModel)]="searchTerm" style="flex:1; min-width:200px; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+    
+    <select [(ngModel)]="sortBy" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+      <option value="title">Title A-Z</option>
+      <option value="titleDesc">Title Z-A</option>
+      <option value="duration">Duration (Low to High)</option>
+      <option value="durationDesc">Duration (High to Low)</option>
+    </select>
+  </div>
+
+  <div class="card item" *ngFor="let c of getFilteredAndSortedCourses() | slice:0:5; trackBy: trackById">
     <div class="title">{{ c.title }}</div>
 
     <div class="meta">
@@ -458,5 +517,5 @@
     </div>
   </div>
 
-  <p *ngIf="!courses().length" class="muted">No courses yet.</p>
+  <p *ngIf="!getFilteredAndSortedCourses().length" class="muted">No courses found.</p>
 </section>

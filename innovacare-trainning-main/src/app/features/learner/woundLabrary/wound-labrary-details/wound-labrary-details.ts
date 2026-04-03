@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { WoundType } from '../../../manager/wound.model';
 import { WoundService } from '../../../manager/services/wound-service';
+import { MatChip, MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-wound-library-detail',
@@ -24,6 +25,8 @@ import { WoundService } from '../../../manager/services/wound-service';
     MatButtonModule,
     MatListModule,
     MatProgressSpinnerModule,
+    MatChipsModule,
+
     
   ],
   templateUrl: './wound-labrary-details.html',
@@ -67,7 +70,7 @@ export class WoundLibraryDetailComponent implements OnInit {
 
   selectThumbnail(i: number) {
     // guard against invalid index or missing images
-    if (!this.wound?.images) return;
+    if (!this.wound || !this.wound.images) return;
     if (i >= 0 && i < this.wound.images.length) this.selected = i;
   }
 

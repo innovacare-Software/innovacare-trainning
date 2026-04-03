@@ -1,13 +1,13 @@
 <div class="shell" [class.side-hidden]="!sidebarOpen()">
   <!-- TOP BAR -->
-  <header class="topbar">
+  <header class="topbar" role="banner">
     <button
       class="menu-toggle"
       type="button"
       (click)="toggleSidebar()"
       [attr.aria-expanded]="sidebarOpen()"
-      aria-label="Toggle menu">
-      ☰
+      aria-label="Toggle navigation menu">
+      <span aria-hidden="true">☰</span>
     </button>
 
     <div class="brand">
@@ -15,10 +15,10 @@
     </div>
 
     <div class="top-actions">
-      <span class="role">Learner</span>
-      <div class="avatar" title="Profile"></div>
-      <app-notification-bell-plain></app-notification-bell-plain>
-      <button class="btn logout" type="button" (click)="logout()">Logout</button>
+      <span class="role" aria-label="User role">Learner</span>
+      <button class="avatar" type="button" aria-label="User profile" title="Profile"></button>
+      <app-notification-bell-plain aria-label="Notifications"></app-notification-bell-plain>
+      <button class="btn logout" type="button" (click)="logout()" aria-label="Logout from system">Logout</button>
     </div>
   </header>
 
@@ -26,10 +26,12 @@
   <aside
     class="sidebar"
     [class.open]="sidebarOpen()"
-    [attr.aria-hidden]="!sidebarOpen()">
-    <nav class="menu" aria-label="Primary">
+    [attr.aria-hidden]="!sidebarOpen()"
+    role="navigation"
+    aria-label="Main navigation">
+    <nav class="menu">
       <div class="menu-group">
-        <div class="menu-title">Overview</div>
+        <h2 class="menu-title">Overview</h2>
 
         <a
           *ngFor="let l of links"
@@ -42,7 +44,7 @@
       </div>
 
       <div class="menu-group">
-        <div class="menu-title">Resources</div>
+        <h2 class="menu-title">Resources</h2>
 
         <a
           *ngFor="let r of resources"
@@ -52,8 +54,6 @@
           (click)="onNavClick()">
           {{ r.label }}
         </a>
-
-        <app-notification-bell-plain></app-notification-bell-plain>
       </div>
     </nav>
   </aside>
@@ -62,11 +62,12 @@
   <div
     class="backdrop"
     *ngIf="isMobile() && sidebarOpen()"
-    (click)="closeSidebar()">
+    (click)="closeSidebar()"
+    role="presentation">
   </div>
 
   <!-- MAIN CONTENT -->
-  <main class="content" role="main">
+  <main class="content">
     <router-outlet></router-outlet>
   </main>
 </div>

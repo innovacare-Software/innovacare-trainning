@@ -1,27 +1,38 @@
 <div class="page">
   <header class="course-header">
     <div class="crumbs container">
-      <button class="btn primary" routerLink="/learner/assignments">‹ Back</button>
+      <button class="btn primary" routerLink="/learner/assignments" title="Retour aux cours">
+        <span class="icon">←</span> Retour
+      </button>
     </div>
 
-    <div class="hero with-overlay">
+    <div class="hero with-overlay premium">
       <img
         [src]="course().imageUrl || '/assets/placeholder-hero.jpg'"
         [alt]="course().title || 'Course image'"
         class="hero-img"
       />
-      <div class="hero-overlay">
-        <h1 class="hero-title">{{ course().title || 'Course' }}</h1>
+      <div class="hero-overlay premium-gradient">
+        <div class="hero-content">
+          <h1 class="hero-title premium-title">{{ course().title || 'Course' }}</h1>
+          <p class="hero-subtitle" *ngIf="course().subtitle">{{ course().subtitle }}</p>
 
-        <div class="hero-meta">
-          <span *ngIf="course().code" class="chip code">{{ course().code }}</span>
-          <span *ngIf="course().durationMin" class="chip">{{ course().durationMin }} min</span>
-          <span *ngIf="course().ceCredit" class="chip">{{ course().ceCredit }} CE</span>
-          <span *ngIf="course().kind" class="chip pill">{{ course().kind }}</span>
-          <span *ngIf="course().type" class="chip pill alt">{{ course().type }}</span>
-          <span *ngIf="course().healthMeta?.healthCareType" class="chip pill alt2">
-            {{ course().healthMeta?.healthCareType }}
-          </span>
+          <div class="hero-meta premium-meta">
+            <span *ngIf="course().code" class="chip code premium-chip">
+              <span class="chip-icon">📋</span> {{ course().code }}
+            </span>
+            <span *ngIf="course().durationMin" class="chip premium-chip">
+              <span class="chip-icon">⏱️</span> {{ course().durationMin }} min
+            </span>
+            <span *ngIf="course().ceCredit" class="chip premium-chip">
+              <span class="chip-icon">✓</span> {{ course().ceCredit }} CE
+            </span>
+            <span *ngIf="course().kind" class="chip pill premium-pill">{{ course().kind }}</span>
+            <span *ngIf="course().type" class="chip pill alt premium-pill">{{ course().type }}</span>
+            <span *ngIf="course().healthMeta?.healthCareType" class="chip pill alt2 premium-pill">
+              {{ course().healthMeta?.healthCareType }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

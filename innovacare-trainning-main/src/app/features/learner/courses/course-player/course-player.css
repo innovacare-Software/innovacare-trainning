@@ -6,23 +6,30 @@
 
 /* ----------- Theme variables ----------- */
 :root{
-  --page-bg:#f6f8fb;
+  --page-bg:#f8fafc;
   --card-bg:#ffffff;
   --ink:#0f172a;
   --muted:#6b7280;
-  --border:#e6e9ef;
+  --border:#e2e8f0;
 
   --brand:#234a84;
   --brand-hover:#1b3a68;
+  --brand-light:#eef3fb;
 
   --ok:#12844d;
+  --ok-light:#ecfdf5;
   --warn:#b91c1c;
+  --warn-light:#fff1f2;
 
   --radius:14px;
-  --shadow-sm:0 6px 18px rgba(3,10,26,.06);
+  --radius-lg:18px;
+  --shadow-sm:0 2px 8px rgba(3,10,26,.04);
+  --shadow-md:0 6px 18px rgba(3,10,26,.08);
+  --shadow-lg:0 12px 32px rgba(3,10,26,.12);
+  --shadow-xl:0 20px 48px rgba(3,10,26,.16);
 
   --sidebar-w: 340px;
-  --gap: 18px;
+  --gap: 20px;
 
   --img-w: 300px;
   --img-h: 200px;
