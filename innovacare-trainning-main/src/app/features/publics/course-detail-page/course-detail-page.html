@@ -138,22 +138,22 @@
                   <div class="section-number">{{ i + 1 }}</div>
                   <div class="section-info">
                     <h3>{{ section.title }}</h3>
-                    <p class="section-lessons" *ngIf="section.lessons?.length">
-                      {{ section.lessons?.length }} leçons
+                    <p class="section-lessons" *ngIf="section.lessons.length">
+                      {{ section.lessons.length }} leçons
                     </p>
                   </div>
                 </div>
 
                 <p class="section-description" *ngIf="section['description']">{{ section['description'] }}</p>
 
-                <div class="lesson-list" *ngIf="section.lessons?.length">
+                <div class="lesson-list" *ngIf="section.lessons.length">
                   <div class="lesson-item" *ngFor="let lesson of section.lessons">
                     <div class="lesson-indicator">
                       <mat-icon>video_library</mat-icon>
                     </div>
                     <div class="lesson-content">
                       <strong>{{ lesson.title }}</strong>
-                      <span class="lesson-meta">{{ lesson.blocks?.length || 0 }} blocs</span>
+                      <span class="lesson-meta">{{ lesson.blocks.length || 0 }} blocs</span>
                     </div>
                   </div>
                 </div>

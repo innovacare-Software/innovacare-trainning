@@ -76,7 +76,7 @@ interface FaqItem {
 @Component({
   selector: 'app-training-landing',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule, FormsModule,RouterModule],
+  imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule, FormsModule, RouterModule],
   templateUrl: './training-landing.html',
   styleUrls: ['./training-landing.css'],
 })

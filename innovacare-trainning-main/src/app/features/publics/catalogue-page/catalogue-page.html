@@ -1,38 +1,3 @@
-<header class="landing-header" [class.scrolled]="headerScrolled">
-  <div class="container header-inner">
-    <a class="brand" href="#top" (click)="closeMobileMenu()">
-      <span>Innovacare</span>
-      <strong>Training</strong>
-    </a>
-
-    <button class="menu-toggle" type="button" (click)="toggleMobileMenu()" aria-label="Ouvrir le menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-
-    <nav class="nav" [class.open]="mobileMenuOpen">
-      <a  routerLink="/fonctionnalites" (click)="closeMobileMenu()">Fonctionnalités</a>
-      <a  routerLink="/categories" (click)="closeMobileMenu()">Catégories</a>
-      <a  routerLink="/catalogue" (click)="closeMobileMenu()">Cours</a>
-      <a  routerLink="/temoignages" (click)="closeMobileMenu()">Témoignages</a>
-      <a  routerLink="/faq" (click)="closeMobileMenu()">FAQ</a>
-      <button class="nav-cta mobile-only" type="button" (click)="openDemoDialog(); closeMobileMenu()">
-        Demander une démo
-      </button>
-    </nav>
-
-    <button class="nav-cta desktop-only" type="button" (click)="openDemoDialog()">
-      Demander une démo
-    </button>
-    <button class="nav-cta desktop-only" type="button" (click)="login()">
-      Connexion
-    </button>
-    <button class="nav-cta desktop-only" type="button"  routerLink="/pricing">Pricing</button>
-  </div>
-</header>
-
-
 <section class="catalog-page">
   <div class="catalog-hero">
     <div class="container catalog-hero__grid">
@@ -42,6 +7,7 @@
         <p class="hero-description">
           Accédez à un catalogue complet et filtrez les cours par type, domaine, langue, audience et contexte de soins pour trouver la formation idéale.
         </p>
+        <button class="btn btn-warning"  routerLink="/" (click)="closeMobileMenu()">Retour à l'accueil</button>
 
         <div class="catalog-hero__stats" role="region" aria-label="Statistiques du catalogue">
           <article class="stat-card">

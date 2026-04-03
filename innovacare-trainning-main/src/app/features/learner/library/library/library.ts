@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CoursesRepo } from '../../../../data/courses.repo';
 import { Course } from '../../../../data/models';
-import { KeyValuePipe, NgForOf, NgIf } from '@angular/common';
+import { NgForOf, NgIf } from '@angular/common';
 
 
 @Component({
   selector: 'learner-library',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, KeyValuePipe, NgForOf, NgIf],
+  imports: [CommonModule, FormsModule, RouterModule, NgForOf, NgIf],
   templateUrl: './library.html',
   styleUrl: './library.css'
 })
