@@ -98,8 +98,8 @@ interface FlatLesson {
   selector: 'app-guest-course-player',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './guest-course-player.component.html',
-  styleUrls: ['./guest-course-player.component.css'],
+  templateUrl: './guest-player.html',
+  styleUrls: ['./guest-player.css'],
 })
 export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);

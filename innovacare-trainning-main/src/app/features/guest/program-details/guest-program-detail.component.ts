@@ -5,15 +5,15 @@ import { Firestore, doc, docData, collection, collectionData, query, where } fro
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { GuestProgramsService } from '../../../core/guest-programs.service';
-import { Program } from '../../../data/app-user.model';
+import { LiveClass, Program } from '../../../data/app-user.model';
 
 
 @Component({
   selector: 'app-guest-program-detail',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './guest-program-detail.component.html',
-  styleUrls: ['./guest-program-detail.component.css'],
+  templateUrl: './guest-program-detail.html',
+  styleUrls: ['./guest-program-detail.css'],
 })
 export class GuestProgramDetailComponent {
   private route = inject(ActivatedRoute);

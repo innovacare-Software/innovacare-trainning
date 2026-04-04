@@ -4,9 +4,9 @@ import { Router, RouterModule } from '@angular/router';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
-import { GuestProgramAccess } from '../../../data/guest-commerce.model';
-import { Program } from '../../../data/app-user.model';
+import { Program} from '../../../data/app-user.model';
 import { GuestProgramsService } from '../../../core/guest-programs.service';
+import { GuestProgramAccess } from '../../../data/guest-commerce.model';
 
 
 interface GuestProgramRow {
@@ -18,8 +18,8 @@ interface GuestProgramRow {
   selector: 'app-guest-programs',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './guest-programs.component.html',
-  styleUrls: ['./guest-programs.component.css'],
+  templateUrl: './my-program.html',
+  styleUrls: ['./my-program.css'],
 })
 export class GuestProgramsComponent {
   private guestPrograms = inject(GuestProgramsService);

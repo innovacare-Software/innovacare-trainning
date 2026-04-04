@@ -7,13 +7,15 @@ import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Order } from '../../../data/guest-commerce.model';
 
+
 @Component({
   selector: 'app-guest-orders',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './guest-orders.component.html',
-  styleUrls: ['./guest-orders.component.css'],
+ templateUrl: './guest-order.html',
+  styleUrls: ['./guest-order.css'],
 })
+
 export class GuestOrdersComponent {
   private auth = inject(Auth);
   private afs = inject(Firestore);

@@ -20,7 +20,7 @@
       <div
         class="lesson-item"
         *ngFor="let l of lessons(); let i = index"
-        [class.active]="i === activeIndex"
+        [class.active]="i === activeIndex()"
         (click)="setActive(i)"
       >
         <div class="row-title">

@@ -27,8 +27,8 @@ interface GuestCourseRow {
   selector: 'app-guest-courses',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './guest-courses.component.html',
-  styleUrls: ['./guest-courses.component.css'],
+ templateUrl: './guest-course.html',
+  styleUrls: ['./guest-course.css'],
 })
 export class GuestCoursesComponent {
   private guestEnrollments = inject(GuestEnrollmentsService);
