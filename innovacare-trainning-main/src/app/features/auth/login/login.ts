@@ -18,7 +18,7 @@ function defaultRouteForRole(role: AppProfile['role']): string {
     case 'learner':
       return '/learner';
     case 'guest':
-      return '/guest';
+      return '/guest/dashboard';
     default:
       return '/login';
   }
@@ -79,45 +79,64 @@ export class LoginComponent {
   }
 
   async submitGuest() {
-    if (this.guestForm.invalid) return;
+    if (this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      return;
+    }
 
     this.loading.set(true);
     this.error.set(null);
 
     try {
       const { email, password } = this.guestForm.getRawValue();
+
       await this.auth.loginWithEmail(email!, password!);
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
+      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+        replaceUrl: true,
+      });
     } catch (e: any) {
-      this.error.set(e?.message ?? 'Login failed');
+      this.error.set(this.mapAuthError(e, 'Login failed'));
     } finally {
       this.loading.set(false);
     }
   }
 
   async submitOrg() {
-    if (this.orgForm.invalid) return;
+    if (this.orgForm.invalid) {
+      this.orgForm.markAllAsTouched();
+      return;
+    }
 
     this.loading.set(true);
     this.error.set(null);
 
     try {
       const { email, password, orgCode } = this.orgForm.getRawValue();
+
+      // TODO later:
+      // validate orgCode against organization / invitation / membership
+      void orgCode;
+
       await this.auth.loginWithEmail(email!, password!);
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
+      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+        replaceUrl: true,
+      });
     } catch (e: any) {
-      this.error.set(e?.message ?? 'Login failed');
+      this.error.set(this.mapAuthError(e, 'Login failed'));
     } finally {
       this.loading.set(false);
     }
   }
 
   async submitRegister() {
-    if (this.registerForm.invalid) return;
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
 
     const { password, confirmPassword } = this.registerForm.getRawValue();
     if (password !== confirmPassword) {
@@ -130,12 +149,15 @@ export class LoginComponent {
 
     try {
       const { email, password, fullName } = this.registerForm.getRawValue();
-      await this.auth.loginWithEmail(email!, password!);
+
+      await this.auth.registerWithEmail(email!, password!, fullName!);
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
+      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+        replaceUrl: true,
+      });
     } catch (e: any) {
-      this.error.set(e?.message ?? 'Registration failed');
+      this.error.set(this.mapAuthError(e, 'Registration failed'));
     } finally {
       this.loading.set(false);
     }
@@ -149,11 +171,39 @@ export class LoginComponent {
       await this.auth.loginWithGoogle();
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), { replaceUrl: true });
+      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+        replaceUrl: true,
+      });
     } catch (e: any) {
-      this.error.set(e?.message ?? 'Google sign-in failed');
+      this.error.set(this.mapAuthError(e, 'Google sign-in failed'));
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private mapAuthError(error: any, fallback: string): string {
+    const code = error?.code ?? '';
+
+    switch (code) {
+      case 'auth/invalid-email':
+        return 'Invalid email address.';
+      case 'auth/user-disabled':
+        return 'This account has been disabled.';
+      case 'auth/user-not-found':
+        return 'No account found with this email.';
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return 'Incorrect email or password.';
+      case 'auth/email-already-in-use':
+        return 'This email is already in use.';
+      case 'auth/weak-password':
+        return 'Password is too weak.';
+      case 'auth/popup-closed-by-user':
+        return 'Google sign-in was cancelled.';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your connection.';
+      default:
+        return error?.message ?? fallback;
     }
   }
 }
