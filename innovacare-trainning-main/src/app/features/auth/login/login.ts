@@ -38,17 +38,20 @@ export class LoginComponent {
 
   loading = signal(false);
   error = signal<string | null>(null);
+  success = signal<string | null>(null);
   currentTab = signal<TabType>('guest');
 
   guestForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [true],
   });
 
   orgForm = this.fb.group({
     orgCode: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [true],
   });
 
   registerForm = this.fb.group({
@@ -56,6 +59,11 @@ export class LoginComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', Validators.required],
+    rememberMe: [true],
+  });
+
+  resetForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
   });
 
   private async waitForFreshProfile(): Promise<AppProfile> {
@@ -76,6 +84,7 @@ export class LoginComponent {
   switchTab(tab: TabType) {
     this.currentTab.set(tab);
     this.error.set(null);
+    this.success.set(null);
   }
 
   async submitGuest() {
@@ -86,11 +95,12 @@ export class LoginComponent {
 
     this.loading.set(true);
     this.error.set(null);
+    this.success.set(null);
 
     try {
-      const { email, password } = this.guestForm.getRawValue();
+      const { email, password, rememberMe } = this.guestForm.getRawValue();
 
-      await this.auth.loginWithEmail(email!, password!);
+      await this.auth.loginWithEmail(email!, password!, !!rememberMe);
 
       const profile = await this.waitForFreshProfile();
       await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
@@ -111,22 +121,24 @@ export class LoginComponent {
 
     this.loading.set(true);
     this.error.set(null);
+    this.success.set(null);
 
     try {
-      const { email, password, orgCode } = this.orgForm.getRawValue();
+      const { email, password, orgCode, rememberMe } = this.orgForm.getRawValue();
 
-      // TODO later:
-      // validate orgCode against organization / invitation / membership
-      void orgCode;
-
-      await this.auth.loginWithEmail(email!, password!);
+      await this.auth.loginWithOrganization({
+        orgCode: orgCode!,
+        email: email!,
+        password: password!,
+        rememberMe: !!rememberMe,
+      });
 
       const profile = await this.waitForFreshProfile();
       await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
         replaceUrl: true,
       });
     } catch (e: any) {
-      this.error.set(this.mapAuthError(e, 'Login failed'));
+      this.error.set(this.mapAuthError(e, 'Organization login failed'));
     } finally {
       this.loading.set(false);
     }
@@ -146,11 +158,17 @@ export class LoginComponent {
 
     this.loading.set(true);
     this.error.set(null);
+    this.success.set(null);
 
     try {
-      const { email, password, fullName } = this.registerForm.getRawValue();
+      const { email, password, fullName, rememberMe } = this.registerForm.getRawValue();
 
-      await this.auth.registerWithEmail(email!, password!, fullName!);
+      await this.auth.registerWithEmail(
+        email!,
+        password!,
+        fullName!,
+        !!rememberMe
+      );
 
       const profile = await this.waitForFreshProfile();
       await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
@@ -166,9 +184,10 @@ export class LoginComponent {
   async google() {
     this.loading.set(true);
     this.error.set(null);
+    this.success.set(null);
 
     try {
-      await this.auth.loginWithGoogle();
+      await this.auth.loginWithGoogle(true);
 
       const profile = await this.waitForFreshProfile();
       await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
@@ -176,6 +195,27 @@ export class LoginComponent {
       });
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Google sign-in failed'));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async sendResetPassword() {
+    if (this.resetForm.invalid) {
+      this.resetForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+    this.success.set(null);
+
+    try {
+      const { email } = this.resetForm.getRawValue();
+      await this.auth.resetPassword(email!);
+      this.success.set('Password reset email sent. Please check your inbox.');
+    } catch (e: any) {
+      this.error.set(this.mapAuthError(e, 'Password reset failed'));
     } finally {
       this.loading.set(false);
     }

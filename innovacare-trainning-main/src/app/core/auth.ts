@@ -10,6 +10,9 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   UserCredential,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
 } from '@angular/fire/auth';
 import {
   Firestore,
@@ -17,6 +20,11 @@ import {
   docData,
   setDoc,
   serverTimestamp,
+  getDoc,
+  query,
+  collection,
+  where,
+  getDocs,
 } from '@angular/fire/firestore';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -33,16 +41,22 @@ export interface AppProfile {
   updatedAt?: any;
 }
 
+export interface OrgValidationResult {
+  valid: boolean;
+  orgId?: string;
+  message?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
   private afs = inject(Firestore);
 
   private readySubject = new BehaviorSubject<boolean>(false);
-  ready$ = this.readySubject.asObservable();
+  readonly ready$ = this.readySubject.asObservable();
 
   private profileSubject = new BehaviorSubject<AppProfile | null>(null);
-  profile$ = this.profileSubject.asObservable();
+  readonly profile$ = this.profileSubject.asObservable();
 
   private authSub?: Subscription;
   private profileSub?: Subscription;
@@ -78,15 +92,30 @@ export class AuthService {
     return this.auth.currentUser?.uid ?? null;
   }
 
-  async loginWithEmail(email: string, password: string): Promise<UserCredential> {
+  async setRememberMe(remember: boolean): Promise<void> {
+    await setPersistence(
+      this.auth,
+      remember ? browserLocalPersistence : browserSessionPersistence
+    );
+  }
+
+  async loginWithEmail(
+    email: string,
+    password: string,
+    rememberMe = true
+  ): Promise<UserCredential> {
+    await this.setRememberMe(rememberMe);
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
   async registerWithEmail(
     email: string,
     password: string,
-    fullName: string
+    fullName: string,
+    rememberMe = true
   ): Promise<UserCredential> {
+    await this.setRememberMe(rememberMe);
+
     const cred = await createUserWithEmailAndPassword(this.auth, email, password);
 
     if (fullName?.trim()) {
@@ -107,7 +136,9 @@ export class AuthService {
     return cred;
   }
 
-  async loginWithGoogle(): Promise<UserCredential> {
+  async loginWithGoogle(rememberMe = true): Promise<UserCredential> {
+    await this.setRememberMe(rememberMe);
+
     const cred = await signInWithPopup(this.auth, new GoogleAuthProvider());
 
     await this.ensureUserProfile({
@@ -122,17 +153,82 @@ export class AuthService {
     return cred;
   }
 
+  async validateOrgCode(orgCode: string): Promise<OrgValidationResult> {
+    const code = orgCode.trim().toUpperCase();
+    if (!code) {
+      return { valid: false, message: 'Organization code is required.' };
+    }
+
+    const q = query(
+      collection(this.afs, 'organizations'),
+      where('accessCode', '==', code),
+      where('active', '==', true)
+    );
+
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      return { valid: false, message: 'Invalid or inactive organization code.' };
+    }
+
+    const orgDoc = snap.docs[0];
+    return {
+      valid: true,
+      orgId: orgDoc.id,
+    };
+  }
+
+  async loginWithOrganization(params: {
+    orgCode: string;
+    email: string;
+    password: string;
+    rememberMe?: boolean;
+  }): Promise<UserCredential> {
+    const validation = await this.validateOrgCode(params.orgCode);
+    if (!validation.valid || !validation.orgId) {
+      throw new Error(validation.message || 'Invalid organization code.');
+    }
+
+    const cred = await this.loginWithEmail(
+      params.email,
+      params.password,
+      params.rememberMe ?? true
+    );
+
+    const userRef = doc(this.afs, `users/${cred.user.uid}`);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error('User profile not found.');
+    }
+
+    const profile = userSnap.data() as AppProfile;
+
+    if (!profile.active) {
+      throw new Error('This account is inactive.');
+    }
+
+    if (profile.orgId && profile.orgId !== validation.orgId) {
+      throw new Error('This account does not belong to the provided organization.');
+    }
+
+    return cred;
+  }
+
   async logout(): Promise<void> {
     this.readySubject.next(false);
     this.profileSubject.next(null);
     this.profileSub?.unsubscribe();
     this.profileSub = undefined;
-
     await signOut(this.auth);
   }
 
-  resetPassword(email: string) {
-    return sendPasswordResetEmail(this.auth, email);
+  async resetPassword(email: string): Promise<void> {
+    const clean = email.trim();
+    if (!clean) {
+      throw new Error('Email is required.');
+    }
+    await sendPasswordResetEmail(this.auth, clean);
   }
 
   private async ensureUserProfile(profile: AppProfile): Promise<void> {
