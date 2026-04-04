@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { NotificationBellPlainComponent } from '../../../../shared/components/notifications/notification-bell-plain/notification-bell-plain';
+import { AuthService } from '../../../../core/auth';
 
 @Component({
   selector: 'app-learner-shell',
@@ -12,6 +13,7 @@ import { NotificationBellPlainComponent } from '../../../../shared/components/no
 })
 export class LearnerShell implements OnDestroy {
   private router = inject(Router);
+  private auth = inject(AuthService);
   private mq = window.matchMedia('(max-width: 860px)');
 
   isMobile = signal(this.mq.matches);
@@ -73,8 +75,8 @@ export class LearnerShell implements OnDestroy {
     { path: '/learner/rewards', label: 'Rewards' }
   ];
 
-  logout() {
-    console.log('Logging out...');
-    this.router.navigate(['/home']);
+  async logout() {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

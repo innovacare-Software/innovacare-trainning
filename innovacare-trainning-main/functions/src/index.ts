@@ -1,4 +1,7 @@
-/* eslint max-len: ["error", { "code": 120, "ignoreUrls": true, "ignoreStrings": true, "ignoreTemplateLiterals": true }] */
+/* eslint max-len: [
+  "error",
+  { "code": 120, "ignoreUrls": true, "ignoreStrings": true, "ignoreTemplateLiterals": true }
+] */
 /* eslint-disable require-jsdoc */
 /* functions/src/index.ts (Firebase Functions v2) */
 
@@ -25,10 +28,11 @@ setGlobalOptions({region: "us-central1"});
 /* ─────────── Secrets ─────────── */
 const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY");
 const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET");
+const HTTPS_PUBLIC = "public" as const;
 
 const getStripe = () =>
   new Stripe(STRIPE_SECRET_KEY.value(), {
-    apiVersion: "2024-06-20",
+    apiVersion: "2025-08-27.basil",
   });
 
 /* ─────────── Helpers & types ─────────── */
@@ -36,9 +40,10 @@ const setEq = (a: string[], b: string[]) =>
   a.length === b.length && a.every((x) => b.includes(x));
 
 const nowTs = () => admin.firestore.FieldValue.serverTimestamp();
+const nowStamp = () => admin.firestore.Timestamp.now();
 
 type GradeExamPayload = {
-  courseId: string;
+  courseId: string
   examId: string;
   answers: Record<string, string[]>;
 };
@@ -59,9 +64,40 @@ type ExamDoc = {
 };
 
 type CheckoutPayload = {
-  offerId: string;
+  offerId?: string;
+  cartId?: string;
   successUrl: string;
   cancelUrl: string;
+};
+
+type PublishCoursePayload = {
+  courseId: string;
+  price: number;
+  currency?: string;
+  stripePriceId: string;
+  isPublic?: boolean;
+};
+
+type CreateOrgUserPayload = {
+  email: string;
+  password: string;
+  displayName?: string;
+  phone?: string;
+  department?: string;
+  title?: string;
+  role?: "admin" | "manager" | "learner" | "guest";
+  status?: "active" | "inactive";
+};
+
+type CartItemInput = {
+  offerId: string;
+  qty?: number;
+};
+
+type CartItemStored = {
+  offerId: string;
+  qty: number;
+  addedAt: admin.firestore.Timestamp;
 };
 
 type OfferType = "course" | "program" | "live_class";
@@ -93,6 +129,150 @@ type GrantAccessParams = {
   itemType: OfferType;
   itemId: string;
 };
+
+type OrderStored = {
+  id?: string;
+  amount?: number;
+  currency?: string;
+  status?: string;
+  itemType?: OfferType;
+  itemId?: string;
+  items?: Array<{
+    offerId: string;
+    itemType: OfferType;
+    itemId: string;
+    title: string;
+    amount: number;
+    currency: string;
+    qty: number;
+  }>;
+};
+
+type UserProfileDoc = {
+  email?: string;
+  status?: "active" | "blocked";
+  profileCompleted?: boolean;
+  emailVerified?: boolean;
+  role?: string;
+  orgId?: string | null;
+};
+
+async function isAdminUid(uid: string): Promise<boolean> {
+  const adminSnap = await db.doc(`admins/${uid}`).get();
+  if (adminSnap.exists && adminSnap.get("active") === true) {
+    return true;
+  }
+
+  const userSnap = await db.doc(`users/${uid}`).get();
+  return userSnap.exists && userSnap.get("role") === "admin";
+}
+
+async function getUserContext(uid: string): Promise<{role: string; orgId: string | null; active: boolean}> {
+  const userSnap = await db.doc(`users/${uid}`).get();
+  if (!userSnap.exists) {
+    return {role: "", orgId: null, active: false};
+  }
+
+  const role = String(userSnap.get("role") || "");
+  const rawOrgId = userSnap.get("orgId");
+  const orgId = rawOrgId == null ? null : String(rawOrgId);
+  const active = userSnap.get("active") !== false;
+  return {role, orgId, active};
+}
+
+async function isPublisherUid(uid: string): Promise<boolean> {
+  const userSnap = await db.doc(`users/${uid}`).get();
+  if (!userSnap.exists) return false;
+  const role = String(userSnap.get("role") || "");
+  return role === "super_admin";
+}
+
+function parseAllowedHosts(): Set<string> {
+  const raw = (process.env.ALLOWED_CHECKOUT_HOSTS || "").trim();
+  const fallback = ["localhost", "127.0.0.1"];
+  const hosts = raw ? raw.split(",").map((x) => x.trim().toLowerCase()) : fallback;
+  return new Set(hosts.filter(Boolean));
+}
+
+function isAllowedCheckoutUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    const hostname = parsed.hostname.toLowerCase();
+    const isLocal = hostname === "localhost" || hostname === "127.0.0.1";
+    const isFirebaseHosting =
+      hostname.endsWith(".web.app") || hostname.endsWith(".firebaseapp.com");
+
+    if (isLocal) {
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    }
+
+    if (isFirebaseHosting) {
+      return parsed.protocol === "https:";
+    }
+
+    if (parsed.protocol !== "https:") return false;
+    const allowedHosts = parseAllowedHosts();
+    if (!allowedHosts.size) return false;
+    return allowedHosts.has(hostname);
+  } catch {
+    return false;
+  }
+}
+
+async function normalizeCartItems(items: CartItemInput[]): Promise<Array<{
+  offerId: string;
+  offer: PublicOfferDoc;
+  itemType: OfferType;
+  itemId: string;
+  qty: number;
+}>> {
+  const compact = items
+    .map((x) => ({
+      offerId: String(x.offerId || "").trim(),
+      qty: Math.max(1, Math.floor(Number(x.qty || 1))),
+    }))
+    .filter((x) => !!x.offerId)
+    .slice(0, 20);
+
+  const uniqueMap = new Map<string, number>();
+  for (const item of compact) {
+    uniqueMap.set(item.offerId, Math.min(5, (uniqueMap.get(item.offerId) || 0) + item.qty));
+  }
+
+  const normalized: Array<{
+    offerId: string;
+    offer: PublicOfferDoc;
+    itemType: OfferType;
+    itemId: string;
+    qty: number;
+  }> = [];
+
+  for (const [offerId, qty] of uniqueMap.entries()) {
+    const offerSnap = await db.doc(`publicOffers/${offerId}`).get();
+    if (!offerSnap.exists) continue;
+
+    const offer = offerSnap.data() as PublicOfferDoc;
+    if (!offer?.isActive || !offer?.isPublic) continue;
+
+    const itemId = offer.type === "course" ?
+      offer.courseId :
+      offer.type === "program" ?
+        offer.programId :
+        offer.liveClassId;
+
+    if (!itemId) continue;
+
+    normalized.push({
+      offerId,
+      offer,
+      itemType: offer.type,
+      itemId,
+      qty,
+    });
+  }
+
+  return normalized;
+}
 
 /* ─────────── Callable: gradeExam ───────────
    Reads questions from:
@@ -461,9 +641,235 @@ async function grantPurchasedAccessInternal(params: GrantAccessParams) {
   }
 }
 
+export const createOrgUser = onCall(
+  {},
+  async (request: CallableRequest<CreateOrgUserPayload>) => {
+    const callerUid = request.auth?.uid;
+    if (!callerUid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const callerCtx = await getUserContext(callerUid);
+    const allowedRoles = ["manager", "admin", "super_admin"];
+    if (!allowedRoles.includes(callerCtx.role)) {
+      throw new HttpsError("permission-denied", "Only manager/admin can create organization users.");
+    }
+    if (!callerCtx.active) {
+      throw new HttpsError("permission-denied", "Caller account is inactive.");
+    }
+
+    const data = request.data || ({} as CreateOrgUserPayload);
+    const email = String(data.email || "").trim().toLowerCase();
+    const password = String(data.password || "");
+    const displayName = String(data.displayName || "").trim();
+    const phone = String(data.phone || "").trim();
+    const department = String(data.department || "").trim();
+    const title = String(data.title || "").trim();
+    const role = (data.role || "learner") as "admin" | "manager" | "learner" | "guest";
+    const status = (data.status || "active") as "active" | "inactive";
+
+    if (!email || !email.includes("@")) {
+      throw new HttpsError("invalid-argument", "A valid email is required.");
+    }
+    if (password.length < 8) {
+      throw new HttpsError("invalid-argument", "Initial password must be at least 8 characters.");
+    }
+    if (!["admin", "manager", "learner", "guest"].includes(role)) {
+      throw new HttpsError("invalid-argument", "Invalid role.");
+    }
+    if (!["active", "inactive"].includes(status)) {
+      throw new HttpsError("invalid-argument", "Invalid status.");
+    }
+
+    if (callerCtx.role !== "super_admin") {
+      if (!callerCtx.orgId) {
+        throw new HttpsError("failed-precondition", "No organization attached to caller account.");
+      }
+      if (role === "admin") {
+        throw new HttpsError("permission-denied", "Only super admin can create admin users.");
+      }
+    }
+
+    const orgId = callerCtx.orgId;
+
+    try {
+      const userRecord = await admin.auth().createUser({
+        email,
+        password,
+        displayName: displayName || undefined,
+        disabled: status === "inactive",
+      });
+
+      await db.doc(`users/${userRecord.uid}`).set(
+        {
+          uid: userRecord.uid,
+          email,
+          displayName,
+          phone,
+          department,
+          title,
+          role,
+          status,
+          orgId,
+          active: status === "active",
+          createdAt: nowTs(),
+          updatedAt: nowTs(),
+        },
+        {merge: true}
+      );
+
+      return {
+        ok: true,
+        uid: userRecord.uid,
+        email,
+      };
+    } catch (error: any) {
+      if (error?.code === "auth/email-already-exists") {
+        throw new HttpsError("already-exists", "This email is already used.");
+      }
+      throw new HttpsError("internal", error?.message || "Unable to create user.");
+    }
+  }
+);
+
+/* ─────────── Callable: upsertMyCart ─────────── */
+export const upsertMyCart = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<{ cartId?: string; items: CartItemInput[] }>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
+    }
+
+    const cartId = String(request.data?.cartId || "default").trim() || "default";
+    const incoming = Array.isArray(request.data?.items) ? request.data.items : [];
+    const normalized = await normalizeCartItems(incoming);
+
+    const userSnap = await db.doc(`users/${uid}`).get();
+    const orgId = String(userSnap.get("orgId") || "").trim() || null;
+
+    const storedItems: CartItemStored[] = normalized.map((x) => ({
+      offerId: x.offerId,
+      qty: x.qty,
+      addedAt: nowStamp(),
+    }));
+
+    const cartRef = db.doc(`users/${uid}/carts/${cartId}`);
+    await cartRef.set({
+      id: cartId,
+      uid,
+      orgId,
+      items: storedItems,
+      updatedAt: nowTs(),
+    }, {merge: true});
+
+    return {
+      cartId,
+      itemCount: storedItems.reduce((acc, x) => acc + x.qty, 0),
+      distinctCount: storedItems.length,
+    };
+  },
+);
+
+/* ─────────── Callable: mergeLocalCart ─────────── */
+export const mergeLocalCart = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<{ cartId?: string; offerIds: string[] }>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
+    }
+
+    const cartId = String(request.data?.cartId || "default").trim() || "default";
+    const offerIds = Array.isArray(request.data?.offerIds) ? request.data.offerIds : [];
+
+    const cartRef = db.doc(`users/${uid}/carts/${cartId}`);
+    const cartSnap = await cartRef.get();
+    const existingItems = (cartSnap.get("items") || []) as Array<{ offerId?: string; qty?: number }>;
+
+    const mergedInputs: CartItemInput[] = [
+      ...existingItems.map((x) => ({
+        offerId: String(x.offerId || ""),
+        qty: Number(x.qty || 1),
+      })),
+      ...offerIds.map((offerId) => ({offerId: String(offerId || "").trim(), qty: 1})),
+    ];
+
+    const normalized = await normalizeCartItems(mergedInputs);
+
+    const userSnap = await db.doc(`users/${uid}`).get();
+    const orgId = String(userSnap.get("orgId") || "").trim() || null;
+
+    const storedItems: CartItemStored[] = normalized.map((x) => ({
+      offerId: x.offerId,
+      qty: x.qty,
+      addedAt: nowStamp(),
+    }));
+
+    await cartRef.set({
+      id: cartId,
+      uid,
+      orgId,
+      items: storedItems,
+      updatedAt: nowTs(),
+    }, {merge: true});
+
+    return {
+      cartId,
+      itemCount: storedItems.reduce((acc, x) => acc + x.qty, 0),
+      distinctCount: storedItems.length,
+    };
+  },
+);
+
+/* ─────────── Callable: getMyCart ─────────── */
+export const getMyCart = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<{ cartId?: string }>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
+    }
+
+    const cartId = String(request.data?.cartId || "default").trim() || "default";
+    const cartRef = db.doc(`users/${uid}/carts/${cartId}`);
+    const cartSnap = await cartRef.get();
+    const cartItems = (cartSnap.get("items") || []) as Array<{ offerId?: string; qty?: number }>;
+
+    const normalized = await normalizeCartItems(
+      cartItems.map((x) => ({
+        offerId: String(x.offerId || ""),
+        qty: Number(x.qty || 1),
+      })),
+    );
+
+    const items = normalized.map((x) => ({
+      offerId: x.offerId,
+      title: x.offer.title,
+      itemType: x.itemType,
+      itemId: x.itemId,
+      qty: x.qty,
+      amount: Number(x.offer.price || 0),
+      currency: String(x.offer.currency || "USD").toUpperCase(),
+      imageUrl: x.offer.imageUrl || "",
+    }));
+
+    const amountTotal = items.reduce((acc, x) => acc + x.amount * x.qty, 0);
+
+    return {
+      cartId,
+      items,
+      amountTotal,
+      currency: items[0]?.currency || "USD",
+      itemCount: items.reduce((acc, x) => acc + x.qty, 0),
+      distinctCount: items.length,
+    };
+  },
+);
+
 /* ─────────── Callable: createCheckoutSession ─────────── */
 export const createCheckoutSession = onCall(
-  {secrets: [STRIPE_SECRET_KEY]},
+  {secrets: [STRIPE_SECRET_KEY], invoker: HTTPS_PUBLIC},
   async (request: CallableRequest<CheckoutPayload>) => {
     const uid = request.auth?.uid;
     if (!uid) {
@@ -471,13 +877,21 @@ export const createCheckoutSession = onCall(
     }
 
     const offerId = String(request.data?.offerId || "").trim();
+    const cartId = String(request.data?.cartId || "default").trim() || "default";
     const successUrl = String(request.data?.successUrl || "").trim();
     const cancelUrl = String(request.data?.cancelUrl || "").trim();
 
-    if (!offerId || !successUrl || !cancelUrl) {
+    if ((!offerId && !cartId) || !successUrl || !cancelUrl) {
       throw new HttpsError(
         "invalid-argument",
-        "offerId, successUrl and cancelUrl are required.",
+        "offerId/cartId, successUrl and cancelUrl are required.",
+      );
+    }
+
+    if (!isAllowedCheckoutUrl(successUrl) || !isAllowedCheckoutUrl(cancelUrl)) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Checkout redirect URLs are not allowed.",
       );
     }
 
@@ -487,40 +901,95 @@ export const createCheckoutSession = onCall(
       throw new HttpsError("not-found", "User profile not found.");
     }
 
-    const userData = userSnap.data() || {};
+    const userData = (userSnap.data() || {}) as UserProfileDoc;
+    const orgId = String(userData.orgId || "").trim() || null;
     const email = typeof userData.email === "string" ? userData.email : undefined;
+    const emailVerified =
+      userData.emailVerified === true || request.auth?.token?.email_verified === true;
 
-    const offerRef = db.doc(`publicOffers/${offerId}`);
-    const offerSnap = await offerRef.get();
-    if (!offerSnap.exists) {
-      throw new HttpsError("not-found", "Offer not found.");
+    if (userData.status === "blocked") {
+      throw new HttpsError("permission-denied", "User account is blocked.");
     }
 
-    const offer = offerSnap.data() as PublicOfferDoc;
-    if (!offer?.isActive || !offer?.isPublic) {
-      throw new HttpsError("failed-precondition", "Offer is not available.");
+    // Backward compatibility: only block if profile is explicitly incomplete.
+    if (userData.profileCompleted === false) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Complete profile before payment.",
+      );
     }
 
-    const itemId = offer.type === "course" ?
-      offer.courseId :
-      offer.type === "program" ?
-        offer.programId :
-        offer.liveClassId;
-
-    if (!itemId) {
-      throw new HttpsError("failed-precondition", "Offer item is not configured.");
+    if (!emailVerified) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Verify your email before payment.",
+      );
     }
+
+    let normalizedItems: Array<{
+      offerId: string;
+      offer: PublicOfferDoc;
+      itemType: OfferType;
+      itemId: string;
+      qty: number;
+    }> = [];
+
+    if (offerId) {
+      normalizedItems = await normalizeCartItems([{offerId, qty: 1}]);
+    } else {
+      const cartRef = db.doc(`users/${uid}/carts/${cartId}`);
+      const cartSnap = await cartRef.get();
+      const cartItems = (cartSnap.get("items") || []) as Array<{ offerId?: string; qty?: number }>;
+      normalizedItems = await normalizeCartItems(
+        cartItems.map((x) => ({
+          offerId: String(x.offerId || ""),
+          qty: Number(x.qty || 1),
+        })),
+      );
+    }
+
+    if (!normalizedItems.length) {
+      throw new HttpsError("failed-precondition", "Cart is empty or invalid.");
+    }
+
+    const currency = String(normalizedItems[0].offer.currency || "USD").toUpperCase();
+    const hasMixedCurrencies = normalizedItems.some(
+      (x) => String(x.offer.currency || "USD").toUpperCase() !== currency,
+    );
+    if (hasMixedCurrencies) {
+      throw new HttpsError("failed-precondition", "Mixed currencies are not supported.");
+    }
+
+    const amountTotal = normalizedItems.reduce(
+      (acc, x) => acc + Number(x.offer.price || 0) * x.qty,
+      0,
+    );
+
+    const orderItems = normalizedItems.map((x) => ({
+      offerId: x.offerId,
+      itemType: x.itemType,
+      itemId: x.itemId,
+      title: x.offer.title,
+      amount: Number(x.offer.price || 0),
+      currency,
+      qty: x.qty,
+    }));
+
+    const first = orderItems[0];
 
     const orderRef = db.collection(`users/${uid}/orders`).doc();
     await orderRef.set({
       id: orderRef.id,
       uid,
-      itemType: offer.type,
-      itemId,
-      offerId,
-      title: offer.title,
-      amount: Number(offer.price || 0),
-      currency: offer.currency || "USD",
+      orgId,
+      itemType: first.itemType,
+      itemId: first.itemId,
+      offerId: first.offerId,
+      title: normalizedItems.length === 1 ? first.title : `Cart (${orderItems.length} items)`,
+      amount: amountTotal,
+      currency,
+      cartId,
+      items: orderItems,
       status: "pending",
       provider: "stripe",
       createdAt: nowTs(),
@@ -534,25 +1003,21 @@ export const createCheckoutSession = onCall(
       customer_email: email,
       metadata: {
         uid,
-        offerId,
         orderId: orderRef.id,
-        itemType: offer.type,
-        itemId,
+        cartId,
       },
-      line_items: [
-        {
-          price_data: {
-            currency: String(offer.currency || "USD").toLowerCase(),
-            product_data: {
-              name: offer.title,
-              description: offer.description || "",
-              ...(offer.imageUrl ? {images: [offer.imageUrl]} : {}),
-            },
-            unit_amount: Math.round(Number(offer.price || 0) * 100),
+      line_items: normalizedItems.map((x) => ({
+        price_data: {
+          currency: String(x.offer.currency || "USD").toLowerCase(),
+          product_data: {
+            name: x.offer.title,
+            description: x.offer.description || "",
+            ...(x.offer.imageUrl ? {images: [x.offer.imageUrl]} : {}),
           },
-          quantity: 1,
+          unit_amount: Math.round(Number(x.offer.price || 0) * 100),
         },
-      ],
+        quantity: x.qty,
+      })),
       success_url: successUrl,
       cancel_url: cancelUrl,
     });
@@ -568,7 +1033,7 @@ export const createCheckoutSession = onCall(
 
 /* ─────────── HTTP: stripeWebhook ─────────── */
 export const stripeWebhook = onRequest(
-  {secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET]},
+  {secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET], invoker: HTTPS_PUBLIC},
   async (req, res) => {
     const sig = req.headers["stripe-signature"];
     if (!sig || typeof sig !== "string") {
@@ -585,33 +1050,94 @@ export const stripeWebhook = onRequest(
         STRIPE_WEBHOOK_SECRET.value(),
       );
 
+      let alreadyProcessed = false;
+      const eventRef = db.doc(`stripeWebhookEvents/${event.id}`);
+
+      await db.runTransaction(async (tx) => {
+        const existing = await tx.get(eventRef);
+        if (existing.exists) {
+          alreadyProcessed = true;
+          return;
+        }
+
+        tx.set(eventRef, {
+          id: event.id,
+          type: event.type,
+          livemode: event.livemode,
+          createdAt: nowTs(),
+        });
+      });
+
+      if (alreadyProcessed) {
+        res.status(200).send({received: true, duplicate: true});
+        return;
+      }
+
       if (event.type === "checkout.session.completed") {
         const session = event.data.object as Stripe.Checkout.Session;
 
         const uid = session.metadata?.uid;
         const orderId = session.metadata?.orderId;
-        const offerId = session.metadata?.offerId;
-        const itemType = session.metadata?.itemType as OfferType | undefined;
-        const itemId = session.metadata?.itemId;
 
-        if (!uid || !orderId || !offerId || !itemType || !itemId) {
+        if (!uid || !orderId) {
           throw new Error("Missing metadata on checkout session.");
         }
 
         const orderRef = db.doc(`users/${uid}/orders/${orderId}`);
+        const orderSnap = await orderRef.get();
+        if (!orderSnap.exists) {
+          throw new Error(`Order ${orderId} not found for user ${uid}.`);
+        }
+
+        const orderData = orderSnap.data() as OrderStored;
+
+        const expectedAmountCents = Math.round(Number(orderData?.amount || 0) * 100);
+        const sessionAmount = Number(session.amount_total || 0);
+        const expectedCurrency = String(orderData?.currency || "USD").toLowerCase();
+        const paidCurrency = String(session.currency || "usd").toLowerCase();
+
+        if (expectedAmountCents !== sessionAmount || expectedCurrency !== paidCurrency) {
+          await orderRef.set({
+            status: "flagged",
+            webhookEventId: event.id,
+            updatedAt: nowTs(),
+          }, {merge: true});
+          throw new Error("Order amount/currency mismatch during webhook validation.");
+        }
+
+        if (orderData?.status === "paid") {
+          res.status(200).send({received: true, alreadyPaid: true});
+          return;
+        }
+
         await orderRef.set({
           status: "paid",
           paymentIntentId: session.payment_intent ?? null,
           checkoutSessionId: session.id,
+          webhookEventId: event.id,
+          paidAt: nowTs(),
           updatedAt: nowTs(),
         }, {merge: true});
 
-        await grantPurchasedAccessInternal({
-          uid,
-          orderId,
-          itemType,
-          itemId,
-        });
+        const storedItems = Array.isArray(orderData.items) ? orderData.items : [];
+        if (storedItems.length) {
+          for (const item of storedItems) {
+            if (!item?.itemType || !item?.itemId) continue;
+            await grantPurchasedAccessInternal({
+              uid,
+              orderId,
+              itemType: item.itemType,
+              itemId: item.itemId,
+            });
+          }
+        } else if (orderData.itemType && orderData.itemId) {
+          await grantPurchasedAccessInternal({
+            uid,
+            orderId,
+            itemType: orderData.itemType,
+            itemId: orderData.itemId,
+          });
+        }
       }
 
       res.status(200).send({received: true});
@@ -624,6 +1150,7 @@ export const stripeWebhook = onRequest(
 
 /* ─────────── Optional callable: manualGrantPurchasedAccess ─────────── */
 export const manualGrantPurchasedAccess = onCall(
+  {invoker: HTTPS_PUBLIC},
   async (
     request: CallableRequest<{
       uid: string;
@@ -635,6 +1162,11 @@ export const manualGrantPurchasedAccess = onCall(
     const callerUid = request.auth?.uid;
     if (!callerUid) {
       throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const callerIsAdmin = await isAdminUid(callerUid);
+    if (!callerIsAdmin) {
+      throw new HttpsError("permission-denied", "Admin role required.");
     }
 
     const uid = String(request.data?.uid || "").trim();
@@ -659,3 +1191,91 @@ export const manualGrantPurchasedAccess = onCall(
     return {ok: true};
   },
 );
+
+/* ─────────── Callable: publishCourseToMarketplace ─────────── */
+export const publishCourseToMarketplace = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<PublishCoursePayload>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
+    }
+
+    if (!(await isPublisherUid(uid))) {
+      throw new HttpsError("permission-denied", "Publisher role required.");
+    }
+
+    const courseId = String(request.data?.courseId || "").trim();
+    const stripePriceId = String(request.data?.stripePriceId || "").trim();
+    const price = Number(request.data?.price || 0);
+    const currency = String(request.data?.currency || "USD").trim().toUpperCase();
+    const isPublic = request.data?.isPublic !== false;
+
+    if (!courseId) {
+      throw new HttpsError("invalid-argument", "courseId is required.");
+    }
+    if (!stripePriceId) {
+      throw new HttpsError("invalid-argument", "stripePriceId is required.");
+    }
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new HttpsError("invalid-argument", "price must be > 0.");
+    }
+
+    const userSnap = await db.doc(`users/${uid}`).get();
+    const orgId = String(userSnap.get("orgId") || "").trim();
+    if (!orgId) {
+      throw new HttpsError("failed-precondition", "User orgId is missing.");
+    }
+
+    const courseRef = db.doc(`courses/${courseId}`);
+    const courseSnap = await courseRef.get();
+    if (!courseSnap.exists) {
+      throw new HttpsError("not-found", "Course not found.");
+    }
+
+    const dupQuery = await db
+      .collection("publicOffers")
+      .where("type", "==", "course")
+      .where("courseId", "==", courseId)
+      .where("orgId", "==", orgId)
+      .where("isActive", "==", true)
+      .limit(1)
+      .get();
+
+    if (!dupQuery.empty) {
+      return {ok: true, alreadyExists: true, offerId: dupQuery.docs[0].id};
+    }
+
+    const course = courseSnap.data() as {
+      title?: string;
+      description?: string;
+      imageUrl?: string;
+      category?: string;
+      tags?: string[];
+    };
+
+    const offerRef = db.collection("publicOffers").doc();
+    await offerRef.set({
+      type: "course",
+      orgId,
+      courseId,
+      title: String(course?.title || "").trim(),
+      description: String(course?.description || "").trim(),
+      imageUrl: String(course?.imageUrl || "").trim(),
+      category: String(course?.category || "").trim() || null,
+      tags: Array.isArray(course?.tags) ? course.tags : [],
+      price,
+      currency,
+      stripePriceId,
+      isActive: true,
+      isPublic,
+      publishedBy: uid,
+      createdAt: nowTs(),
+      updatedAt: nowTs(),
+    });
+
+    return {ok: true, offerId: offerRef.id};
+  },
+);
+
+

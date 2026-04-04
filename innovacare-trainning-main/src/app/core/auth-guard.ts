@@ -20,7 +20,7 @@ function defaultRouteForRole(role: AppRole): string {
     case 'learner':
       return '/learner';
     case 'guest':
-      return '/guest';
+      return '/guest/dashboard';
     default:
       return '/login';
   }
@@ -67,6 +67,22 @@ export const authCanMatch: CanMatchFn = () => {
     map(([_, profile]): boolean | UrlTree => {
       if (profile) return true;
       return router.createUrlTree(['/login']);
+    })
+  );
+};
+
+export const authenticatedGuard: CanActivateFn = (_, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  return combineLatest([auth.ready$, auth.profile$]).pipe(
+    filter(([ready]) => ready),
+    take(1),
+    map(([_, profile]): boolean | UrlTree => {
+      if (profile) return true;
+      return router.createUrlTree(['/login'], {
+        queryParams: { returnUrl: state.url },
+      });
     })
   );
 };

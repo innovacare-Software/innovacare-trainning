@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Firestore, doc, docData, collection, collectionData, query, where } from '@angular/fire/firestore';
@@ -6,14 +6,22 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { GuestProgramsService } from '../../../core/guest-programs.service';
 import { LiveClass, Program } from '../../../data/app-user.model';
+import { GuestProgramAccess } from '../../../data/guest-commerce.model';
+
+interface IncludedCourse {
+  id: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+}
 
 
 @Component({
   selector: 'app-guest-program-detail',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './guest-program-detail.html',
-  styleUrls: ['./guest-program-detail.css'],
+  templateUrl: './guest-program-detail.component.html',
+  styleUrls: ['./guest-program-detail.component.css'],
 })
 export class GuestProgramDetailComponent {
   private route = inject(ActivatedRoute);
@@ -24,7 +32,7 @@ export class GuestProgramDetailComponent {
 
   access = toSignal(
     this.guestPrograms.myProgramById$(this.programAccessId),
-    { initialValue: null as any }
+    { initialValue: null as GuestProgramAccess | null }
   );
 
   private getProgramById$ = (programId: string) => {
@@ -52,31 +60,35 @@ export class GuestProgramDetailComponent {
       }),
       switchMap((program: Program | null) => {
         const ids = program?.includesCourseIds ?? [];
-        if (!ids.length) return of([]);
+        if (!ids.length) return of([] as IncludedCourse[]);
 
         const streams = ids.map((id) =>
           docData(doc(this.afs, `courses/${id}`), { idField: 'id' }).pipe(
-            map((course: any) => course ?? null)
+            map((course) => (course as IncludedCourse | null) ?? null)
           )
         );
 
-        return combineLatest(streams);
+        return combineLatest(streams).pipe(
+          map((courses) => courses.filter((c): c is IncludedCourse => !!c))
+        );
       })
     ),
-    { initialValue: [] as any[] }
+    { initialValue: [] as IncludedCourse[] }
   );
 
   liveClasses = toSignal(
     this.guestPrograms.myProgramById$(this.programAccessId).pipe(
       switchMap((access) => {
         const programId = access?.programId ?? '';
-        if (!programId) return of([]);
+        if (!programId) return of([] as LiveClass[]);
         const q = query(
           collection(this.afs, 'liveClasses'),
           where('relatedProgramId', '==', programId),
           where('isActive', '==', true)
         );
-        return collectionData(q, { idField: 'id' }) as any;
+        return collectionData(q, { idField: 'id' }).pipe(
+          map((items) => items as LiveClass[])
+        );
       })
     ),
     { initialValue: [] as LiveClass[] }

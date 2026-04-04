@@ -114,3 +114,9 @@ export interface PublicOffer {
   createdAt?: any;
   updatedAt?: any;
 }
+
+export interface ProgramAccess {
+  programId: string;
+  enrolled: boolean;
+  purchased: boolean;
+}

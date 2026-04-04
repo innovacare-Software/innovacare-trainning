@@ -15,6 +15,7 @@ export interface Organization {
     primaryColor?: string;
   };
 
+  accessCode?: string;
   createdAt: any;
 }
 export interface Course {

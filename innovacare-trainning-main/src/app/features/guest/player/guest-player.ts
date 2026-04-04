@@ -113,9 +113,34 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
 
   notice = '';
   busyId: string | null = null;
+  private readonly stateStorageKey = `guest-player-state:${this.enrollmentId}`;
+  private readonly analyticsStorageKey = `guest-player-analytics:${this.enrollmentId}`;
+  private restoredActiveIndex: number | null = null;
+  private sessionTimerId: number | null = null;
+  private persistedStateTimerId: number | null = null;
+  private sessionStartedAt = Date.now();
+  private lessonStartedAt = Date.now();
+  private accumulatedSessionSeconds = 0;
+  private lastTrackedLessonId = '';
 
   // local UI state
   activeIndex = signal(0);
+  sidebarOpen = signal(true);
+  focusMode = signal(false);
+
+  // lightweight analytics
+  sessionSeconds = signal(0);
+  currentLessonSeconds = signal(0);
+  quizAttempts = signal(0);
+  quizPasses = signal(0);
+  lessonCompletions = signal(0);
+  quizPassRate = computed(() => {
+    const attempts = this.quizAttempts();
+    if (!attempts) return 0;
+    return Math.round((this.quizPasses() / attempts) * 100);
+  });
+  sessionTimeLabel = computed(() => this.formatDuration(this.sessionSeconds()));
+  lessonTimeLabel = computed(() => this.formatDuration(this.currentLessonSeconds()));
 
   // quiz state
   private quizSel = new Map<string, Set<string>>();
@@ -126,9 +151,44 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
   private slideIndexes = new Map<string, number>();
   private slideAudioDone = new Map<string, Set<number>>();
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.restoreStateFromStorage();
+    this.restoreAnalyticsFromStorage();
 
-  ngOnDestroy(): void {}
+    this.sessionStartedAt = Date.now();
+    this.lessonStartedAt = Date.now();
+
+    this.sessionTimerId = window.setInterval(() => {
+      const now = Date.now();
+      this.sessionSeconds.set(
+        this.accumulatedSessionSeconds + Math.floor((now - this.sessionStartedAt) / 1000)
+      );
+      this.currentLessonSeconds.set(Math.floor((now - this.lessonStartedAt) / 1000));
+      this.persistAnalyticsToStorage();
+    }, 1000);
+
+    // Keep UI state synced so reading state survives refresh.
+    this.persistedStateTimerId = window.setInterval(() => {
+      this.tryApplyRestoredActiveIndex();
+      this.persistStateToStorage();
+    }, 800);
+  }
+
+  ngOnDestroy(): void {
+    if (this.sessionTimerId !== null) {
+      window.clearInterval(this.sessionTimerId);
+      this.sessionTimerId = null;
+    }
+
+    if (this.persistedStateTimerId !== null) {
+      window.clearInterval(this.persistedStateTimerId);
+      this.persistedStateTimerId = null;
+    }
+
+    this.accumulatedSessionSeconds = this.sessionSeconds();
+    this.persistStateToStorage();
+    this.persistAnalyticsToStorage();
+  }
 
   enrollment = toSignal(
     this.guestEnrollments.myEnrollmentById$(this.enrollmentId),
@@ -175,6 +235,8 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
       if (idx >= 0 && idx !== this.activeIndex()) {
         this.activeIndex.set(idx);
       }
+    } else {
+      this.tryApplyRestoredActiveIndex();
     }
 
     const current = this.activeIndex();
@@ -242,8 +304,13 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
       ok = picked.size === correctIds.size && [...picked].every((id) => correctIds.has(id));
     }
 
+    this.quizAttempts.update((v) => v + 1);
+    if (ok) this.quizPasses.update((v) => v + 1);
+
     this.quizRes.set(k, ok ? 'passed' : 'failed');
     if (ok) this.quizLock.add(k);
+
+    this.persistAnalyticsToStorage();
   }
 
   // -------------------------
@@ -301,10 +368,15 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
 
     this.activeIndex.set(i);
     this.notice = '';
+    this.lessonStartedAt = Date.now();
+    this.currentLessonSeconds.set(0);
 
     const user = await firstValueFrom(authState(this.auth));
     const enrollment = this.enrollment();
     const lesson = ls[i];
+    this.lastTrackedLessonId = lesson?.id ?? '';
+
+    this.persistStateToStorage();
 
     if (user?.uid && enrollment?.id && lesson?.id) {
       await this.guestEnrollments.setCurrentLesson({
@@ -328,6 +400,7 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
 
     this.busyId = lessonId;
     try {
+      this.lessonCompletions.update((v) => v + 1);
       await this.guestEnrollments.markLessonComplete({
         uid: user.uid,
         enrollmentId: enrollment.id,
@@ -337,6 +410,7 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
 
       const idx = this.lessons().findIndex((l) => l.id === lessonId);
       this.next(idx);
+      this.persistAnalyticsToStorage();
     } catch (e: any) {
       this.notice = e?.message || 'Failed to complete lesson.';
     } finally {
@@ -392,6 +466,7 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
 
     const next = Math.max(0, Math.min(index, total - 1));
     this.slideIndexes.set(this.slideKey(lessonId, bi), next);
+    this.persistStateToStorage();
   }
 
   prevSlide(lessonId: string, bi: number, block: Block): void {
@@ -427,11 +502,142 @@ export class GuestCoursePlayerComponent implements OnInit, OnDestroy {
     const set = new Set(this.slideAudioDone.get(key) ?? []);
     set.add(idx);
     this.slideAudioDone.set(key, set);
+    this.persistStateToStorage();
 
     const slide = this.currentSlide(lessonId, bi, block);
     if (slide?.autoAdvance && idx < ((block.slides?.length ?? 1) - 1)) {
       this.nextSlide(lessonId, bi, block);
     }
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen.update((v) => !v);
+    this.persistStateToStorage();
+  }
+
+  toggleFocusMode(): void {
+    this.focusMode.update((v) => !v);
+    if (this.focusMode()) {
+      this.sidebarOpen.set(false);
+    }
+    this.persistStateToStorage();
+  }
+
+  private tryApplyRestoredActiveIndex(): void {
+    if (this.restoredActiveIndex === null) return;
+
+    const ls = this.lessons();
+    if (!ls.length) return;
+
+    const clamped = Math.max(0, Math.min(this.restoredActiveIndex, ls.length - 1));
+    if (this.activeIndex() !== clamped) {
+      this.activeIndex.set(clamped);
+    }
+
+    const lesson = ls[clamped];
+    if (lesson?.id && lesson.id !== this.lastTrackedLessonId) {
+      this.lastTrackedLessonId = lesson.id;
+      this.lessonStartedAt = Date.now();
+      this.currentLessonSeconds.set(0);
+    }
+
+    this.restoredActiveIndex = null;
+  }
+
+  private restoreStateFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(this.stateStorageKey);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as {
+        activeIndex?: number;
+        sidebarOpen?: boolean;
+        focusMode?: boolean;
+        slideIndexes?: Record<string, number>;
+      };
+
+      if (typeof parsed.activeIndex === 'number') {
+        this.restoredActiveIndex = parsed.activeIndex;
+      }
+      if (typeof parsed.sidebarOpen === 'boolean') {
+        this.sidebarOpen.set(parsed.sidebarOpen);
+      }
+      if (typeof parsed.focusMode === 'boolean') {
+        this.focusMode.set(parsed.focusMode);
+      }
+
+      const slideEntries = Object.entries(parsed.slideIndexes ?? {});
+      this.slideIndexes = new Map<string, number>(slideEntries);
+
+      if (this.focusMode()) {
+        this.sidebarOpen.set(false);
+      }
+    } catch {
+      // Ignore malformed browser storage state.
+    }
+  }
+
+  private persistStateToStorage(): void {
+    try {
+      const payload = {
+        activeIndex: this.activeIndex(),
+        sidebarOpen: this.sidebarOpen(),
+        focusMode: this.focusMode(),
+        slideIndexes: Object.fromEntries(this.slideIndexes.entries()),
+      };
+      localStorage.setItem(this.stateStorageKey, JSON.stringify(payload));
+    } catch {
+      // Ignore storage failures (private mode/quota).
+    }
+  }
+
+  private restoreAnalyticsFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(this.analyticsStorageKey);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as {
+        sessionSeconds?: number;
+        quizAttempts?: number;
+        quizPasses?: number;
+        lessonCompletions?: number;
+      };
+
+      this.accumulatedSessionSeconds = Math.max(0, Number(parsed.sessionSeconds ?? 0));
+      this.sessionSeconds.set(this.accumulatedSessionSeconds);
+      this.quizAttempts.set(Math.max(0, Number(parsed.quizAttempts ?? 0)));
+      this.quizPasses.set(Math.max(0, Number(parsed.quizPasses ?? 0)));
+      this.lessonCompletions.set(Math.max(0, Number(parsed.lessonCompletions ?? 0)));
+    } catch {
+      // Ignore malformed browser storage analytics.
+    }
+  }
+
+  private persistAnalyticsToStorage(): void {
+    try {
+      const payload = {
+        sessionSeconds: this.sessionSeconds(),
+        quizAttempts: this.quizAttempts(),
+        quizPasses: this.quizPasses(),
+        lessonCompletions: this.lessonCompletions(),
+      };
+      localStorage.setItem(this.analyticsStorageKey, JSON.stringify(payload));
+    } catch {
+      // Ignore storage failures (private mode/quota).
+    }
+  }
+
+  private formatDuration(totalSeconds: number): string {
+    const sec = Math.max(0, Math.floor(totalSeconds || 0));
+    const hours = Math.floor(sec / 3600);
+    const minutes = Math.floor((sec % 3600) / 60);
+    const seconds = sec % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+    }
+
+    return `${minutes}m ${String(seconds).padStart(2, '0')}s`;
   }
 
   // -------------------------

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { roleCanMatch } from './core/role.canmatch';
+import { authenticatedGuard } from './core/auth-guard';
 
 
 export const routes: Routes = [
@@ -80,7 +81,7 @@ export const routes: Routes = [
         (m) => m.CourseDetailPage
       ),
   },
-  {
+ {
   path: 'guest',
   loadChildren: () =>
     import('./features/guest/guest.routes').then((m) => m.GUEST_ROUTES),
@@ -94,6 +95,12 @@ export const routes: Routes = [
   path: 'checkout/cancel',
   loadComponent: () =>
     import('./features/publics/checkout/checkout-cancel.component').then(m => m.CheckoutCancelComponent),
+},
+{
+  path: 'cart',
+  canActivate: [authenticatedGuard],
+  loadComponent: () =>
+    import('./features/publics/cart/cart-page.component').then(m => m.CartPageComponent),
 },
 
   { path: '**', redirectTo: '/home' }

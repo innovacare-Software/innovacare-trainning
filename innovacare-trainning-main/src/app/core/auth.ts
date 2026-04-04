@@ -159,19 +159,29 @@ export class AuthService {
       return { valid: false, message: 'Organization code is required.' };
     }
 
-    const q = query(
-      collection(this.afs, 'organizations'),
-      where('accessCode', '==', code),
-      where('active', '==', true)
+    const organizationsRef = collection(this.afs, 'organizations');
+
+    const snapByCode = await getDocs(
+      query(organizationsRef, where('accessCode', '==', code))
     );
 
-    const snap = await getDocs(q);
+    // Legacy fallback: some tenants may use orgId as login code.
+    const snapByOrgId = snapByCode.empty
+      ? await getDocs(query(organizationsRef, where('orgId', '==', code)))
+      : snapByCode;
 
-    if (snap.empty) {
+    if (snapByOrgId.empty) {
       return { valid: false, message: 'Invalid or inactive organization code.' };
     }
 
-    const orgDoc = snap.docs[0];
+    const orgDoc = snapByOrgId.docs[0];
+    const orgData = orgDoc.data() as { active?: boolean };
+
+    // Missing active flag is treated as active for backward compatibility.
+    if (orgData.active === false) {
+      return { valid: false, message: 'Invalid or inactive organization code.' };
+    }
+
     return {
       valid: true,
       orgId: orgDoc.id,
@@ -204,7 +214,7 @@ export class AuthService {
 
     const profile = userSnap.data() as AppProfile;
 
-    if (!profile.active) {
+    if (profile.active === false) {
       throw new Error('This account is inactive.');
     }
 
@@ -220,6 +230,7 @@ export class AuthService {
     this.profileSubject.next(null);
     this.profileSub?.unsubscribe();
     this.profileSub = undefined;
+
     await signOut(this.auth);
   }
 
@@ -228,6 +239,7 @@ export class AuthService {
     if (!clean) {
       throw new Error('Email is required.');
     }
+
     await sendPasswordResetEmail(this.auth, clean);
   }
 

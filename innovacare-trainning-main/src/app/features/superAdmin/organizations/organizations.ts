@@ -34,6 +34,7 @@ export class Organizations {
     ownerUid: '',
     ownerEmail: '',
     ownerDisplayName: '',
+    accessCode: '',
 
   };
 
@@ -88,6 +89,7 @@ export class Organizations {
       ownerUid: '',
       ownerEmail: '',
       ownerDisplayName: '',
+      accessCode: '',
     };
     this.notice.set('');
   }
@@ -125,10 +127,59 @@ export class Organizations {
         ownerUid: '',
         ownerEmail: '',
         ownerDisplayName: '',
+        accessCode: '',
       };
       this.applyFilters();
     } catch (e: any) {
       this.notice.set(e?.message || 'Failed to create organization.');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async editOrganization(orgId: string | undefined) {
+    if (!orgId || orgId.trim() === '') {
+      this.notice.set('Organization ID is required.');
+      return;
+    }
+    if (!this.newOrg.name || this.newOrg.name.trim() === '') {
+      this.notice.set('Organization name is required.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.notice.set('');
+    try {
+      await this.orgSvc.update(orgId, {
+        name: this.newOrg.name,
+        type: this.newOrg.type,
+        plan: this.newOrg.plan,
+      });
+
+      this.notice.set('Organization updated successfully.');
+      this.resetForm();
+      this.applyFilters();
+    } catch (e: any) {
+      this.notice.set(e?.message || 'Failed to update organization.');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async deleteOrganization(orgId: string | undefined) {
+    if (!orgId) {
+      this.notice.set('Organization ID is required.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.notice.set('');
+    try {
+      await this.orgSvc.delete(orgId);
+      this.notice.set('Organization deleted successfully.');
+      this.applyFilters();
+    } catch (e: any) {
+      this.notice.set(e?.message || 'Failed to delete organization.');
     } finally {
       this.loading.set(false);
     }

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/auth';
 
 @Component({
   selector: 'app-shell',
@@ -25,13 +26,17 @@ export class Shell {
   { label: 'Course Assignments', path: '/super-admin/course-assignments' },
 ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService
+  ) {}
 
   toggleSidebar() {
     this.sidebarOpen.update(v => !v);
   }
 
-  logout() {
-    this.router.navigate(['/home']);
+  async logout() {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

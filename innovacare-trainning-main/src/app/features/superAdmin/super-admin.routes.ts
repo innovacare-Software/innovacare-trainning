@@ -72,6 +72,31 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./organizationsPage/course-assign/course-assign').then(m => m.CourseAssign),
       },
       {
+        path: 'marketplace/publish',
+        loadComponent: () =>
+          import('../manager/marketplace-publish/marketplace-publish.component').then(m => m.MarketplacePublishComponent),
+      },
+      {
+        path: 'policy/new',
+        loadComponent: () =>
+          import('../manager/policy-admin-editor.page/policy-admin-editor.page').then(m => m.PolicyAdminEditorPage),
+      },
+      {
+        path: 'policy/:id/edit',
+        loadComponent: () =>
+          import('../manager/policy-admin-editor.page/policy-admin-editor.page').then(m => m.PolicyAdminEditorPage),
+      },
+      {
+        path: 'courses/new',
+        loadComponent: () =>
+          import('../manager/courses/courses').then(m => m.Courses),
+      },
+      {
+        path: 'courses/:id/edit',
+        loadComponent: () =>
+          import('../manager/courses/courses').then(m => m.Courses),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },

@@ -9,6 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CourseCatalogService } from '../catalogue-page';
 import { Course } from '../../../data/models';
+import { CartService } from '../../../core/cart.service';
 
 
 @Component({
@@ -29,6 +30,7 @@ export class CourseDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly courseService = inject(CourseCatalogService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly cart = inject(CartService);
 
   readonly loading = signal(true);
   readonly course = signal<Course | null>(null);
@@ -95,5 +97,30 @@ export class CourseDetailPage {
           );
         },
       });
+  }
+
+  async addToCart(): Promise<void> {
+    const course = this.course();
+    if (!course?.id) return;
+
+    try {
+      const offerId = await this.courseService.getPublicOfferIdForCourse(course.id);
+      if (!offerId) {
+        this.snackBar.open('Offre indisponible pour ce cours.', 'Fermer', {
+          duration: 4500,
+        });
+        return;
+      }
+
+      await this.cart.addOffer(offerId, 'default');
+      this.snackBar.open(`"${course.title}" ajouté au panier.`, 'Fermer', {
+        duration: 4000,
+      });
+    } catch (error) {
+      console.error('Erreur addToCart detail', error);
+      this.snackBar.open('Impossible d’ajouter ce cours au panier.', 'Fermer', {
+        duration: 5000,
+      });
+    }
   }
 }

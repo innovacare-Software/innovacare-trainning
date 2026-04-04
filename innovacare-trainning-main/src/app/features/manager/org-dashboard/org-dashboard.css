@@ -1,0 +1,70 @@
+.org-dashboard {
+  display: grid;
+  gap: 12px;
+}
+
+.hero {
+  border: 1px solid #d4e1f2;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(140deg, #ffffff, #f6fbff);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #5f7e9e;
+}
+
+.hero h1 {
+  margin: 6px 0 0;
+  color: #17375f;
+}
+
+.sub {
+  margin: 6px 0 0;
+  color: #607894;
+}
+
+.org-id {
+  align-self: flex-start;
+  border: 1px solid #c4d9f1;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #eaf4ff;
+  color: #2a5a8d;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.stat {
+  border: 1px solid #d8e4f2;
+  border-radius: 12px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.stat h3 {
+  margin: 0;
+  font-size: 13px;
+  color: #587495;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 28px;
+  color: #17375f;
+}

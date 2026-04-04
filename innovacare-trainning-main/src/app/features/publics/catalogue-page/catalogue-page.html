@@ -1,4 +1,4 @@
-<section class="catalog-page">
+<section class="catalog-page" id="top">
   <div class="catalog-hero">
     <div class="container catalog-hero__grid">
       <div class="catalog-hero__copy">
@@ -7,7 +7,17 @@
         <p class="hero-description">
           Accédez à un catalogue complet et filtrez les cours par type, domaine, langue, audience et contexte de soins pour trouver la formation idéale.
         </p>
-        <button class="btn btn-warning"  routerLink="/" (click)="closeMobileMenu()">Retour à l'accueil</button>
+        <div class="hero-actions">
+          <button class="btn btn-warning" routerLink="/" (click)="closeMobileMenu()">Retour a l'accueil</button>
+          <button class="btn btn-warning" routerLink="/guest/dashboard" (click)="closeMobileMenu()">Retour au dashboard guest</button>
+          <a class="btn btn-ghost" href="#results">Voir les resultats</a>
+        </div>
+
+        <div class="hero-quick-links" aria-label="Navigation rapide">
+          <a href="#filters">Filtres</a>
+          <a href="#featured" *ngIf="featuredCourses().length">En vedette</a>
+          <a href="#results">Tous les cours</a>
+        </div>
 
         <div class="catalog-hero__stats" role="region" aria-label="Statistiques du catalogue">
           <article class="stat-card">
@@ -40,8 +50,18 @@
     </div>
   </div>
 
-  <div class="container section">
+  <div class="container section" id="filters">
     <div class="filter-shell">
+      <div class="filter-shell__head">
+        <div>
+          <span class="eyebrow">Recherche avancee</span>
+          <h2>Affinez rapidement le catalogue</h2>
+        </div>
+        <div class="active-filters" *ngIf="searchTerm() || selectedType() !== 'all' || selectedKind() !== 'all' || selectedLang() !== 'all' || selectedAudience() !== 'all' || selectedCareSetting() !== 'all'">
+          Filtres actifs
+        </div>
+      </div>
+
       <div class="filter-grid">
         <mat-form-field appearance="outline">
           <mat-label>Recherche</mat-label>
@@ -121,7 +141,7 @@
     </div>
   </div>
 
-  <div class="container section section--compact" *ngIf="featuredCourses().length">
+  <div class="container section section--compact" id="featured" *ngIf="featuredCourses().length">
     <div class="section-head">
       <span class="eyebrow">Cours en vedette</span>
       <h2>Les modules les plus visibles</h2>
@@ -155,20 +175,26 @@
             <mat-chip *ngFor="let tag of course.tags || []">{{ tag }}</mat-chip>
           </mat-chip-set>
 
-          <button mat-flat-button color="primary" type="button" (click)="openCourse(course.id)">
-            Voir le cours
-          </button>
+          <div class="featured-course-card__actions">
+            <button mat-flat-button color="primary" type="button" (click)="openCourse(course.id)">
+              Voir le cours
+            </button>
+            <button mat-stroked-button type="button" (click)="addToCart(course)">
+              Ajouter au panier
+            </button>
+          </div>
         </div>
       </article>
     </div>
   </div>
 
-  <div class="container section">
+  <div class="container section" id="results">
     <div class="catalog-header-row">
       <div>
         <span class="eyebrow">Résultats</span>
         <h2>{{ filteredCourses().length }} cours trouvés</h2>
       </div>
+      <a class="back-to-top" href="#top">Retour en haut</a>
     </div>
 
     <div class="course-list" *ngIf="!loading(); else loadingTpl">
@@ -188,6 +214,17 @@
             </div>
           </div>
 
+          <div class="course-list-card__signals">
+            <span class="signal score">
+              <mat-icon>workspace_premium</mat-icon>
+              Certification {{ course.passingScore }}%
+            </span>
+            <span class="signal trust">
+              <mat-icon>verified</mat-icon>
+              Cours valide et a jour
+            </span>
+          </div>
+
           <div class="course-info-grid">
             <span><mat-icon>category</mat-icon>{{ course.type }}</span>
             <span><mat-icon>translate</mat-icon>{{ course.lang }}</span>
@@ -203,14 +240,35 @@
         </div>
 
         <div class="course-list-card__actions">
-          <button mat-flat-button color="primary" type="button" (click)="openCourse(course.id)">
-            Voir le cours
+          <div class="buy-box">
+            <p class="buy-box__label">Formation professionnelle</p>
+            <p class="buy-box__title">Acces immediat apres inscription</p>
+            <p class="buy-box__meta">Inclus: support, suivi, historique d'apprentissage</p>
+          </div>
+
+          <button class="btn-amz btn-amz--primary" type="button" (click)="addToCart(course)">
+            Ajouter au panier
           </button>
-          <button mat-stroked-button type="button" (click)="addToPathway(course)">
-            Ajouter au parcours
+
+          <button class="btn-amz btn-amz--secondary" type="button" (click)="openCourse(course.id)">
+            Voir le detail
+          </button>
+
+          <button mat-stroked-button type="button" class="btn-ghost-line" (click)="addToPathway(course)">
+            Sauvegarder le parcours
+          </button>
+
+          <button mat-flat-button color="accent" type="button" class="btn-checkout" (click)="startCheckout()">
+            S'abonner
           </button>
         </div>
       </article>
+
+      <div class="empty-state" *ngIf="!filteredCourses().length">
+        <h3>Aucun cours ne correspond a vos filtres</h3>
+        <p>Essayez de reinitialiser les filtres ou d'utiliser un autre mot-cle.</p>
+        <button mat-stroked-button type="button" (click)="clearFilters()">Reinitialiser les filtres</button>
+      </div>
     </div>
 
     <ng-template #loadingTpl>

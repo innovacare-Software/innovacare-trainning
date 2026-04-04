@@ -13,6 +13,7 @@ import {
 import { CoursesRepo } from '../../../data/courses.repo';
 import { Course, Section, Lesson, Block } from '../../../data/models';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/auth';
 
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -90,6 +91,7 @@ export class Courses {
   private repo = inject(CoursesRepo);
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
+  private auth = inject(AuthService);
 
   editId: string | null = null;
   loadingEdit = false;
@@ -97,6 +99,13 @@ export class Courses {
   currentStep = 1;
   searchTerm = '';
   sortBy = 'newest';
+  isSuperAdmin = false;
+
+  constructor() {
+    this.auth.profile$.subscribe((p) => {
+      this.isSuperAdmin = p?.role === 'super_admin';
+    });
+  }
 
   form = this.fb.group({
     title: this.fb.control<string>('', {
@@ -688,6 +697,11 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
   ============================ */
 
   async duplicateCourse(c: Course) {
+    if (!this.isSuperAdmin) {
+      this.router.navigate(['/super-admin/dashboard']);
+      return;
+    }
+
     const id = c.id;
     if (!id) return;
 
@@ -847,6 +861,11 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
   ============================ */
 
   async save() {
+    if (!this.isSuperAdmin) {
+      this.router.navigate(['/super-admin/dashboard']);
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -1029,5 +1048,9 @@ return {
 
   open(c: Course) {
     this.router.navigate(['/manager/courses', c.id, 'extras']);
+  }
+
+  goToSuperAdmin() {
+    this.router.navigate(['/super-admin/dashboard']);
   }
 }

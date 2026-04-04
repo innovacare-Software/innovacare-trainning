@@ -1,0 +1,33 @@
+<section class="org-dashboard">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Dashboard Organisation</p>
+      <h1>{{ vm().orgName }}</h1>
+      <p class="sub">Vue isolée par organisation. Aucun accès aux données des autres tenants.</p>
+    </div>
+    <span class="org-id" *ngIf="vm().orgId">Org ID: {{ vm().orgId }}</span>
+  </header>
+
+  <div class="stats">
+    <article class="stat">
+      <h3>Utilisateurs</h3>
+      <strong>{{ vm().totalUsers }}</strong>
+    </article>
+    <article class="stat">
+      <h3>Actifs</h3>
+      <strong>{{ vm().activeUsers }}</strong>
+    </article>
+    <article class="stat">
+      <h3>Admins/Managers</h3>
+      <strong>{{ vm().admins }}</strong>
+    </article>
+    <article class="stat">
+      <h3>Learners</h3>
+      <strong>{{ vm().learners }}</strong>
+    </article>
+    <article class="stat">
+      <h3>Offres organisation</h3>
+      <strong>{{ vm().offers }}</strong>
+    </article>
+  </div>
+</section>

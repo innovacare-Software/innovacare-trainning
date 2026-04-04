@@ -49,10 +49,14 @@
           </div>
 
           <div class="detail-actions">
-            <button mat-flat-button color="primary" type="button" class="btn-primary">
-              <mat-icon>play_arrow</mat-icon>
-              Commencer le cours
+            <button mat-flat-button color="primary" type="button" class="btn-primary" (click)="addToCart()">
+              <mat-icon>shopping_cart</mat-icon>
+              Ajouter au panier
             </button>
+            <a mat-stroked-button class="btn-secondary" routerLink="/cart">
+              <mat-icon>shopping_bag</mat-icon>
+              Voir mon panier
+            </a>
             <button mat-stroked-button type="button" (click)="addToPathway()" class="btn-secondary">
               <mat-icon>bookmark_border</mat-icon>
               Ajouter au parcours

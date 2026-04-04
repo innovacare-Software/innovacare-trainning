@@ -1,50 +1,106 @@
-<div class="player container">
-  <div class="crumbs">
-    <button class="btn soft" type="button" (click)="backToCourses()">‹ Back to My Courses</button>
-  </div>
+<div class="player-shell" [class.focus-mode]="focusMode()">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-actions">
+        <button class="btn soft" type="button" (click)="backToCourses()">‹ Back to My Courses</button>
+        <button class="btn soft" type="button" (click)="toggleSidebar()">
+          {{ sidebarOpen() ? 'Hide Outline' : 'Show Outline' }}
+        </button>
+        <button class="btn soft" type="button" (click)="toggleFocusMode()">
+          {{ focusMode() ? 'Exit Focus' : 'Focus Mode' }}
+        </button>
+      </div>
 
-  <header class="header">
-    <h1 class="title">Guest Course Player</h1>
-    <div class="muted">
-      Progress: {{ enrollment()?.progressPct || 0 }}%
+      <div class="course-context">
+        <p class="eyebrow">Learning Workspace</p>
+        <h1 class="title">{{ course()?.title || 'Guest Course Player' }}</h1>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="kpi-card">
+        <span class="kpi-label">Lessons</span>
+        <strong>{{ lessons().length }}</strong>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Completed</span>
+        <strong>{{ completedSet().size }}</strong>
+      </div>
+      <div class="kpi-card progress-box">
+        <div class="kpi-label">Overall Progress</div>
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="enrollment()?.progressPct || 0"></div>
+        </div>
+        <strong>{{ enrollment()?.progressPct || 0 }}%</strong>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-label">Session Time</span>
+        <strong>{{ sessionTimeLabel() }}</strong>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-label">Lesson Focus</span>
+        <strong>{{ lessonTimeLabel() }}</strong>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-label">Quiz Success</span>
+        <strong>{{ quizPassRate() }}%</strong>
+      </div>
     </div>
   </header>
 
-  <section class="content grid">
-    <aside class="list card">
-      <div class="list-head">
-        <strong>Lessons</strong>
-        <span class="muted">({{ lessons().length }})</span>
+  <section class="workspace-grid" [class.sidebar-collapsed]="!sidebarOpen()">
+    <aside class="syllabus card" *ngIf="sidebarOpen()">
+      <div class="syllabus-head">
+        <div>
+          <h2>Course Outline</h2>
+          <p class="muted">Pick a lesson to continue</p>
+        </div>
+        <span class="count-pill">{{ lessons().length }}</span>
       </div>
 
-      <div
-        class="lesson-item"
-        *ngFor="let l of lessons(); let i = index"
-        [class.active]="i === activeIndex()"
-        (click)="setActive(i)"
-      >
-        <div class="row-title">
-          <span class="title">{{ l.title }}</span>
-          <span class="chip" *ngIf="l.estMin">{{ l.estMin }} min</span>
-        </div>
+      <div class="lesson-scroll">
+        <button
+          class="lesson-item"
+          type="button"
+          *ngFor="let l of lessons(); let i = index"
+          [class.active]="i === activeIndex()"
+          (click)="setActive(i)"
+        >
+          <div class="lesson-main">
+            <div class="lesson-index">{{ i + 1 }}</div>
+            <div class="lesson-text">
+              <p class="lesson-title">{{ l.title }}</p>
+              <p class="lesson-sub muted">{{ l.sectionTitle }}</p>
+            </div>
+          </div>
 
-        <div class="row-sub muted">{{ l.sectionTitle }}</div>
-
-        <div class="row-right">
-          <span class="badge" [class.badge-done]="completedSet().has(l.id)">
-            {{ completedSet().has(l.id) ? 'Done' : 'Pending' }}
-          </span>
-        </div>
+          <div class="lesson-meta">
+            <span class="chip" *ngIf="l.estMin">{{ l.estMin }} min</span>
+            <span class="badge" [class.badge-done]="completedSet().has(l.id)">
+              {{ completedSet().has(l.id) ? 'Done' : 'Pending' }}
+            </span>
+          </div>
+        </button>
       </div>
     </aside>
 
     <article class="viewer card" *ngIf="current() as cur">
       <div class="viewer-head">
-        <h2 class="viewer-title">{{ cur.title }}</h2>
-        <div class="viewer-meta muted">
-          {{ cur.sectionTitle }}
-          <span class="dot"> · </span>
-          Lesson {{ cur.index + 1 }} / {{ lessons().length }}
+        <div>
+          <p class="eyebrow">Current Lesson</p>
+          <h2 class="viewer-title">{{ cur.title }}</h2>
+          <p class="viewer-meta muted">
+            {{ cur.sectionTitle }}
+            <span class="dot"> · </span>
+            Lesson {{ cur.index + 1 }} / {{ lessons().length }}
+          </p>
+        </div>
+
+        <div class="lesson-progress-chip">
+          {{ completedSet().has(cur.id) ? 'Completed' : 'In progress' }} • {{ lessonTimeLabel() }}
         </div>
       </div>
 
@@ -52,9 +108,10 @@
         <div class="course-html" role="document" aria-label="Lesson content">
           <ng-container *ngFor="let b of cur.blocks; let bi = index; trackBy: trackByBlock">
 
-            <div class="block"
-                 *ngIf="b.type !== 'quiz' && b.type !== 'video' && b.type !== 'narrated_slides'"
-                 [innerHTML]="blockHtml(b)">
+            <div
+              class="block content-block"
+              *ngIf="b.type !== 'quiz' && b.type !== 'video' && b.type !== 'narrated_slides'"
+              [innerHTML]="blockHtml(b)">
             </div>
 
             <div class="block narrated-shell" *ngIf="b.type === 'narrated_slides'">

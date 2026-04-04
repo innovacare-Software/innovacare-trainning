@@ -1,33 +1,61 @@
-<section>
-  <h1>Guest Dashboard</h1>
-  <p *ngIf="user() as u">Welcome{{ u?.displayName ? ', ' + u.displayName : '' }}.</p>
-</section>
-
-<section class="grid-cards">
-  <div class="card">
-    <h3>My Courses</h3>
-    <p>{{ myCourses().length }} active item(s)</p>
-  </div>
-
-  <div class="card">
-    <h3>My Programs</h3>
-    <p>{{ myPrograms().length }} active program(s)</p>
-  </div>
-
-  <div class="card">
-    <h3>Live Classes</h3>
-    <p>{{ myBookings().length }} booking(s)</p>
+<section class="dashboard-header">
+  <div class="header-content">
+    <h1>Tableau de Bord</h1>
+    <p *ngIf="user() as u" class="welcome-message">Bienvenue{{ u?.displayName ? ', ' + u.displayName : '' }}</p>
   </div>
 </section>
 
-<section class="card">
-  <h3>Continue Learning</h3>
-  <div *ngIf="myCourses().length; else noCourses">
-    <div *ngFor="let c of myCourses()">
-      <strong>{{ c.courseId }}</strong> — {{ c.progressPct || 0 }}%
+<section class="quick-stats">
+  <div class="stat-card courses" (click)="navigateToCourses()" style="cursor: pointer;">
+    <div class="stat-icon">📚</div>
+    <div class="stat-info">
+      <h3>Mes Cours</h3>
+      <p class="stat-number">{{ myCourses().length }}</p>
+      <span class="stat-label">actif(s)</span>
     </div>
   </div>
+
+  <div class="stat-card programs" (click)="navigateToPrograms()" style="cursor: pointer;">
+    <div class="stat-icon">🎯</div>
+    <div class="stat-info">
+      <h3>Mes Programmes</h3>
+      <p class="stat-number">{{ myPrograms().length }}</p>
+      <span class="stat-label">programme(s)</span>
+    </div>
+  </div>
+
+  <div class="stat-card bookings" (click)="navigateToBookings()" style="cursor: pointer;">
+    <div class="stat-icon">📅</div>
+    <div class="stat-info">
+      <h3>Classes en Direct</h3>
+      <p class="stat-number">{{ myBookings().length }}</p>
+      <span class="stat-label">réservation(s)</span>
+    </div>
+  </div>
+</section>
+
+<section class="learning-section">
+  <div class="section-header">
+    <h2>Continuer l'Apprentissage</h2>
+    <p class="section-subtitle">Reprenez où vous vous êtes arrêté</p>
+  </div>
+  
+  <div class="learning-content" *ngIf="myCourses().length; else noCourses">
+    <div class="course-item" *ngFor="let c of myCourses()">
+      <div class="course-header">
+        <strong class="course-name">{{ c.courseId }}</strong>
+        <span class="progress-badge">{{ c.progressPct || 0 }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="c.progressPct || 0"></div>
+      </div>
+    </div>
+  </div>
+  
   <ng-template #noCourses>
-    <p>No purchased courses yet.</p>
+    <div class="empty-state">
+      <p>📖 Aucun cours acheté pour le moment.</p>
+      <p class="empty-hint">Explorez nos cours pour commencer votre apprentissage.</p>
+    </div>
   </ng-template>
 </section>

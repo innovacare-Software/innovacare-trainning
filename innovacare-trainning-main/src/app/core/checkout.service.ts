@@ -1,17 +1,54 @@
-import { Injectable, inject } from '@angular/core';
-import { Functions, httpsCallable } from '@angular/fire/functions';
+import { Injectable } from '@angular/core';
+import { Functions } from '@angular/fire/functions';
+import { httpsCallable } from 'firebase/functions';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class CheckoutService {
-  private functions = inject(Functions);
+  constructor(private functions: Functions) {}
+
+  async startCheckout(offerId?: string): Promise<void> {
+    if (!offerId) throw new Error('offerId manquant');
+
+    const origin = window.location.origin;
+
+    const session = await this.createCheckoutSession({
+      offerId,
+      successUrl: `${origin}/checkout/success`,
+      cancelUrl: `${origin}/checkout/cancel`,
+    });
+
+    window.location.href = session.url;
+  }
 
   async createCheckoutSession(input: {
-    offerId: string;
+    offerId?: string;
+    cartId?: string;
     successUrl: string;
     cancelUrl: string;
   }): Promise<{ url: string }> {
-    const fn = httpsCallable(this.functions, 'createCheckoutSession');
-    const result = await fn(input);
-    return result.data as { url: string };
+    if (!input.offerId && !input.cartId) {
+      throw new Error('offerId/cartId manquant');
+    }
+
+    const fn = httpsCallable<
+      {
+        offerId?: string;
+        cartId?: string;
+        successUrl: string;
+        cancelUrl: string;
+      },
+      { url?: string | null }
+    >(this.functions, 'createCheckoutSession');
+
+    const res = await fn(input);
+    const url = String(res.data?.url || '').trim();
+
+    if (!url) {
+      throw new Error('Checkout URL manquante');
+    }
+
+    return { url };
   }
 }

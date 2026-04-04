@@ -1,5 +1,11 @@
 <!-- Create / Edit Course -->
-<form class="card form" [formGroup]="form" (ngSubmit)="save()">
+<div class="card" *ngIf="!isSuperAdmin">
+  <h2>Creation is centralized to Super Admin</h2>
+  <p>Use the super admin area to create, edit, or publish marketplace courses.</p>
+  <button type="button" class="btn" (click)="goToSuperAdmin()">Go to Super Admin</button>
+</div>
+
+<form class="card form" [formGroup]="form" (ngSubmit)="save()" *ngIf="isSuperAdmin">
   <div class="form-header">
     <h2>{{ editId ? 'Edit Course' : 'Create Course' }}</h2>
     <p class="form-subtitle">{{ editId ? 'Update your course details' : 'Create a new educational course' }}</p>

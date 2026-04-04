@@ -1,10 +1,21 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Avatar files: avatars/{uid}/... => only that user can read/write.
+    match /avatars/{uid}/{allPaths=**} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Deny everything else by default.
     match /{allPaths=**} {
       allow read, write: if false;
     }

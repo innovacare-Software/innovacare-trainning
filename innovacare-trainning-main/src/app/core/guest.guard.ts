@@ -1,31 +1,34 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { combineLatest, filter, map, take } from 'rxjs';
+import { AuthService } from './auth';
+import { defaultRouteForRole } from './auth-redirect.service';
 
-export const guestGuard: CanActivateFn = async () => {
-  const auth = inject(Auth);
-  const afs = inject(Firestore);
+export const guestGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
   const router = inject(Router);
 
-  const user = auth.currentUser;
-  if (!user) {
-    return router.parseUrl('/login');
-  }
+  // Important on hard refresh: wait until auth profile hydration is complete.
+  return combineLatest([auth.ready$, auth.profile$]).pipe(
+    filter(([ready]) => ready),
+    take(1),
+    map(([_, profile]) => {
+      if (!profile) {
+        return router.parseUrl('/login');
+      }
 
-  const snap = await getDoc(doc(afs, `users/${user.uid}`));
-  if (!snap.exists()) {
-    return router.parseUrl('/login');
-  }
+      const isActive = profile.active ?? true;
+      const role = profile.role;
 
-  const profile = snap.data() as any;
-  if (!profile?.isActive) {
-    return router.parseUrl('/');
-  }
+      if (!isActive) {
+        return router.parseUrl('/login');
+      }
 
-  if (profile?.primaryRole !== 'guest') {
-    return router.parseUrl('/');
-  }
+      if (role !== 'guest') {
+        return router.parseUrl(defaultRouteForRole(role));
+      }
 
-  return true;
+      return true;
+    })
+  );
 };

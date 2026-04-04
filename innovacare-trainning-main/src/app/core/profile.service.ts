@@ -79,4 +79,20 @@ export class ProfileService {
       { merge: true }
     );
   }
+
+  getProfileData(uid: string): Observable<AppUserProfile | null> {
+    return docData(doc(this.afs, `users/${uid}`)) as Observable<AppUserProfile>;
+  }
+
+  async updateProfileData(uid: string, data: Partial<AppUserProfile>): Promise<void> {
+    const ref = doc(this.afs, `users/${uid}`);
+    await setDoc(
+      ref,
+      {
+        ...data,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
 }

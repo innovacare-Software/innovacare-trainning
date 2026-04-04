@@ -10,7 +10,7 @@ export function defaultRouteForRole(role: AppRole): string {
     case 'learner':
       return '/learner';
     case 'guest':
-      return '/guest';
+      return '/guest/dashboard';
     default:
       return '/login';
   }

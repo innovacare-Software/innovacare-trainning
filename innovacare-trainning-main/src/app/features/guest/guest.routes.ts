@@ -20,6 +20,7 @@ export const GUEST_ROUTES: Routes = [
     canActivate: [guestGuard],
     children: [
       { path: 'dashboard', component: GuestDashboardComponent },
+      { path: 'session/courses', component: GuestCoursesComponent },
       { path: 'courses', component: GuestCoursesComponent },
        { path: 'courses/:enrollmentId/player', component: GuestCoursePlayerComponent },
       { path: 'programs', component: GuestProgramsComponent },

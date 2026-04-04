@@ -2,15 +2,28 @@
   <aside class="guest-sidebar">
     <div class="brand">Innovacare Training</div>
 
+    <div class="company-type-selector">
+      <label for="companyType">Type Entreprise:</label>
+      <select id="companyType" [(ngModel)]="selectedCompanyType">
+        <option value="">Sélectionner un type</option>
+        <option value="healthcare">Healthcare</option>
+        <option value="corporate">Corporate</option>
+        <option value="education">Education</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
     <nav class="nav">
       <a routerLink="/guest/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/guest/courses" routerLinkActive="active">My Courses</a>
+      <a routerLink="/guest/session/courses" routerLinkActive="active">My Courses</a>
       <a routerLink="/guest/programs" routerLinkActive="active">My Programs</a>
       <a routerLink="/guest/live-classes" routerLinkActive="active">Live Classes</a>
       <a routerLink="/guest/bookings" routerLinkActive="active">Bookings</a>
       <a routerLink="/guest/orders" routerLinkActive="active">Orders</a>
       <a routerLink="/guest/profile" routerLinkActive="active">Profile</a>
     </nav>
+
+    <button class="logout-btn" (click)="logout()">Logout</button>
   </aside>
 
   <main class="guest-main">

@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, HostListener, inject, QueryList, signal, ViewChildren } from '@angular/core';
+import { Component, computed, DestroyRef, ElementRef, HostListener, inject, QueryList, signal, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -15,6 +15,9 @@ import { CourseCatalogService } from '../catalogue-page';
 import { Course } from '../../../data/models';
 import { MatDialog } from '@angular/material/dialog';
 import { DemoRequestDialog } from '../demo-request-dialog/demo-request-dialog';
+import { CartService } from '../../../core/cart.service';
+import { CheckoutService } from '../../../core/checkout.service';
+
 
 
 interface HeroHighlight {
@@ -96,7 +99,6 @@ export class CataloguePage  {
    @ViewChildren('revealRef') revealElements!: QueryList<ElementRef<HTMLElement>>;
 
   private readonly dialog = inject(MatDialog);
-
   mobileMenuOpen = false;
   headerScrolled = false;
   activeCategory = 2;
@@ -430,6 +432,9 @@ export class CataloguePage  {
   private readonly courseService = inject(CourseCatalogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly cart = inject(CartService);
+  private readonly checkout = inject(CheckoutService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
   readonly courses = signal<Course[]>([]);
@@ -539,7 +544,7 @@ export class CataloguePage  {
   constructor() {
     this.courseService
       .getPublicActiveCourses()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (courses) => {
           console.log('Courses loaded:', courses);
@@ -608,7 +613,7 @@ export class CataloguePage  {
       courseId: course.id,
       courseTitle: course.title,
       source: 'catalog-page',
-    }).pipe(takeUntilDestroyed()).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.snackBar.open(`"${course.title}" ajouté au parcours.`, 'Fermer', {
           duration: 4000,
@@ -625,10 +630,51 @@ export class CataloguePage  {
     });
   }
 
+  async addToCart(course: Course): Promise<void> {
+    if (!course.id) return;
+
+    try {
+      const offerId = await this.courseService.getPublicOfferIdForCourse(course.id);
+      if (!offerId) {
+        this.snackBar.open('Offre indisponible pour ce cours.', 'Fermer', {
+          duration: 4500,
+        });
+        return;
+      }
+
+      await this.cart.addOffer(offerId, 'default', {
+        courseId: course.id,
+        titleSnapshot: course.title,
+        imageSnapshot: course.imageUrl,
+      });
+      this.snackBar.open(`"${course.title}" ajouté au panier.`, 'Fermer', {
+        duration: 4000,
+      });
+      await this.router.navigate(['/cart']);
+    } catch (error) {
+      console.error('Erreur addToCart', error);
+      this.snackBar.open(
+        'Impossible d’ajouter ce cours au panier.',
+        'Fermer',
+        { duration: 5000 }
+      );
+    }
+  }
+
   totalLessonCount(course: Course): number {
     return (course.sections ?? []).reduce(
       (sum, section) => sum + (section.lessons?.length ?? 0),
       0
     );
+  }
+
+  async startCheckout(): Promise<void> {
+    const offerId = 'TON_OFFER_ID';
+
+    try {
+      await this.checkout.startCheckout(offerId);
+    } catch (err: unknown) {
+      console.error('Erreur checkout:', err);
+    }
   }
 }

@@ -5,15 +5,18 @@ import { Auth } from '@angular/fire/auth';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-guest-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './guest-dashboard.component.html',
+  styleUrls: ['./guest-dashboard.component.css']
 })
 export class GuestDashboardComponent {
   private afs = inject(Firestore);
+  private router = inject(Router);
   private auth = inject(Auth);
 
   user = toSignal(
@@ -64,4 +67,20 @@ export class GuestDashboardComponent {
     ),
     { initialValue: [] }
   );
+
+  navigateToCourses(): void {
+    // Navigate to courses
+    this.router.navigate(['/guest/session/courses']);
+  }
+
+  navigateToPrograms(): void {
+    // Navigate to programs
+    this.router.navigate(['/guest/programs']);
+
+  }
+
+  navigateToBookings(): void {
+    // Navigate to bookings
+    this.router.navigate(['/guest/bookings']);
+  }
 }

@@ -31,11 +31,11 @@ import { PolicyService } from '../../../shared/services/policy';
     <mat-card-title>Policy Admin Editor</mat-card-title>
     <mat-card-subtitle *ngIf="policyId">Editing: {{ policyId }}</mat-card-subtitle>
 
-    <div class="warn" *ngIf="!isAdmin">
-      Admin access required.
+    <div class="warn" *ngIf="!isSuperAdmin">
+      Super admin access required.
     </div>
 
-    <form [formGroup]="form" class="form" *ngIf="isAdmin">
+    <form [formGroup]="form" class="form" *ngIf="isSuperAdmin">
       <div class="row">
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
@@ -143,7 +143,7 @@ export class PolicyAdminEditorPage implements OnInit {
   private policySvc = inject(PolicyService);
   private auth = inject(AuthService);
 
-  isAdmin = false;
+  isSuperAdmin = false;
   busy = false;
   policyId: string | null = null;
 
@@ -169,8 +169,7 @@ export class PolicyAdminEditorPage implements OnInit {
 
   ngOnInit(): void {
     this.auth.profile$.subscribe(p => {
-      // ajuste selon ton profile
-      this.isAdmin = (p?.role === 'admin');
+      this.isSuperAdmin = (p?.role === 'super_admin');
     });
 
     this.route.paramMap.pipe(
@@ -202,7 +201,7 @@ export class PolicyAdminEditorPage implements OnInit {
   }
 
   async save() {
-    if (!this.isAdmin) return;
+    if (!this.isSuperAdmin) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -229,10 +228,10 @@ export class PolicyAdminEditorPage implements OnInit {
 
       if (!this.policyId) {
         const id = await this.policySvc.createPolicy(payload);
-        this.router.navigate(['/manager/dashboard']);
+        this.router.navigate(['/super-admin/dashboard']);
       } else {
         await this.policySvc.updatePolicy(this.policyId, payload);
-        this.router.navigate(['/manager/dashboard']);
+        this.router.navigate(['/super-admin/dashboard']);
       }
     } finally {
       this.busy = false;
@@ -240,17 +239,17 @@ export class PolicyAdminEditorPage implements OnInit {
   }
 
   async remove() {
-    if (!this.isAdmin || !this.policyId) return;
+    if (!this.isSuperAdmin || !this.policyId) return;
     this.busy = true;
     try {
       await this.policySvc.deletePolicy(this.policyId);
-      this.router.navigate(['/compliance/policies']);
+      this.router.navigate(['/super-admin/dashboard']);
     } finally {
       this.busy = false;
     }
   }
 
   back() {
-    this.router.navigate(['/manager/dashboard']);
+    this.router.navigate(['/super-admin/dashboard']);
   }
 }

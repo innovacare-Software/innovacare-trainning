@@ -2,27 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AuthService, AppProfile } from '../../../core/auth';
+import { AuthRedirectService, defaultRouteForRole } from '../../../core/auth-redirect.service';
 
 type TabType = 'guest' | 'org' | 'register';
-
-function defaultRouteForRole(role: AppProfile['role']): string {
-  switch (role) {
-    case 'super_admin':
-      return '/super-admin/dashboard';
-    case 'admin':
-    case 'manager':
-      return '/manager/dashboard';
-    case 'learner':
-      return '/learner';
-    case 'guest':
-      return '/guest/dashboard';
-    default:
-      return '/login';
-  }
-}
 
 @Component({
   standalone: true,
@@ -30,11 +16,23 @@ function defaultRouteForRole(role: AppProfile['role']): string {
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
+  animations: [
+    trigger('slideAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(8px)' }),
+        animate('220ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+      transition(':leave', [
+        animate('180ms ease-in', style({ opacity: 0, transform: 'translateY(-6px)' })),
+      ]),
+    ]),
+  ],
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private authRedirect = inject(AuthRedirectService);
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -81,6 +79,18 @@ export class LoginComponent {
     );
   }
 
+  private async redirectAfterAuth(profile: AppProfile): Promise<void> {
+    const parsed = this.router.parseUrl(this.router.url);
+    const returnUrl = String(parsed.queryParams?.['returnUrl'] || '').trim();
+
+    if (returnUrl.startsWith('/')) {
+      await this.router.navigateByUrl(returnUrl, { replaceUrl: true });
+      return;
+    }
+
+    await this.authRedirect.redirectAfterLogin(profile);
+  }
+
   switchTab(tab: TabType) {
     this.currentTab.set(tab);
     this.error.set(null);
@@ -103,9 +113,7 @@ export class LoginComponent {
       await this.auth.loginWithEmail(email!, password!, !!rememberMe);
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
-        replaceUrl: true,
-      });
+      await this.redirectAfterAuth(profile);
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Login failed'));
     } finally {
@@ -134,9 +142,7 @@ export class LoginComponent {
       });
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
-        replaceUrl: true,
-      });
+      await this.redirectAfterAuth(profile);
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Organization login failed'));
     } finally {
@@ -171,9 +177,7 @@ export class LoginComponent {
       );
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
-        replaceUrl: true,
-      });
+      await this.redirectAfterAuth(profile);
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Registration failed'));
     } finally {
@@ -190,9 +194,7 @@ export class LoginComponent {
       await this.auth.loginWithGoogle(true);
 
       const profile = await this.waitForFreshProfile();
-      await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
-        replaceUrl: true,
-      });
+      await this.redirectAfterAuth(profile);
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Google sign-in failed'));
     } finally {
@@ -245,5 +247,15 @@ export class LoginComponent {
       default:
         return error?.message ?? fallback;
     }
+  }
+
+  // optional debug helper
+  async debugRedirectCheck() {
+    const profile = await this.waitForFreshProfile();
+    console.log('PROFILE AFTER LOGIN', profile);
+    console.log('REDIRECT TO', defaultRouteForRole(profile.role));
+    await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+      replaceUrl: true,
+    });
   }
 }

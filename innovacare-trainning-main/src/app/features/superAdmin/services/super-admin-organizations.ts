@@ -73,12 +73,18 @@ export class SuperAdminOrganizationsService {
     return docData(ref, { idField: 'id' }) as Observable<SuperAdminOrganization | null>;
   }
 
+  private generateAccessCode(): string {
+    return Math.random().toString(36).substring(2, 15).toUpperCase();
+  }
+
   async create(
     payload: SuperAdminOrganization,
     actor?: { uid?: string; email?: string }
   ): Promise<string> {
+    const accessCode = this.generateAccessCode();
     const ref = await addDoc(this.colRef, {
       ...payload,
+      accessCode,
       active: payload.active ?? true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -91,7 +97,7 @@ export class SuperAdminOrganizationsService {
       actorUid: actor?.uid,
       actorEmail: actor?.email,
       message: `Organization created: ${payload.name}`,
-      meta: { name: payload.name, type: payload.type, plan: payload.plan },
+      meta: { name: payload.name, type: payload.type, plan: payload.plan, accessCode },
     });
 
     return ref.id;
@@ -106,8 +112,11 @@ export class SuperAdminOrganizationsService {
     };
     actor?: { uid?: string; email?: string };
   }): Promise<string> {
+    const accessCode = this.generateAccessCode();
+
     const orgRef = await addDoc(this.colRef, {
       ...params.organization,
+      accessCode,
       active: params.organization.active ?? true,
       ownerUid: params.owner.uid,
       ownerEmail: params.owner.email,
@@ -177,6 +186,14 @@ export class SuperAdminOrganizationsService {
     });
   }
 
+  async editOrganization(
+    id: string,
+    payload: Partial<SuperAdminOrganization>,
+    actor?: { uid?: string; email?: string }
+  ): Promise<void> {
+    return this.update(id, payload, actor);
+  }
+
   async delete(
     id: string,
     actor?: { uid?: string; email?: string }
@@ -231,4 +248,6 @@ export class SuperAdminOrganizationsService {
       map((rows: any[]) => rows.filter((x) => x.orgId === orgId))
     ) as Observable<OrganizationCourseAssignment[]>;
   }
+
+  
 }

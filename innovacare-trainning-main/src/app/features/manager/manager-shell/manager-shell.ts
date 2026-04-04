@@ -5,6 +5,7 @@ import { filter } from 'rxjs/operators';
 
 import { NotificationBell } from '../../../shared/components/notifications/notification-bell/notification-bell';
 import { NotificationBellPlainComponent } from '../../../shared/components/notifications/notification-bell-plain/notification-bell-plain';
+import { AuthService } from '../../../core/auth';
 
 @Component({
   selector: 'app-manager-shell',
@@ -15,6 +16,7 @@ import { NotificationBellPlainComponent } from '../../../shared/components/notif
 })
 export class ManagerShell {
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   sidebarOpen = signal(false);
   toggleSidebar() { this.sidebarOpen.update(v => !v); }
@@ -22,6 +24,7 @@ export class ManagerShell {
 
   nav = signal([
     { path: '/manager/dashboard', label: 'Dashboard', active: true },
+    { path: '/manager/org-users', label: 'Org Users', active: false },
     { path: '/manager/assign',    label: 'Assign',    active: false },
     { path: '/manager/courses',   label: 'Courses',   active: false }
   ]);
@@ -29,6 +32,7 @@ export class ManagerShell {
   resources = signal([
     { path: '/manager/reports', label: 'Reports' },
     { path: '/manager/wounds', label: 'Wounds' },
+    { path: '/manager/marketplace/publish', label: 'Publish Marketplace' },
     { path: '/manager/setting', label: 'Setting' }
   ]);
 
@@ -39,8 +43,8 @@ export class ManagerShell {
     });
   }
 
-  logout() {
-    // TODO: hook to Firebase/AuthService
-    this.router.navigate(['/home']);
+  async logout() {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }
