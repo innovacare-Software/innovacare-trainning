@@ -37,3 +37,80 @@ export interface AppUserProfile {
     lastDashboardAt?: any;
   };
 }
+export interface Program {
+  id?: string;
+  title: string;
+  subtitle?: string;
+  description: string;
+  imageUrl?: string;
+
+  category: 'NCLEX' | 'DHA' | 'DOH' | 'DevOps' | 'Other';
+
+  isPublic: boolean;
+  active: boolean;
+
+  price: number;
+  currency: 'USD';
+
+  includesCourseIds: string[];
+  includesLiveClasses?: boolean;
+  durationWeeks?: number;
+
+  createdAt?: any;
+  updatedAt?: any;
+}
+export interface LiveClass {
+  id?: string;
+  title: string;
+  description?: string;
+
+  relatedCourseId?: string;
+  relatedProgramId?: string;
+
+  category?: 'NCLEX' | 'DHA' | 'DOH' | 'DevOps' | 'Other';
+
+  instructorName?: string;
+
+  startAt: any;
+  endAt: any;
+  timezone?: string;
+
+  locationType: 'google_meet' | 'zoom' | 'in_person';
+  meetingUrl?: string;
+
+  capacity?: number;
+  seatsRemaining?: number;
+
+  isActive: boolean;
+  price?: number;
+
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export interface PublicOffer {
+  id?: string;
+
+  courseId?: string;
+  programId?: string;
+  liveClassId?: string;
+
+  type: 'course' | 'program' | 'live_class';
+
+  title: string;
+  description?: string;
+  imageUrl?: string;
+
+  price: number;
+  currency: 'USD';
+
+  isActive: boolean;
+  isPublic: boolean;
+
+  category?: 'NCLEX' | 'DHA' | 'DOH' | 'DevOps' | 'Wound Care' | 'Infection Prevention';
+
+  tags?: string[];
+
+  createdAt?: any;
+  updatedAt?: any;
+}

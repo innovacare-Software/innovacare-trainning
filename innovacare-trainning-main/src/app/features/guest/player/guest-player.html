@@ -1,0 +1,185 @@
+<div class="player container">
+  <div class="crumbs">
+    <button class="btn soft" type="button" (click)="backToCourses()">‹ Back to My Courses</button>
+  </div>
+
+  <header class="header">
+    <h1 class="title">Guest Course Player</h1>
+    <div class="muted">
+      Progress: {{ enrollment()?.progressPct || 0 }}%
+    </div>
+  </header>
+
+  <section class="content grid">
+    <aside class="list card">
+      <div class="list-head">
+        <strong>Lessons</strong>
+        <span class="muted">({{ lessons().length }})</span>
+      </div>
+
+      <div
+        class="lesson-item"
+        *ngFor="let l of lessons(); let i = index"
+        [class.active]="i === activeIndex"
+        (click)="setActive(i)"
+      >
+        <div class="row-title">
+          <span class="title">{{ l.title }}</span>
+          <span class="chip" *ngIf="l.estMin">{{ l.estMin }} min</span>
+        </div>
+
+        <div class="row-sub muted">{{ l.sectionTitle }}</div>
+
+        <div class="row-right">
+          <span class="badge" [class.badge-done]="completedSet().has(l.id)">
+            {{ completedSet().has(l.id) ? 'Done' : 'Pending' }}
+          </span>
+        </div>
+      </div>
+    </aside>
+
+    <article class="viewer card" *ngIf="current() as cur">
+      <div class="viewer-head">
+        <h2 class="viewer-title">{{ cur.title }}</h2>
+        <div class="viewer-meta muted">
+          {{ cur.sectionTitle }}
+          <span class="dot"> · </span>
+          Lesson {{ cur.index + 1 }} / {{ lessons().length }}
+        </div>
+      </div>
+
+      <div class="viewer-body">
+        <div class="course-html" role="document" aria-label="Lesson content">
+          <ng-container *ngFor="let b of cur.blocks; let bi = index; trackBy: trackByBlock">
+
+            <div class="block"
+                 *ngIf="b.type !== 'quiz' && b.type !== 'video' && b.type !== 'narrated_slides'"
+                 [innerHTML]="blockHtml(b)">
+            </div>
+
+            <div class="block narrated-shell" *ngIf="b.type === 'narrated_slides'">
+              <div class="narrated card" *ngIf="currentSlide(cur.id, bi, b) as slide">
+                <div class="narrated-head">
+                  <div>
+                    <div class="quiz-q">{{ b.title || 'Narrated Slides' }}</div>
+                    <p class="muted" *ngIf="b.description">{{ b.description }}</p>
+                  </div>
+
+                  <div class="chip">{{ slideProgressPct(cur.id, bi, b) }}%</div>
+                </div>
+
+                <div class="narrated-stage">
+                  <div class="narrated-image" *ngIf="slide.imageUrl">
+                    <img [src]="slide.imageUrl" [alt]="slide.title || 'Slide image'" />
+                  </div>
+
+                  <div class="narrated-content">
+                    <h3 *ngIf="slide.title">{{ slide.title }}</h3>
+                    <p *ngIf="slide.body">{{ slide.body }}</p>
+                    <p class="muted" *ngIf="slide.caption">{{ slide.caption }}</p>
+
+                    <audio
+                      *ngIf="slideAudioUrl(cur.id, bi, b)"
+                      controls
+                      [autoplay]="b.autoplay"
+                      [src]="slideAudioUrl(cur.id, bi, b)"
+                      (ended)="onNarratedAudioEnded(cur.id, bi, b)">
+                    </audio>
+
+                    <details *ngIf="b.showTranscript && slide.transcript">
+                      <summary>Transcript</summary>
+                      <pre>{{ slide.transcript }}</pre>
+                    </details>
+                  </div>
+                </div>
+
+                <div class="narrated-footer">
+                  <button class="btn soft" type="button"
+                          (click)="prevSlide(cur.id, bi, b)"
+                          [disabled]="slideIndex(cur.id, bi, b) === 0">
+                    ← Prev
+                  </button>
+
+                  <span class="muted">
+                    Slide {{ slideIndex(cur.id, bi, b) + 1 }} / {{ b.slides?.length || 0 }}
+                  </span>
+
+                  <button class="btn soft" type="button"
+                          (click)="nextSlide(cur.id, bi, b)"
+                          [disabled]="slideIndex(cur.id, bi, b) >= ((b.slides?.length || 1) - 1)">
+                    Next →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="block quiz-ui" *ngIf="b.type === 'quiz'">
+              <div class="quiz card">
+                <div class="quiz-q">{{ b.question || 'Section Review' }}</div>
+
+                <div class="quiz-choices" *ngIf="(b.mode || 'single') === 'single'">
+                  <label class="quiz-choice" *ngFor="let ch of (b.choices || [])">
+                    <input
+                      type="radio"
+                      [name]="'q_' + cur.id + '_' + bi"
+                      [checked]="isSelected(cur.id, bi, ch.id)"
+                      (change)="selectSingle(cur.id, bi, ch.id)"
+                      [disabled]="isQuizLocked(cur.id, bi)"
+                    />
+                    <span>{{ ch.text }}</span>
+                  </label>
+                </div>
+
+                <div class="quiz-choices" *ngIf="(b.mode || 'single') === 'multi' || (b.mode || 'single') === 'caseStudy'">
+                  <label class="quiz-choice" *ngFor="let ch of (b.choices || [])">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(cur.id, bi, ch.id)"
+                      (change)="toggleMulti(cur.id, bi, ch.id)"
+                      [disabled]="isQuizLocked(cur.id, bi)"
+                    />
+                    <span>{{ ch.text }}</span>
+                  </label>
+                </div>
+
+                <div class="quiz-actions">
+                  <button class="btn primary" type="button"
+                          (click)="submitQuiz(cur.id, bi, b)"
+                          [disabled]="isQuizLocked(cur.id, bi)">
+                    Submit
+                  </button>
+
+                  <span class="quiz-result ok" *ngIf="quizStatus(cur.id, bi) === 'passed'">Passed</span>
+                  <span class="quiz-result bad" *ngIf="quizStatus(cur.id, bi) === 'failed'">Try again</span>
+                </div>
+              </div>
+            </div>
+
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="viewer-actions">
+        <button
+          class="btn primary"
+          type="button"
+          (click)="completeLesson(cur.id)"
+          [disabled]="completedSet().has(cur.id) || busyId === cur.id"
+        >
+          {{ completedSet().has(cur.id) ? 'Completed' : (busyId === cur.id ? 'Saving…' : 'Mark complete') }}
+        </button>
+
+        <button
+          class="btn soft"
+          type="button"
+          (click)="next(cur.index)"
+          [disabled]="cur.index === lessons().length - 1"
+        >
+          Next →
+        </button>
+      </div>
+
+      <p class="note info" *ngIf="notice">{{ notice }}</p>
+    </article>
+  </section>
+</div>

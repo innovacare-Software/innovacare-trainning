@@ -1,0 +1,22 @@
+<section class="page-head">
+  <h1>Orders</h1>
+  <p class="muted">Your purchases and payment history.</p>
+</section>
+
+<section *ngIf="orders().length; else emptyState" class="stack">
+  <article class="card row-item" *ngFor="let o of orders()">
+    <div>
+      <h3>{{ o.title }}</h3>
+      <div class="muted">Type: {{ o.itemType }}</div>
+      <div class="muted">Status: {{ o.status }}</div>
+      <div class="muted">Amount: {{ o.amount }} {{ o.currency }}</div>
+    </div>
+  </article>
+</section>
+
+<ng-template #emptyState>
+  <section class="card empty">
+    <h3>No orders yet</h3>
+    <p class="muted">Your paid and pending orders will appear here.</p>
+  </section>
+</ng-template>

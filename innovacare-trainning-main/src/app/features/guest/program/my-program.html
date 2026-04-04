@@ -1,0 +1,47 @@
+<section class="page-head">
+  <h1>My Programs</h1>
+  <p class="muted">Programs you purchased and can continue anytime.</p>
+</section>
+
+<section *ngIf="rows().length; else emptyState" class="program-grid">
+  <article class="program-card" *ngFor="let row of rows()">
+    <div class="thumb" *ngIf="row.program?.imageUrl; else noThumb">
+      <img [src]="row.program?.imageUrl" [alt]="row.program?.title || 'Program image'" />
+    </div>
+
+    <ng-template #noThumb>
+      <div class="thumb placeholder">Program</div>
+    </ng-template>
+
+    <div class="body">
+      <h3>{{ row.program?.title || row.access.programId }}</h3>
+      <p class="muted" *ngIf="row.program?.subtitle">{{ row.program?.subtitle }}</p>
+      <p class="desc" *ngIf="row.program?.description">{{ row.program?.description }}</p>
+
+      <div class="meta muted">
+        <span *ngIf="row.program?.category">{{ row.program?.category }}</span>
+        <span *ngIf="row.program?.durationWeeks"> · {{ row.program?.durationWeeks }} weeks</span>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="row.access.progressPct || 0"></div>
+        </div>
+        <span>{{ row.access.progressPct || 0 }}%</span>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="button" (click)="openProgram(row)">
+          Open Program
+        </button>
+      </div>
+    </div>
+  </article>
+</section>
+
+<ng-template #emptyState>
+  <section class="card empty">
+    <h3>No programs yet</h3>
+    <p class="muted">Your purchased guest programs will appear here.</p>
+  </section>
+</ng-template>

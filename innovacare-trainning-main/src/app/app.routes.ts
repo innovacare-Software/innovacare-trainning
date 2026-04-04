@@ -85,6 +85,16 @@ export const routes: Routes = [
   loadChildren: () =>
     import('./features/guest/guest.routes').then((m) => m.GUEST_ROUTES),
 },
+{
+  path: 'checkout/success',
+  loadComponent: () =>
+    import('./features/publics/checkout/checkout-success.component').then(m => m.CheckoutSuccessComponent),
+},
+{
+  path: 'checkout/cancel',
+  loadComponent: () =>
+    import('./features/publics/checkout/checkout-cancel.component').then(m => m.CheckoutCancelComponent),
+},
 
   { path: '**', redirectTo: '/home' }
 ];

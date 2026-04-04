@@ -1,15 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Auth, authState } from '@angular/fire/auth';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { Order } from '../../../data/guest-commerce.model';
 
 @Component({
   selector: 'app-guest-orders',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <section class="card">
-      <h1>Orders</h1>
-      <p class="muted">Guest orders and receipts will appear here.</p>
-    </section>
-  `,
+  templateUrl: './guest-orders.component.html',
+  styleUrls: ['./guest-orders.component.css'],
 })
-export class GuestOrdersComponent {}
+export class GuestOrdersComponent {
+  private auth = inject(Auth);
+  private afs = inject(Firestore);
+
+  orders = toSignal(
+    authState(this.auth).pipe(
+      switchMap((user) => {
+        if (!user?.uid) return of([]);
+        return collectionData(
+          collection(this.afs, `users/${user.uid}/orders`),
+          { idField: 'id' }
+        ) as Observable<Order[]>;
+      })
+    ),
+    { initialValue: [] as Order[] }
+  );
+}

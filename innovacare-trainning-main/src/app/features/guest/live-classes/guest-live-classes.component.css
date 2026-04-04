@@ -1,0 +1,40 @@
+.page-head {
+  margin-bottom: 20px;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.class-card,
+.card.empty {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.meta {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.notice {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #eff6ff;
+}
+
+.muted {
+  color: #64748b;
+}
+
+@media (max-width: 900px) {
+  .class-grid {
+    grid-template-columns: 1fr;
+  }
+}

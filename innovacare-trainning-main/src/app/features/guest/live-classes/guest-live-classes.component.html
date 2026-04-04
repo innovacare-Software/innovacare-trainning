@@ -1,0 +1,35 @@
+<section class="page-head">
+  <h1>Live Classes</h1>
+  <p class="muted">Book upcoming live sessions related to your learning path.</p>
+</section>
+
+<p class="notice" *ngIf="notice">{{ notice }}</p>
+
+<section *ngIf="classes().length; else emptyState" class="class-grid">
+  <article class="class-card" *ngFor="let cls of classes()">
+    <h3>{{ cls.title }}</h3>
+    <p class="muted">{{ cls.description }}</p>
+
+    <div class="meta muted">
+      <div>Instructor: {{ cls.instructorName || 'TBA' }}</div>
+      <div>Timezone: {{ cls.timezone || 'Local' }}</div>
+      <div>Seats Remaining: {{ cls.seatsRemaining ?? '—' }}</div>
+      <div>Type: {{ cls.locationType }}</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="button"
+              (click)="book(cls.id)"
+              [disabled]="bookingId === cls.id">
+        {{ bookingId === cls.id ? 'Booking…' : 'Book Class' }}
+      </button>
+    </div>
+  </article>
+</section>
+
+<ng-template #emptyState>
+  <section class="card empty">
+    <h3>No live classes available</h3>
+    <p class="muted">Upcoming live classes will appear here.</p>
+  </section>
+</ng-template>

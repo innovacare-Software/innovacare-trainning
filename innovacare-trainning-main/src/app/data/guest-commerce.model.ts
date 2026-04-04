@@ -27,14 +27,22 @@ export interface GuestProgramAccess {
 export interface Order {
   id?: string;
   uid: string;
+
   itemType: 'course' | 'program' | 'live_class';
   itemId: string;
+
   title: string;
   amount: number;
   currency: 'USD';
+
   status: 'pending' | 'paid' | 'failed' | 'refunded';
+
   provider?: 'stripe';
   checkoutSessionId?: string;
+  paymentIntentId?: string;
+
+  offerId?: string;
+
   createdAt?: any;
   updatedAt?: any;
 }

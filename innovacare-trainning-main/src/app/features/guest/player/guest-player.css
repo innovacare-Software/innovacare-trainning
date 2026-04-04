@@ -1,0 +1,133 @@
+.player.container {
+  padding: 24px;
+}
+
+.crumbs {
+  margin-bottom: 14px;
+}
+
+.header {
+  margin-bottom: 18px;
+}
+
+.title {
+  margin: 0 0 6px;
+}
+
+.content.grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 18px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.list-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.lesson-item {
+  padding: 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.lesson-item.active {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.row-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.badge-done {
+  color: #15803d;
+}
+
+.viewer-head {
+  margin-bottom: 14px;
+}
+
+.viewer-title {
+  margin: 0 0 6px;
+}
+
+.viewer-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.quiz-q {
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.quiz-choice {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.narrated-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.narrated-image {
+  width: 100%;
+  min-height: 420px;
+  max-height: 70vh;
+  border: 1px solid #e9eef5;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.narrated-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.narrated-content audio {
+  width: 100%;
+}
+
+.narrated-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .content.grid {
+    grid-template-columns: 1fr;
+  }
+
+  .narrated-image {
+    min-height: 260px;
+    max-height: 52vh;
+  }
+}
