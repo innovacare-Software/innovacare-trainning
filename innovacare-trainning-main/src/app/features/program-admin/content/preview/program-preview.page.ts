@@ -15,6 +15,8 @@ import {
   ASSESSMENT_TYPE_LABELS,
   SIMULATION_TYPE_LABELS,
   LIVE_SESSION_TYPE_LABELS,
+  LessonType,
+  ProgramLesson,
 } from '../../shared/content-builder.models';
 
 @Component({
@@ -363,11 +365,11 @@ export class ProgramPreviewPage {
   protected readonly ASSESSMENT_LABELS = ASSESSMENT_TYPE_LABELS;
   protected readonly SIM_LABELS = SIMULATION_TYPE_LABELS;
 
-  getLessonsForModule(lessons: ReturnType<typeof this.vm>['lessons'] extends undefined ? never[] : NonNullable<ReturnType<typeof this.vm>>['lessons'], moduleId: string) {
-    return (lessons ?? []).filter((l) => l.moduleId === moduleId);
+  getLessonsForModule(lessons: ProgramLesson[], moduleId: string): ProgramLesson[] {
+    return lessons.filter((l) => l.moduleId === moduleId);
   }
 
-  getLessonIcon(lessonType: string): string {
+  getLessonIcon(lessonType: LessonType): string {
     const icons: Record<string, string> = {
       VIDEO: '🎬',
       TEXT: '📖',

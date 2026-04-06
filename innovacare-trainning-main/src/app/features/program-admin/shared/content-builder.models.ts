@@ -115,8 +115,8 @@ export interface ProgramLiveSession {
   title: string;
   description: string;
   sessionType: LiveSessionType;
-  startAt: unknown;
-  endAt: unknown;
+  startAt?: unknown;
+  endAt?: unknown;
   timezone: string;
   meetingUrl: string;
   instructorName: string;

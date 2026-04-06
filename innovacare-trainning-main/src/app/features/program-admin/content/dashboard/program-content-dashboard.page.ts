@@ -353,13 +353,6 @@ export class ProgramContentDashboardPage {
     initialValue: '',
   });
 
-  private readonly programId$ = this.route.params.pipe(
-    switchMap((p) => {
-      const id = p['programId'] as string;
-      return [id];
-    })
-  );
-
   readonly program = toSignal(
     this.route.params.pipe(switchMap((p) => this.programsService.getProgramById(p['programId'])))
   );
