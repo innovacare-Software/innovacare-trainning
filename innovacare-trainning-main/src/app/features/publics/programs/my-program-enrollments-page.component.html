@@ -28,7 +28,7 @@
           <td><span class="chip soft">{{ paymentLabel[item.paymentStatus] }}</span></td>
           <td>{{ item.amount | currency: item.currency:'symbol':'1.0-0' }}</td>
           <td>
-            <a [routerLink]="['/my-programs', item.programId, 'dashboard']" class="btn-link">
+            <a [routerLink]="['/my-programs', item.programId]" class="btn-link">
               Continue Learning
             </a>
           </td>

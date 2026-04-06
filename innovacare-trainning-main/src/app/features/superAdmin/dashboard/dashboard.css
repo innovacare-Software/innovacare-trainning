@@ -349,6 +349,44 @@
   padding-bottom: 1rem;
 }
 
+.chart-panel {
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%);
+  border: 1px solid #d0e2f1;
+}
+
+.chart-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.chart-row {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.chart-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #1f4769;
+  font-weight: 700;
+}
+
+.chart-track {
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #cedfed;
+  background: #e8f0f7;
+  overflow: hidden;
+}
+
+.chart-fill {
+  height: 100%;
+  min-width: 2%;
+  border-radius: 999px;
+}
+
 .overview-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -398,6 +436,40 @@
   line-height: 1.5;
 }
 
+.architecture-panel {
+  margin-top: 2rem;
+}
+
+.diagram-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.diagram-card {
+  border: 1px solid #d5e4f2;
+  border-radius: 10px;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f9fcff 0%, #f1f7fd 100%);
+}
+
+.diagram-card h3 {
+  margin: 0 0 0.5rem;
+  color: #173f62;
+}
+
+.diagram-card pre {
+  margin: 0;
+  border: 1px solid #d8e7f3;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0.7rem;
+  overflow: auto;
+  color: #264f72;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .page {
@@ -418,6 +490,10 @@
   }
 
   .overview-content {
+    grid-template-columns: 1fr;
+  }
+
+  .diagram-grid {
     grid-template-columns: 1fr;
   }
 

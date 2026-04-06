@@ -1,13 +1,14 @@
-<div class="shell">
+<div class="shell" *transloco="let t">
   <!-- TOP BAR -->
   <header class="topbar">
     <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Open menu">☰</button>
-    <div class="brand"><strong>INNOVACARE-TRAINING</strong></div>
+    <div class="brand"><strong>{{ t('shells.manager.brand') }}</strong></div>
     <div class="top-actions">
-      <span class="role">Manager</span>
+      <span class="role">{{ t('roles.manager') }}</span>
       <div class="avatar" title="Profile"></div>
       <app-notification-bell-plain></app-notification-bell-plain>
-      <button class="btn logout" (click)="logout()">Logout</button>
+      <app-language-switcher></app-language-switcher>
+      <button class="btn logout" (click)="logout()">{{ t('actions.logout') }}</button>
     </div>
   </header>
 
@@ -15,21 +16,21 @@
   <aside class="sidebar" [class.open]="sidebarOpen()">
     <nav class="menu">
       <div class="menu-group">
-        <div class="menu-title">Overview</div>
+        <div class="menu-title">{{ t('nav.overview') }}</div>
         <a *ngFor="let i of nav()"
            [routerLink]="i.path"
            routerLinkActive="active"
            class="menu-item"
-           (click)="closeSidebar()">{{ i.label }}</a>
+           (click)="closeSidebar()">{{ t(i.labelKey) }}</a>
       </div>
 
       <div class="menu-group">
-        <div class="menu-title">Resources</div>
+        <div class="menu-title">{{ t('nav.resources') }}</div>
         <a *ngFor="let r of resources()"
            [routerLink]="r.path"
            routerLinkActive="active"
            class="menu-item"
-           (click)="closeSidebar()">{{ r.label }}</a>
+           (click)="closeSidebar()">{{ t(r.labelKey) }}</a>
            
       </div>
     </nav>

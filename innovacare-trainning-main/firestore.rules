@@ -46,9 +46,16 @@ service cloud.firestore {
     function isOrgAdmin(orgId) {
       return isOrgMember(orgId)
         && (
-          userRole(request.auth.uid) == "admin"
-          || userRole(request.auth.uid) == "manager"
+          userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
         );
+    }
+
+    function isOrgManager(orgId) {
+      return isOrgMember(orgId) && userRole(request.auth.uid) in ["manager", "org_manager"];
+    }
+
+    function isOrgLearner(orgId) {
+      return isOrgMember(orgId) && userRole(request.auth.uid) in ["learner", "guest", "org_learner"];
     }
 
     // Read role from users/{uid}
@@ -64,7 +71,7 @@ service cloud.firestore {
         (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
          get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true)
         ||
-        (userRole(request.auth.uid) in ["super_admin", "admin", "manager"])
+        (userRole(request.auth.uid) in ["super_admin", "admin", "manager", "org_admin", "org_manager"])
       );
     }
 
@@ -75,7 +82,7 @@ service cloud.firestore {
           isSignedIn()
           && hasUser(request.auth.uid)
           && hasUser(uid)
-          && userRole(request.auth.uid) in ["admin", "manager"]
+          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
         );
     }
@@ -84,9 +91,9 @@ service cloud.firestore {
       return isSignedIn()
         && hasUser(request.auth.uid)
         && hasUser(uid)
-        && userRole(request.auth.uid) in ["admin", "manager"]
+        && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
         && get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
-        && get(/databases/$(database)/documents/users/$(uid)).data.role == "learner";
+        && get(/databases/$(database)/documents/users/$(uid)).data.role in ["learner", "org_learner"];
     }
 
     function hasOrgUser(orgId, uid) {
@@ -302,7 +309,7 @@ service cloud.firestore {
 
     function isManager() {
       return isSignedIn() && (
-        userRole(request.auth.uid) == 'manager' || hasManagerClaim()
+        userRole(request.auth.uid) in ['manager', 'org_manager'] || hasManagerClaim()
       );
     }
 
@@ -318,7 +325,7 @@ service cloud.firestore {
         || (
           isSignedIn()
           && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager"]
+          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && resource.data.orgId is string
           && resource.data.orgId == requesterOrgId()
         );
@@ -330,10 +337,10 @@ service cloud.firestore {
         || (
           isSignedIn()
           && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager"]
+          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && request.resource.data.orgId is string
           && request.resource.data.orgId == requesterOrgId()
-          && request.resource.data.role in ["admin", "manager", "learner", "guest"]
+          && request.resource.data.role in ["admin", "manager", "org_admin", "org_manager", "learner", "org_learner", "guest"]
         )
         || (
           isSignedIn()
@@ -346,11 +353,11 @@ service cloud.firestore {
         || (
           isSignedIn()
           && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager"]
+          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && resource.data.orgId is string
           && resource.data.orgId == requesterOrgId()
           && request.resource.data.orgId == resource.data.orgId
-          && request.resource.data.role in ["admin", "manager", "learner", "guest"]
+          && request.resource.data.role in ["admin", "manager", "org_admin", "org_manager", "learner", "org_learner", "guest"]
         )
         || (
           isSignedIn() && request.auth.uid == uid
@@ -381,64 +388,101 @@ service cloud.firestore {
       match /users/{uid} {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
           || (isOrgMember(orgId) && request.auth.uid == uid);
 
-        allow create, update: if isSuperAdmin() || isOrgAdmin(orgId);
+        allow create, update: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
         allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
       }
 
-      match /courses/{courseId} {
+      // Canonical path for courses assigned by platform to organization.
+      match /assignedCourses/{courseId} {
         allow read: if isSuperAdmin() || isOrgMember(orgId);
         // Platform owner assigns courses to organizations.
         allow create, update, delete: if isSuperAdmin();
       }
 
+      // Backward compatibility path.
+      match /courses/{courseId} {
+        allow read: if isSuperAdmin() || isOrgMember(orgId);
+        allow create, update, delete: if isSuperAdmin();
+      }
+
       match /courseAssignments/{assignmentId} {
-        allow read: if isSuperAdmin() || isOrgAdmin(orgId);
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
 
         // Org admin/manager can assign only approved org courses to users of same org.
         allow create: if isSuperAdmin()
           || (
-            isOrgAdmin(orgId)
+            (isOrgAdmin(orgId) || isOrgManager(orgId))
             && request.resource.data.orgId == orgId
             && request.resource.data.userId is string
             && hasOrgUser(orgId, request.resource.data.userId)
             && request.resource.data.courseId is string
-            && hasOrgCourse(orgId, request.resource.data.courseId)
+            && (
+              hasOrgCourse(orgId, request.resource.data.courseId)
+              || exists(/databases/$(database)/documents/organizations/$(orgId)/assignedCourses/$(request.resource.data.courseId))
+            )
           );
 
-        allow update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
+        allow update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
 
       match /enrollments/{enrollmentId} {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
           || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
 
-        allow create, update: if isSuperAdmin() || isOrgAdmin(orgId);
-        allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
+        allow create, update: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
 
       match /progress/{progressId} {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
           || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
 
         allow create, update: if isSuperAdmin()
           || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
+          || (isOrgMember(orgId) && request.resource.data.userId == request.auth.uid);
+
+        allow delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      }
+
+      match /overdue/{recordId} {
+        allow read: if isSuperAdmin()
+          || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
+          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
+
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      }
+
+      match /policies/{policyId} {
+        allow read: if isSuperAdmin() || isOrgMember(orgId);
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      }
+
+      match /policyAcknowledgments/{ackId} {
+        allow read: if isSuperAdmin()
+          || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
+          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
+
+        allow create, update: if isSuperAdmin()
+          || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
           || (isOrgMember(orgId) && request.resource.data.userId == request.auth.uid);
 
         allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
       }
 
-      match /policies/{policyId} {
-        allow read: if isSuperAdmin() || isOrgMember(orgId);
-        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
-      }
-
       match /woundLibrary/{itemId} {
         allow read: if isSuperAdmin() || isOrgMember(orgId);
-        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
 
       match /documents/{documentId} {
@@ -447,8 +491,37 @@ service cloud.firestore {
       }
 
       match /reports/{reportId} {
-        allow read: if isSuperAdmin() || isOrgAdmin(orgId);
-        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      }
+
+      match /alerts/{alertId} {
+        allow read: if isSuperAdmin()
+          || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
+          || (isOrgMember(orgId) && resource.data.assignedTo == request.auth.uid);
+
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      }
+
+      match /followUpActions/{actionId} {
+        allow read: if isSuperAdmin()
+          || isOrgAdmin(orgId)
+          || isOrgManager(orgId)
+          || (isOrgMember(orgId) && resource.data.assignedTo == request.auth.uid);
+
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      }
+
+      match /auditLogs/{logId} {
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow create: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow update, delete: if false;
+      }
+
+      match /troubleshootingIssues/{issueId} {
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
     }
 
@@ -813,6 +886,16 @@ service cloud.firestore {
         allow read: if isProgramLearner() || canManagePrograms();
         allow create, update, delete: if canManagePrograms();
       }
+
+      match /documents/{documentId} {
+        allow read: if isProgramLearner() || canManagePrograms();
+        allow create, update, delete: if canManagePrograms();
+      }
+
+      match /liveSessions/{sessionId} {
+        allow read: if isProgramLearner() || canManagePrograms();
+        allow create, update, delete: if canManagePrograms();
+      }
     }
 
     match /programEnrollments/{enrollmentId} {
@@ -885,6 +968,18 @@ service cloud.firestore {
     }
 
     match /users/{uid}/assessmentAttempts/{attemptId} {
+      allow read: if canManagePrograms() || isOwner(uid);
+      allow create, update: if canManagePrograms() || isOwner(uid);
+      allow delete: if canManagePrograms();
+    }
+
+    match /users/{uid}/lessonProgress/{lessonId} {
+      allow read: if canManagePrograms() || isOwner(uid);
+      allow create, update: if canManagePrograms() || isOwner(uid);
+      allow delete: if canManagePrograms();
+    }
+
+    match /users/{uid}/caseStudyAttempts/{attemptId} {
       allow read: if canManagePrograms() || isOwner(uid);
       allow create, update: if canManagePrograms() || isOwner(uid);
       allow delete: if canManagePrograms();

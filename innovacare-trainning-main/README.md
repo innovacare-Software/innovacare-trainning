@@ -1,59 +1,138 @@
-# Myapp
+# Innovacare Training
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
+Plateforme Angular + Firebase orientee formation clinique, avec isolation stricte multi-tenant par organisation et experiences dediees pour Super Admin, Org Admin, Manager, Learner et Guest.
 
-## Development server
+## Architecture Intent
 
-To start a local development server, run:
+- Tous les donnees organisationnelles vivent sous organizations/{orgId}/...
+- Les ecrans administratifs consomment des services de domaine (assignments, progress, overdue, policies, alerts, audit, troubleshooting, reports)
+- Les routes et regles Firestore appliquent les frontieres de role et de tenant
+
+## Data Flow (diagramme texte)
+
+```text
+[UI Feature Pages]
+	|
+	v
+[Org Domain Services]
+	|
+	v
+[Org Context + Access Guards]
+	|
+	v
+[Firestore Paths: organizations/{orgId}/subcollections]
+	|
+	v
+[Firestore Rules: role + org boundary enforcement]
+```
+
+Interpretation:
+- La page ne lit jamais directement en dehors du contexte orgId actif
+- Le service definit le contrat metier, le guard protege le trajet, la regle Firestore valide en dernier recours
+
+## Learning Analytics Model (diagramme texte)
+
+```text
+[Course Assignments] + [Enrollments] + [Policy Acknowledgments]
+				 |
+				 v
+		[Progress Aggregation Layer]
+				 |
+		 +-------+--------+
+		 |                |
+		 v                v
+[Learner Progress KPIs] [Overdue Detection]
+		 |                |
+		 +-------+--------+
+				 v
+	   [Org Dashboard Learning Health]
+```
+
+KPI cibles:
+- completion rate
+- overdue rate
+- policy acknowledgment rate
+- learner risk segmentation
+
+## Program Intelligence Model (diagramme texte)
+
+```text
+[Program Catalog] --> [Assigned Courses by Org] --> [Adoption Signals]
+								  |                     |
+								  v                     v
+						 [Program Performance] --> [Intelligence Insights]
+													  |
+													  v
+									[Recommendations: keep / optimize / retire]
+```
+
+Decision outputs:
+- programmes a forte adherence
+- programmes sous-performants par population
+- ecarts entre assignation et completion effective
+
+## Admin BI Model (diagramme texte)
+
+```text
+[Operational Streams]
+ - alerts
+ - follow-up actions
+ - audit logs
+ - troubleshooting issues
+ - reports snapshots
+			|
+			v
+[Admin BI Lens]
+ - severity distribution
+ - open vs resolved workload
+ - compliance posture
+ - incident recurrence
+			|
+			v
+[Admin Actions]
+ - prioritize
+ - assign
+ - remediate
+ - communicate
+```
+
+Valeur metier:
+- passer d une interface de consultation a un cockpit de pilotage
+
+## Enrollment -> Dashboard Lifecycle (diagramme texte)
+
+```text
+1) Enrollment created
+2) Assignment linked to learner and org context
+3) Learning events update progress
+4) Rules compute overdue and compliance signals
+5) Alerts/follow-up raised when thresholds are crossed
+6) Dashboard refreshes KPIs and recommendations
+7) Admin closes the loop with remediation actions
+```
+
+Ce lifecycle formalise la boucle:
+- planifier
+- executer
+- mesurer
+- corriger
+
+## Runbook
+
+### Development
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### Build
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Tests
 
 ```bash
 ng test
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

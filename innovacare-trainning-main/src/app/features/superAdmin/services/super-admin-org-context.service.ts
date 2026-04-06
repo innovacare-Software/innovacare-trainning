@@ -48,6 +48,21 @@ export class SuperAdminOrgContextService {
         path: `/super-admin/organizations/${orgId}/wound-library`,
         hint: 'Inspect clinical content mapped to the tenant.',
       },
+      {
+        label: 'Reports',
+        path: `/super-admin/organizations/${orgId}/reports`,
+        hint: 'Generate completion/compliance reports for this organization.',
+      },
+      {
+        label: 'Audit',
+        path: `/super-admin/organizations/${orgId}/audit`,
+        hint: 'Review who changed what and when in this tenant.',
+      },
+      {
+        label: 'Troubleshooting',
+        path: `/super-admin/organizations/${orgId}/troubleshooting`,
+        hint: 'Open diagnosis and quick remediation actions.',
+      },
     ];
   }
 

@@ -94,6 +94,21 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./organizationsPage/org-wound-library/org-wound-library.page').then(m => m.OrgWoundLibraryPage),
       },
       {
+        path: 'organizations/:orgId/reports',
+        loadComponent: () =>
+          import('./organizationsPage/org-reports/org-reports.page').then(m => m.OrgReportsPage),
+      },
+      {
+        path: 'organizations/:orgId/audit',
+        loadComponent: () =>
+          import('./organizationsPage/org-audit/org-audit.page').then(m => m.OrgAuditPage),
+      },
+      {
+        path: 'organizations/:orgId/troubleshooting',
+        loadComponent: () =>
+          import('./organizationsPage/org-troubleshooting/org-troubleshooting.page').then(m => m.OrgTroubleshootingPage),
+      },
+      {
         path: 'course-assignments',
         redirectTo: 'organizations',
         pathMatch: 'full',

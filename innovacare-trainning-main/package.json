@@ -33,6 +33,7 @@
     "@angular/material": "^20.2.5",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "@jsverse/transloco": "^8.3.0",
     "cors": "^2.8.6",
     "echarts": "^6.0.0",
     "firebase": "^11.10.0",
@@ -46,10 +47,10 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@firebase/rules-unit-testing": "^4.0.1",
     "@angular/build": "^20.3.2",
     "@angular/cli": "^20.3.2",
     "@angular/compiler-cli": "^20.3.0",
+    "@firebase/rules-unit-testing": "^4.0.1",
     "@types/html2canvas": "^0.5.35",
     "@types/jasmine": "~5.1.0",
     "baseline-browser-mapping": "^2.9.11",

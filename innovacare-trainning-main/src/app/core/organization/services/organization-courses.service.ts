@@ -8,7 +8,7 @@ import {
   updateDoc,
   serverTimestamp,
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { OrgFirestorePaths } from '../org-firestore-paths';
 import { OrganizationCourseDoc } from '../org.models';
 
@@ -17,6 +17,7 @@ export class OrganizationCoursesService {
   private readonly afs = inject(Firestore);
 
   listAssigned(orgId: string): Observable<OrganizationCourseDoc[]> {
+    if (!orgId?.trim()) return of([]);
     const ref = collection(this.afs, OrgFirestorePaths.courses(orgId));
     return collectionData(ref, { idField: 'courseId' }) as Observable<OrganizationCourseDoc[]>;
   }

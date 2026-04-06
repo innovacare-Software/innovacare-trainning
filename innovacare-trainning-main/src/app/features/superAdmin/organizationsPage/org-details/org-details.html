@@ -19,6 +19,18 @@
 		</div>
 	</header>
 
+	<nav class="tabs">
+		<a [routerLink]="['/super-admin/organizations', data.organization.id]">Overview</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'users']">Users</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'assign-courses']">Courses</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'progress']">Progress</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'policies']">Policies</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'wound-library']">Wound Library</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'reports']">Reports</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'audit']">Audit</a>
+		<a [routerLink]="['/super-admin/organizations', data.organization.id, 'troubleshooting']">Troubleshooting</a>
+	</nav>
+
 	<section class="stats-grid">
 		<article class="stat"><h3>{{ data.stats.totalUsers }}</h3><p>Total Users</p></article>
 		<article class="stat"><h3>{{ data.stats.activeUsers }}</h3><p>Active Users</p></article>
@@ -30,6 +42,24 @@
 	</section>
 
 	<div class="layout">
+		<section class="panel span-2 insights">
+			<h2>Decision Insights</h2>
+			<div class="insight-grid">
+				<article>
+					<h3>Strongest Area</h3>
+					<p>{{ data.progress.completionRate >= 75 ? 'Course completion momentum' : 'Engagement baseline' }}</p>
+				</article>
+				<article>
+					<h3>Weakest Area</h3>
+					<p>{{ data.progress.inProgressEnrollments > data.progress.completedEnrollments ? 'Stalled in-progress learners' : 'Policy/risk follow-up coverage' }}</p>
+				</article>
+				<article>
+					<h3>Recommended Action</h3>
+					<p>{{ data.progress.inProgressEnrollments > data.progress.completedEnrollments ? 'Open progress + overdue queues and relaunch reminders.' : 'Generate compliance report and review critical audit events.' }}</p>
+				</article>
+			</div>
+		</section>
+
 		<section class="panel">
 			<h2>Organization Header</h2>
 			<div class="kv-grid">
@@ -57,6 +87,7 @@
 				<ul>
 					<li *ngFor="let row of troubleshootContext()">{{ row }}</li>
 				</ul>
+				<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'troubleshooting']">Open troubleshooting workspace</a>
 			</div>
 		</section>
 
@@ -128,6 +159,16 @@
 				<li *ngIf="!data.woundLibrary.length">No wound items found.</li>
 			</ul>
 			<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'wound-library']">Open wound library</a>
+		</section>
+
+		<section class="panel">
+			<h2>Reports & Audit</h2>
+			<ul class="list">
+				<li>Generate org compliance and completion reports.</li>
+				<li>Inspect critical administrative events in audit timeline.</li>
+			</ul>
+			<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'reports']">Open reports</a>
+			<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'audit']">Open audit trail</a>
 		</section>
 	</div>
 </section>

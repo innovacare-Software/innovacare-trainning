@@ -1,4 +1,4 @@
-<div class="shell" [class.side-hidden]="!sidebarOpen()">
+<div class="shell" [class.side-hidden]="!sidebarOpen()" *transloco="let t">
   <header class="topbar">
     <button
       class="menu-toggle"
@@ -10,12 +10,13 @@
     </button>
 
     <div class="brand">
-      <strong>INNOVACARE SUPER ADMIN</strong>
+      <strong>{{ t('shells.superAdmin.brand') }}</strong>
     </div>
 
     <div class="top-actions">
-      <span class="role">Super Admin</span>
-      <button class="btn logout" type="button" (click)="logout()">Logout</button>
+      <span class="role">{{ t('roles.superAdmin') }}</span>
+      <app-language-switcher></app-language-switcher>
+      <button class="btn logout" type="button" (click)="logout()">{{ t('actions.logout') }}</button>
     </div>
   </header>
 
@@ -27,7 +28,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: item.path === '/super-admin' }"
         class="menu-item">
-        {{ item.label }}
+        {{ t(item.labelKey) }}
       </a>
     </nav>
   </aside>

@@ -10,7 +10,7 @@ import {
   doc,
   serverTimestamp,
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { OrgFirestorePaths } from '../org-firestore-paths';
 import { OrganizationProgressDoc } from '../org.models';
 
@@ -19,11 +19,13 @@ export class OrganizationProgressService {
   private readonly afs = inject(Firestore);
 
   list(orgId: string): Observable<OrganizationProgressDoc[]> {
+    if (!orgId?.trim()) return of([]);
     const ref = collection(this.afs, OrgFirestorePaths.progress(orgId));
     return collectionData(ref, { idField: 'id' }) as Observable<OrganizationProgressDoc[]>;
   }
 
   listByUser(orgId: string, userId: string): Observable<OrganizationProgressDoc[]> {
+    if (!orgId?.trim() || !userId?.trim()) return of([]);
     const ref = collection(this.afs, OrgFirestorePaths.progress(orgId));
     const q = query(ref, where('userId', '==', userId));
     return collectionData(q, { idField: 'id' }) as Observable<OrganizationProgressDoc[]>;

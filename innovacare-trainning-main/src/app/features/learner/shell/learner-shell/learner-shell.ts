@@ -2,12 +2,14 @@ import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
+import { TranslocoModule } from '@jsverse/transloco';
 import { NotificationBellPlainComponent } from '../../../../shared/components/notifications/notification-bell-plain/notification-bell-plain';
+import { LanguageSwitcherComponent } from '../../../../shared/components/language-switcher/language-switcher.component';
 import { AuthService } from '../../../../core/auth';
 
 @Component({
   selector: 'app-learner-shell',
-  imports: [CommonModule, RouterModule, NotificationBellPlainComponent],
+  imports: [CommonModule, RouterModule, TranslocoModule, NotificationBellPlainComponent, LanguageSwitcherComponent],
   templateUrl: './learner-shell.html',
   styleUrl: './learner-shell.css'
 })
@@ -61,18 +63,18 @@ export class LearnerShell implements OnDestroy {
   }
 
   links = [
-    { path: '/learner', label: 'Dashboard' },
-    { path: '/learner/assignments', label: 'Assignments' },
-    { path: '/learner/wound', label: 'Wound Library' },
-    { path: '/learner/profile', label: 'Your Profile' },
-    { path: '/learner/policies', label: 'Policies and Procedures' }
+    { path: '/learner', labelKey: 'nav.dashboard' },
+    { path: '/learner/assignments', labelKey: 'nav.assignments' },
+    { path: '/learner/wound', labelKey: 'nav.woundLibrary' },
+    { path: '/learner/profile', labelKey: 'nav.yourProfile' },
+    { path: '/learner/policies', labelKey: 'nav.policies' }
   ];
 
   resources = [
-    { path: '/learner/certifications', label: 'Certifications' },
-    { path: '/learner/library', label: 'Library' },
-    { path: '/learner/transcript', label: 'Transcripts' },
-    { path: '/learner/rewards', label: 'Rewards' }
+    { path: '/learner/certifications', labelKey: 'nav.certifications' },
+    { path: '/learner/library', labelKey: 'nav.library' },
+    { path: '/learner/transcript', labelKey: 'nav.transcripts' },
+    { path: '/learner/rewards', labelKey: 'nav.rewards' }
   ];
 
   async logout() {

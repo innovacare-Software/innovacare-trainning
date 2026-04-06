@@ -1,6 +1,6 @@
 // app.config.ts
 
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
@@ -16,6 +16,9 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { provideFunctions, getFunctions, connectFunctionsEmulator } from '@angular/fire/functions';
+
+import { provideTransloco } from '@jsverse/transloco';
+import { TranslocoHttpLoader } from './core/transloco-loader';
 
 import { environment } from '../enviroments/enviroment';
 import { enableIndexedDbPersistence } from 'firebase/firestore';
@@ -62,6 +65,19 @@ export const appConfig: ApplicationConfig = {
       }
 
       return fns;
+    }),
+
+    // 🌐 TRANSLOCO i18n
+    provideTransloco({
+      config: {
+        availableLangs: ['en', 'fr'],
+        defaultLang: localStorage.getItem('preferredLang') || 'en',
+        reRenderOnLangChange: true,
+        prodMode: !isDevMode(),
+        fallbackLang: 'en',
+        missingHandler: { useFallbackTranslation: true },
+      },
+      loader: TranslocoHttpLoader,
     }),
   ],
 };

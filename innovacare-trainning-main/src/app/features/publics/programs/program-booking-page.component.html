@@ -32,7 +32,7 @@
     <article class="booking-form-wrap card">
       <header>
         <h2>Join this program</h2>
-        <p>Submit your enrollment request. Admin review and confirmation will follow.</p>
+        <p>Complete your enrollment and proceed to secure payment.</p>
       </header>
 
       <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()" novalidate>
@@ -78,8 +78,8 @@
         <div class="feedback success" *ngIf="successMessage()">{{ successMessage() }}</div>
         <div class="feedback error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
 
-        <button type="submit" class="submit-btn" [disabled]="!canSubmit()">
-          {{ isSubmitting() ? 'Submitting enrollment...' : 'Enroll in Program' }}
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Processing...' : (currentProgram.discountPrice ?? currentProgram.price) > 0 ? 'Enroll &amp; Pay' : 'Enroll for Free' }}
         </button>
       </form>
     </article>

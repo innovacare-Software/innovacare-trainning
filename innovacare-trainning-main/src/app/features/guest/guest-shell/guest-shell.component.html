@@ -1,30 +1,31 @@
-<div class="guest-shell">
+<div class="guest-shell" *transloco="let t">
   <aside class="guest-sidebar">
-    <div class="brand">Innovacare Training</div>
+    <div class="brand">{{ t('shells.guest.brand') }}</div>
 
     <div class="company-type-selector">
-      <label for="companyType">Type Entreprise:</label>
+      <label for="companyType">{{ t('shells.guest.companyTypeLabel') }}</label>
       <select id="companyType" [(ngModel)]="selectedCompanyType">
-        <option value="">Sélectionner un type</option>
-        <option value="healthcare">Healthcare</option>
-        <option value="corporate">Corporate</option>
-        <option value="education">Education</option>
-        <option value="other">Other</option>
+        <option value="">{{ t('shells.guest.companyTypePlaceholder') }}</option>
+        <option value="healthcare">{{ t('shells.guest.healthcare') }}</option>
+        <option value="corporate">{{ t('shells.guest.corporate') }}</option>
+        <option value="education">{{ t('shells.guest.education') }}</option>
+        <option value="other">{{ t('shells.guest.other') }}</option>
       </select>
     </div>
 
     <nav class="nav">
-      <a routerLink="/guest/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/guest/session/courses" routerLinkActive="active">My Courses</a>
-      <a routerLink="/guest/programs" routerLinkActive="active">My Programs</a>
-      <a routerLink="/programs" routerLinkActive="active">Programs Catalog</a>
-      <a routerLink="/guest/live-classes" routerLinkActive="active">Live Classes</a>
-      <a routerLink="/guest/bookings" routerLinkActive="active">Bookings</a>
-      <a routerLink="/guest/orders" routerLinkActive="active">Orders</a>
-      <a routerLink="/guest/profile" routerLinkActive="active">Profile</a>
+      <a routerLink="/guest/dashboard" routerLinkActive="active">{{ t('nav.dashboard') }}</a>
+      <a routerLink="/guest/session/courses" routerLinkActive="active">{{ t('nav.myCourses') }}</a>
+      <a routerLink="/guest/programs" routerLinkActive="active">{{ t('nav.myPrograms') }}</a>
+      <a routerLink="/programs" routerLinkActive="active">{{ t('nav.programsCatalog') }}</a>
+      <a routerLink="/guest/live-classes" routerLinkActive="active">{{ t('nav.liveClasses') }}</a>
+      <a routerLink="/guest/bookings" routerLinkActive="active">{{ t('nav.bookings') }}</a>
+      <a routerLink="/guest/orders" routerLinkActive="active">{{ t('nav.orders') }}</a>
+      <a routerLink="/guest/profile" routerLinkActive="active">{{ t('nav.profile') }}</a>
     </nav>
 
-    <button class="logout-btn" (click)="logout()">Logout</button>
+    <app-language-switcher></app-language-switcher>
+    <button class="logout-btn" (click)="logout()">{{ t('actions.logout') }}</button>
   </aside>
 
   <main class="guest-main">

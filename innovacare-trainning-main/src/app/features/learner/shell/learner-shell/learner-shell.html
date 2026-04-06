@@ -1,4 +1,4 @@
-<div class="shell" [class.side-hidden]="!sidebarOpen()">
+<div class="shell" [class.side-hidden]="!sidebarOpen()" *transloco="let t">
   <!-- TOP BAR -->
   <header class="topbar" role="banner">
     <button
@@ -11,14 +11,15 @@
     </button>
 
     <div class="brand">
-      <strong>INNOVACARE-TRAINING</strong>
+      <strong>{{ t('shells.learner.brand') }}</strong>
     </div>
 
     <div class="top-actions">
-      <span class="role" aria-label="User role">Learner</span>
+      <span class="role" aria-label="User role">{{ t('roles.learner') }}</span>
       <button class="avatar" type="button" aria-label="User profile" title="Profile"></button>
       <app-notification-bell-plain aria-label="Notifications"></app-notification-bell-plain>
-      <button class="btn logout" type="button" (click)="logout()" aria-label="Logout from system">Logout</button>
+      <app-language-switcher></app-language-switcher>
+      <button class="btn logout" type="button" (click)="logout()" aria-label="Logout from system">{{ t('actions.logout') }}</button>
     </div>
   </header>
 
@@ -31,7 +32,7 @@
     aria-label="Main navigation">
     <nav class="menu">
       <div class="menu-group">
-        <h2 class="menu-title">Overview</h2>
+        <h2 class="menu-title">{{ t('nav.overview') }}</h2>
 
         <a
           *ngFor="let l of links"
@@ -39,12 +40,12 @@
           routerLinkActive="active"
           class="menu-item"
           (click)="onNavClick()">
-          {{ l.label }}
+          {{ t(l.labelKey) }}
         </a>
       </div>
 
       <div class="menu-group">
-        <h2 class="menu-title">Resources</h2>
+        <h2 class="menu-title">{{ t('nav.resources') }}</h2>
 
         <a
           *ngFor="let r of resources"
@@ -52,7 +53,7 @@
           routerLinkActive="active"
           class="menu-item"
           (click)="onNavClick()">
-          {{ r.label }}
+          {{ t(r.labelKey) }}
         </a>
       </div>
     </nav>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -7,6 +7,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { Program } from './program.models';
 import { ProgramsService } from './programs.service';
 import { ProgramEnrollmentsService } from './program-enrollments.service';
+import { CheckoutService } from '../../../core/checkout.service';
 
 @Component({
   selector: 'app-program-booking-page',
@@ -21,6 +22,7 @@ export class ProgramBookingPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly programsService = inject(ProgramsService);
   private readonly enrollmentsService = inject(ProgramEnrollmentsService);
+  private readonly checkoutService = inject(CheckoutService);
 
   readonly isSubmitting = signal(false);
   readonly successMessage = signal('');
@@ -40,10 +42,6 @@ export class ProgramBookingPageComponent {
     ),
     { initialValue: undefined as Program | undefined }
   );
-
-  readonly canSubmit = computed(() => {
-    return !!this.program() && this.bookingForm.valid && !this.isSubmitting();
-  });
 
   isFieldInvalid(controlName: 'learnerName' | 'learnerEmail' | 'learnerPhone' | 'notes'): boolean {
     const control = this.bookingForm.controls[controlName];
@@ -67,20 +65,28 @@ export class ProgramBookingPageComponent {
     this.successMessage.set('');
 
     try {
-      await this.enrollmentsService.createEnrollment(selectedProgram, {
+      const enrollmentId = await this.enrollmentsService.createEnrollment(selectedProgram, {
         learnerName: this.bookingForm.controls.learnerName.value,
         learnerEmail: this.bookingForm.controls.learnerEmail.value,
         learnerPhone: this.bookingForm.controls.learnerPhone.value,
         notes: this.bookingForm.controls.notes.value,
       });
 
-      this.successMessage.set('Enrollment submitted. Pending admin review and confirmation.');
-      this.bookingForm.reset({
-        learnerName: '',
-        learnerEmail: '',
-        learnerPhone: '',
-        notes: '',
-      });
+      const price = selectedProgram.discountPrice ?? selectedProgram.price ?? 0;
+
+      if (price > 0) {
+        this.successMessage.set('Redirecting to payment...');
+        await this.checkoutService.startProgramCheckout(enrollmentId);
+      } else {
+        this.successMessage.set('Enrollment submitted! Redirecting to your enrollments...');
+        this.bookingForm.reset({
+          learnerName: '',
+          learnerEmail: '',
+          learnerPhone: '',
+          notes: '',
+        });
+        setTimeout(() => this.router.navigate(['/my-programs']), 2000);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to submit enrollment.';
       this.errorMessage.set(message);

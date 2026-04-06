@@ -14,6 +14,7 @@ import {
 } from "firebase-functions/v2/https";
 import {setGlobalOptions} from "firebase-functions/v2/options";
 import {defineSecret} from "firebase-functions/params";
+import Anthropic from "@anthropic-ai/sdk";
 import {PDFDocument, StandardFonts} from "pdf-lib";
 import {nanoid} from "nanoid";
 import Stripe from "stripe";
@@ -28,6 +29,7 @@ setGlobalOptions({region: "us-central1"});
 /* ─────────── Secrets ─────────── */
 const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY");
 const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET");
+const ANTHROPIC_API_KEY = defineSecret("ANTHROPIC_API_KEY");
 const HTTPS_PUBLIC = "public" as const;
 
 const getStripe = () =>
@@ -1276,6 +1278,21 @@ export const stripeWebhook = onRequest(
             itemId: orderData.itemId,
           });
         }
+
+        /* ── Update program enrollment if this was a program checkout ── */
+        const enrollmentId = session.metadata?.enrollmentId;
+        if (enrollmentId) {
+          const enrollmentRef = db.doc(`programEnrollments/${enrollmentId}`);
+          const enrollmentSnap = await enrollmentRef.get();
+          if (enrollmentSnap.exists) {
+            await enrollmentRef.update({
+              paymentStatus: "paid",
+              status: "active",
+              activatedAt: nowTs(),
+              updatedAt: nowTs(),
+            });
+          }
+        }
       }
 
       res.status(200).send({received: true});
@@ -1327,6 +1344,230 @@ export const manualGrantPurchasedAccess = onCall(
     });
 
     return {ok: true};
+  },
+);
+
+/* ─────────── Callable: createProgramCheckoutSession ─────────── */
+type ProgramCheckoutPayload = {
+  enrollmentId: string;
+  successUrl: string;
+  cancelUrl: string;
+};
+
+export const createProgramCheckoutSession = onCall(
+  {secrets: [STRIPE_SECRET_KEY], invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<ProgramCheckoutPayload>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
+    }
+
+    const enrollmentId = String(request.data?.enrollmentId || "").trim();
+    const successUrl = String(request.data?.successUrl || "").trim();
+    const cancelUrl = String(request.data?.cancelUrl || "").trim();
+
+    if (!enrollmentId || !successUrl || !cancelUrl) {
+      throw new HttpsError(
+        "invalid-argument",
+        "enrollmentId, successUrl and cancelUrl are required.",
+      );
+    }
+
+    if (!isAllowedCheckoutUrl(successUrl) || !isAllowedCheckoutUrl(cancelUrl)) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Checkout redirect URLs are not allowed.",
+      );
+    }
+
+    /* ── Read enrollment ── */
+    const enrollmentRef = db.doc(`programEnrollments/${enrollmentId}`);
+    const enrollmentSnap = await enrollmentRef.get();
+    if (!enrollmentSnap.exists) {
+      throw new HttpsError("not-found", "Enrollment not found.");
+    }
+
+    const enrollment = enrollmentSnap.data() as {
+      userId?: string;
+      programId?: string;
+      paymentStatus?: string;
+      amount?: number;
+      currency?: string;
+    };
+
+    if (enrollment.userId !== uid) {
+      throw new HttpsError("permission-denied", "This enrollment does not belong to you.");
+    }
+
+    if (enrollment.paymentStatus === "paid") {
+      throw new HttpsError("already-exists", "Enrollment is already paid.");
+    }
+
+    /* ── Read program ── */
+    const programId = String(enrollment.programId || "").trim();
+    if (!programId) {
+      throw new HttpsError("failed-precondition", "Enrollment has no programId.");
+    }
+
+    const programSnap = await db.doc(`programs/${programId}`).get();
+    if (!programSnap.exists) {
+      throw new HttpsError("not-found", "Program not found.");
+    }
+
+    const program = programSnap.data() as {
+      title?: string;
+      subtitle?: string;
+      description?: string;
+      imageUrl?: string;
+      price?: number;
+      discountPrice?: number | null;
+      currency?: string;
+      orgId?: string;
+    };
+
+    const price = Number(enrollment.amount || program.discountPrice || program.price || 0);
+    const currency = String(
+      enrollment.currency || program.currency || "USD",
+    ).toLowerCase();
+
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new HttpsError("failed-precondition", "Invalid program price.");
+    }
+
+    /* ── User info ── */
+    const userSnap = await db.doc(`users/${uid}`).get();
+    const userData = (userSnap.data() || {}) as UserProfileDoc;
+    const email = typeof userData.email === "string" ? userData.email : undefined;
+    const orgId = String(userData.orgId || program.orgId || "").trim() || null;
+
+    /* ── Create order ── */
+    const orderRef = db.collection(`users/${uid}/orders`).doc();
+    await orderRef.set({
+      id: orderRef.id,
+      uid,
+      orgId,
+      itemType: "program",
+      itemId: programId,
+      offerId: null,
+      title: String(program.title || "Program").trim(),
+      amount: price,
+      currency: currency.toUpperCase(),
+      enrollmentId,
+      items: [{
+        offerId: null,
+        itemType: "program",
+        itemId: programId,
+        title: String(program.title || "Program").trim(),
+        amount: price,
+        currency: currency.toUpperCase(),
+        qty: 1,
+        stripePriceId: null,
+      }],
+      status: "pending",
+      provider: "stripe",
+      createdAt: nowTs(),
+      updatedAt: nowTs(),
+    });
+
+    /* ── Create Stripe Checkout Session ── */
+    const stripe = getStripe();
+    const unitAmount = Math.round(price * 100);
+
+    let imageUrl: string | null = null;
+    if (program.imageUrl) {
+      try {
+        const parsed = new URL(String(program.imageUrl));
+        if (parsed.protocol === "https:") imageUrl = parsed.toString();
+      } catch {
+        imageUrl = null;
+      }
+    }
+
+    const createSessionPayload: Stripe.Checkout.SessionCreateParams = {
+      mode: "payment",
+      customer_email: email,
+      metadata: {
+        uid,
+        orderId: orderRef.id,
+        enrollmentId,
+        type: "program_enrollment",
+      },
+      line_items: [{
+        price_data: {
+          currency,
+          product_data: {
+            name: String(program.title || "Program").trim(),
+            description: String(
+              program.subtitle || program.description || "",
+            ).trim().slice(0, 500) || undefined,
+            ...(imageUrl ? {images: [imageUrl]} : {}),
+          },
+          unit_amount: unitAmount,
+        },
+        quantity: 1,
+      }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    };
+
+    const waitMs = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const maxAttempts = 3;
+    let session: Stripe.Checkout.Session | null = null;
+    let lastError: any = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        session = await stripe.checkout.sessions.create(createSessionPayload);
+        break;
+      } catch (error: any) {
+        lastError = error;
+        const errorType = String(error?.type || "");
+
+        console.error("createProgramCheckoutSession stripe failure", {
+          uid,
+          orderId: orderRef.id,
+          enrollmentId,
+          attempt,
+          maxAttempts,
+          code: error?.code,
+          type: errorType,
+          message: error?.message,
+        });
+
+        if (errorType === "StripeInvalidRequestError") {
+          throw new HttpsError(
+            "failed-precondition",
+            error?.message || "Invalid checkout payload.",
+          );
+        }
+
+        const isRetryable =
+          errorType === "StripeConnectionError" || errorType === "StripeAPIError";
+        if (!isRetryable || attempt === maxAttempts) break;
+        await waitMs(attempt * 400);
+      }
+    }
+
+    if (!session) {
+      const errorType = String(lastError?.type || "");
+      if (errorType === "StripeConnectionError" || errorType === "StripeAPIError") {
+        throw new HttpsError(
+          "unavailable",
+          "Stripe is temporarily unavailable. Please try again.",
+        );
+      }
+      throw new HttpsError("internal", "Unable to create checkout session.");
+    }
+
+    /* ── Persist checkout refs ── */
+    await orderRef.update({checkoutSessionId: session.id, updatedAt: nowTs()});
+    await enrollmentRef.update({
+      checkoutSessionId: session.id,
+      paymentStatus: "pending",
+      updatedAt: nowTs(),
+    });
+
+    return {url: session.url};
   },
 );
 
@@ -1413,6 +1654,89 @@ export const publishCourseToMarketplace = onCall(
     });
 
     return {ok: true, offerId: offerRef.id};
+  },
+);
+
+/* ─────────── AI Chatbot ─────────── */
+
+type ChatMessage = { role: "user" | "assistant"; content: string };
+
+type ChatPayload = {
+  messages: ChatMessage[];
+  context?: {
+    userRole?: string;
+    currentPage?: string;
+    userName?: string;
+  };
+};
+
+export const chatWithAI = onCall(
+  {secrets: [ANTHROPIC_API_KEY], cors: true},
+  async (request: CallableRequest<ChatPayload>) => {
+    const {messages, context} = request.data;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new HttpsError("invalid-argument", "messages array is required");
+    }
+
+    if (messages.length > 50) {
+      throw new HttpsError("invalid-argument", "Too many messages in conversation");
+    }
+
+    for (const m of messages) {
+      if (!["user", "assistant"].includes(m.role)) {
+        throw new HttpsError("invalid-argument", "Invalid message role");
+      }
+      if (typeof m.content !== "string" || m.content.length > 4000) {
+        throw new HttpsError("invalid-argument", "Invalid message content");
+      }
+    }
+
+    const anthropic = new Anthropic({apiKey: ANTHROPIC_API_KEY.value()});
+
+    const userNameLine = context?.userName
+      ? `The user's name is: ${context.userName}.`
+      : "";
+    const roleLine = context?.userRole
+      ? `The user's role on the platform is: ${context.userRole}.`
+      : "";
+    const pageLine = context?.currentPage
+      ? `The user is currently on the page: ${context.currentPage}.`
+      : "";
+
+    const systemPrompt = `You are InnovaAssist, a helpful AI assistant for the Innovacare Training platform — \
+a healthcare e-learning system focused on wound care education and compliance training.
+
+Your role is to help learners, managers, and admins navigate the platform and succeed in their training.
+
+You can help with:
+- Navigating courses, modules, lessons, and assessments
+- Understanding wound care concepts (pressure injuries, wound healing, dressings, infection control)
+- Tracking learning progress, certifications, and assignments
+- Explaining platform features (programs, live sessions, case studies, simulations)
+- Answering questions about policies, compliance requirements, and transcripts
+- Guiding users through enrollment, checkout, and program management
+
+${userNameLine}
+${roleLine}
+${pageLine}
+
+Always respond in the same language the user writes in (English or French).
+Keep answers concise, accurate, and professional. If a question is outside your knowledge, say so honestly.`;
+
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: messages as Anthropic.MessageParam[],
+    });
+
+    const text = response.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    return {reply: text};
   },
 );
 

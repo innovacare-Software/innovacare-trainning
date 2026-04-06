@@ -7,6 +7,7 @@ export interface OrgContext {
   uid: string;
   orgId: string | null;
   role: string;
+  orgRole: OrgRole | null;
   isSuperAdmin: boolean;
   isOrgAdmin: boolean;
   isOrgManager: boolean;
@@ -21,11 +22,20 @@ export class OrgContextService {
     map((profile): OrgContext => {
       const role = String(profile?.role || 'guest');
       const orgId = profile?.orgId ? String(profile.orgId) : null;
+      const orgRole: OrgRole | null =
+        role === 'org_admin' || role === 'admin'
+          ? 'org_admin'
+          : role === 'org_manager' || role === 'manager'
+            ? 'org_manager'
+            : role === 'org_learner' || role === 'learner'
+              ? 'org_learner'
+              : null;
 
       return {
         uid: String(profile?.uid || ''),
         orgId,
         role,
+        orgRole,
         isSuperAdmin: role === 'super_admin',
         isOrgAdmin: role === 'admin' || role === 'org_admin',
         isOrgManager: role === 'manager' || role === 'org_manager',

@@ -78,4 +78,32 @@ export class CheckoutService {
       throw new Error(message);
     }
   }
+
+  async startProgramCheckout(enrollmentId: string): Promise<void> {
+    if (!enrollmentId) throw new Error('enrollmentId manquant');
+
+    const origin = window.location.origin;
+
+    const fn = httpsCallable<
+      { enrollmentId: string; successUrl: string; cancelUrl: string },
+      { url?: string | null }
+    >(this.functions, 'createProgramCheckoutSession');
+
+    try {
+      const res = await fn({
+        enrollmentId,
+        successUrl: `${origin}/checkout/success`,
+        cancelUrl: `${origin}/checkout/cancel`,
+      });
+
+      const url = String(res.data?.url || '').trim();
+      if (!url) throw new Error('Checkout URL manquante');
+
+      window.location.href = url;
+    } catch (error) {
+      const message =
+        this.extractServerMessage(error) || 'Échec de création de session de paiement programme';
+      throw new Error(message);
+    }
+  }
 }

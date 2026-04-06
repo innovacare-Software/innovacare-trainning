@@ -66,6 +66,25 @@ export enum ProgramLessonType {
   READING = 'reading',
   INTERACTIVE = 'interactive',
   LAB = 'lab',
+  DOCUMENT = 'document',
+  MIXED = 'mixed',
+}
+
+export enum SessionType {
+  LIVE_LECTURE = 'live_lecture',
+  WORKSHOP = 'workshop',
+  Q_AND_A = 'q_and_a',
+  REVIEW_SESSION = 'review_session',
+  OFFICE_HOURS = 'office_hours',
+}
+
+export enum DocumentFileType {
+  PDF = 'pdf',
+  DOCX = 'docx',
+  PPTX = 'pptx',
+  XLSX = 'xlsx',
+  IMAGE = 'image',
+  OTHER = 'other',
 }
 
 export enum SimulationType {
@@ -242,6 +261,63 @@ export interface ProgramAssessment {
   active: boolean;
 }
 
+export interface ProgramDocument {
+  id: string;
+  programId: string;
+  moduleId?: string;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  fileType: DocumentFileType;
+  downloadable: boolean;
+  order: number;
+  active: boolean;
+  createdAt?: FirestoreDateValue;
+}
+
+export interface ProgramLiveSession {
+  id: string;
+  programId: string;
+  moduleId?: string;
+  title: string;
+  description?: string;
+  sessionType: SessionType;
+  startAt: FirestoreDateValue;
+  endAt: FirestoreDateValue;
+  timezone?: string;
+  meetingUrl?: string;
+  instructorName?: string;
+  required: boolean;
+  capacity?: number;
+  active: boolean;
+  createdAt?: FirestoreDateValue;
+}
+
+export interface UserLessonProgress {
+  id: string;
+  userId: string;
+  programId: string;
+  moduleId: string;
+  lessonId: string;
+  completed: boolean;
+  watchedPct: number;
+  lastOpenedAt?: FirestoreDateValue;
+  completedAt?: FirestoreDateValue;
+}
+
+export interface UserCaseStudyAttempt {
+  id: string;
+  userId: string;
+  programId: string;
+  moduleId: string;
+  caseStudyId: string;
+  score: number;
+  passed: boolean;
+  answers?: Record<string, string>;
+  evaluatorNotes?: string;
+  completedAt?: FirestoreDateValue;
+}
+
 export interface ProgramEnrollment {
   id: string;
   userId: string;
@@ -259,6 +335,7 @@ export interface ProgramEnrollment {
   amount: number;
   currency: ProgramCurrency;
   paymentStatus: PaymentStatus;
+  checkoutSessionId?: string;
   reviewStatus: ReviewStatus;
   orgId?: string | null;
   createdAt?: FirestoreDateValue;
@@ -432,4 +509,23 @@ export const PROGRAM_LESSON_TYPE_LABELS: Record<ProgramLessonType, string> = {
   [ProgramLessonType.READING]: 'Reading',
   [ProgramLessonType.INTERACTIVE]: 'Interactive',
   [ProgramLessonType.LAB]: 'Lab',
+  [ProgramLessonType.DOCUMENT]: 'Document',
+  [ProgramLessonType.MIXED]: 'Mixed',
+};
+
+export const SESSION_TYPE_LABELS: Record<SessionType, string> = {
+  [SessionType.LIVE_LECTURE]: 'Live Lecture',
+  [SessionType.WORKSHOP]: 'Workshop',
+  [SessionType.Q_AND_A]: 'Q&A Session',
+  [SessionType.REVIEW_SESSION]: 'Review Session',
+  [SessionType.OFFICE_HOURS]: 'Office Hours',
+};
+
+export const DOCUMENT_FILE_TYPE_LABELS: Record<DocumentFileType, string> = {
+  [DocumentFileType.PDF]: 'PDF',
+  [DocumentFileType.DOCX]: 'Word',
+  [DocumentFileType.PPTX]: 'PowerPoint',
+  [DocumentFileType.XLSX]: 'Excel',
+  [DocumentFileType.IMAGE]: 'Image',
+  [DocumentFileType.OTHER]: 'Other',
 };

@@ -364,4 +364,16 @@ export class ManagerDashboardComponent {
   }
 
   clearNotice() { this.notice = ''; }
+
+  kpiChartRows() {
+    const k = this.kpi();
+    const completion = Number((k.completion30 || '0').replace('%', '')) || 0;
+    const avgScore = Number(k.avgScore || '0') || 0;
+    const overduePressure = Math.max(0, Math.min(100, Number(k.overdue || 0) * 10));
+    return [
+      { label: 'Completion Momentum', value: Math.max(0, Math.min(100, completion)), color: 'linear-gradient(90deg, #1f9b74 0%, #15906a 100%)' },
+      { label: 'Average Score', value: Math.max(0, Math.min(100, avgScore)), color: 'linear-gradient(90deg, #2e73c0 0%, #205f9f 100%)' },
+      { label: 'Overdue Pressure', value: overduePressure, color: 'linear-gradient(90deg, #d38020 0%, #c85a1b 100%)' },
+    ];
+  }
 }

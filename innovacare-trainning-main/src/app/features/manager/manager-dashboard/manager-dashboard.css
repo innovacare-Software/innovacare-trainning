@@ -222,6 +222,62 @@ main.content {
   margin-bottom: 2rem;
 }
 
+.architecture-strip {
+  margin-bottom: 2rem;
+}
+
+.chart-strip {
+  margin-bottom: 2rem;
+}
+
+.architecture-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
+}
+
+.diagram-text {
+  margin: 0;
+  border: 1px solid #dbe7f2;
+  border-radius: 10px;
+  background: #fbfdff;
+  padding: 1rem;
+  color: #1f4a6d;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  overflow: auto;
+}
+
+.chart-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.chart-row {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.chart-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #1f4769;
+  font-weight: 700;
+}
+
+.chart-track {
+  height: 18px;
+  border: 1px solid #cedfed;
+  background: #e7f0f8;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.chart-fill {
+  height: 100%;
+  min-width: 2%;
+  border-radius: 999px;
+}
+
 .actions-card {
   background: white;
   border-radius: 0.75rem;
@@ -491,6 +547,10 @@ main.content {
 
   .table {
     font-size: 0.875rem;
+  }
+
+  .diagram-text {
+    font-size: 0.83rem;
   }
 
   .table th,

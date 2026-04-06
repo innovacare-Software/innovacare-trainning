@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SuperAdminDashboardStats } from '../models/super-admin.models';
 import { SuperAdminDashboardService } from '../services/super-admin-facade';
@@ -32,6 +32,20 @@ export class Dashboard {
   });
   healthIndicators = signal<any[]>([]);
   recentActivities = signal<any[]>([]);
+
+  readonly chartRows = computed(() => {
+    const s = this.stats();
+    const orgRatio = s.organizations > 0 ? Math.round((s.activeOrganizations / s.organizations) * 100) : 0;
+    const userRatio = s.users > 0 ? Math.round((s.activeUsers / s.users) * 100) : 0;
+    const billingRatio = s.organizations > 0 ? Math.round((s.billingActive / s.organizations) * 100) : 0;
+    const alertPressure = s.users > 0 ? Math.min(100, Math.round((s.criticalLogs / s.users) * 100)) : 0;
+    return [
+      { label: 'Active Orgs', value: orgRatio, color: 'linear-gradient(90deg, #177f63 0%, #24a87e 100%)' },
+      { label: 'Active Users', value: userRatio, color: 'linear-gradient(90deg, #235f98 0%, #2f83c8 100%)' },
+      { label: 'Billing Coverage', value: billingRatio, color: 'linear-gradient(90deg, #5b43ad 0%, #7f66d6 100%)' },
+      { label: 'Critical Alert Pressure', value: alertPressure, color: 'linear-gradient(90deg, #9b3b3b 0%, #cf5454 100%)' },
+    ];
+  });
 
   async ngOnInit(): Promise<void> {
     try {

@@ -81,6 +81,47 @@
     </div>
   </section>
 
+  <section class="architecture-strip">
+    <div class="card architecture-card">
+      <div class="section-head">
+        <div>
+          <h2>Enrollment to Dashboard Lifecycle</h2>
+          <p class="muted">Operational map from assignment to KPI refresh.</p>
+        </div>
+      </div>
+      <pre class="diagram-text">
+[Enrollment Created]
+      -> [Assignment Released]
+      -> [Learner Progress Events]
+      -> [Overdue + Compliance Detection]
+      -> [Manager Alerts + Follow-up]
+      -> [Dashboard KPI Update]
+      </pre>
+    </div>
+  </section>
+
+  <section class="chart-strip">
+    <div class="card architecture-card">
+      <div class="section-head">
+        <div>
+          <h2>Visible KPI Charts</h2>
+          <p class="muted">Clear visual signals for operational decisions.</p>
+        </div>
+      </div>
+      <div class="chart-list">
+        <div class="chart-row" *ngFor="let c of kpiChartRows()">
+          <div class="chart-meta">
+            <span>{{ c.label }}</span>
+            <strong>{{ c.value }}%</strong>
+          </div>
+          <div class="chart-track">
+            <div class="chart-fill" [style.width.%]="c.value" [style.background]="c.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Critical Alerts Section -->
   <section class="panel critical-alerts" *ngIf="overdueAlerts().length">
     <div class="section-head">

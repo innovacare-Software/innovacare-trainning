@@ -3,6 +3,7 @@ import { roleCanMatch } from './core/role.canmatch';
 import { authenticatedGuard } from './core/auth-guard';
 import { programLearnerGuard } from './core/program-learner.guard';
 import { programAdminAreaCanMatch } from './features/program-admin/guards/program-admin.guard';
+import { isOrgAdminGuard } from './core/organization/org.guards';
 
 
 export const routes: Routes = [
@@ -49,6 +50,13 @@ export const routes: Routes = [
     },
 
   {
+    path: 'org-admin',
+    canMatch: [isOrgAdminGuard],
+    loadChildren: () =>
+      import('./features/org-admin/org-admin.routes').then((m) => m.ORG_ADMIN_ROUTES),
+  },
+
+  {
     path: 'home',
     loadComponent: () =>
       import('./features/publics/training-landing/training-landing').then(
@@ -92,11 +100,11 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'my-programs/:id/dashboard',
+    path: 'my-programs/:programId',
     canActivate: [authenticatedGuard, programLearnerGuard],
-    loadComponent: () =>
-      import('./features/publics/programs/user-program-dashboard.page').then(
-        (m) => m.UserProgramDashboardPage
+    loadChildren: () =>
+      import('./features/publics/programs/learner-space/learner-space.routes').then(
+        (m) => m.LEARNER_SPACE_ROUTES
       ),
   },
   {

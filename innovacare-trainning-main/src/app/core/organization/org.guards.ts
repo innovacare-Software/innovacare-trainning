@@ -46,3 +46,32 @@ export const isOrgLearnerGuard: CanMatchFn = () => {
     map((c) => ((c.isOrgLearner || c.isOrgManager || c.isOrgAdmin || c.isSuperAdmin) && !!c.orgId ? true : redirect('/login')))
   );
 };
+
+export const belongsToOrg = (orgIdResolver: () => string | null): CanMatchFn => () => {
+  const ctx = inject(OrgContextService);
+  return ctx.context$.pipe(
+    take(1),
+    map((c) => {
+      const orgId = orgIdResolver();
+      if (!orgId) return redirect('/login');
+      return c.isSuperAdmin || c.orgId === orgId ? true : redirect('/home');
+    })
+  );
+};
+
+export const canManageOrgGuard = (orgIdResolver: () => string | null): CanMatchFn => () => {
+  const ctx = inject(OrgContextService);
+  return ctx.context$.pipe(
+    take(1),
+    map((c) => {
+      const orgId = orgIdResolver();
+      if (!orgId) return redirect('/login');
+      return c.isSuperAdmin || ((c.isOrgAdmin || c.isOrgManager) && c.orgId === orgId)
+        ? true
+        : redirect('/home');
+    })
+  );
+};
+
+export const canReadOrgDataGuard = isOrgLearnerGuard;
+export const canWriteOrgDataGuard = isOrgManagerGuard;

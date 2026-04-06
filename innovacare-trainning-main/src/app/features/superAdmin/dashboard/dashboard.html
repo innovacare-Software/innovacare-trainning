@@ -32,6 +32,21 @@
     </div>
   </div>
 
+  <div class="panel chart-panel">
+    <h2>Visible BI Charts</h2>
+    <div class="chart-list">
+      <div class="chart-row" *ngFor="let c of chartRows()">
+        <div class="chart-meta">
+          <span>{{ c.label }}</span>
+          <strong>{{ c.value }}%</strong>
+        </div>
+        <div class="chart-track">
+          <div class="chart-fill" [style.width.%]="c.value" [style.background]="c.color"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid">
     <!-- Quick Actions -->
     <section class="card">
@@ -89,6 +104,37 @@
         <h3>Platform Status</h3>
         <p>Real-time status of all platform components and services.</p>
       </div>
+    </div>
+  </div>
+
+  <div class="panel architecture-panel">
+    <h2>Architecture Intelligence Maps</h2>
+    <div class="diagram-grid">
+      <article class="diagram-card">
+        <h3>Program Intelligence Model</h3>
+        <pre>
+[Program Catalog] -> [Org Assignment]
+        |                 |
+        v                 v
+[Adoption Signals] -> [Performance Lens]
+                           |
+                           v
+                  [Keep / Optimize / Retire]
+        </pre>
+      </article>
+
+      <article class="diagram-card">
+        <h3>Admin BI Model</h3>
+        <pre>
+[Alerts + Audit + Troubleshooting + Reports]
+                     |
+                     v
+              [BI Prioritization]
+                     |
+                     v
+        [Assign -> Remediate -> Verify]
+        </pre>
+      </article>
     </div>
   </div>
 </section>
