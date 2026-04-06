@@ -2,15 +2,17 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { NotificationBell } from '../../../shared/components/notifications/notification-bell/notification-bell';
 import { NotificationBellPlainComponent } from '../../../shared/components/notifications/notification-bell-plain/notification-bell-plain';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
 import { AuthService } from '../../../core/auth';
 
 @Component({
   selector: 'app-manager-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, NotificationBellPlainComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, NotificationBellPlainComponent, LanguageSwitcherComponent],
   templateUrl: './manager-shell.html',
   styleUrl: './manager-shell.css'
 })
@@ -23,13 +25,13 @@ export class ManagerShell {
   closeSidebar()  { this.sidebarOpen.set(false); }
 
   nav = signal([
-    { path: '/manager/dashboard', label: 'Dashboard', active: true },
-    { path: '/manager/org-users', label: 'Org Users', active: false },
-    { path: '/manager/assign',    label: 'Assign',    active: false }
+    { path: '/manager/dashboard', labelKey: 'manager.nav.dashboard', active: true },
+    { path: '/manager/org-users', labelKey: 'manager.nav.orgUsers', active: false },
+    { path: '/manager/assign',    labelKey: 'manager.nav.assign',    active: false }
   ]);
 
   resources = signal([
-    { path: '/manager/reports', label: 'Reports' }
+    { path: '/manager/reports', labelKey: 'manager.nav.reports' }
   ]);
 
   constructor() {

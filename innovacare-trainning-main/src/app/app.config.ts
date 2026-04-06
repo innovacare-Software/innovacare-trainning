@@ -11,6 +11,9 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
@@ -30,6 +33,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
+    provideTranslateService({
+      fallbackLang: 'en',
+    }),
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: '.json',
+    }),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthTokenInterceptor,

@@ -1,4 +1,4 @@
-<button type="button" class="bell-btn" (click)="toggle()" aria-label="Notifications">
+<button type="button" class="bell-btn" (click)="toggle()" [attr.aria-label]="'notifications.title' | translate">
   <span class="bell-icon">🔔</span>
   <span class="badge" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
 </button>
@@ -6,8 +6,8 @@
 <div class="panel" *ngIf="open()">
   <div class="panel-header">
     <div>
-      <div class="panel-title">Notifications</div>
-      <div class="panel-sub">{{ unreadCount() }} unread</div>
+      <div class="panel-title">{{ 'notifications.title' | translate }}</div>
+      <div class="panel-sub">{{ 'notifications.unread' | translate: { count: unreadCount() } }}</div>
     </div>
   </div>
 
@@ -18,22 +18,22 @@
       *ngFor="let n of unread()"
       (click)="openDetail(n, detailDlg)"
     >
-      <div class="t">{{ n.title || 'Notification' }}</div>
+      <div class="t">{{ n.title || ('notifications.title' | translate) }}</div>
       <div class="b">{{ n.body || '' }}</div>
       <div class="meta">
         <span class="pill" [class.info]="n.severity==='info'"
                          [class.warning]="n.severity==='warning'"
                          [class.critical]="n.severity==='critical'">
-          {{ n.severity || 'info' }}
+          {{ ('notifications.severity.' + (n.severity || 'info')) | translate }}
         </span>
       </div>
     </button>
 
-    <div class="empty" *ngIf="unread().length === 0">No notifications</div>
+    <div class="empty" *ngIf="unread().length === 0">{{ 'notifications.noNotifications' | translate }}</div>
   </div>
 
   <div class="panel-footer">
-    <button type="button" class="link-btn" (click)="toggle()">Close</button>
+    <button type="button" class="link-btn" (click)="toggle()">{{ 'common.close' | translate }}</button>
   </div>
 </div>
 

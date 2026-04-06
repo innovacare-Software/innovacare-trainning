@@ -1,0 +1,21 @@
+<div class="lang-switcher" [attr.aria-label]="'languageSwitcher.changeLanguage' | translate">
+  <button
+    type="button"
+    class="lang-btn"
+    [class.active]="currentLang() === 'en'"
+    (click)="switchTo('en')"
+    [attr.aria-pressed]="currentLang() === 'en'"
+    [title]="'languageSwitcher.english' | translate">
+    {{ 'languageSwitcher.en' | translate }}
+  </button>
+  <span class="lang-divider" aria-hidden="true">|</span>
+  <button
+    type="button"
+    class="lang-btn"
+    [class.active]="currentLang() === 'fr'"
+    (click)="switchTo('fr')"
+    [attr.aria-pressed]="currentLang() === 'fr'"
+    [title]="'languageSwitcher.french' | translate">
+    {{ 'languageSwitcher.fr' | translate }}
+  </button>
+</div>

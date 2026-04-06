@@ -2,6 +2,7 @@ import {Component, inject, signal, computed} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {Observable, map, startWith} from "rxjs";
+import { TranslateModule } from "@ngx-translate/core";
 
 import {NotificationDetailDialogComponent} from "../notification-detail-dialog/notification-detail-dialog";
 import { NotificationService } from "../../../services/notification";
@@ -19,7 +20,7 @@ export type AppNotification = {
 @Component({
   standalone: true,
   selector: "app-notification-bell-plain",
-  imports: [CommonModule, NotificationDetailDialogComponent],
+  imports: [CommonModule, NotificationDetailDialogComponent, TranslateModule],
   templateUrl: "./notification-bell-plain.html",
   styleUrls: ["./notification-bell-plain.css"],
 })

@@ -1,13 +1,14 @@
 <div class="shell">
   <!-- TOP BAR -->
   <header class="topbar">
-    <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Open menu">☰</button>
-    <div class="brand"><strong>INNOVACARE-TRAINING</strong></div>
+    <button class="menu-toggle" (click)="toggleSidebar()" [attr.aria-label]="'manager.shell.openMenu' | translate">☰</button>
+    <div class="brand"><strong>{{ 'common.brand' | translate }}</strong></div>
     <div class="top-actions">
-      <span class="role">Manager</span>
-      <div class="avatar" title="Profile"></div>
+      <span class="role">{{ 'manager.shell.role' | translate }}</span>
+      <div class="avatar" [title]="'common.profile' | translate"></div>
       <app-notification-bell-plain></app-notification-bell-plain>
-      <button class="btn logout" (click)="logout()">Logout</button>
+      <app-language-switcher></app-language-switcher>
+      <button class="btn logout" (click)="logout()">{{ 'common.logout' | translate }}</button>
     </div>
   </header>
 
@@ -15,22 +16,21 @@
   <aside class="sidebar" [class.open]="sidebarOpen()">
     <nav class="menu">
       <div class="menu-group">
-        <div class="menu-title">Overview</div>
+        <div class="menu-title">{{ 'manager.shell.overview' | translate }}</div>
         <a *ngFor="let i of nav()"
            [routerLink]="i.path"
            routerLinkActive="active"
            class="menu-item"
-           (click)="closeSidebar()">{{ i.label }}</a>
+           (click)="closeSidebar()">{{ i.labelKey | translate }}</a>
       </div>
 
       <div class="menu-group">
-        <div class="menu-title">Resources</div>
+        <div class="menu-title">{{ 'manager.shell.resources' | translate }}</div>
         <a *ngFor="let r of resources()"
            [routerLink]="r.path"
            routerLinkActive="active"
            class="menu-item"
-           (click)="closeSidebar()">{{ r.label }}</a>
-           
+           (click)="closeSidebar()">{{ r.labelKey | translate }}</a>
       </div>
     </nav>
   </aside>

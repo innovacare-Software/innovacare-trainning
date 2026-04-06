@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
 import { AuthService } from '../../../core/auth';
 
 @Component({
@@ -8,6 +10,8 @@ import { AuthService } from '../../../core/auth';
   imports: [
     CommonModule,
     RouterModule,
+    TranslateModule,
+    LanguageSwitcherComponent,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
@@ -16,18 +20,18 @@ export class Shell {
   sidebarOpen = signal(true);
 
  nav = [
-  { label: 'Dashboard', path: '/super-admin/dashboard' },
-  { label: 'Organizations', path: '/super-admin/organizations' },
-  { label: 'Create Course', path: '/super-admin/courses/create' },
-  { label: 'Create Policy', path: '/super-admin/policy/create' },
-  { label: 'Wounds', path: '/super-admin/wounds/new' },
-  { label: 'Wound Report', path: '/super-admin/wound-report' },
-  { label: 'Setup', path: '/super-admin/setup' },
-  { label: 'Users', path: '/super-admin/users' },
-  { label: 'Billing', path: '/super-admin/billing' },
-  { label: 'Logs', path: '/super-admin/logs' },
-  { label: 'Settings', path: '/super-admin/settings' },
-  { label: 'Org Context', path: '/super-admin/organizations' },
+  { labelKey: 'superAdmin.nav.dashboard', path: '/super-admin/dashboard' },
+  { labelKey: 'superAdmin.nav.organizations', path: '/super-admin/organizations' },
+  { labelKey: 'superAdmin.nav.createCourse', path: '/super-admin/courses/create' },
+  { labelKey: 'superAdmin.nav.createPolicy', path: '/super-admin/policy/create' },
+  { labelKey: 'superAdmin.nav.wounds', path: '/super-admin/wounds/new' },
+  { labelKey: 'superAdmin.nav.woundReport', path: '/super-admin/wound-report' },
+  { labelKey: 'superAdmin.nav.setup', path: '/super-admin/setup' },
+  { labelKey: 'superAdmin.nav.users', path: '/super-admin/users' },
+  { labelKey: 'superAdmin.nav.billing', path: '/super-admin/billing' },
+  { labelKey: 'superAdmin.nav.logs', path: '/super-admin/logs' },
+  { labelKey: 'superAdmin.nav.settings', path: '/super-admin/settings' },
+  { labelKey: 'superAdmin.nav.orgContext', path: '/super-admin/organizations' },
 ];
 
   constructor(

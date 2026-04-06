@@ -6,19 +6,20 @@
       type="button"
       (click)="toggleSidebar()"
       [attr.aria-expanded]="sidebarOpen()"
-      aria-label="Toggle navigation menu">
+      [attr.aria-label]="'learner.shell.toggleMenu' | translate">
       <span aria-hidden="true">☰</span>
     </button>
 
     <div class="brand">
-      <strong>INNOVACARE-TRAINING</strong>
+      <strong>{{ 'common.brand' | translate }}</strong>
     </div>
 
     <div class="top-actions">
-      <span class="role" aria-label="User role">Learner</span>
-      <button class="avatar" type="button" aria-label="User profile" title="Profile"></button>
-      <app-notification-bell-plain aria-label="Notifications"></app-notification-bell-plain>
-      <button class="btn logout" type="button" (click)="logout()" aria-label="Logout from system">Logout</button>
+      <span class="role" [attr.aria-label]="'common.role' | translate">{{ 'learner.shell.role' | translate }}</span>
+      <button class="avatar" type="button" [attr.aria-label]="'learner.shell.userProfile' | translate" [title]="'common.profile' | translate"></button>
+      <app-notification-bell-plain [attr.aria-label]="'common.notifications' | translate"></app-notification-bell-plain>
+      <app-language-switcher></app-language-switcher>
+      <button class="btn logout" type="button" (click)="logout()" [attr.aria-label]="'common.logout' | translate">{{ 'common.logout' | translate }}</button>
     </div>
   </header>
 
@@ -28,10 +29,10 @@
     [class.open]="sidebarOpen()"
     [attr.aria-hidden]="!sidebarOpen()"
     role="navigation"
-    aria-label="Main navigation">
+    [attr.aria-label]="'learner.shell.mainNav' | translate">
     <nav class="menu">
       <div class="menu-group">
-        <h2 class="menu-title">Overview</h2>
+        <h2 class="menu-title">{{ 'learner.shell.overview' | translate }}</h2>
 
         <a
           *ngFor="let l of links"
@@ -39,12 +40,12 @@
           routerLinkActive="active"
           class="menu-item"
           (click)="onNavClick()">
-          {{ l.label }}
+          {{ l.labelKey | translate }}
         </a>
       </div>
 
       <div class="menu-group">
-        <h2 class="menu-title">Resources</h2>
+        <h2 class="menu-title">{{ 'learner.shell.resources' | translate }}</h2>
 
         <a
           *ngFor="let r of resources"
@@ -52,7 +53,7 @@
           routerLinkActive="active"
           class="menu-item"
           (click)="onNavClick()">
-          {{ r.label }}
+          {{ r.labelKey | translate }}
         </a>
       </div>
     </nav>

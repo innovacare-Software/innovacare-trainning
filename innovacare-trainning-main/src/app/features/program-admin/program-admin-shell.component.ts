@@ -1,25 +1,31 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-program-admin-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule, LanguageSwitcherComponent],
   template: `
     <section class="admin-shell">
       <aside class="sidebar">
         <div class="brand">
-          <p class="eyebrow">Program Platform</p>
-          <h2>Program Admin</h2>
+          <p class="eyebrow">{{ 'programAdmin.shell.brand' | translate }}</p>
+          <h2>{{ 'programAdmin.shell.role' | translate }}</h2>
+        </div>
+
+        <div class="lang-area">
+          <app-language-switcher></app-language-switcher>
         </div>
 
         <nav>
-          <a routerLink="/program-admin/dashboard" routerLinkActive="active">Dashboard</a>
-          <a routerLink="/program-admin/programs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Programs</a>
-          <a routerLink="/program-admin/programs/new" routerLinkActive="active">Create Program</a>
-          <a routerLink="/program-admin/enrollments" routerLinkActive="active">Enrollments</a>
-          <a routerLink="/program-admin/analytics" routerLinkActive="active">Analytics</a>
+          <a routerLink="/program-admin/dashboard" routerLinkActive="active">{{ 'programAdmin.nav.dashboard' | translate }}</a>
+          <a routerLink="/program-admin/programs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ 'programAdmin.nav.programs' | translate }}</a>
+          <a routerLink="/program-admin/programs/new" routerLinkActive="active">{{ 'programAdmin.nav.createProgram' | translate }}</a>
+          <a routerLink="/program-admin/enrollments" routerLinkActive="active">{{ 'programAdmin.nav.enrollments' | translate }}</a>
+          <a routerLink="/program-admin/analytics" routerLinkActive="active">{{ 'programAdmin.nav.analytics' | translate }}</a>
         </nav>
       </aside>
 
@@ -81,6 +87,10 @@ import { RouterModule } from '@angular/router';
         color: #fff;
         border-color: rgba(255, 255, 255, 0.2);
         background: rgba(255, 255, 255, 0.14);
+      }
+
+      .lang-area {
+        margin: 0.75rem 0 0.5rem;
       }
 
       .content {

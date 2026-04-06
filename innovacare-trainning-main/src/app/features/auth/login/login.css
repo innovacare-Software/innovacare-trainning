@@ -450,3 +450,28 @@
     min-width: 100%;
   }
 }
+
+.lang-switcher-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.lang-switcher-row app-language-switcher .lang-switcher {
+  background: rgba(102, 126, 234, 0.12);
+  border-color: rgba(102, 126, 234, 0.25);
+}
+
+.lang-switcher-row app-language-switcher .lang-btn {
+  color: #667eea;
+}
+
+.lang-switcher-row app-language-switcher .lang-btn:hover,
+.lang-switcher-row app-language-switcher .lang-btn.active {
+  color: #fff;
+  background: #667eea;
+}
+
+.lang-switcher-row app-language-switcher .lang-divider {
+  color: rgba(102, 126, 234, 0.4);
+}

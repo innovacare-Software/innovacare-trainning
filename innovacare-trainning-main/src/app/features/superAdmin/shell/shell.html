@@ -5,17 +5,18 @@
       type="button"
       (click)="toggleSidebar()"
       [attr.aria-expanded]="sidebarOpen()"
-      aria-label="Toggle menu">
+      [attr.aria-label]="'superAdmin.shell.toggleMenu' | translate">
       ☰
     </button>
 
     <div class="brand">
-      <strong>INNOVACARE SUPER ADMIN</strong>
+      <strong>{{ 'superAdmin.shell.brand' | translate }}</strong>
     </div>
 
     <div class="top-actions">
-      <span class="role">Super Admin</span>
-      <button class="btn logout" type="button" (click)="logout()">Logout</button>
+      <span class="role">{{ 'superAdmin.shell.role' | translate }}</span>
+      <app-language-switcher></app-language-switcher>
+      <button class="btn logout" type="button" (click)="logout()">{{ 'common.logout' | translate }}</button>
     </div>
   </header>
 
@@ -27,7 +28,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: item.path === '/super-admin' }"
         class="menu-item">
-        {{ item.label }}
+        {{ item.labelKey | translate }}
       </a>
     </nav>
   </aside>

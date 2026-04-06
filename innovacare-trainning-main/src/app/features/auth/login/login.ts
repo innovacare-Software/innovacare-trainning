@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
 import { AuthService, AppProfile } from '../../../core/auth';
 import { AuthRedirectService, defaultRouteForRole } from '../../../core/auth-redirect.service';
 
@@ -13,7 +15,7 @@ type TabType = 'guest' | 'org' | 'register';
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule, LanguageSwitcherComponent],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
   animations: [
@@ -33,6 +35,7 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private authRedirect = inject(AuthRedirectService);
+  private translate = inject(TranslateService);
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -158,7 +161,7 @@ export class LoginComponent {
 
     const { password, confirmPassword } = this.registerForm.getRawValue();
     if (password !== confirmPassword) {
-      this.error.set('Passwords do not match');
+      this.error.set(this.translate.instant('auth.validation.passwordsMustMatch'));
       return;
     }
 
@@ -215,7 +218,7 @@ export class LoginComponent {
     try {
       const { email } = this.resetForm.getRawValue();
       await this.auth.resetPassword(email!);
-      this.success.set('Password reset email sent. Please check your inbox.');
+      this.success.set(this.translate.instant('auth.reset.successMessage'));
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Password reset failed'));
     } finally {
@@ -223,29 +226,29 @@ export class LoginComponent {
     }
   }
 
-  private mapAuthError(error: any, fallback: string): string {
+  private mapAuthError(error: any, fallbackKey: string): string {
     const code = error?.code ?? '';
 
     switch (code) {
       case 'auth/invalid-email':
-        return 'Invalid email address.';
+        return this.translate.instant('auth.errors.invalidCredentials');
       case 'auth/user-disabled':
-        return 'This account has been disabled.';
+        return this.translate.instant('auth.errors.accessDenied');
       case 'auth/user-not-found':
-        return 'No account found with this email.';
+        return this.translate.instant('auth.errors.userNotFound');
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
-        return 'Incorrect email or password.';
+        return this.translate.instant('auth.errors.invalidCredentials');
       case 'auth/email-already-in-use':
-        return 'This email is already in use.';
+        return this.translate.instant('auth.errors.invalidCredentials');
       case 'auth/weak-password':
-        return 'Password is too weak.';
+        return this.translate.instant('auth.validation.passwordRequired');
       case 'auth/popup-closed-by-user':
-        return 'Google sign-in was cancelled.';
+        return this.translate.instant('auth.errors.accessDenied');
       case 'auth/network-request-failed':
-        return 'Network error. Please check your connection.';
+        return this.translate.instant('auth.errors.networkError');
       default:
-        return error?.message ?? fallback;
+        return error?.message ?? this.translate.instant('auth.errors.unknown');
     }
   }
 
