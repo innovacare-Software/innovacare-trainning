@@ -35,8 +35,15 @@ export class ResetComponent {
     try {
       await this.auth.resetPassword(this.form.value.email!);
       this.success.set(this.translate.instant('auth.reset.successMessage'));
-    } catch {
-      this.error.set(this.translate.instant('auth.errors.networkError'));
+    } catch (e: any) {
+      const code = e?.code ?? '';
+      if (code === 'auth/user-not-found') {
+        this.error.set(this.translate.instant('auth.errors.emailNotFound'));
+      } else if (code === 'auth/too-many-requests') {
+        this.error.set(this.translate.instant('auth.errors.tooManyRequests'));
+      } else {
+        this.error.set(this.translate.instant('auth.errors.resetFailed'));
+      }
     } finally {
       this.loading.set(false);
     }

@@ -74,7 +74,8 @@
     "help": "Aide",
     "overview": "Vue d'ensemble",
     "resources": "Ressources",
-    "language": "Langue"
+    "language": "Langue",
+    "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter ?"
   },
   "nav": {
     "home": "Accueil",
@@ -155,7 +156,9 @@
       "unknown": "Une erreur inattendue s'est produite. Veuillez réessayer.",
       "orgNotFound": "Organisation introuvable.",
       "orgNotActive": "Cette organisation n'est pas active.",
-      "accessDenied": "Accès refusé."
+      "accessDenied": "Accès refusé.",
+      "resetFailed": "Impossible d'envoyer l'e-mail de réinitialisation. Veuillez vérifier l'adresse et réessayer.",
+      "emailNotFound": "Aucun compte trouvé avec cette adresse e-mail."
     }
   },
   "learner": {

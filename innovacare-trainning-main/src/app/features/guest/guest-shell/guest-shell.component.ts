@@ -23,7 +23,7 @@ export class GuestShellComponent {
   ) {}
 
   async logout(): Promise<void> {
-    if (window.confirm(this.translate.instant('messages.unsavedChanges').split('?')[0] + '?')) {
+    if (window.confirm(this.translate.instant('common.confirmLogout'))) {
       await this.auth.logout();
 
       // Clear authentication tokens

@@ -118,7 +118,7 @@ export class LoginComponent {
       const profile = await this.waitForFreshProfile();
       await this.redirectAfterAuth(profile);
     } catch (e: any) {
-      this.error.set(this.mapAuthError(e, 'Login failed'));
+      this.error.set(this.mapAuthError(e));
     } finally {
       this.loading.set(false);
     }
@@ -147,7 +147,7 @@ export class LoginComponent {
       const profile = await this.waitForFreshProfile();
       await this.redirectAfterAuth(profile);
     } catch (e: any) {
-      this.error.set(this.mapAuthError(e, 'Organization login failed'));
+      this.error.set(this.mapAuthError(e));
     } finally {
       this.loading.set(false);
     }
@@ -182,7 +182,7 @@ export class LoginComponent {
       const profile = await this.waitForFreshProfile();
       await this.redirectAfterAuth(profile);
     } catch (e: any) {
-      this.error.set(this.mapAuthError(e, 'Registration failed'));
+      this.error.set(this.mapAuthError(e));
     } finally {
       this.loading.set(false);
     }
@@ -199,7 +199,7 @@ export class LoginComponent {
       const profile = await this.waitForFreshProfile();
       await this.redirectAfterAuth(profile);
     } catch (e: any) {
-      this.error.set(this.mapAuthError(e, 'Google sign-in failed'));
+      this.error.set(this.mapAuthError(e));
     } finally {
       this.loading.set(false);
     }
@@ -220,13 +220,13 @@ export class LoginComponent {
       await this.auth.resetPassword(email!);
       this.success.set(this.translate.instant('auth.reset.successMessage'));
     } catch (e: any) {
-      this.error.set(this.mapAuthError(e, 'Password reset failed'));
+      this.error.set(this.mapAuthError(e));
     } finally {
       this.loading.set(false);
     }
   }
 
-  private mapAuthError(error: any, fallbackKey: string): string {
+  private mapAuthError(error: any): string {
     const code = error?.code ?? '';
 
     switch (code) {

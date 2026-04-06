@@ -74,7 +74,8 @@
     "help": "Help",
     "overview": "Overview",
     "resources": "Resources",
-    "language": "Language"
+    "language": "Language",
+    "confirmLogout": "Are you sure you want to log out?"
   },
   "nav": {
     "home": "Home",
@@ -155,7 +156,9 @@
       "unknown": "An unexpected error occurred. Please try again.",
       "orgNotFound": "Organization not found.",
       "orgNotActive": "This organization is not active.",
-      "accessDenied": "Access denied."
+      "accessDenied": "Access denied.",
+      "resetFailed": "Unable to send reset email. Please verify the address and try again.",
+      "emailNotFound": "No account found with this email address."
     }
   },
   "learner": {
