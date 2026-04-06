@@ -83,4 +83,20 @@ export class SuperAdminUsersService {
       updatedAt: serverTimestamp(),
     });
   }
+
+  async setProgramAdmin(uid: string, isProgramAdmin: boolean): Promise<void> {
+    const ref = doc(this.afs, `users/${uid}`);
+    await updateDoc(ref, {
+      isProgramAdmin,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  async setProgramStaff(uid: string, isProgramStaff: boolean): Promise<void> {
+    const ref = doc(this.afs, `users/${uid}`);
+    await updateDoc(ref, {
+      isProgramStaff,
+      updatedAt: serverTimestamp(),
+    });
+  }
 }

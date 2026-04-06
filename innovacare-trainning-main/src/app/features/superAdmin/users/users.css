@@ -69,6 +69,30 @@ input, select{
   flex-wrap:wrap;
 }
 
+.tag-program-admin{
+  margin-left:8px;
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid #9ec5ff;
+  background:#e9f2ff;
+  color:#1d4f91;
+  font-size:12px;
+  font-weight:700;
+}
+
+.tag-program-staff{
+  margin-left:8px;
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid #b9dca7;
+  background:#eef9e8;
+  color:#2f6a1f;
+  font-size:12px;
+  font-weight:700;
+}
+
 @media (max-width: 900px){
   .filters{
     grid-template-columns:1fr;

@@ -8,7 +8,8 @@ export type AppRole =
 export type AccessChannel =
   | 'guest'
   | 'organization'
-  | 'staff';
+  | 'staff'
+  | 'program_platform';
 
 export interface UserAccessContext {
   channel: AccessChannel;
@@ -25,6 +26,11 @@ export interface AppUserProfile {
 
   primaryRole: AppRole;
   access: UserAccessContext[];
+
+  // Program Platform domain flags (independent from organization domain roles).
+  isProgramAdmin?: boolean;
+  isProgramStaff?: boolean;
+  isProgramLearner?: boolean;
 
   isActive: boolean;
   emailVerified?: boolean;

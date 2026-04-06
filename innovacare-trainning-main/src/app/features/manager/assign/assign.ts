@@ -1,10 +1,13 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, map } from 'rxjs';
-import { EnrollmentService } from '../../../shared/services/enrollement';
+import { Observable, map, of, switchMap } from 'rxjs';
+import { OrganizationAssignmentsService } from '../../../core/organization/services/organization-assignments.service';
+import { OrganizationCoursesService } from '../../../core/organization/services/organization-courses.service';
+import { OrganizationUsersService } from '../../../core/organization/services/organization-users.service';
+import { AuthService } from '../../../core/auth';
 
 
 type UserItem = { id: string; displayName?: string; email?: string; role?: string };
@@ -19,12 +22,17 @@ type CourseItem = { id: string; title?: string; kind?: string; active?: boolean;
 })
 export class Assign {
   private afs = inject(Firestore);
-  private enroll = inject(EnrollmentService);
+  private assignments = inject(OrganizationAssignmentsService);
+  private orgCourses = inject(OrganizationCoursesService);
+  private orgUsers = inject(OrganizationUsersService);
+  private auth = inject(AuthService);
 
   // state
   busy = signal(false);
   notice = signal('');
   error = signal(false);
+
+  private readonly profile = toSignal(this.auth.profile$, { initialValue: null });
 
   // selections
   selectedUsers = signal<Set<string>>(new Set());
@@ -35,11 +43,38 @@ export class Assign {
 
   // data
   users = toSignal(
-    collectionData(collection(this.afs, 'users'), { idField: 'id' }) as Observable<UserItem[]>,
+    this.auth.profile$.pipe(
+      switchMap((profile) => {
+        const orgId = String(profile?.orgId || '').trim();
+        if (!orgId) return of([] as UserItem[]);
+
+        return this.orgUsers.listLearners(orgId).pipe(
+          map((rows) => rows.map((u) => ({
+            id: u.uid,
+            displayName: u.displayName,
+            email: u.email,
+            role: u.role,
+          } as UserItem)))
+        );
+      })
+    ),
     { initialValue: [] }
   );
   courses = toSignal(
-    collectionData(collection(this.afs, 'courses'), { idField: 'id' }) as Observable<CourseItem[]>,
+    this.auth.profile$.pipe(
+      switchMap((profile) => {
+        const orgId = String(profile?.orgId || '').trim();
+        if (!orgId) return of([] as CourseItem[]);
+
+        return this.orgCourses.listAssigned(orgId).pipe(
+          map((rows) => rows.map((c) => ({
+            id: c.courseId,
+            title: c.title,
+            active: c.active,
+          } as CourseItem)))
+        );
+      })
+    ),
     { initialValue: [] }
   );
 
@@ -80,16 +115,42 @@ export class Assign {
     this.busy.set(true);
 
     try {
+      const profile = this.profile();
+      const orgId = String(profile?.orgId || '').trim();
+      if (!orgId) {
+        throw new Error('No organization context found.');
+      }
+
+      const assignedBy = String(this.auth.currentUid || '').trim() || 'unknown';
       const userIds = Array.from(this.selectedUsers());
       const courseIds = Array.from(this.selectedCourses());
-      const res = await this.enroll.managerAssignBulk(userIds, courseIds);
 
-      if (res.failed.length === 0) {
-        this.notice.set(`Assigned ${res.ok} enrollment${res.ok>1?'s':''} successfully.`);
+      let ok = 0;
+      const failed: Array<{ uid: string; courseId: string; err: unknown }> = [];
+
+      for (const uid of userIds) {
+        for (const courseId of courseIds) {
+          try {
+            await this.assignments.assignCourseToUser(orgId, {
+              orgId,
+              userId: uid,
+              courseId,
+              assignedBy,
+              status: 'assigned',
+            });
+            ok++;
+          } catch (err) {
+            failed.push({ uid, courseId, err });
+          }
+        }
+      }
+
+      if (failed.length === 0) {
+        this.notice.set(`Assigned ${ok} enrollment${ok > 1 ? 's' : ''} successfully.`);
       } else {
-        this.notice.set(`Assigned ${res.ok} ok, ${res.failed.length} failed.`);
+        this.notice.set(`Assigned ${ok} ok, ${failed.length} failed.`);
         this.error.set(true);
-        console.warn('Failed assignments:', res.failed);
+        console.warn('Failed assignments:', failed);
       }
     } catch (e:any) {
       this.notice.set(e?.message || 'Assignment failed.');

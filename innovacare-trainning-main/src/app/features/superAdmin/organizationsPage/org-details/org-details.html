@@ -1,1 +1,139 @@
-<p>org-details works!</p>
+<section class="org-page" *ngIf="vm() as data; else loadingTpl">
+	<header class="org-header">
+		<div class="identity">
+			<h1>{{ data.organization.name }}</h1>
+			<p>Organization ID: {{ data.organization.id }}</p>
+			<div class="chips">
+				<span class="chip type">{{ data.organization.type }}</span>
+				<span class="chip plan">{{ data.organization.plan }}</span>
+				<span class="chip" [class.off]="data.organization.active === false">
+					{{ data.organization.active === false ? 'Inactive' : 'Active' }}
+				</span>
+			</div>
+		</div>
+
+		<div class="header-actions">
+			<a class="btn" [routerLink]="['/super-admin/organizations', data.organization.id, 'assign-courses']">Assign Courses</a>
+			<a class="btn" [routerLink]="['/super-admin/organizations', data.organization.id, 'users']">Open Users</a>
+			<a class="btn" [routerLink]="['/super-admin/organizations']">Back to Organizations</a>
+		</div>
+	</header>
+
+	<section class="stats-grid">
+		<article class="stat"><h3>{{ data.stats.totalUsers }}</h3><p>Total Users</p></article>
+		<article class="stat"><h3>{{ data.stats.activeUsers }}</h3><p>Active Users</p></article>
+		<article class="stat"><h3>{{ data.stats.assignedCourses }}</h3><p>Assigned Courses</p></article>
+		<article class="stat"><h3>{{ data.stats.totalEnrollments }}</h3><p>Total Enrollments</p></article>
+		<article class="stat"><h3>{{ data.stats.progressCompletionAverage }}%</h3><p>Avg Progress</p></article>
+		<article class="stat"><h3>{{ data.stats.policiesCount }}</h3><p>Policies</p></article>
+		<article class="stat"><h3>{{ data.stats.woundLibraryCount }}</h3><p>Wound Library</p></article>
+	</section>
+
+	<div class="layout">
+		<section class="panel">
+			<h2>Organization Header</h2>
+			<div class="kv-grid">
+				<div><span>OrgId</span><strong>{{ data.organization.orgId || data.organization.id }}</strong></div>
+				<div><span>Owner UID</span><strong>{{ data.organization.ownerUid || '—' }}</strong></div>
+				<div><span>Owner Email</span><strong>{{ data.organization.ownerEmail || '—' }}</strong></div>
+				<div><span>Contact</span><strong>{{ data.organization.contactName || '—' }}</strong></div>
+				<div><span>Contact Email</span><strong>{{ data.organization.contactEmail || '—' }}</strong></div>
+				<div><span>Contact Phone</span><strong>{{ data.organization.contactPhone || '—' }}</strong></div>
+				<div><span>Created</span><strong>{{ data.organization.createdAt?.toDate ? (data.organization.createdAt.toDate() | date:'medium') : '—' }}</strong></div>
+				<div><span>Access Code</span><strong>{{ data.organization.accessCode || '—' }}</strong></div>
+			</div>
+		</section>
+
+		<section class="panel">
+			<h2>Troubleshooting / Admin Actions</h2>
+			<div class="quick-links">
+				<a class="quick-link" *ngFor="let link of quickLinks()" [routerLink]="link.path">
+					<strong>{{ link.label }}</strong>
+					<span>{{ link.hint }}</span>
+				</a>
+			</div>
+			<div class="context-box">
+				<h3>Support Context</h3>
+				<ul>
+					<li *ngFor="let row of troubleshootContext()">{{ row }}</li>
+				</ul>
+			</div>
+		</section>
+
+		<section class="panel span-2">
+			<h2>Users</h2>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th></tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let user of data.users.slice(0, 12)">
+							<td>{{ user.displayName || '—' }}</td>
+							<td>{{ user.email || '—' }}</td>
+							<td>{{ user.role }}</td>
+							<td>{{ user.active === false ? 'Disabled' : 'Active' }}</td>
+							<td>{{ user.createdAt?.toDate ? (user.createdAt.toDate() | date:'shortDate') : '—' }}</td>
+						</tr>
+						<tr *ngIf="!data.users.length"><td colspan="5">No users found.</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="panel span-2">
+			<h2>Assigned Courses</h2>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr><th>CourseId</th><th>Status</th><th>Assigned At</th><th>Action</th></tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let c of data.assignedCourses.slice(0, 12)">
+							<td>{{ c.courseId }}</td>
+							<td>{{ c.active === false ? 'Inactive' : 'Active' }}</td>
+							<td>{{ c.assignedAt?.toDate ? (c.assignedAt.toDate() | date:'short') : '—' }}</td>
+							<td><a [routerLink]="['/super-admin/organizations', data.organization.id, 'assign-courses']">Manage</a></td>
+						</tr>
+						<tr *ngIf="!data.assignedCourses.length"><td colspan="4">No assigned courses.</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="panel">
+			<h2>Progress Overview</h2>
+			<ul class="list">
+				<li>Total enrollments: <strong>{{ data.progress.totalEnrollments }}</strong></li>
+				<li>Completed: <strong>{{ data.progress.completedEnrollments }}</strong></li>
+				<li>In progress: <strong>{{ data.progress.inProgressEnrollments }}</strong></li>
+				<li>Completion rate: <strong>{{ data.progress.completionRate }}%</strong></li>
+			</ul>
+			<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'progress']">Open detailed progress</a>
+		</section>
+
+		<section class="panel">
+			<h2>Policies</h2>
+			<ul class="list compact">
+				<li *ngFor="let p of data.policies.slice(0, 8)">{{ p.title || p.id }}</li>
+				<li *ngIf="!data.policies.length">No policies found.</li>
+			</ul>
+			<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'policies']">Open policies</a>
+		</section>
+
+		<section class="panel">
+			<h2>Wound Library</h2>
+			<ul class="list compact">
+				<li *ngFor="let w of data.woundLibrary.slice(0, 8)">{{ w.name || w.id }}</li>
+				<li *ngIf="!data.woundLibrary.length">No wound items found.</li>
+			</ul>
+			<a class="text-link" [routerLink]="['/super-admin/organizations', data.organization.id, 'wound-library']">Open wound library</a>
+		</section>
+	</div>
+</section>
+
+<ng-template #loadingTpl>
+	<section class="org-page">
+		<div class="panel"><p>Loading organization context…</p></div>
+	</section>
+</ng-template>

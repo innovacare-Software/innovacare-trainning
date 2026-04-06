@@ -3,12 +3,31 @@
     <div class="head-content">
       <div>
         <h1>Organizations</h1>
-        <p>Manage tenant organizations, owner users, filters, and pagination.</p>
+        <p>Premium multi-tenant command center for diagnostics, assignments and support actions.</p>
       </div>
       <button class="btn primary lg" (click)="scrollToForm()">
         <span>+ New Organization</span>
       </button>
     </div>
+  </div>
+
+  <div class="stats-grid">
+    <article class="stat-card">
+      <h3>{{ summary().organizations }}</h3>
+      <p>Organizations</p>
+    </article>
+    <article class="stat-card accent-ok">
+      <h3>{{ summary().activeOrgs }}</h3>
+      <p>Active Organizations</p>
+    </article>
+    <article class="stat-card accent-info">
+      <h3>{{ summary().totalUsers }}</h3>
+      <p>Total Users</p>
+    </article>
+    <article class="stat-card accent-warm">
+      <h3>{{ summary().totalAssignedCourses }}</h3>
+      <p>Assigned Courses</p>
+    </article>
   </div>
 
   <!-- Create Organization Panel -->
@@ -130,36 +149,51 @@
   <!-- Organizations Table Panel -->
   <div class="panel">
     <div class="panel-header">
-      <h2>Organizations <span class="badge">{{ result().total }}</span></h2>
-      <p class="subtitle">Page {{ page() }} • {{ result().items.length }} items</p>
+      <h2>Organizations <span class="badge">{{ filteredRows().length }}</span></h2>
+      <p class="subtitle">Page {{ page() }} • {{ pagedRows().length }} items</p>
     </div>
 
     <div class="table-responsive">
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
+            <th>Org Name</th>
+            <th>Org Type</th>
+            <th>Status</th>
+            <th>Users</th>
+            <th>Assigned Courses</th>
+            <th>Created At</th>
             <th>Plan</th>
-            <th>Owner</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let org of result().items" class="table-row">
-            <td class="cell-id">{{ org.id }}</td>
-            <td class="cell-name"><strong>{{ org.name }}</strong></td>
-            <td class="cell-type"><span class="tag" [ngClass]="org.type">{{ org.type }}</span></td>
-            <td class="cell-plan"><span class="badge badge-plan" [ngClass]="org.plan">{{ org.plan }}</span></td>
-            <td class="cell-owner">{{ org.ownerEmail || '—' }}</td>
+          <tr *ngFor="let row of pagedRows()" class="table-row">
+            <td class="cell-name">
+              <strong>{{ row.organization.name }}</strong>
+              <div class="sub">{{ row.organization.id }}</div>
+            </td>
+            <td class="cell-type"><span class="tag" [ngClass]="row.organization.type">{{ row.organization.type }}</span></td>
+            <td>
+              <span class="status" [class.off]="row.organization.active === false">
+                {{ row.organization.active === false ? 'inactive' : 'active' }}
+              </span>
+            </td>
+            <td>{{ row.usersCount }}</td>
+            <td>{{ row.assignedCoursesCount }}</td>
+            <td>{{ row.organization.createdAt?.toDate ? (row.organization.createdAt.toDate() | date:'mediumDate') : '—' }}</td>
+            <td class="cell-plan"><span class="badge badge-plan" [ngClass]="row.organization.plan">{{ row.organization.plan }}</span></td>
             <td class="cell-actions">
-              <button class="btn secondary sm" (click)="editOrganization(org.id)" title="Edit">Edit</button>
-              <button class="btn danger sm" (click)="deleteOrganization(org.id)" title="Delete">Delete</button>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id]">View Details</a>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'assign-courses']">Assign Courses</a>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'users']">Manage Users</a>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'progress']">Troubleshoot</a>
+              <button class="btn ghost sm" (click)="editOrganization(row.organization.id)">Edit</button>
+              <button class="btn danger sm" (click)="deleteOrganization(row.organization.id)">Delete</button>
             </td>
           </tr>
-          <tr *ngIf="!result().items.length" class="empty-row">
-            <td colspan="5" class="text-center">No organizations found</td>
+          <tr *ngIf="!pagedRows().length" class="empty-row">
+            <td colspan="8" class="text-center">No organizations found</td>
           </tr>
         </tbody>
       </table>
@@ -167,8 +201,8 @@
 
     <div class="pagination">
       <button class="btn secondary" (click)="prevPage()" [disabled]="page() <= 1">← Previous</button>
-      <span class="page-info">Page <strong>{{ page() }}</strong></span>
-      <button class="btn secondary" (click)="nextPage()" [disabled]="result().items.length < pageSize">Next →</button>
+      <span class="page-info">Page <strong>{{ page() }}</strong> / {{ totalPages() }}</span>
+      <button class="btn secondary" (click)="nextPage()" [disabled]="page() >= totalPages()">Next →</button>
     </div>
   </div>
 </section>

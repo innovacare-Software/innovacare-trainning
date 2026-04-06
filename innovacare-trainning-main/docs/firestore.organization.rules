@@ -1,0 +1,121 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userRole() {
+      return signedIn() && userDoc().exists() ? userDoc().data.role : '';
+    }
+
+    function isSuperAdmin() {
+      return signedIn() && userRole() == 'super_admin';
+    }
+
+    function belongsToOrg(orgId) {
+      return signedIn()
+        && userDoc().exists()
+        && userDoc().data.orgId == orgId
+        && userDoc().data.active == true;
+    }
+
+    function isOrgAdmin(orgId) {
+      return belongsToOrg(orgId) && userRole() in ['admin', 'org_admin'];
+    }
+
+    function isOrgManager(orgId) {
+      return belongsToOrg(orgId) && userRole() in ['manager', 'org_manager'];
+    }
+
+    function isOrgLearner(orgId) {
+      return belongsToOrg(orgId) && userRole() in ['learner', 'org_learner'];
+    }
+
+    function canManageOrg(orgId) {
+      return isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+    }
+
+    function isSameUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function orgCourseExists(orgId, courseId) {
+      return exists(/databases/$(database)/documents/organizations/$(orgId)/courses/$(courseId));
+    }
+
+    // Global shell only
+    match /users/{uid} {
+      allow read: if isSuperAdmin() || isSameUser(uid);
+      allow create, update: if isSuperAdmin() || isSameUser(uid);
+      allow delete: if isSuperAdmin();
+    }
+
+    match /organizations/{orgId} {
+      allow read: if isSuperAdmin() || belongsToOrg(orgId);
+      allow create, update, delete: if isSuperAdmin();
+
+      match /users/{uid} {
+        allow read: if isSuperAdmin() || canManageOrg(orgId) || (belongsToOrg(orgId) && isSameUser(uid));
+        allow create, update: if isSuperAdmin() || canManageOrg(orgId);
+        allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
+      }
+
+      match /courses/{courseId} {
+        allow read: if isSuperAdmin() || belongsToOrg(orgId);
+        allow create, update, delete: if isSuperAdmin();
+      }
+
+      match /courseAssignments/{assignmentId} {
+        allow read: if isSuperAdmin() || canManageOrg(orgId);
+
+        allow create: if isSuperAdmin()
+          || (
+            canManageOrg(orgId)
+            && request.resource.data.orgId == orgId
+            && request.resource.data.userId is string
+            && exists(/databases/$(database)/documents/organizations/$(orgId)/users/$(request.resource.data.userId))
+            && orgCourseExists(orgId, request.resource.data.courseId)
+          );
+
+        allow update, delete: if isSuperAdmin() || canManageOrg(orgId);
+      }
+
+      match /enrollments/{enrollmentId} {
+        allow read: if isSuperAdmin() || canManageOrg(orgId) || (isOrgLearner(orgId) && resource.data.userId == request.auth.uid);
+        allow create, update: if isSuperAdmin() || canManageOrg(orgId);
+        allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
+      }
+
+      match /progress/{progressId} {
+        allow read: if isSuperAdmin() || canManageOrg(orgId) || (isOrgLearner(orgId) && resource.data.userId == request.auth.uid);
+        allow create, update: if isSuperAdmin() || canManageOrg(orgId) || (isOrgLearner(orgId) && request.resource.data.userId == request.auth.uid);
+        allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
+      }
+
+      match /policies/{policyId} {
+        allow read: if isSuperAdmin() || belongsToOrg(orgId);
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
+      }
+
+      match /woundLibrary/{itemId} {
+        allow read: if isSuperAdmin() || belongsToOrg(orgId);
+        allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
+      }
+
+      match /documents/{documentId} {
+        allow read: if isSuperAdmin() || belongsToOrg(orgId);
+        allow create, update, delete: if isSuperAdmin() || canManageOrg(orgId);
+      }
+
+      match /reports/{reportId} {
+        allow read: if isSuperAdmin() || canManageOrg(orgId);
+        allow create, update, delete: if isSuperAdmin() || canManageOrg(orgId);
+      }
+    }
+  }
+}

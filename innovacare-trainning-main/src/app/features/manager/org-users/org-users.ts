@@ -4,15 +4,11 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Functions, httpsCallable } from '@angular/fire/functions';
 import {
   Firestore,
-  collection,
-  collectionData,
-  doc,
-  query,
-  where,
 } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth';
+import { OrganizationUsersService } from '../../../core/organization/services/organization-users.service';
 
 type OrgUserRole = 'admin' | 'manager' | 'learner' | 'guest';
 type OrgUserStatus = 'active' | 'inactive';
@@ -58,6 +54,7 @@ export class OrgUsersComponent {
   private afs = inject(Firestore);
   private functions = inject(Functions);
   private auth = inject(AuthService);
+  private orgUsers = inject(OrganizationUsersService);
   private fb = inject(FormBuilder);
 
   private createOrgUserFn = httpsCallable<CreateOrgUserPayload, CreateOrgUserResult>(
@@ -87,9 +84,19 @@ export class OrgUsersComponent {
       const orgId = String(profile?.orgId || '').trim();
       if (!orgId) return of([] as OrgUserRow[]);
 
-      const usersRef = collection(this.afs, 'users');
-      const q = query(usersRef, where('orgId', '==', orgId));
-      return collectionData(q, { idField: 'uid' }).pipe(
+      return this.orgUsers.list(orgId).pipe(
+        map((rows) => rows.map((u) => ({
+          uid: u.uid,
+          email: u.email,
+          displayName: u.displayName,
+          phone: '',
+          department: u.department,
+          title: u.title,
+          role: u.role as OrgUserRole,
+          status: u.active ? 'active' : 'inactive',
+          orgId,
+          active: u.active,
+        } as OrgUserRow))),
         map((rows) =>
           (rows as OrgUserRow[])
             .slice()

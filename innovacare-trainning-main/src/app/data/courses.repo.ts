@@ -20,6 +20,40 @@ export class CoursesRepo {
 
   readonly courses: Signal<Course[]> = toSignal(this.courses$, { initialValue: [] });
 
+  private stripUndefinedDeep(value: any): any {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === null) {
+      return null;
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.stripUndefinedDeep(item))
+        .filter((item) => item !== undefined);
+    }
+
+    const isPlainObject =
+      typeof value === 'object' &&
+      value !== null &&
+      Object.getPrototypeOf(value) === Object.prototype;
+
+    if (!isPlainObject) {
+      return value;
+    }
+
+    const out: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      const cleaned = this.stripUndefinedDeep(v);
+      if (cleaned !== undefined) {
+        out[k] = cleaned;
+      }
+    }
+    return out;
+  }
+
   allActive(): Signal<Course[]> {
     const q = query(this.col, where('active', '==', true), orderBy('title'));
 
@@ -34,15 +68,18 @@ export class CoursesRepo {
   }
 
   add(course: Omit<Course, 'id'|'createdAt'|'updatedAt'>) {
-    return addDoc(this.col, {
+    return addDoc(this.col, this.stripUndefinedDeep({
       ...course,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    });
+    }));
   }
 
   update(id: string, patch: Partial<Course>) {
-    return updateDoc(doc(this.fs, 'courses', id), { ...patch, updatedAt: serverTimestamp() });
+    return updateDoc(
+      doc(this.fs, 'courses', id),
+      this.stripUndefinedDeep({ ...patch, updatedAt: serverTimestamp() })
+    );
   }
 
   remove(id: string) {
@@ -63,7 +100,10 @@ export class CoursesRepo {
   }
   async create(course: Course) {
     const ref = doc(collection(this.fs, 'courses'));
-    await setDoc(ref, { ...course, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    await setDoc(
+      ref,
+      this.stripUndefinedDeep({ ...course, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
+    );
     return ref.id;
   }
   

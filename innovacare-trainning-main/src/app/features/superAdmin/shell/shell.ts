@@ -18,12 +18,16 @@ export class Shell {
  nav = [
   { label: 'Dashboard', path: '/super-admin/dashboard' },
   { label: 'Organizations', path: '/super-admin/organizations' },
+  { label: 'Create Course', path: '/super-admin/courses/create' },
+  { label: 'Create Policy', path: '/super-admin/policy/create' },
+  { label: 'Wounds', path: '/super-admin/wounds/new' },
+  { label: 'Wound Report', path: '/super-admin/wound-report' },
   { label: 'Setup', path: '/super-admin/setup' },
   { label: 'Users', path: '/super-admin/users' },
   { label: 'Billing', path: '/super-admin/billing' },
   { label: 'Logs', path: '/super-admin/logs' },
   { label: 'Settings', path: '/super-admin/settings' },
-  { label: 'Course Assignments', path: '/super-admin/course-assignments' },
+  { label: 'Org Context', path: '/super-admin/organizations' },
 ];
 
   constructor(

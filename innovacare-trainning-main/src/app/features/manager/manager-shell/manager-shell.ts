@@ -25,15 +25,11 @@ export class ManagerShell {
   nav = signal([
     { path: '/manager/dashboard', label: 'Dashboard', active: true },
     { path: '/manager/org-users', label: 'Org Users', active: false },
-    { path: '/manager/assign',    label: 'Assign',    active: false },
-    { path: '/manager/courses',   label: 'Courses',   active: false }
+    { path: '/manager/assign',    label: 'Assign',    active: false }
   ]);
 
   resources = signal([
-    { path: '/manager/reports', label: 'Reports' },
-    { path: '/manager/wounds', label: 'Wounds' },
-    { path: '/manager/marketplace/publish', label: 'Publish Marketplace' },
-    { path: '/manager/setting', label: 'Setting' }
+    { path: '/manager/reports', label: 'Reports' }
   ]);
 
   constructor() {

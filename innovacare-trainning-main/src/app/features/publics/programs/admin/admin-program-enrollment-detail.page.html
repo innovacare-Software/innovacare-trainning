@@ -1,0 +1,56 @@
+<section class="panel" *ngIf="item() as row; else notFound">
+  <header class="head">
+    <h1>Enrollment Detail</h1>
+    <a routerLink="/program-admin/enrollments">Back</a>
+  </header>
+
+  <div class="grid">
+    <article class="card">
+      <h3>Learner</h3>
+      <p><strong>{{ row.learnerName }}</strong></p>
+      <p>{{ row.learnerEmail }}</p>
+      <p>{{ row.learnerPhone }}</p>
+    </article>
+
+    <article class="card">
+      <h3>Program</h3>
+      <p><strong>{{ row.programTitle }}</strong></p>
+      <p>Category: {{ row.category }}</p>
+      <p>Amount: {{ row.amount | currency: row.currency:'symbol':'1.0-0' }}</p>
+    </article>
+
+    <article class="card">
+      <h3>States</h3>
+      <p>Status: <span class="chip">{{ statusLabel[row.status] }}</span></p>
+      <p>Payment: <span class="chip">{{ paymentLabel[row.paymentStatus] }}</span></p>
+      <p>Review: {{ row.reviewStatus }}</p>
+    </article>
+  </div>
+
+  <section class="notes">
+    <label>Admin Notes</label>
+    <textarea [(ngModel)]="adminNotes" rows="4" placeholder="Internal review notes"></textarea>
+  </section>
+
+  <section class="actions">
+    <button type="button" (click)="approve(row.id)">Approve</button>
+    <button type="button" (click)="reject(row.id)">Reject</button>
+    <button type="button" (click)="setActive(row.id)">Mark Active</button>
+    <button type="button" (click)="setCompleted(row.id)">Mark Completed</button>
+    <button type="button" (click)="setCancelled(row.id)">Mark Cancelled</button>
+    <div class="payment">
+      <label>Payment</label>
+      <select #paymentSel>
+        <option *ngFor="let p of paymentStatuses" [value]="p">{{ paymentLabel[p] }}</option>
+      </select>
+      <button type="button" (click)="setPayment(row.id, paymentSel.value)">Update Payment</button>
+    </div>
+  </section>
+</section>
+
+<ng-template #notFound>
+  <section class="not-found">
+    <h2>Enrollment not found</h2>
+    <a routerLink="/program-admin/enrollments">Return</a>
+  </section>
+</ng-template>

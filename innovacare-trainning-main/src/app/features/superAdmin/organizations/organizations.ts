@@ -1,15 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SuperAdminOrganizationsService } from '../services/super-admin-organizations';
 import { OrgType } from '../../../data/models';
 import { PlanType } from '../models/super-admin.models';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-organizations',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './organizations.html',
   styleUrl: './organizations.css'
 })
@@ -21,7 +22,7 @@ export class Organizations {
   planFilter = signal<PlanType | 'all'>('all');
 
   page = signal(1);
-  pageSize = 10;
+  pageSize = 12;
 
   loading = signal(false);
   notice = signal('');
@@ -38,40 +39,54 @@ export class Organizations {
 
   };
 
-  result = toSignal(
-    this.orgSvc.listPage(
-      this.search(),
-      this.typeFilter(),
-      this.planFilter(),
-      this.page(),
-      this.pageSize
-    ),
-    { initialValue: { total: 0, items: [] } }
-  );
+  rows = toSignal(this.orgSvc.getOrganizationsWithStatsLive(), { initialValue: [] });
+
+  filteredRows = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    const type = this.typeFilter();
+    const plan = this.planFilter();
+
+    return this.rows().filter((row) => {
+      const org = row.organization;
+      const matchesType = type === 'all' ? true : org.type === type;
+      const matchesPlan = plan === 'all' ? true : org.plan === plan;
+      const blob = `${org.name || ''} ${org.ownerEmail || ''} ${org.id || ''} ${(org.orgId || '')}`.toLowerCase();
+      const matchesSearch = !term || blob.includes(term);
+      return matchesType && matchesPlan && matchesSearch;
+    });
+  });
+
+  pagedRows = computed(() => {
+    const start = Math.max(0, (this.page() - 1) * this.pageSize);
+    return this.filteredRows().slice(start, start + this.pageSize);
+  });
+
+  summary = computed(() => {
+    const rows = this.filteredRows();
+    const activeOrgs = rows.filter((x) => x.organization.active !== false).length;
+    const totalUsers = rows.reduce((sum, x) => sum + x.usersCount, 0);
+    const totalAssignedCourses = rows.reduce((sum, x) => sum + x.assignedCoursesCount, 0);
+    return {
+      organizations: rows.length,
+      activeOrgs,
+      totalUsers,
+      totalAssignedCourses,
+    };
+  });
 
   applyFilters() {
     this.page.set(1);
-    this.result = toSignal(
-      this.orgSvc.listPage(
-        this.search(),
-        this.typeFilter(),
-        this.planFilter(),
-        this.page(),
-        this.pageSize
-      ),
-      { initialValue: { total: 0, items: [] } }
-    );
   }
 
   nextPage() {
-    this.page.set(this.page() + 1);
-    this.applyFilters();
+    const next = this.page() + 1;
+    const maxPage = Math.max(1, Math.ceil(this.filteredRows().length / this.pageSize));
+    this.page.set(Math.min(next, maxPage));
   }
 
   prevPage() {
     if (this.page() > 1) {
       this.page.set(this.page() - 1);
-      this.applyFilters();
     }
   }
 
@@ -183,5 +198,9 @@ export class Organizations {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  totalPages() {
+    return Math.max(1, Math.ceil(this.filteredRows().length / this.pageSize));
   }
 }

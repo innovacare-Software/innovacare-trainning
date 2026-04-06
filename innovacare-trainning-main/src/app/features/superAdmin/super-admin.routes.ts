@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
+import { roleCanMatch } from '../../core/role.canmatch';
 
 export const SUPER_ADMIN_ROUTES: Routes = [
   {
     path: '',
+    canMatch: [roleCanMatch(['super_admin'])],
     loadComponent: () =>
       import('./shell/shell').then(m => m.Shell),
     children: [
@@ -62,14 +64,39 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./organizationsPage/delete/delete').then(m => m.Delete),
       },
       {
-        path: 'organizations/:id',
+        path: 'organizations/:orgId',
         loadComponent: () =>
           import('./organizationsPage/org-details/org-details').then(m => m.OrgDetails),
       },
       {
-        path: 'course-assignments',
+        path: 'organizations/:orgId/assign-courses',
         loadComponent: () =>
           import('./organizationsPage/course-assign/course-assign').then(m => m.CourseAssign),
+      },
+      {
+        path: 'organizations/:orgId/users',
+        loadComponent: () =>
+          import('./organizationsPage/org-users/org-users.page').then(m => m.OrgUsersPage),
+      },
+      {
+        path: 'organizations/:orgId/progress',
+        loadComponent: () =>
+          import('./organizationsPage/org-progress/org-progress.page').then(m => m.OrgProgressPage),
+      },
+      {
+        path: 'organizations/:orgId/policies',
+        loadComponent: () =>
+          import('./organizationsPage/org-policies/org-policies.page').then(m => m.OrgPoliciesPage),
+      },
+      {
+        path: 'organizations/:orgId/wound-library',
+        loadComponent: () =>
+          import('./organizationsPage/org-wound-library/org-wound-library.page').then(m => m.OrgWoundLibraryPage),
+      },
+      {
+        path: 'course-assignments',
+        redirectTo: 'organizations',
+        pathMatch: 'full',
       },
       {
         path: 'marketplace/publish',
@@ -82,6 +109,11 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('../manager/policy-admin-editor.page/policy-admin-editor.page').then(m => m.PolicyAdminEditorPage),
       },
       {
+        path: 'policy/create',
+        redirectTo: 'policy/new',
+        pathMatch: 'full',
+      },
+      {
         path: 'policy/:id/edit',
         loadComponent: () =>
           import('../manager/policy-admin-editor.page/policy-admin-editor.page').then(m => m.PolicyAdminEditorPage),
@@ -92,9 +124,24 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('../manager/courses/courses').then(m => m.Courses),
       },
       {
+        path: 'courses/create',
+        redirectTo: 'courses/new',
+        pathMatch: 'full',
+      },
+      {
         path: 'courses/:id/edit',
         loadComponent: () =>
           import('../manager/courses/courses').then(m => m.Courses),
+      },
+      {
+        path: 'wounds/new',
+        loadComponent: () =>
+          import('../manager/add-wound/add-wound').then(m => m.AddWound),
+      },
+      {
+        path: 'wound-report',
+        loadComponent: () =>
+          import('../manager/reports/reports').then(m => m.Reports),
       },
       {
         path: '**',

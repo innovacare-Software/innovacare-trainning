@@ -2,15 +2,11 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
-import { Auth, authState } from '@angular/fire/auth';
-import {
-  Firestore,
-  collection,
-  collectionData,
-  collectionGroup,
-  doc,
-  docData,
-} from '@angular/fire/firestore';
+import { AuthService } from '../../../core/auth';
+import { OrganizationAssignmentsService } from '../../../core/organization/services/organization-assignments.service';
+import { OrganizationProgressService } from '../../../core/organization/services/organization-progress.service';
+import { OrganizationUsersService } from '../../../core/organization/services/organization-users.service';
+import { OrganizationCoursesService } from '../../../core/organization/services/organization-courses.service';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
@@ -41,34 +37,41 @@ type ResultRow = {
 type EnrollmentStatus = 'assigned' | 'started' | 'completed';
 
 interface EnrollmentDoc {
-  // recommended: store uid on write, but we can infer from doc ref idField (not available here)
+  id?: string;
+  orgId: string;
+  userId: string;
   courseId: string;
   status: EnrollmentStatus;
-
-  uid?: string; // if you store it (recommended)
-
-  score?: number;
-
+  assignedBy?: string;
   assignedAt?: any;
   startedAt?: any;
   completedAt?: any;
-
   dueDate?: any;
 }
 
 interface CourseDoc {
-  id?: string;
+  courseId: string;
   title?: string;
-  kind?: 'Course' | 'Text' | 'Module';
-  durationMin?: number;
-  dueDate?: any; // Timestamp|string|number
+  active?: boolean;
 }
 
 interface UserDoc {
-  id: string; // uid
+  uid: string;
   displayName?: string;
   email?: string;
   role?: string;
+  active?: boolean;
+}
+
+interface ProgressDoc {
+  id?: string;
+  orgId: string;
+  userId: string;
+  courseId: string;
+  progressPct: number;
+  status: 'not_started' | 'in_progress' | 'completed';
+  score?: number;
+  updatedAt?: any;
 }
 
 /* ----------------- Helpers ----------------- */
@@ -109,127 +112,102 @@ function safeStr(x: any) {
   styleUrls: ['./manager-dashboard.css'],
 })
 export class ManagerDashboardComponent {
-  private afs = inject(Firestore);
-  private auth = inject(Auth);
+  private auth = inject(AuthService);
+  private assignmentsSvc = inject(OrganizationAssignmentsService);
+  private progressSvc = inject(OrganizationProgressService);
+  private usersSvc = inject(OrganizationUsersService);
+  private coursesSvc = inject(OrganizationCoursesService);
   private router = inject(Router);
 
   /* ----------- Feature flags for missing pages ----------- */
   // Set to true when you create those components/routes.
-  hasReportsPage = false;
+  hasReportsPage = true;
   hasResultDetailsPage = false;
   hasAssignmentDetailsPage = false;
 
   notice = '';
 
   /* ----------- Manager name ----------- */
-  private auth$ = authState(this.auth);
+  private readonly profile$ = this.auth.profile$;
 
-  private managerName$ = this.auth$.pipe(
-    switchMap(user => {
-      if (!user) return of('Manager');
-      const fromAuth = user.displayName?.trim();
-      if (fromAuth) return of(fromAuth);
-      return docData(doc(this.afs, `users/${user.uid}`)).pipe(
-        map((u: any) => safeStr(u?.displayName) || 'Manager')
-      );
+  private managerName$ = this.profile$.pipe(
+    map((profile) => {
+      const fromProfile = safeStr(profile?.displayName).trim();
+      return fromProfile || 'Manager';
     })
   );
   managerName = toSignal(this.managerName$, { initialValue: 'Manager' });
 
-  /* ----------- Load enrollments (all users) ----------- */
-  // IMPORTANT: This will scan all subcollections named "enrollments".
-  // Ensure your Security Rules allow manager access.
-  private enrollments$ = collectionGroup(this.afs, 'enrollments');
-
-  // NOTE: collectionGroup + collectionData does not include parent path by default.
-  // Best practice: store uid on enrollment write.
-  private enr$ = collectionData(this.enrollments$, { idField: 'id' }).pipe(
-    map(list => (list || []) as any[]),
-    map(list => list.map(e => e as EnrollmentDoc))
+  private readonly orgId$ = this.profile$.pipe(
+    map((profile) => {
+      const orgId = safeStr(profile?.orgId).trim();
+      return orgId || null;
+    })
   );
 
-  /* ----------- Courses join ----------- */
-  private rows$ = this.enr$.pipe(
-    switchMap((enrs) => {
-      if (!enrs.length) return of([] as Array<{ enr: EnrollmentDoc; course?: CourseDoc }>);
-      const courseIds = Array.from(new Set(enrs.map(e => e.courseId).filter(Boolean)));
-      const courseObs = courseIds.map(cid => docData(doc(this.afs, `courses/${cid}`), { idField: 'id' }));
-      return (courseObs.length ? combineLatest(courseObs) : of([])).pipe(
-        map((coursesRaw) => {
-          const courseMap = new Map<string, CourseDoc>();
-          (coursesRaw as CourseDoc[]).forEach(c => { if (c?.id) courseMap.set(c.id, c); });
-          return enrs.map(enr => ({ enr, course: courseMap.get(enr.courseId) }));
+  private assignments$ = this.orgId$.pipe(
+    switchMap((orgId) => {
+      if (!orgId) return of([] as EnrollmentDoc[]);
+      return this.assignmentsSvc.list(orgId).pipe(map((rows) => (rows || []) as EnrollmentDoc[]));
+    })
+  );
+
+  private courses$ = this.orgId$.pipe(
+    switchMap((orgId) => {
+      if (!orgId) return of([] as CourseDoc[]);
+      return this.coursesSvc.listAssigned(orgId).pipe(map((rows) => (rows || []) as CourseDoc[]));
+    })
+  );
+
+  private users$ = this.orgId$.pipe(
+    switchMap((orgId) => {
+      if (!orgId) return of(new Map<string, UserDoc>());
+      return this.usersSvc.list(orgId).pipe(
+        map((list) => {
+          const mapByUid = new Map<string, UserDoc>();
+          (list || []).forEach((u: any) => mapByUid.set(u.uid, u as UserDoc));
+          return mapByUid;
         })
       );
     })
   );
 
-  /* ----------- User directory (uid → displayName/email) ----------- */
-  private users$ = collectionData(collection(this.afs, 'users'), { idField: 'id' }).pipe(
-    map(list => (list || []) as UserDoc[]),
-    map(list => {
-      const m = new Map<string, UserDoc>();
-      list.forEach(u => m.set(u.id, u));
-      return m;
+  private progress$ = this.orgId$.pipe(
+    switchMap((orgId) => {
+      if (!orgId) return of([] as ProgressDoc[]);
+      return this.progressSvc.list(orgId).pipe(map((rows) => (rows || []) as ProgressDoc[]));
     })
   );
 
   /* ----------- KPI (survey-ready definitions) ----------- */
-  private kpi$ = combineLatest([this.rows$, this.users$]).pipe(
-    map(([rows]) => {
+  private kpi$ = combineLatest([this.assignments$, this.progress$, this.users$]).pipe(
+    map(([assignments, progressRows, users]: [EnrollmentDoc[], ProgressDoc[], Map<string, UserDoc>]) => {
       const now = nowMs();
       const from30 = now - 30 * DAY;
 
-      let completedLast30 = 0;
-      let assignedOrStartedLast30 = 0;
+      const learners = Array.from(users.values()).filter((u) => (u.role || '').includes('learner')).length;
 
       let overdue = 0;
-
-      // Average Score should reflect actual completions
-      let sumScore = 0;
-      let countScore = 0;
-
-      for (const { enr, course } of rows) {
-        const assigned = epochMs(enr.assignedAt);
-        const started = epochMs(enr.startedAt);
-        const completed = epochMs(enr.completedAt);
-
-        const enrDue = epochMs(enr.dueDate);
-        const courseDue = epochMs(course?.dueDate);
-        const inferred = assigned ? (assigned + DEFAULT_DUE_DAYS * DAY) : undefined;
-        const dueTs = firstDefined(enrDue, courseDue, inferred);
-
-        // overdue: not completed + due in past
-        if (enr.status !== 'completed' && dueTs && dueTs < now) overdue++;
-
-        // completion KPI window: last 30 days
-        if ((assigned && assigned >= from30) || (started && started >= from30)) {
-          assignedOrStartedLast30++;
-        }
-
-        if (enr.status === 'completed' && completed && completed >= from30) {
-          completedLast30++;
-        }
-
-        // avg score across completed (no window restriction unless you want last 30d)
-        if (enr.status === 'completed' && typeof enr.score === 'number') {
-          sumScore += enr.score;
-          countScore++;
-        }
+      for (const a of assignments) {
+        const dueTs = epochMs((a as any).dueDate);
+        if (a.status !== 'completed' && dueTs && dueTs < now) overdue++;
       }
 
-      const completionPct = assignedOrStartedLast30 > 0
-        ? Math.round((completedLast30 / assignedOrStartedLast30) * 100)
-        : 0;
+      const completedLast30 = progressRows.filter((p) => p.status === 'completed' && (epochMs(p.updatedAt) || 0) >= from30).length;
+      const touchedLast30 = progressRows.filter((p) => (epochMs(p.updatedAt) || 0) >= from30).length;
+      const completionPct = touchedLast30 > 0 ? Math.round((completedLast30 / touchedLast30) * 100) : 0;
 
-      const avgScorePct = countScore > 0 ? Math.round(sumScore / countScore) : 0;
+      const scored = progressRows.filter((p) => typeof p.score === 'number');
+      const avgScorePct = scored.length
+        ? Math.round(scored.reduce((sum, p) => sum + Number(p.score || 0), 0) / scored.length)
+        : 0;
 
       return {
         completion30: `${completionPct}%`,
         overdue,
         avgScore: String(avgScorePct),
-        totalLearners: rows.length,
-      } satisfies KPI;
+        totalLearners: learners,
+      };
     })
   );
 
@@ -238,52 +216,37 @@ export class ManagerDashboardComponent {
   });
 
   /* ----------- Open Assignments (group by course) ----------- */
-  private openAssignments$ = this.rows$.pipe(
-    map(rows => {
-      const byCourse = new Map<string, { course: CourseDoc; enrs: EnrollmentDoc[] }>();
+  private openAssignments$ = combineLatest([this.assignments$, this.courses$]).pipe(
+    map(([assignments, courses]: [EnrollmentDoc[], CourseDoc[]]) => {
+      const titleByCourse = new Map<string, string>();
+      courses.forEach((c) => titleByCourse.set(c.courseId, c.title || c.courseId));
 
-      for (const { enr, course } of rows) {
-        if (enr.status === 'completed') continue;
-        const key = enr.courseId;
-        const bucket = byCourse.get(key) ?? { course: (course || { id: enr.courseId }), enrs: [] };
-        bucket.enrs.push(enr);
-        byCourse.set(key, bucket);
-      }
+      const grouped = new Map<string, EnrollmentDoc[]>();
+      assignments.filter((a) => a.status !== 'completed').forEach((a) => {
+        const arr = grouped.get(a.courseId) || [];
+        arr.push(a);
+        grouped.set(a.courseId, arr);
+      });
 
-      const now = nowMs();
-      const out: AssignmentRow[] = [];
+      const rows: AssignmentRow[] = [];
+      grouped.forEach((arr, courseId) => {
+        const dueList = arr
+          .map((x) => epochMs((x as any).dueDate))
+          .filter((x): x is number => typeof x === 'number')
+          .sort((a, b) => a - b);
 
-      for (const [courseId, { course, enrs }] of byCourse) {
-        let nextDue: number | undefined = undefined;
-
-        for (const enr of enrs) {
-          const assigned = epochMs(enr.assignedAt);
-          const due = firstDefined(
-            epochMs(enr.dueDate),
-            epochMs(course?.dueDate),
-            assigned ? (assigned + DEFAULT_DUE_DAYS * DAY) : undefined
-          );
-          if (due && (nextDue === undefined || due < nextDue)) nextDue = due;
-        }
-
-        const audience = `${enrs.length} learner${enrs.length > 1 ? 's' : ''}`;
-
-        // active if any still not completed
-        const status: 'Active' | 'Closed' = enrs.length ? 'Active' : 'Closed';
-
-        out.push({
+        const dueTs = dueList[0];
+        rows.push({
           id: courseId,
-          course: course?.title || courseId,
-          audience,
-          due: nextDue ? fmtDateShort(nextDue) : '—',
-          status,
-          dueTs: nextDue ?? (now + 3650 * DAY),
+          course: titleByCourse.get(courseId) || courseId,
+          audience: `${arr.length} learner${arr.length > 1 ? 's' : ''}`,
+          due: dueTs ? fmtDateShort(dueTs) : '—',
+          status: 'Active',
+          dueTs: dueTs || Number.MAX_SAFE_INTEGER,
         });
-      }
+      });
 
-      return out
-        .sort((a, b) => (a.dueTs ?? 0) - (b.dueTs ?? 0))
-        .slice(0, 10);
+      return rows.sort((a, b) => (a.dueTs || 0) - (b.dueTs || 0)).slice(0, 10);
     })
   );
 
@@ -292,18 +255,19 @@ export class ManagerDashboardComponent {
   });
 
   /* ----------- Recent Results (top 10) ----------- */
-  private recentResults$ = combineLatest([this.rows$, this.users$]).pipe(
-    map(([rows, users]) => {
+  private recentResults$ = combineLatest([this.progress$, this.users$, this.courses$]).pipe(
+    map(([rows, users, courses]: [ProgressDoc[], Map<string, UserDoc>, CourseDoc[]]) => {
+      const titleByCourse = new Map<string, string>();
+      courses.forEach((c) => titleByCourse.set(c.courseId, c.title || c.courseId));
       const items: ResultRow[] = [];
 
-      for (const { enr, course } of rows) {
+      for (const enr of rows) {
         if (enr.status !== 'completed') continue;
 
-        const completedTs = epochMs(enr.completedAt);
+        const completedTs = epochMs(enr.updatedAt);
         if (!completedTs) continue;
 
-        // Prefer enr.uid if stored; otherwise we cannot reliably identify user from collectionGroup result
-        const uid = safeStr(enr.uid);
+        const uid = safeStr(enr.userId);
 
         const userDoc = uid ? users.get(uid) : undefined;
         const userName = safeStr(userDoc?.displayName) || (uid ? uid : '(unknown)');
@@ -314,7 +278,7 @@ export class ManagerDashboardComponent {
           userName,
           userEmail,
           courseId: enr.courseId,
-          course: course?.title || enr.courseId,
+          course: titleByCourse.get(enr.courseId) || enr.courseId,
           score: typeof enr.score === 'number' ? enr.score : 0,
           completedTs,
           date: fmtDateShort(completedTs),
@@ -332,24 +296,21 @@ export class ManagerDashboardComponent {
   });
 
   /* ----------- Overdue notifications panel (UI only) ----------- */
-  private overdueAlerts$ = combineLatest([this.rows$, this.users$]).pipe(
-    map(([rows, users]) => {
+  private overdueAlerts$ = combineLatest([this.assignments$, this.users$, this.courses$]).pipe(
+    map(([rows, users, courses]: [EnrollmentDoc[], Map<string, UserDoc>, CourseDoc[]]) => {
+      const titleByCourse = new Map<string, string>();
+      courses.forEach((c) => titleByCourse.set(c.courseId, c.title || c.courseId));
       const now = nowMs();
       const alerts: Array<{ uid: string; user: string; email: string; course: string; due: string; dueTs: number; overdueDays: number }> = [];
 
-      for (const { enr, course } of rows) {
+      for (const enr of rows) {
         if (enr.status === 'completed') continue;
 
-        const assigned = epochMs(enr.assignedAt);
-        const dueTs = firstDefined(
-          epochMs(enr.dueDate),
-          epochMs(course?.dueDate),
-          assigned ? (assigned + DEFAULT_DUE_DAYS * DAY) : undefined
-        );
+        const dueTs = epochMs(enr.dueDate);
 
         if (!dueTs || dueTs >= now) continue;
 
-        const uid = safeStr(enr.uid);
+        const uid = safeStr(enr.userId);
         const u = uid ? users.get(uid) : undefined;
         const overdueDays = Math.floor((now - dueTs) / DAY);
 
@@ -357,7 +318,7 @@ export class ManagerDashboardComponent {
           uid: uid || '(unknown)',
           user: safeStr(u?.displayName) || (uid || '(unknown)'),
           email: safeStr(u?.email),
-          course: safeStr(course?.title) || enr.courseId,
+          course: titleByCourse.get(enr.courseId) || enr.courseId,
           due: fmtDateShort(dueTs),
           dueTs,
           overdueDays,
@@ -371,16 +332,10 @@ export class ManagerDashboardComponent {
   overdueAlerts = toSignal(this.overdueAlerts$, { initialValue: [] as any[] });
 
   /* ----------- Buttons / Navigation ----------- */
-  onAddCourse() { this.router.navigate(['manager/courses']); }
   onAssignTraining() { this.router.navigate(['/manager/assign']); }
   onExportCSV() { this.notice = 'Export CSV not implemented yet.'; }
 
-  onCreatePolicy() { this.router.navigate(['/manager/policy/new']); }
-  onCreateCourse() { this.router.navigate(['/manager/courses']); }
-  onCreateLearner() { this.notice = 'Learner management not implemented yet.'; }
-  onCreateWounds() { this.router.navigate(['/manager/wounds']); }
   onCreateAssign() { this.router.navigate(['/manager/assign']); }
-  onCreateNotification() { this.router.navigate(['/manager/notify']); }
 
   onCreateReport() {
     if (!this.hasReportsPage) {

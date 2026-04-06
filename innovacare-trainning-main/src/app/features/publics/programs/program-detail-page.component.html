@@ -1,0 +1,101 @@
+<section class="program-detail-shell" *ngIf="program() as currentProgram; else notFound">
+  <header class="hero">
+    <img [src]="currentProgram.imageUrl" [alt]="currentProgram.title" class="hero-image" />
+
+    <div class="hero-copy">
+      <p class="eyebrow">{{ categoryLabel(currentProgram.category) }}</p>
+      <h1>{{ currentProgram.title }}</h1>
+      <p class="subtitle">{{ currentProgram.subtitle }}</p>
+
+      <div class="hero-badges">
+        <a class="btn-outline" routerLink="/home">Return to Home</a>
+        <span>{{ modeLabel(currentProgram) }}</span>
+        <span>{{ levelLabel(currentProgram) }}</span>
+        <span>{{ currentProgram.durationText }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content-grid">
+    <main class="content-main">
+      <section class="panel">
+        <h2>Program Overview</h2>
+        <p>{{ currentProgram.description }}</p>
+      </section>
+
+      <section class="panel">
+        <h2>Requirements</h2>
+        <ul>
+          <li *ngFor="let requirement of currentProgram.requirements">{{ requirement }}</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Learning Outcomes</h2>
+        <ul>
+          <li *ngFor="let outcome of currentProgram.outcomes">{{ outcome }}</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Curriculum Modules</h2>
+        <div class="curriculum" *ngFor="let module of currentProgram.modules; let index = index">
+          <div class="module-index">{{ index + 1 }}</div>
+          <div>
+            <h3>{{ module.title }}</h3>
+            <p>{{ module.summary }}</p>
+            <small>{{ module.durationText || 'Flexible pacing' }}</small>
+            <ul>
+              <li *ngFor="let lesson of module.lessons">{{ lesson }}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <section class="summary-card">
+        <p class="summary-title">Program Summary</p>
+        <p class="price">{{ priceLabel(currentProgram) }}</p>
+        <p class="seats">{{ seatsLabel(currentProgram) }}</p>
+
+        <dl>
+          <div>
+            <dt>Schedule</dt>
+            <dd>{{ currentProgram.scheduleText }}</dd>
+          </div>
+          <div>
+            <dt>Duration</dt>
+            <dd>{{ currentProgram.durationText }}</dd>
+          </div>
+          <div>
+            <dt>Delivery</dt>
+            <dd>{{ modeLabel(currentProgram) }}</dd>
+          </div>
+          <div>
+            <dt>Level</dt>
+            <dd>{{ levelLabel(currentProgram) }}</dd>
+          </div>
+        </dl>
+
+        <a class="btn-primary" [routerLink]="bookLink()">Enroll in Program</a>
+        <a class="btn-outline" routerLink="/programs">Back to catalog</a>
+      </section>
+
+      <section class="panel tags-panel">
+        <h3>Program Tags</h3>
+        <div class="tags">
+          <span *ngFor="let tag of currentProgram.tags">{{ tag }}</span>
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
+
+<ng-template #notFound>
+  <section class="not-found">
+    <h2>Program not found</h2>
+    <p>The selected program is unavailable or has been unpublished.</p>
+    <a routerLink="/programs" class="btn-primary">Return to Programs</a>
+  </section>
+</ng-template>

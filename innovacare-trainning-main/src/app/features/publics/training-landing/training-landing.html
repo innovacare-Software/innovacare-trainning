@@ -14,6 +14,7 @@
     <nav class="nav" [class.open]="mobileMenuOpen">
       <a  routerLink="/fonctionnalites" (click)="closeMobileMenu()">Fonctionnalités</a>
       <a  routerLink="/catalogue" (click)="closeMobileMenu()">Cours</a>
+      <a  routerLink="/programs" (click)="closeMobileMenu()">Programs</a>
       <a  routerLink="/pricing" (click)="closeMobileMenu()">Tarification</a>
       <button class="nav-cta" type="button" (click)="login(); closeMobileMenu()">
         Connexion
@@ -45,6 +46,7 @@
           <button class="btn btn-primary" type="button" (click)="openDemoDialog()">
             Demander une démo
           </button>
+          <a class="btn btn-secondary" routerLink="/programs" (click)="closeMobileMenu()">Voir les programs</a>
           <a class="btn btn-secondary" href="#categories">Voir les catégories</a>
         </div>
 

@@ -23,7 +23,6 @@ import { browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { AuthTokenInterceptor } from './core/auth-token.interceptor';
 
 // 🔥 INITIALISATION DES 2 APPS
-const mainApp = initializeApp(environment.firebaseMain);
 const stripeApp = initializeApp(environment.firebaseStripe, 'stripeApp');
 
 export const appConfig: ApplicationConfig = {
@@ -38,25 +37,25 @@ export const appConfig: ApplicationConfig = {
     },
 
     // 🔹 APP PRINCIPALE (Firestore / Auth / Storage)
-    provideFirebaseApp(() => mainApp),
+    provideFirebaseApp(() => stripeApp),
 
     provideAuth(() => {
-      const auth = getAuth(mainApp); // 🔥 IMPORTANT
+      const auth = getAuth(stripeApp); // 🔥 IMPORTANT
       setPersistence(auth, browserLocalPersistence).catch(() => {});
       return auth;
     }),
 
     provideFirestore(() => {
-      const db = getFirestore(mainApp);
+      const db = getFirestore(stripeApp);
       enableIndexedDbPersistence(db).catch(() => {});
       return db;
     }),
 
-    provideStorage(() => getStorage(mainApp)),
+    provideStorage(() => getStorage(stripeApp)),
 
     // 🔹 FUNCTIONS (onCall) sur le projet principal
     provideFunctions(() => {
-      const fns = getFunctions(mainApp, 'us-central1');
+      const fns = getFunctions(stripeApp, 'us-central1');
 
       if (environment.useFunctionsEmulator) {
         connectFunctionsEmulator(fns, 'localhost', 5001);

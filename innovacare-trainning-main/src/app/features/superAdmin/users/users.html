@@ -36,7 +36,11 @@
           <div>{{ u.email }}</div>
           <div>{{ u.displayName || '—' }}</div>
           <div>{{ u.role }}</div>
-          <div>{{ u.active ? 'Active' : 'Disabled' }}</div>
+          <div>
+            {{ u.active ? 'Active' : 'Disabled' }}
+            <span *ngIf="u.isProgramAdmin" class="tag-program-admin">Program Admin</span>
+            <span *ngIf="u.isProgramStaff" class="tag-program-staff">Program Staff</span>
+          </div>
           <div class="actions-cell">
             <select #roleSel [ngModel]="u.role">
               <option value="super_admin">Super Admin</option>
@@ -46,6 +50,12 @@
               <option value="guest">Guest</option>
             </select>
             <button class="btn" (click)="changeRole(u.uid, roleSel.value)">Save role</button>
+            <button class="btn" (click)="toggleProgramAdmin(u.uid, !!u.isProgramAdmin)">
+              {{ u.isProgramAdmin ? 'Program Admin OFF' : 'Program Admin ON' }}
+            </button>
+            <button class="btn" (click)="toggleProgramStaff(u.uid, !!u.isProgramStaff)">
+              {{ u.isProgramStaff ? 'Program Staff OFF' : 'Program Staff ON' }}
+            </button>
             <button class="btn" (click)="toggleActive(u.uid, !!u.active)">
               {{ u.active ? 'Disable' : 'Enable' }}
             </button>

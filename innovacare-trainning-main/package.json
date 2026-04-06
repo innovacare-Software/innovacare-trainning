@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:rules:smoke": "firebase emulators:exec --only firestore \"node scripts/firestore-rules-smoke.mjs\""
   },
   "prettier": {
     "printWidth": 100,
@@ -45,6 +46,7 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
     "@angular/build": "^20.3.2",
     "@angular/cli": "^20.3.2",
     "@angular/compiler-cli": "^20.3.0",

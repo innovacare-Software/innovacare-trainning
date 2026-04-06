@@ -35,7 +35,12 @@ export interface AppProfile {
   email?: string;
   role: AppRole;
   orgId?: string | null;
+  accessCode?: string | null;
+  orgAccessCode?: string | null;
   active?: boolean;
+  isProgramAdmin?: boolean;
+  isProgramStaff?: boolean;
+  isProgramLearner?: boolean;
   displayName?: string;
   createdAt?: any;
   updatedAt?: any;
@@ -154,27 +159,48 @@ export class AuthService {
   }
 
   async validateOrgCode(orgCode: string): Promise<OrgValidationResult> {
-    const code = orgCode.trim().toUpperCase();
-    if (!code) {
+    const rawCode = orgCode.trim();
+    const upperCode = rawCode.toUpperCase();
+    const lowerCode = rawCode.toLowerCase();
+    if (!rawCode) {
       return { valid: false, message: 'Organization code is required.' };
     }
 
     const organizationsRef = collection(this.afs, 'organizations');
 
-    const snapByCode = await getDocs(
-      query(organizationsRef, where('accessCode', '==', code))
-    );
+    const candidates = Array.from(new Set([rawCode, upperCode, lowerCode].filter(Boolean)));
+    let orgDoc: any = null;
 
-    // Legacy fallback: some tenants may use orgId as login code.
-    const snapByOrgId = snapByCode.empty
-      ? await getDocs(query(organizationsRef, where('orgId', '==', code)))
-      : snapByCode;
+    // Try accessCode/orgId field variants first.
+    for (const candidate of candidates) {
+      const byAccessCode = await getDocs(query(organizationsRef, where('accessCode', '==', candidate)));
+      if (!byAccessCode.empty) {
+        orgDoc = byAccessCode.docs[0];
+        break;
+      }
 
-    if (snapByOrgId.empty) {
+      const byOrgIdField = await getDocs(query(organizationsRef, where('orgId', '==', candidate)));
+      if (!byOrgIdField.empty) {
+        orgDoc = byOrgIdField.docs[0];
+        break;
+      }
+    }
+
+    // Legacy fallback: some tenants use the organization document id as login code.
+    if (!orgDoc) {
+      for (const candidate of candidates) {
+        const byDocId = await getDoc(doc(this.afs, `organizations/${candidate}`));
+        if (byDocId.exists()) {
+          orgDoc = byDocId;
+          break;
+        }
+      }
+    }
+
+    if (!orgDoc) {
       return { valid: false, message: 'Invalid or inactive organization code.' };
     }
 
-    const orgDoc = snapByOrgId.docs[0];
     const orgData = orgDoc.data() as { active?: boolean };
 
     // Missing active flag is treated as active for backward compatibility.
@@ -213,13 +239,37 @@ export class AuthService {
     }
 
     const profile = userSnap.data() as AppProfile;
+    const normalizedInputCode = params.orgCode.trim().toUpperCase();
 
     if (profile.active === false) {
       throw new Error('This account is inactive.');
     }
 
-    if (profile.orgId && profile.orgId !== validation.orgId) {
+    const profileOrgId = String(profile.orgId || '').trim();
+    if (!profileOrgId) {
+      throw new Error('This account is not linked to an organization. Contact your admin.');
+    }
+
+    if (profileOrgId !== validation.orgId) {
       throw new Error('This account does not belong to the provided organization.');
+    }
+
+    const profileAccessCode = String(profile.accessCode || profile.orgAccessCode || '').trim().toUpperCase();
+    if (profileAccessCode && profileAccessCode !== normalizedInputCode) {
+      throw new Error('Invalid organization code for this account.');
+    }
+
+    if (!profileAccessCode) {
+      await setDoc(
+        userRef,
+        {
+          accessCode: normalizedInputCode,
+          orgAccessCode: normalizedInputCode,
+          loginType: 'organization',
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
     }
 
     return cred;

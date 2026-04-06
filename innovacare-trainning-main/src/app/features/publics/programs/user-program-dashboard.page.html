@@ -1,0 +1,124 @@
+<section class="program-dashboard-shell" *ngIf="vm() as data">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Learning Pathway Dashboard</p>
+      <h1>{{ data.enrollment?.programTitle || 'Program Dashboard' }}</h1>
+      <p>{{ enrollmentMessage() }}</p>
+    </div>
+    <div class="status-chip">{{ enrollmentStatusText() }}</div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span>Overall Progress</span>
+      <strong>{{ data.stats.overallProgressPct }}%</strong>
+    </article>
+    <article class="stat-card">
+      <span>Readiness Score</span>
+      <strong>{{ data.stats.readinessScore }}%</strong>
+    </article>
+    <article class="stat-card">
+      <span>Average Score</span>
+      <strong>{{ data.stats.averageScore }}%</strong>
+    </article>
+    <article class="stat-card">
+      <span>Modules Completed</span>
+      <strong>{{ data.stats.modulesCompleted }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Simulations Completed</span>
+      <strong>{{ data.stats.simulationsCompleted }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Case Studies Completed</span>
+      <strong>{{ data.stats.caseStudiesCompleted }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Total Study Time</span>
+      <strong>{{ data.stats.totalStudyMinutes }} min</strong>
+    </article>
+    <article class="stat-card">
+      <span>Current Streak</span>
+      <strong>{{ data.stats.currentStreak }} days</strong>
+    </article>
+  </section>
+
+  <section class="chart-grid">
+    <article class="panel">
+      <h3>Progress by Module</h3>
+      <div class="bars" *ngIf="moduleBars().length > 0; else noModules">
+        <div class="bar-row" *ngFor="let row of moduleBars()">
+          <span>{{ row.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="row.value"></div>
+          </div>
+          <b>{{ row.value }}%</b>
+        </div>
+      </div>
+      <ng-template #noModules>
+        <p class="muted">No module progress available yet.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel">
+      <h3>Assessment Score Trend</h3>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="line-chart">
+        <polyline
+          [attr.points]="scorePolyline(scoreTrend())"
+          fill="none"
+          stroke="#0f766e"
+          stroke-width="2.5"
+        ></polyline>
+      </svg>
+      <p class="muted">Readiness evolution across quizzes and mock exams.</p>
+    </article>
+
+    <article class="panel">
+      <h3>Simulation Score Trend</h3>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="line-chart">
+        <polyline
+          [attr.points]="scorePolyline(simulationTrend())"
+          fill="none"
+          stroke="#0369a1"
+          stroke-width="2.5"
+        ></polyline>
+      </svg>
+      <p class="muted">Performance across computerized and timed simulations.</p>
+    </article>
+
+    <article class="panel breakdown">
+      <h3>Completion Breakdown</h3>
+      <ul>
+        <li>
+          <span>Average Simulation Score</span>
+          <strong>{{ data.stats.averageSimulationScore }}%</strong>
+        </li>
+        <li>
+          <span>Case Study Completion Rate</span>
+          <strong>{{ data.stats.caseStudyCompletionRate }}%</strong>
+        </li>
+        <li>
+          <span>Weakest Area</span>
+          <strong>{{ data.stats.weakestArea }}</strong>
+        </li>
+        <li>
+          <span>Strongest Area</span>
+          <strong>{{ data.stats.strongestArea }}</strong>
+        </li>
+        <li>
+          <span>Recommended Next Step</span>
+          <strong>{{ data.stats.recommendedNextModule }}</strong>
+        </li>
+      </ul>
+      <div class="next-action">
+        <h4>Recommended Next Action</h4>
+        <p>{{ data.stats.recommendedNextAction }}</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="actions">
+    <a routerLink="/my-programs" class="btn ghost">Back to My Programs</a>
+    <a routerLink="/programs" class="btn">Explore More Programs</a>
+  </section>
+</section>

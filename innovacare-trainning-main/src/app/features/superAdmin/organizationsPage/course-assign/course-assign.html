@@ -1,1 +1,97 @@
-<p>course-assign works!</p>
+<section class="assign-page" *ngIf="organization() as org; else loadingTpl">
+	<header class="page-header">
+		<div>
+			<h1>Assign Courses to Organization</h1>
+			<p>{{ org.name }} ({{ org.id }})</p>
+		</div>
+		<div class="actions">
+			<a class="btn ghost" [routerLink]="['/super-admin/organizations', org.id]">Back to Details</a>
+			<button class="btn primary" (click)="saveSelection()" [disabled]="saving()">
+				{{ saving() ? 'Saving…' : 'Save Assignments' }}
+			</button>
+		</div>
+	</header>
+
+	<p class="notice" *ngIf="notice()">{{ notice() }}</p>
+
+	<section class="panel assigned">
+		<h2>Currently Assigned Courses</h2>
+		<div class="chips" *ngIf="assignedCourses().length; else emptyAssignedTpl">
+			<button class="chip" *ngFor="let c of assignedCourses()" type="button" (click)="removeSingle(c.courseId)">
+				{{ c.courseId }}
+				<span>Remove</span>
+			</button>
+		</div>
+	</section>
+
+	<section class="panel catalogue">
+		<div class="catalogue-header">
+			<h2>Platform Courses Catalogue</h2>
+			<div class="filters">
+				<input
+					[ngModel]="search()"
+					(ngModelChange)="search.set($event)"
+					placeholder="Search by title, id or description"
+				/>
+				<label>
+					<input type="checkbox" [ngModel]="onlyActive()" (ngModelChange)="onlyActive.set(!!$event)" />
+					Active only
+				</label>
+			</div>
+		</div>
+
+		<div class="table-wrap">
+			<table>
+				<thead>
+					<tr>
+						<th>Select</th>
+						<th>Title</th>
+						<th>CourseId</th>
+						<th>Kind</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let course of filteredPlatform()">
+						<td>
+							<input
+								type="checkbox"
+								[checked]="isChecked(course.id)"
+								(change)="toggle(course.id, $any($event.target).checked)"
+							/>
+						</td>
+						<td>
+							<strong>{{ course.title }}</strong>
+							<div class="desc">{{ course.description || '—' }}</div>
+						</td>
+						<td>{{ course.id }}</td>
+						<td>{{ course.kind }}</td>
+						<td>
+							<span class="status" [class.off]="course.active === false">
+								{{ course.active === false ? 'inactive' : 'active' }}
+							</span>
+						</td>
+						<td class="row-actions">
+							<button class="btn sm" (click)="assignSingle(course.id)" [disabled]="assignedCourseIds().has(course.id || '')">Assign</button>
+							<button class="btn sm ghost" (click)="removeSingle(course.id)" [disabled]="!assignedCourseIds().has(course.id || '')">Remove</button>
+						</td>
+					</tr>
+					<tr *ngIf="!filteredPlatform().length">
+						<td colspan="6">No courses found with current filters.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+</section>
+
+<ng-template #emptyAssignedTpl>
+	<p class="empty">No courses assigned yet.</p>
+</ng-template>
+
+<ng-template #loadingTpl>
+	<section class="assign-page">
+		<div class="panel"><p>Loading organization…</p></div>
+	</section>
+</ng-template>

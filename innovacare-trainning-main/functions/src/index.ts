@@ -43,7 +43,7 @@ const nowTs = () => admin.firestore.FieldValue.serverTimestamp();
 const nowStamp = () => admin.firestore.Timestamp.now();
 
 type GradeExamPayload = {
-  courseId: string
+  courseId: string;
   examId: string;
   answers: Record<string, string[]>;
 };
@@ -112,6 +112,8 @@ type PublicOfferDoc = {
   imageUrl?: string;
   price: number;
   currency?: "USD";
+  stripePriceId?: string;
+  stripeProductId?: string;
   isActive: boolean;
   isPublic: boolean;
   category?: string;
@@ -192,6 +194,11 @@ function parseAllowedHosts(): Set<string> {
   const fallback = ["localhost", "127.0.0.1"];
   const hosts = raw ? raw.split(",").map((x) => x.trim().toLowerCase()) : fallback;
   return new Set(hosts.filter(Boolean));
+}
+
+function isEmailVerificationRequiredForCheckout(): boolean {
+  const raw = (process.env.REQUIRE_VERIFIED_EMAIL_FOR_CHECKOUT || "").trim().toLowerCase();
+  return raw === "true";
 }
 
 function isAllowedCheckoutUrl(rawUrl: string): boolean {
@@ -487,7 +494,7 @@ export const seedDemoData = onCall(async (request) => {
         {id: "b", text: "4"},
         {id: "c", text: "5"},
       ],
-      explanation: "Basic math 🙂",
+      explanation: "Basic math",
       createdAt: now,
       updatedAt: now,
     },
@@ -642,7 +649,7 @@ async function grantPurchasedAccessInternal(params: GrantAccessParams) {
 }
 
 export const createOrgUser = onCall(
-  {},
+  {invoker: HTTPS_PUBLIC},
   async (request: CallableRequest<CreateOrgUserPayload>) => {
     const callerUid = request.auth?.uid;
     if (!callerUid) {
@@ -691,6 +698,25 @@ export const createOrgUser = onCall(
     }
 
     const orgId = callerCtx.orgId;
+    const normalizedOrgId = String(orgId || "").trim();
+    let orgAccessCode: string | null = null;
+
+    if (normalizedOrgId) {
+      const orgSnap = await db.doc(`organizations/${normalizedOrgId}`).get();
+      if (!orgSnap.exists) {
+        throw new HttpsError("failed-precondition", "Organization not found.");
+      }
+
+      const isOrgActive = orgSnap.get("active") !== false;
+      if (!isOrgActive) {
+        throw new HttpsError("permission-denied", "Organization is inactive.");
+      }
+
+      const rawAccessCode = String(orgSnap.get("accessCode") || orgSnap.get("orgId") || "").trim();
+      orgAccessCode = rawAccessCode ? rawAccessCode.toUpperCase() : null;
+    }
+
+    let createdUid: string | null = null;
 
     try {
       const userRecord = await admin.auth().createUser({
@@ -699,24 +725,38 @@ export const createOrgUser = onCall(
         displayName: displayName || undefined,
         disabled: status === "inactive",
       });
+      createdUid = userRecord.uid;
 
-      await db.doc(`users/${userRecord.uid}`).set(
-        {
-          uid: userRecord.uid,
-          email,
-          displayName,
-          phone,
-          department,
-          title,
-          role,
-          status,
-          orgId,
-          active: status === "active",
-          createdAt: nowTs(),
-          updatedAt: nowTs(),
-        },
-        {merge: true}
-      );
+      const payload = {
+        uid: userRecord.uid,
+        email,
+        displayName,
+        phone,
+        department,
+        title,
+        role,
+        status,
+        orgId: normalizedOrgId || null,
+        accessCode: orgAccessCode,
+        orgAccessCode,
+        loginType: "organization",
+        active: status === "active",
+        createdAt: nowTs(),
+        updatedAt: nowTs(),
+      };
+
+      const batch = db.batch();
+      batch.set(db.doc(`users/${userRecord.uid}`), payload, {merge: true});
+
+      const scopedOrgId = normalizedOrgId;
+      if (scopedOrgId) {
+        batch.set(db.doc(`organizations/${scopedOrgId}/users/${userRecord.uid}`), payload, {merge: true});
+        batch.set(db.doc(`organizations/${scopedOrgId}/orgUsers/${userRecord.uid}`), payload, {merge: true});
+        // Legacy mirror path kept for compatibility with existing dashboards expecting /org/{orgId}/orgUsers.
+        batch.set(db.doc(`org/${scopedOrgId}/orgUsers/${userRecord.uid}`), payload, {merge: true});
+      }
+
+      await batch.commit();
 
       return {
         ok: true,
@@ -724,6 +764,13 @@ export const createOrgUser = onCall(
         email,
       };
     } catch (error: any) {
+      if (createdUid) {
+        try {
+          await admin.auth().deleteUser(createdUid);
+        } catch (cleanupError) {
+          console.error("createOrgUser cleanup failed", cleanupError);
+        }
+      }
       if (error?.code === "auth/email-already-exists") {
         throw new HttpsError("already-exists", "This email is already used.");
       }
@@ -919,7 +966,7 @@ export const createCheckoutSession = onCall(
       );
     }
 
-    if (!emailVerified) {
+    if (isEmailVerificationRequiredForCheckout() && !emailVerified) {
       throw new HttpsError(
         "failed-precondition",
         "Verify your email before payment.",
@@ -965,17 +1012,25 @@ export const createCheckoutSession = onCall(
       0,
     );
 
+    const toSafeTitle = (value: unknown) => {
+      const title = typeof value === "string" ? value.trim() : "";
+      return title || "Offer";
+    };
+
     const orderItems = normalizedItems.map((x) => ({
       offerId: x.offerId,
       itemType: x.itemType,
       itemId: x.itemId,
-      title: x.offer.title,
-      amount: Number(x.offer.price || 0),
+      title: toSafeTitle(x.offer.title),
+      amount: Number.isFinite(Number(x.offer.price || 0)) ? Number(x.offer.price || 0) : 0,
       currency,
       qty: x.qty,
+      stripePriceId: String(x.offer.stripePriceId || "").trim() || null,
     }));
 
     const first = orderItems[0];
+    const orderTitle =
+      normalizedItems.length === 1 ? toSafeTitle(first?.title) : `Cart (${orderItems.length} items)`;
 
     const orderRef = db.collection(`users/${uid}/orders`).doc();
     await orderRef.set({
@@ -985,7 +1040,7 @@ export const createCheckoutSession = onCall(
       itemType: first.itemType,
       itemId: first.itemId,
       offerId: first.offerId,
-      title: normalizedItems.length === 1 ? first.title : `Cart (${orderItems.length} items)`,
+      title: orderTitle,
       amount: amountTotal,
       currency,
       cartId,
@@ -998,7 +1053,50 @@ export const createCheckoutSession = onCall(
 
     const stripe = getStripe();
 
-    const session = await stripe.checkout.sessions.create({
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = normalizedItems.map((x) => {
+      const stripePriceId = String(x.offer.stripePriceId || "").trim();
+      if (stripePriceId) {
+        return {
+          price: stripePriceId,
+          quantity: x.qty,
+        };
+      }
+
+      const unitAmount = Math.round(Number(x.offer.price || 0) * 100);
+      if (!Number.isFinite(unitAmount) || unitAmount <= 0) {
+        throw new HttpsError(
+          "failed-precondition",
+          `Invalid price for offer ${x.offerId}.`,
+        );
+      }
+
+      let imageUrl: string | null = null;
+      if (x.offer.imageUrl) {
+        try {
+          const parsed = new URL(String(x.offer.imageUrl));
+          if (parsed.protocol === "https:") {
+            imageUrl = parsed.toString();
+          }
+        } catch {
+          imageUrl = null;
+        }
+      }
+
+      return {
+        price_data: {
+          currency: String(x.offer.currency || "USD").toLowerCase(),
+          product_data: {
+            name: String(x.offer.title || "Offer").trim() || "Offer",
+            description: String(x.offer.description || "").trim(),
+            ...(imageUrl ? {images: [imageUrl]} : {}),
+          },
+          unit_amount: unitAmount,
+        },
+        quantity: x.qty,
+      };
+    });
+
+    const createSessionPayload: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       customer_email: email,
       metadata: {
@@ -1006,21 +1104,61 @@ export const createCheckoutSession = onCall(
         orderId: orderRef.id,
         cartId,
       },
-      line_items: normalizedItems.map((x) => ({
-        price_data: {
-          currency: String(x.offer.currency || "USD").toLowerCase(),
-          product_data: {
-            name: x.offer.title,
-            description: x.offer.description || "",
-            ...(x.offer.imageUrl ? {images: [x.offer.imageUrl]} : {}),
-          },
-          unit_amount: Math.round(Number(x.offer.price || 0) * 100),
-        },
-        quantity: x.qty,
-      })),
+      line_items: lineItems,
       success_url: successUrl,
       cancel_url: cancelUrl,
-    });
+    };
+
+    const waitMs = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const maxAttempts = 3;
+    let session: Stripe.Checkout.Session | null = null;
+    let lastError: any = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        session = await stripe.checkout.sessions.create(createSessionPayload);
+        break;
+      } catch (error: any) {
+        lastError = error;
+        const errorType = String(error?.type || "");
+
+        console.error("createCheckoutSession stripe failure", {
+          uid,
+          orderId: orderRef.id,
+          attempt,
+          maxAttempts,
+          code: error?.code,
+          type: errorType,
+          message: error?.message,
+        });
+
+        if (errorType === "StripeInvalidRequestError") {
+          throw new HttpsError(
+            "failed-precondition",
+            error?.message || "Invalid checkout payload.",
+          );
+        }
+
+        const isRetryable = errorType === "StripeConnectionError" || errorType === "StripeAPIError";
+        if (!isRetryable || attempt === maxAttempts) {
+          break;
+        }
+
+        await waitMs(attempt * 400);
+      }
+    }
+
+    if (!session) {
+      const errorType = String(lastError?.type || "");
+      if (errorType === "StripeConnectionError" || errorType === "StripeAPIError") {
+        throw new HttpsError(
+          "unavailable",
+          "Stripe est temporairement indisponible. Merci de reessayer dans quelques instants.",
+        );
+      }
+
+      throw new HttpsError("internal", "Unable to create checkout session.");
+    }
 
     await orderRef.update({
       checkoutSessionId: session.id,

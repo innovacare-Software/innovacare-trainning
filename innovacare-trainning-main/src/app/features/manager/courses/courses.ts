@@ -737,7 +737,7 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
         passingScore: Number(src.passingScore ?? 80),
         lockedSequence: !!src.lockedSequence,
         isPublic: !!src.isPublic,
-        healthMeta: src.healthMeta ?? undefined,
+        healthMeta: src.healthMeta,
         orgId: src.orgId ?? null,
         orgType: src.orgType,
 

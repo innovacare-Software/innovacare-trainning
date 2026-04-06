@@ -1,4 +1,4 @@
-import {inject, Injectable} from "@angular/core";
+import {inject, Injectable, Injector, runInInjectionContext} from "@angular/core";
 import {Auth, user as authUser$} from "@angular/fire/auth";
 import {
   Firestore,
@@ -39,12 +39,19 @@ type NotificationRead = {id: string; readAt?: any};
 export class NotificationService {
   private afs = inject(Firestore);
   private auth = inject(Auth);
+  private injector = inject(Injector);
+
+  private inContext<T>(factory: () => Observable<T>): Observable<T> {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   /** User profile (role) */
   readonly userRole$: Observable<UserRole | null> = authUser$(this.auth).pipe(
     switchMap((u) => {
       if (!u) return of(null);
-      return docData(doc(this.afs, `users/${u.uid}`)) as Observable<any>;
+      return this.inContext(() =>
+        docData(doc(this.afs, `users/${u.uid}`)) as Observable<any>
+      );
     }),
     map((profile) => (profile?.role as UserRole) ?? null),
   );
@@ -56,7 +63,9 @@ export class NotificationService {
       orderBy("createdAt", "desc"),
       limit(max),
     );
-    return collectionData(q, {idField: "id"}) as Observable<AppNotification[]>;
+    return this.inContext(
+      () => collectionData(q, {idField: "id"}) as Observable<AppNotification[]>
+    );
   }
 
   /** Reads du user courant (limité) */
@@ -69,7 +78,9 @@ export class NotificationService {
           orderBy("readAt", "desc"),
           limit(max),
         );
-        return collectionData(q, {idField: "id"}) as Observable<NotificationRead[]>;
+        return this.inContext(
+          () => collectionData(q, {idField: "id"}) as Observable<NotificationRead[]>
+        );
       }),
     );
   }

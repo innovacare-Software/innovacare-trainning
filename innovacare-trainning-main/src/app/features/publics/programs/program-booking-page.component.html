@@ -1,0 +1,95 @@
+<section class="booking-shell" *ngIf="program() as currentProgram; else unavailableProgram">
+  <div class="booking-grid">
+    <article class="program-context card">
+      <p class="eyebrow">Program Booking</p>
+      <h1>{{ currentProgram.title }}</h1>
+      <p class="subtitle">{{ currentProgram.subtitle }}</p>
+
+      <img [src]="currentProgram.imageUrl" [alt]="currentProgram.title" class="program-image" />
+
+      <dl class="summary-list">
+        <div>
+          <dt>Duration</dt>
+          <dd>{{ currentProgram.durationText }}</dd>
+        </div>
+        <div>
+          <dt>Schedule</dt>
+          <dd>{{ currentProgram.scheduleText }}</dd>
+        </div>
+        <div>
+          <dt>Price</dt>
+          <dd>
+            {{ (currentProgram.discountPrice ?? currentProgram.price)
+              | currency: currentProgram.currency:'symbol':'1.0-0' }}
+          </dd>
+        </div>
+      </dl>
+
+      <button type="button" class="ghost-btn" (click)="goToCatalog()">Back to Programs</button>
+      <a routerLink="/home" class="ghost-btn">Return to Home</a>
+    </article>
+
+    <article class="booking-form-wrap card">
+      <header>
+        <h2>Join this program</h2>
+        <p>Submit your enrollment request. Admin review and confirmation will follow.</p>
+      </header>
+
+      <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()" novalidate>
+        <div class="form-grid">
+          <div class="field full">
+            <label for="learnerName">Full name</label>
+            <input id="learnerName" type="text" formControlName="learnerName" placeholder="Enter full name" />
+            <small class="error" *ngIf="isFieldInvalid('learnerName')">
+              Name is required (minimum 2 characters).
+            </small>
+          </div>
+
+          <div class="field">
+            <label for="learnerEmail">Email</label>
+            <input id="learnerEmail" type="email" formControlName="learnerEmail" placeholder="you@example.com" />
+            <small class="error" *ngIf="isFieldInvalid('learnerEmail')">
+              Please provide a valid email.
+            </small>
+          </div>
+
+          <div class="field">
+            <label for="learnerPhone">Phone number</label>
+            <input id="learnerPhone" type="tel" formControlName="learnerPhone" placeholder="+1 000 000 0000" />
+            <small class="error" *ngIf="isFieldInvalid('learnerPhone')">
+              Phone number is required.
+            </small>
+          </div>
+
+          <div class="field full">
+            <label for="notes">Notes (optional)</label>
+            <textarea
+              id="notes"
+              rows="5"
+              formControlName="notes"
+              placeholder="Preferred start date, schedule constraints, goals..."
+            ></textarea>
+            <small class="error" *ngIf="isFieldInvalid('notes')">
+              Notes cannot exceed 600 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="feedback success" *ngIf="successMessage()">{{ successMessage() }}</div>
+        <div class="feedback error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+        <button type="submit" class="submit-btn" [disabled]="!canSubmit()">
+          {{ isSubmitting() ? 'Submitting enrollment...' : 'Enroll in Program' }}
+        </button>
+      </form>
+    </article>
+  </div>
+</section>
+
+<ng-template #unavailableProgram>
+  <section class="unavailable-state">
+    <h2>Program unavailable</h2>
+    <p>The booking page could not load this program. Please return to the catalog.</p>
+    <a routerLink="/programs" class="submit-btn">Go to Programs</a>
+  </section>
+</ng-template>

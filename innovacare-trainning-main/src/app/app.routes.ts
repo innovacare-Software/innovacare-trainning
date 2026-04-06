@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { roleCanMatch } from './core/role.canmatch';
 import { authenticatedGuard } from './core/auth-guard';
+import { programLearnerGuard } from './core/program-learner.guard';
+import { programAdminAreaCanMatch } from './features/program-admin/guards/program-admin.guard';
 
 
 export const routes: Routes = [
@@ -73,6 +75,43 @@ export const routes: Routes = [
       import('./features/publics/catalogue-page/catalogue-page').then(
         (m) => m.CataloguePage 
       ),
+  },
+  {
+    path: 'programs',
+    loadChildren: () =>
+      import('./features/publics/programs/programs.routes').then(
+        (m) => m.PROGRAMS_ROUTES
+      ),
+  },
+  {
+    path: 'my-programs',
+    canActivate: [authenticatedGuard, programLearnerGuard],
+    loadComponent: () =>
+      import('./features/publics/programs/my-program-enrollments-page.component').then(
+        (m) => m.MyProgramEnrollmentsPageComponent
+      ),
+  },
+  {
+    path: 'my-programs/:id/dashboard',
+    canActivate: [authenticatedGuard, programLearnerGuard],
+    loadComponent: () =>
+      import('./features/publics/programs/user-program-dashboard.page').then(
+        (m) => m.UserProgramDashboardPage
+      ),
+  },
+  {
+    path: 'program-admin',
+    canMatch: [programAdminAreaCanMatch],
+    loadChildren: () =>
+      import('./features/program-admin/program-admin.routes').then(
+        (m) => m.PROGRAM_ADMIN_ROUTES
+      ),
+  },
+  {
+    path: 'admin',
+    canMatch: [roleCanMatch(['super_admin', 'admin', 'manager'])],
+    loadChildren: () =>
+      import('./features/manager/manager.routes').then((m) => m.ManagerRoutingModule),
   },
    {
     path: 'catalogue/:id',

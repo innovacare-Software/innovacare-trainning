@@ -8,6 +8,28 @@ import { httpsCallable } from 'firebase/functions';
 export class CheckoutService {
   constructor(private functions: Functions) {}
 
+  private extractServerMessage(error: unknown): string | null {
+    const err = error as {
+      message?: string;
+      details?: { message?: string };
+      customData?: { message?: string };
+    } | null;
+
+    const fromDetails = String(err?.details?.message || '').trim();
+    if (fromDetails) return fromDetails;
+
+    const fromCustomData = String(err?.customData?.message || '').trim();
+    if (fromCustomData) return fromCustomData;
+
+    const fromMessage = String(err?.message || '').trim();
+    if (fromMessage) {
+      const stripped = fromMessage.replace(/^FirebaseError:\s*/i, '').trim();
+      return stripped || fromMessage;
+    }
+
+    return null;
+  }
+
   async startCheckout(offerId?: string): Promise<void> {
     if (!offerId) throw new Error('offerId manquant');
 
@@ -42,13 +64,18 @@ export class CheckoutService {
       { url?: string | null }
     >(this.functions, 'createCheckoutSession');
 
-    const res = await fn(input);
-    const url = String(res.data?.url || '').trim();
+    try {
+      const res = await fn(input);
+      const url = String(res.data?.url || '').trim();
 
-    if (!url) {
-      throw new Error('Checkout URL manquante');
+      if (!url) {
+        throw new Error('Checkout URL manquante');
+      }
+
+      return { url };
+    } catch (error) {
+      const message = this.extractServerMessage(error) || 'Échec de création de session checkout';
+      throw new Error(message);
     }
-
-    return { url };
   }
 }

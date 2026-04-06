@@ -6,11 +6,13 @@ import {
   UrlTree,
 } from '@angular/router';
 import { combineLatest, filter, map, take } from 'rxjs';
+import { AccessCapabilitiesService } from './access-capabilities.service';
 import { AuthService, AppRole } from './auth';
 import { defaultRouteForRole } from './auth-redirect.service';
 
 function checkRoleAccess(roles: AppRole[]) {
   const auth = inject(AuthService);
+  const capabilities = inject(AccessCapabilitiesService);
   const router = inject(Router);
 
   return combineLatest([auth.ready$, auth.profile$]).pipe(
@@ -23,7 +25,7 @@ function checkRoleAccess(roles: AppRole[]) {
 
       const role = profile.role as AppRole;
 
-      if (roles.includes(role)) {
+      if (capabilities.hasRole(profile, roles)) {
         return true;
       }
 

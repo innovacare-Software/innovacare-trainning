@@ -51,6 +51,26 @@ export class Users {
   }
 }
 
+  async toggleProgramAdmin(uid: string, current: boolean) {
+    try {
+      await this.usersSvc.setProgramAdmin(uid, !current);
+      this.notice.set(`Program Admin ${!current ? 'enabled' : 'disabled'}.`);
+      this.refresh();
+    } catch (e: any) {
+      this.notice.set(e?.message || 'Failed to update Program Admin access.');
+    }
+  }
+
+  async toggleProgramStaff(uid: string, current: boolean) {
+    try {
+      await this.usersSvc.setProgramStaff(uid, !current);
+      this.notice.set(`Program Staff ${!current ? 'enabled' : 'disabled'}.`);
+      this.refresh();
+    } catch (e: any) {
+      this.notice.set(e?.message || 'Failed to update Program Staff access.');
+    }
+  }
+
   async toggleActive(uid: string, current: boolean) {
     try {
       await this.usersSvc.setActive(uid, !current);
