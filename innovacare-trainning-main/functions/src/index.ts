@@ -1720,14 +1720,33 @@ Clinical knowledge domains:
 Always respond in the same language the user writes in (English or French).
 Be concise, clinically accurate, and use professional healthcare terminology.`;
 
+/** Strip characters that could be used for prompt injection from user-supplied context values */
+const sanitizeContextValue = (value: string, maxLen = 300): string => {
+  return value
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[<>{}\\]/g, "")
+    .slice(0, maxLen)
+    .trim();
+};
+
 const buildSystemPrompt = (context: ChatPayload["context"]): string => {
   const lines: string[] = [INNOVAASSIST_BASE_SYSTEM];
 
-  if (context?.userName) lines.push(`\nUser name: ${context.userName}`);
-  if (context?.userRole) lines.push(`User role: ${context.userRole}`);
-  if (context?.currentPage) lines.push(`Current page: ${context.currentPage}`);
-  if (context?.courseContext) lines.push(`Course context: ${context.courseContext}`);
-  if (context?.intentHint) lines.push(`\nIMPORTANT TASK INSTRUCTION:\n${context.intentHint}`);
+  if (context?.userName) {
+    lines.push(`\nUser name: ${sanitizeContextValue(context.userName, 80)}`);
+  }
+  if (context?.userRole) {
+    lines.push(`User role: ${sanitizeContextValue(context.userRole, 40)}`);
+  }
+  if (context?.currentPage) {
+    lines.push(`Current page: ${sanitizeContextValue(context.currentPage, 120)}`);
+  }
+  if (context?.courseContext) {
+    lines.push(`Course context: ${sanitizeContextValue(context.courseContext, 300)}`);
+  }
+  if (context?.intentHint) {
+    lines.push(`\nIMPORTANT TASK INSTRUCTION:\n${context.intentHint}`);
+  }
 
   return lines.join("\n");
 };
@@ -1777,7 +1796,9 @@ export const chatWithAI = onCall(
         reply: text,
         page: context?.currentPage ?? null,
         createdAt: nowTs(),
-      }).catch(() => {/* non-critical */});
+      }).catch((err) => {
+        console.warn("[chatWithAI] Failed to persist chat:", err);
+      });
     }
 
     return {reply: text};
