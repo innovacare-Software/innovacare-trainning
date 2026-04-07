@@ -606,6 +606,26 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ---------- AI ASSISTANT DATA ----------
+    match /users/{uid}/aiChats/{chatId} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid);
+      allow delete: if isOwner(uid) || isSuperAdmin();
+    }
+
+    match /users/{uid}/quizSessions/{sessionId} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid);
+      allow delete: if isOwner(uid) || isSuperAdmin();
+    }
+
+    match /users/{uid}/generatedNotes/{noteId} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid);
+      allow delete: if isOwner(uid) || isSuperAdmin();
+    }
+
     match /users/{uid}/launchTickets/{ticketId} {
       allow read: if canManageUser(uid);
       allow create, update: if canManageUser(uid);
