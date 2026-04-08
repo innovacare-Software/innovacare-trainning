@@ -1,0 +1,148 @@
+<section class="programs-shell">
+  <header class="hero-panel">
+    <div class="hero-copy">
+      <p class="eyebrow">Premium Training Programs</p>
+      <h1>Advance your career with structured certification pathways</h1>
+      <p>
+        Explore international-standard programs for healthcare and technical tracks,
+        designed with practical learning milestones and booking-ready schedules.
+      </p>
+      <div class="hero-meta">
+        <span>{{ filteredPrograms().length }} active programs</span>
+        <span>{{ totalSeatsOpen() }} seats available</span>
+        <span>Starting from {{ lowestPrice() | currency: 'USD':'symbol':'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <aside class="hero-card">
+      <h2>Find the right pathway</h2>
+      <p>Filter by category and search by keywords to compare options faster.</p>
+      <div class="quick-tags">
+        <span class="chip" *ngFor="let item of categoryOptions">{{ item.label }}</span>
+      </div>
+    </aside>
+  </header>
+
+  <section class="featured-strip">
+    <div class="featured-list">
+      <a class="featured-item" routerLink="/home">
+        <strong>Return to Home</strong>
+        <span>Go back to landing page</span>
+      </a>
+      <a class="featured-item" routerLink="/my-programs">
+        <strong>My Program Enrollments</strong>
+        <span>Track your enrollments and status</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="filters-panel">
+    <div class="filter-field">
+      <label for="program-search">Search programs</label>
+      <input
+        id="program-search"
+        type="text"
+        placeholder="Search DevOps, NCLEX, DHA..."
+        [formControl]="searchControl"
+      />
+    </div>
+
+    <div class="filter-field">
+      <label for="program-category">Category</label>
+      <select id="program-category" [formControl]="categoryControl">
+        <option value="ALL">All categories</option>
+        <option *ngFor="let option of categoryOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+
+    <button class="reset-btn" type="button" (click)="resetFilters()" [disabled]="!hasActiveFilters()">
+      Reset filters
+    </button>
+  </section>
+
+  <section class="featured-strip" *ngIf="featuredPrograms().length > 0">
+    <p class="eyebrow">Featured now</p>
+    <div class="featured-list">
+      <a
+        class="featured-item"
+        *ngFor="let program of featuredPrograms(); trackBy: trackByProgram"
+        [routerLink]="['/programs', program.id]"
+      >
+        <strong>{{ program.title }}</strong>
+        <span>{{ categoryLabel(program.category) }} · {{ priceLabel(program) }}</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="catalog-grid" *ngIf="filteredPrograms().length; else emptyState">
+    <article class="program-card" *ngFor="let program of filteredPrograms(); trackBy: trackByProgram">
+      <img [src]="program.imageUrl" [alt]="program.title" class="program-image" />
+
+      <div class="program-body">
+        <div class="card-topline">
+          <span class="category-badge">{{ categoryLabel(program.category) }}</span>
+          <span class="seats" *ngIf="program.seatsRemaining != null">
+            {{ program.seatsRemaining }} seats left
+          </span>
+        </div>
+
+        <h3>{{ program.title }}</h3>
+        <p class="subtitle">{{ program.subtitle }}</p>
+
+        <div class="meta-grid">
+          <div>
+            <label>Duration</label>
+            <span>{{ program.durationText }}</span>
+          </div>
+          <div>
+            <label>Mode</label>
+            <span>{{ modeLabel(program.deliveryMode) }}</span>
+          </div>
+          <div>
+            <label>Level</label>
+            <span>{{ levelLabel(program.level) }}</span>
+          </div>
+          <div>
+            <label>Schedule</label>
+            <span>{{ program.scheduleText }}</span>
+          </div>
+        </div>
+
+        <div class="tags-row">
+          <span class="tag" *ngFor="let tag of program.tags | slice:0:4">{{ tag }}</span>
+        </div>
+      </div>
+
+      <footer class="card-footer">
+        <div class="price-block">
+          <span class="price">{{ priceLabel(program) }}</span>
+          <span
+            class="strike"
+            *ngIf="program.discountPrice && program.discountPrice > 0 && program.discountPrice < program.price"
+          >
+            {{ program.price | currency: program.currency:'symbol':'1.0-0' }}
+          </span>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn-outline" [routerLink]="['/programs', program.id]">View details</a>
+          <a class="btn btn-primary" [routerLink]="['/programs', program.id, 'enroll']">Enroll now</a>
+        </div>
+      </footer>
+    </article>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <div class="empty-icon">+</div>
+      <h2>No programs match your filters</h2>
+      <p>
+        Try another keyword or category. New cohorts are added regularly across DevOps,
+        NCLEX, DHA, DOH, and custom pathways.
+      </p>
+      <button type="button" class="btn btn-primary" (click)="resetFilters()">Show all programs</button>
+    </section>
+  </ng-template>
+</section>

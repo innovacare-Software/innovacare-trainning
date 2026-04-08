@@ -1,0 +1,239 @@
+   <!-- CONTENT -->
+<main class="content">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p class="muted">Hi {{ managerName() }}, here's your training overview</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn" (click)="onCreateAssign()">+ New Assignment</button>
+      <button class="btn outline" (click)="onCreateReport()">View Reports</button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="note info" *ngIf="notice" (click)="clearNotice()">
+    {{ notice }} (click to dismiss)
+  </div>
+
+  <!-- KPI Cards Grid -->
+  <section class="kpis-grid">
+    <div class="card kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Completion Rate</span>
+        <span class="badge badge-info">Last 30 days</span>
+      </div>
+      <div class="kpi-value primary">{{ kpi().completion30 }}</div>
+      <div class="kpi-subtitle muted">On track with training completion</div>
+    </div>
+
+    <div class="card kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Overdue Assignments</span>
+        <span class="badge badge-warn">Action needed</span>
+      </div>
+      <div class="kpi-value warn">{{ kpi().overdue }}</div>
+      <div class="kpi-subtitle muted">Require immediate attention</div>
+    </div>
+
+    <div class="card kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Average Score</span>
+        <span class="badge badge-success">Excellent</span>
+      </div>
+      <div class="kpi-value success">{{ kpi().avgScore }}%</div>
+      <div class="kpi-subtitle muted">Average learner performance</div>
+    </div>
+
+    <div class="card kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Total Learners</span>
+        <span class="badge badge-primary">Active</span>
+      </div>
+      <div class="kpi-value primary">{{ kpi().totalLearners || 0 }}</div>
+      <div class="kpi-subtitle muted">Enrolled in active courses</div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <div class="card actions-card">
+      <h3>Quick Actions</h3>
+      <div class="actions-grid">
+        <button class="action-btn" (click)="onCreateAssign()" title="Create a new assignment">
+          <span class="icon">📋</span>
+          <span>Create Assignment</span>
+        </button>
+        <button class="action-btn" (click)="onAssignTraining()" title="Assign training to learners">
+          <span class="icon">👥</span>
+          <span>Assign Training</span>
+        </button>
+        <button class="action-btn" (click)="onCreateReport()" title="View training reports">
+          <span class="icon">📊</span>
+          <span>Reports</span>
+        </button>
+        <button class="action-btn" (click)="onPolicyReport()" title="View policy reports">
+          <span class="icon">📈</span>
+          <span>Policy Report</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="architecture-strip">
+    <div class="card architecture-card">
+      <div class="section-head">
+        <div>
+          <h2>Enrollment to Dashboard Lifecycle</h2>
+          <p class="muted">Operational map from assignment to KPI refresh.</p>
+        </div>
+      </div>
+      <pre class="diagram-text">
+[Enrollment Created]
+      -> [Assignment Released]
+      -> [Learner Progress Events]
+      -> [Overdue + Compliance Detection]
+      -> [Manager Alerts + Follow-up]
+      -> [Dashboard KPI Update]
+      </pre>
+    </div>
+  </section>
+
+  <section class="chart-strip">
+    <div class="card architecture-card">
+      <div class="section-head">
+        <div>
+          <h2>Visible KPI Charts</h2>
+          <p class="muted">Clear visual signals for operational decisions.</p>
+        </div>
+      </div>
+      <div class="chart-list">
+        <div class="chart-row" *ngFor="let c of kpiChartRows()">
+          <div class="chart-meta">
+            <span>{{ c.label }}</span>
+            <strong>{{ c.value }}%</strong>
+          </div>
+          <div class="chart-track">
+            <div class="chart-fill" [style.width.%]="c.value" [style.background]="c.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Critical Alerts Section -->
+  <section class="panel critical-alerts" *ngIf="overdueAlerts().length">
+    <div class="section-head">
+      <div>
+        <h2>⚠️ Overdue Alerts</h2>
+        <p class="muted">{{ overdueAlerts().length }} learners with overdue assignments</p>
+      </div>
+      <button class="btn ghost" (click)="onExportCSV()">Export</button>
+    </div>
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Learner</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Due Date</th>
+            <th>Days Overdue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let o of overdueAlerts()" class="alert-row">
+            <td><strong>{{ o.user }}</strong></td>
+            <td>{{ o.email || '—' }}</td>
+            <td>{{ o.course }}</td>
+            <td>{{ o.due }}</td>
+            <td><span class="badge badge-warn">{{ o.overdueDays || '—' }} days</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Main Content Grid -->
+  <div class="dashboard-grid">
+    <!-- Open Assignments -->
+    <section class="panel">
+      <div class="section-head">
+        <h2>Active Assignments</h2>
+        <a routerLink="/manager/assign" class="link-action">View all →</a>
+      </div>
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Course</th>
+              <th>Audience</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of openAssignments()">
+              <td><code class="id-badge">{{ a.id }}</code></td>
+              <td>{{ a.course }}</td>
+              <td>{{ a.audience }}</td>
+              <td>{{ a.due }}</td>
+              <td><span class="badge" [class.badge-warn]="a.status==='Closed'" [class.badge-success]="a.status==='Active'">{{ a.status }}</span></td>
+              <td>
+                <button class="btn outline btn-sm" type="button" (click)="openAssignment(a.id)">
+                  Open
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Recent Results -->
+    <section class="panel">
+      <div class="section-head">
+        <h2>Recent Results</h2>
+        <a routerLink="/manager/reports" class="link-action">View all →</a>
+      </div>
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Learner</th>
+              <th>Course</th>
+              <th>Score</th>
+              <th>Completed</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of recentResults()">
+              <td>
+                <div class="learner-info">
+                  {{ r.userName }}
+                  <div class="muted" style="font-size:.85rem" *ngIf="r.userEmail">{{ r.userEmail }}</div>
+                </div>
+              </td>
+              <td>{{ r.course }}</td>
+              <td>
+                <div class="score-display">
+                  <span class="score" [class.low]="r.score < 70" [class.medium]="r.score >= 70 && r.score < 85" [class.high]="r.score >= 85">{{ r.score }}%</span>
+                </div>
+              </td>
+              <td>{{ r.date }}</td>
+              <td>
+                <button class="btn outline btn-sm" type="button" (click)="openResultDetails(r.uid)">
+                  Details
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>

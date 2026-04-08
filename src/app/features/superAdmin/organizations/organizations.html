@@ -1,0 +1,208 @@
+<section class="page">
+  <div class="page-head">
+    <div class="head-content">
+      <div>
+        <h1>Organizations</h1>
+        <p>Premium multi-tenant command center for diagnostics, assignments and support actions.</p>
+      </div>
+      <button class="btn primary lg" (click)="scrollToForm()">
+        <span>+ New Organization</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <article class="stat-card">
+      <h3>{{ summary().organizations }}</h3>
+      <p>Organizations</p>
+    </article>
+    <article class="stat-card accent-ok">
+      <h3>{{ summary().activeOrgs }}</h3>
+      <p>Active Organizations</p>
+    </article>
+    <article class="stat-card accent-info">
+      <h3>{{ summary().totalUsers }}</h3>
+      <p>Total Users</p>
+    </article>
+    <article class="stat-card accent-warm">
+      <h3>{{ summary().totalAssignedCourses }}</h3>
+      <p>Assigned Courses</p>
+    </article>
+  </div>
+
+  <!-- Create Organization Panel -->
+  <div class="panel form-panel" #formSection>
+    <div class="panel-header">
+      <h2>Create Organization & Owner</h2>
+      <p class="subtitle">Set up a new organization with an owner account</p>
+    </div>
+
+    <div class="form-container">
+      <div class="form-section">
+        <h3>Organization Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Organization Name</label>
+            <input [(ngModel)]="newOrg.name" placeholder="Enter organization name" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Organization ID</label>
+            <input [(ngModel)]="newOrg.orgId" placeholder="Unique identifier" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="newOrg.type" class="form-select">
+              <option value="">Select type</option>
+              <option value="health">Health</option>
+              <option value="IT">IT</option>
+              <option value="school">School</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Plan</label>
+            <select [(ngModel)]="newOrg.plan" class="form-select">
+              <option value="">Select plan</option>
+              <option value="free">Free</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Access Code</label>
+            <input [(ngModel)]="newOrg.accessCode" placeholder="Enter access code" class="form-input" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Owner Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Owner UID</label>
+            <input [(ngModel)]="newOrg.ownerUid" placeholder="User ID" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Owner Email</label>
+            <input [(ngModel)]="newOrg.ownerEmail" placeholder="owner@example.com" class="form-input" type="email" />
+          </div>
+          <div class="form-group col-span-2">
+            <label>Owner Display Name</label>
+            <input [(ngModel)]="newOrg.ownerDisplayName" placeholder="Full name" class="form-input" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn primary" (click)="createWithOwner()" [disabled]="loading()">
+        {{ loading() ? 'Creating…' : 'Create Organization' }}
+      </button>
+      <button class="btn secondary" (click)="resetForm()">Reset</button>
+    </div>
+
+    <div class="alert" [ngClass]="notice() ? 'show' : ''" *ngIf="notice()">
+      <p>{{ notice() }}</p>
+    </div>
+  </div>
+
+  <!-- Search & Filters Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Search & Filters</h2>
+      <p class="subtitle">Find organizations by name, email, or ID</p>
+    </div>
+
+    <div class="filters-container">
+      <div class="search-box">
+        <input 
+          [ngModel]="search()" 
+          (ngModelChange)="search.set($event)" 
+          placeholder="Search name / email / id" 
+          class="form-input" />
+      </div>
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Type</label>
+          <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)" class="form-select">
+            <option value="all">All types</option>
+            <option value="health">Health</option>
+            <option value="IT">IT</option>
+            <option value="school">School</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Plan</label>
+          <select [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)" class="form-select">
+            <option value="all">All plans</option>
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="filter-group action">
+          <button class="btn secondary" (click)="applyFilters()">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Organizations Table Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Organizations <span class="badge">{{ filteredRows().length }}</span></h2>
+      <p class="subtitle">Page {{ page() }} • {{ pagedRows().length }} items</p>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Org Name</th>
+            <th>Org Type</th>
+            <th>Status</th>
+            <th>Users</th>
+            <th>Assigned Courses</th>
+            <th>Created At</th>
+            <th>Plan</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows()" class="table-row">
+            <td class="cell-name">
+              <strong>{{ row.organization.name }}</strong>
+              <div class="sub">{{ row.organization.id }}</div>
+            </td>
+            <td class="cell-type"><span class="tag" [ngClass]="row.organization.type">{{ row.organization.type }}</span></td>
+            <td>
+              <span class="status" [class.off]="row.organization.active === false">
+                {{ row.organization.active === false ? 'inactive' : 'active' }}
+              </span>
+            </td>
+            <td>{{ row.usersCount }}</td>
+            <td>{{ row.assignedCoursesCount }}</td>
+            <td>{{ row.organization.createdAt?.toDate ? (row.organization.createdAt.toDate() | date:'mediumDate') : '—' }}</td>
+            <td class="cell-plan"><span class="badge badge-plan" [ngClass]="row.organization.plan">{{ row.organization.plan }}</span></td>
+            <td class="cell-actions">
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id]">View Details</a>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'assign-courses']">Assign Courses</a>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'users']">Manage Users</a>
+              <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'progress']">Troubleshoot</a>
+              <button class="btn ghost sm" (click)="editOrganization(row.organization.id)">Edit</button>
+              <button class="btn danger sm" (click)="deleteOrganization(row.organization.id)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="!pagedRows().length" class="empty-row">
+            <td colspan="8" class="text-center">No organizations found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button class="btn secondary" (click)="prevPage()" [disabled]="page() <= 1">← Previous</button>
+      <span class="page-info">Page <strong>{{ page() }}</strong> / {{ totalPages() }}</span>
+      <button class="btn secondary" (click)="nextPage()" [disabled]="page() >= totalPages()">Next →</button>
+    </div>
+  </div>
+</section>

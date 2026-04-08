@@ -1,0 +1,181 @@
+<!-- src/app/features/learner/woundLabrary/wound-labrary-details/wound-labrary-details.component.html -->
+
+<!-- Loading State -->
+<div class="loader-wrapper" *ngIf="loading; else content">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<ng-template #content>
+  <!-- Main Content -->
+  <div class="wound-details" *ngIf="wound as w; else notfound">
+    <!-- Header Toolbar -->
+    <div class="header-toolbar">
+      <button mat-icon-button (click)="back()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <h1 class="title">{{ w.name }}</h1>
+        <div class="meta-tags" *ngIf="(w.tags && w.tags.length) || w.category">
+          <mat-chip-set aria-label="wound tags">
+            <mat-chip *ngFor="let t of (w.tags || [])" disabled class="tag-chip">
+              {{ t }}
+            </mat-chip>
+            <mat-chip *ngIf="w.category" disabled class="category-chip">
+              {{ w.category }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Section with Gallery -->
+    <mat-card class="hero-section">
+      <div class="gallery-container" *ngIf="w.images && w.images.length; else noimg">
+        <!-- Main Image -->
+        <div class="main-image-wrapper">
+          <img
+            class="main-image"
+            [src]="(w.images && w.images.length && selected >= 0 && selected < w.images.length) ? w.images[selected] : placeholder"
+            (error)="onImgError($event)"
+            alt="Wound image"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="thumbnails" *ngIf="w.images.length > 1">
+          <img
+            *ngFor="let u of w.images; let i = index"
+            [src]="u"
+            [class.active]="i === selected"
+            (click)="selectThumbnail(i)"
+            (error)="onImgError($event)"
+            alt="Wound thumbnail {{ i + 1 }}"
+            loading="lazy"
+            decoding="async"
+            class="thumbnail"
+          />
+        </div>
+      </div>
+
+      <ng-template #noimg>
+        <div class="no-images-placeholder">
+          <mat-icon>image_not_supported</mat-icon>
+          <p>No images available</p>
+        </div>
+      </ng-template>
+
+      <!-- Short Description -->
+      <div class="short-description" *ngIf="w.shortDescription">
+        <p>{{ w.shortDescription }}</p>
+      </div>
+    </mat-card>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column: Description & Characteristics -->
+      <mat-card class="content-card">
+        <mat-card-content>
+          <!-- Full Description Section -->
+          <section class="content-section">
+            <h2 class="section-title">Description</h2>
+            <p *ngIf="w.fullDescription; else nodesc" class="section-content">
+              {{ w.fullDescription }}
+            </p>
+            <ng-template #nodesc>
+              <p class="muted">No detailed description available.</p>
+            </ng-template>
+          </section>
+
+          <!-- Characteristics Section -->
+          <section class="content-section" *ngIf="w.characteristics?.length">
+            <h2 class="section-title">Characteristics</h2>
+            <ul class="feature-list">
+              <li *ngFor="let c of w.characteristics" class="feature-item">
+                <mat-icon>check_circle_outline</mat-icon>
+                <span>{{ c }}</span>
+              </li>
+            </ul>
+          </section>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Right Column: Treatment & Dressing -->
+      <mat-card class="content-card">
+        <mat-card-content>
+          <!-- Treatment Options Section -->
+          <section class="content-section">
+            <h2 class="section-title">Treatment Options</h2>
+            <div class="options-list" *ngIf="w.treatmentOptions?.length; else notreat">
+              <div *ngFor="let t of w.treatmentOptions" class="option-item">
+                <h3 class="option-title">{{ t.title }}</h3>
+                <p class="option-description">{{ t.description }}</p>
+              </div>
+            </div>
+            <ng-template #notreat>
+              <p class="muted">No treatment options listed.</p>
+            </ng-template>
+          </section>
+
+          <!-- Dressing Options Section -->
+          <section class="content-section">
+            <h2 class="section-title">Dressing Options</h2>
+            <div class="options-list" *ngIf="w.dressingOptions?.length; else nodress">
+              <div *ngFor="let d of w.dressingOptions" class="option-item">
+                <h3 class="option-title">{{ d.type }}</h3>
+                <p class="option-description">{{ d.description }}</p>
+              </div>
+            </div>
+            <ng-template #nodress>
+              <p class="muted">No dressing options listed.</p>
+            </ng-template>
+          </section>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Patient Education Section -->
+    <mat-card class="content-card full-width" *ngIf="w.patientEducation?.shortHandout">
+      <mat-card-header>
+        <mat-card-title>Patient Education</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ w.patientEducation?.shortHandout }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- References Section -->
+    <mat-card class="content-card full-width" *ngIf="w.references?.length">
+      <mat-card-header>
+        <mat-card-title>References</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="reference-list">
+          <li *ngFor="let r of (w.references || [])" class="reference-item">
+            <strong>{{ r.title }}</strong>
+            <span class="muted">({{ r.source }})</span>
+          </li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Not Found State -->
+  <ng-template #notfound>
+    <div class="error-state">
+      <mat-card class="error-card">
+        <mat-card-content>
+          <mat-icon class="error-icon">warning_amber</mat-icon>
+          <h2>Wound Type Not Found</h2>
+          <p>The wound type you're looking for could not be found.</p>
+          <button mat-raised-button color="primary" (click)="back()">
+            <mat-icon>arrow_back</mat-icon>
+            Go Back
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-template>
+</ng-template>
+  

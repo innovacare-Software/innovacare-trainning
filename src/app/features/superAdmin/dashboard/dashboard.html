@@ -1,0 +1,141 @@
+<section class="page">
+  <div class="page-head">
+    <h1>Super Admin Dashboard</h1>
+    <p>Manage platform-wide setup, organizations, users, billing, and audit controls.</p>
+  </div>
+
+  <!-- Key Metrics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().organizations }}</div>
+      <div class="stat-label">Total Organizations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().activeOrganizations }}</div>
+      <div class="stat-label">Active Organizations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().users }}</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().activeUsers }}</div>
+      <div class="stat-label">Active Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().billingActive }}</div>
+      <div class="stat-label">Billing Active</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().criticalLogs }}</div>
+      <div class="stat-label">Critical Alerts</div>
+    </div>
+  </div>
+
+  <div class="panel chart-panel">
+    <h2>Visible BI Charts</h2>
+    <div class="chart-list">
+      <div class="chart-row" *ngFor="let c of chartRows()">
+        <div class="chart-meta">
+          <span>{{ c.label }}</span>
+          <strong>{{ c.value }}%</strong>
+        </div>
+        <div class="chart-track">
+          <div class="chart-fill" [style.width.%]="c.value" [style.background]="c.color"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Quick Actions -->
+    <section class="card">
+      <h2>Quick Actions</h2>
+      <ul class="action-list">
+        <li><a href="/super-admin/Organizations" class="btn-primary">+ Create Organization</a></li>
+        <li><a href="/super-admin/courses" class="btn-secondary">Assign Courses</a></li>
+        <li><a href="/super-admin/billing" class="btn-secondary">Review Billing</a></li>
+        <li><a href="/super-admin/audit-logs" class="btn-secondary">View Audit Logs</a></li>
+      </ul>
+    </section>
+
+    <!-- System Health -->
+    <section class="card">
+      <h2>System Health</h2>
+      <div class="health-indicators">
+        <div *ngFor="let indicator of healthIndicators()" class="health-item">
+          <span class="indicator" [class.healthy]="indicator.status === 'healthy'"></span>
+          <span>{{ indicator.name }}: {{ indicator.status }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="card">
+      <h2>Platform Overview</h2>
+      <p>Monitor global platform health, tenant onboarding, and course distribution.</p>
+      <div class="activity-summary">
+        <p *ngFor="let activity of recentActivities()" class="activity-item">{{ activity }}</p>
+      </div>
+    </section>
+
+    <!-- Custom Cards -->
+    <div class="cards" *ngIf="cards && cards.length">
+      <article class="card" *ngFor="let c of cards">
+        <div class="label">{{ c.label }}</div>
+        <div class="value">{{ c.value }}</div>
+      </article>
+    </div>
+  </div>
+
+  <!-- System Overview Panel -->
+  <div class="panel">
+    <h2>System Overview</h2>
+    <div class="overview-content">
+      <div class="overview-section">
+        <h3>Global KPIs</h3>
+        <p>Key performance indicators and metrics tracking platform performance.</p>
+      </div>
+      <div class="overview-section">
+        <h3>Recent Alerts</h3>
+        <p>Critical events and system notifications requiring attention.</p>
+      </div>
+      <div class="overview-section">
+        <h3>Platform Status</h3>
+        <p>Real-time status of all platform components and services.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel architecture-panel">
+    <h2>Architecture Intelligence Maps</h2>
+    <div class="diagram-grid">
+      <article class="diagram-card">
+        <h3>Program Intelligence Model</h3>
+        <pre>
+[Program Catalog] -> [Org Assignment]
+        |                 |
+        v                 v
+[Adoption Signals] -> [Performance Lens]
+                           |
+                           v
+                  [Keep / Optimize / Retire]
+        </pre>
+      </article>
+
+      <article class="diagram-card">
+        <h3>Admin BI Model</h3>
+        <pre>
+[Alerts + Audit + Troubleshooting + Reports]
+                     |
+                     v
+              [BI Prioritization]
+                     |
+                     v
+        [Assign -> Remediate -> Verify]
+        </pre>
+      </article>
+    </div>
+  </div>
+</section>
+

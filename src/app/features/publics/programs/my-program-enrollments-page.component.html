@@ -1,0 +1,47 @@
+<section class="my-enrollments-shell">
+  <header class="head">
+    <p class="eyebrow">My Programs</p>
+    <h1>My Program Enrollments</h1>
+    <p>Track enrollment lifecycle, payment state, and jump back into your learning dashboards.</p>
+  </header>
+
+  <section *ngIf="hasData(); else emptyState" class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Program</th>
+          <th>Status</th>
+          <th>Review</th>
+          <th>Payment</th>
+          <th>Amount</th>
+          <th>Learning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of enrollments(); trackBy: trackById">
+          <td>
+            <strong>{{ item.programTitle }}</strong>
+            <p>{{ item.learnerEmail }}</p>
+          </td>
+          <td><span class="chip">{{ statusLabel[item.status] }}</span></td>
+          <td><span class="chip soft">{{ reviewLabel[item.reviewStatus] }}</span></td>
+          <td><span class="chip soft">{{ paymentLabel[item.paymentStatus] }}</span></td>
+          <td>{{ item.amount | currency: item.currency:'symbol':'1.0-0' }}</td>
+          <td>
+            <a [routerLink]="['/my-programs', item.programId]" class="btn-link">
+              Continue Learning
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty">
+      <h2>No enrollments yet</h2>
+      <p>Explore premium programs and submit your first enrollment request.</p>
+      <a routerLink="/programs" class="btn">Browse Programs</a>
+    </section>
+  </ng-template>
+</section>

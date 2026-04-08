@@ -1,0 +1,6 @@
+{
+  "IDX.agenticWorkspace": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": false
+}

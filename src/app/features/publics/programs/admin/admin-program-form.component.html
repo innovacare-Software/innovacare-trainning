@@ -1,0 +1,52 @@
+<section class="panel">
+  <header>
+    <h1>{{ mode() === 'edit' ? 'Edit Program' : 'Create Program' }}</h1>
+    <p>Structured product form for publication-ready program offers.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+    <h3>Basic Info</h3>
+    <div class="field"><label>Title</label><input formControlName="title" /></div>
+    <div class="field"><label>Slug</label><input formControlName="slug" /></div>
+    <div class="field full"><label>Subtitle</label><input formControlName="subtitle" /></div>
+    <div class="field full"><label>Description</label><textarea rows="4" formControlName="description"></textarea></div>
+
+    <h3>Pricing</h3>
+    <div class="field"><label>Price</label><input type="number" formControlName="price" /></div>
+    <div class="field"><label>Discount Price</label><input type="number" formControlName="discountPrice" /></div>
+    <div class="field"><label>Currency</label><input formControlName="currency" /></div>
+
+    <h3>Learning Structure</h3>
+    <div class="field"><label>Category</label><select formControlName="category"><option *ngFor="let c of categories" [value]="c">{{ c }}</option></select></div>
+    <div class="field"><label>Level</label><select formControlName="level"><option *ngFor="let l of levels" [value]="l">{{ l }}</option></select></div>
+    <div class="field"><label>Mode</label><select formControlName="deliveryMode"><option *ngFor="let m of modes" [value]="m">{{ m }}</option></select></div>
+    <div class="field full"><label>Tags (comma separated)</label><input formControlName="tags" /></div>
+    <div class="field full"><label>Requirements (comma separated)</label><input formControlName="requirements" /></div>
+    <div class="field full"><label>Outcomes (comma separated)</label><input formControlName="outcomes" /></div>
+    <div class="field full"><label>Linked Course IDs (comma separated)</label><input formControlName="linkedCourseIds" /></div>
+
+    <h3>Delivery / Schedule</h3>
+    <div class="field"><label>Duration Weeks</label><input type="number" formControlName="durationWeeks" /></div>
+    <div class="field"><label>Duration Text</label><input formControlName="durationText" /></div>
+    <div class="field full"><label>Schedule Text</label><input formControlName="scheduleText" /></div>
+
+    <h3>Media</h3>
+    <div class="field full"><label>Image URL</label><input formControlName="imageUrl" /></div>
+    <div class="field full"><label>Brochure URL</label><input formControlName="brochureUrl" /></div>
+
+    <h3>Publication Settings</h3>
+    <div class="field"><label>Status</label><select formControlName="status"><option *ngFor="let s of statuses" [value]="s">{{ s }}</option></select></div>
+    <div class="field"><label>Featured</label><select formControlName="isFeatured"><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select></div>
+    <div class="field"><label>Active</label><select formControlName="active"><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select></div>
+    <div class="field"><label>Seats</label><input type="number" formControlName="seats" /></div>
+    <div class="field"><label>Seats Remaining</label><input type="number" formControlName="seatsRemaining" /></div>
+
+    <div class="field"><label>Owner ID</label><input formControlName="ownerId" /></div>
+    <div class="field"><label>Org ID</label><input formControlName="orgId" /></div>
+
+    <div class="actions full">
+      <a routerLink="/program-admin/programs/list">Cancel</a>
+      <button type="submit">{{ mode() === 'edit' ? 'Update Program' : 'Create Program' }}</button>
+    </div>
+  </form>
+</section>

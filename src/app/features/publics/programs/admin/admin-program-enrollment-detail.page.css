@@ -1,0 +1,128 @@
+.panel {
+  border: 1px solid #d6e3f1;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 1rem;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.head h1 {
+  margin: 0;
+}
+
+.head a {
+  text-decoration: none;
+  border: 1px solid #c9dbef;
+  border-radius: 0.65rem;
+  padding: 0.4rem 0.6rem;
+  color: #24517c;
+}
+
+.grid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.card {
+  border: 1px solid #dce7f3;
+  border-radius: 0.8rem;
+  background: #f9fbff;
+  padding: 0.75rem;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #567598;
+}
+
+.card p {
+  margin: 0.45rem 0 0;
+  color: #1f4467;
+}
+
+.notes {
+  margin-top: 0.8rem;
+}
+
+.notes label {
+  display: block;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5c7898;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.notes textarea {
+  width: 100%;
+  border: 1px solid #c9dbee;
+  border-radius: 0.7rem;
+  padding: 0.65rem;
+}
+
+.actions {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.actions button,
+.payment select {
+  border: 1px solid #c9dbee;
+  border-radius: 0.65rem;
+  padding: 0.4rem 0.55rem;
+  background: #f8fbff;
+  color: #234f7b;
+}
+
+.payment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.4rem;
+}
+
+.payment label {
+  font-size: 0.78rem;
+  color: #5f7c9a;
+}
+
+.chip {
+  border-radius: 999px;
+  border: 1px solid #c9dbef;
+  background: #eaf3ff;
+  color: #25517d;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.74rem;
+}
+
+.not-found {
+  border: 1px dashed #c7d8ea;
+  border-radius: 0.8rem;
+  text-align: center;
+  padding: 1.2rem;
+}
+
+.not-found a {
+  text-decoration: none;
+  color: #24517d;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

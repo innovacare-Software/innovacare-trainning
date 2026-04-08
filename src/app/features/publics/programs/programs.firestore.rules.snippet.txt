@@ -1,0 +1,142 @@
+// Programs rules snippet (merge into firestore.rules under service cloud.firestore)
+
+function signedIn() {
+  return request.auth != null;
+}
+
+function isProgramAdmin() {
+  return signedIn()
+    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+    && (
+      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin'
+      || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramAdmin == true
+    );
+}
+
+function isProgramStaff() {
+  return signedIn()
+    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramStaff == true;
+}
+
+function canManagePrograms() {
+  return isProgramAdmin() || isProgramStaff();
+}
+
+function isProgramLearner() {
+  return signedIn()
+    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+    && (
+      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramLearner == true
+      || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['guest', 'learner']
+    );
+}
+
+match /programs/{programId} {
+  // Public read only for active and published programs
+  allow read: if (resource.data.active == true && resource.data.status == 'PUBLISHED')
+    || canManagePrograms();
+
+  // Admin and managers manage catalog lifecycle
+  allow create, update, delete: if canManagePrograms();
+
+  match /modules/{moduleId} {
+    allow read: if (get(/databases/$(database)/documents/programs/$(programId)).data.active == true
+      && get(/databases/$(database)/documents/programs/$(programId)).data.status == 'PUBLISHED')
+      || canManagePrograms();
+    allow create, update, delete: if canManagePrograms();
+  }
+
+  match /lessons/{lessonId} {
+    allow read: if (get(/databases/$(database)/documents/programs/$(programId)).data.active == true
+      && get(/databases/$(database)/documents/programs/$(programId)).data.status == 'PUBLISHED')
+      || canManagePrograms();
+    allow create, update, delete: if canManagePrograms();
+  }
+
+  match /simulations/{simulationId} {
+    allow read: if isProgramLearner() || canManagePrograms();
+    allow create, update, delete: if canManagePrograms();
+  }
+
+  match /caseStudies/{caseStudyId} {
+    allow read: if isProgramLearner() || canManagePrograms();
+    allow create, update, delete: if canManagePrograms();
+  }
+
+  match /assessments/{assessmentId} {
+    allow read: if isProgramLearner() || canManagePrograms();
+    allow create, update, delete: if canManagePrograms();
+  }
+}
+
+match /programEnrollments/{enrollmentId} {
+  // Enrollment creation only by authenticated owner
+  allow create: if signedIn()
+    && request.resource.data.userId == request.auth.uid
+    && request.resource.data.keys().hasOnly([
+      'programId',
+      'userId',
+      'programTitle',
+      'category',
+      'learnerName',
+      'learnerEmail',
+      'learnerPhone',
+      'notes',
+      'status',
+      'amount',
+      'currency',
+      'paymentStatus',
+      'reviewStatus',
+      'enrolledAt',
+      'activatedAt',
+      'completedAt',
+      'orgId',
+      'createdAt',
+      'updatedAt'
+    ])
+    && request.resource.data.programId is string
+    && request.resource.data.programTitle is string
+    && request.resource.data.learnerName is string
+    && request.resource.data.learnerEmail is string
+    && request.resource.data.learnerPhone is string
+    && request.resource.data.status == 'pending'
+    && request.resource.data.paymentStatus == 'unpaid'
+    && request.resource.data.reviewStatus == 'pending_review';
+
+  // Owner or admin can read
+  allow read: if canManagePrograms()
+    || (signedIn() && resource.data.userId == request.auth.uid);
+
+  // Admin-only lifecycle updates with strict status values
+  allow update: if canManagePrograms()
+    && request.resource.data.status in ['pending', 'approved', 'active', 'completed', 'cancelled', 'rejected']
+    && request.resource.data.paymentStatus in ['unpaid', 'pending', 'paid', 'refunded']
+    && request.resource.data.reviewStatus in ['pending_review', 'approved', 'denied'];
+
+  allow delete: if canManagePrograms();
+}
+
+match /users/{uid}/programProgress/{programId} {
+  allow read: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow create, update: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow delete: if canManagePrograms();
+}
+
+match /users/{uid}/moduleProgress/{moduleId} {
+  allow read: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow create, update: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow delete: if canManagePrograms();
+}
+
+match /users/{uid}/simulationAttempts/{attemptId} {
+  allow read: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow create, update: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow delete: if canManagePrograms();
+}
+
+match /users/{uid}/assessmentAttempts/{attemptId} {
+  allow read: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow create, update: if canManagePrograms() || (signedIn() && request.auth.uid == uid);
+  allow delete: if canManagePrograms();
+}

@@ -1,0 +1,194 @@
+<section class="program-dashboard-shell" *ngIf="vm() as data">
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-left">
+      <p class="eyebrow">Exam Readiness Intelligence Center</p>
+      <h1>{{ data.enrollment?.programTitle || 'Program Dashboard' }}</h1>
+      <p class="hero-desc">{{ enrollmentMessage() }}</p>
+    </div>
+    <div class="hero-right">
+      <div class="status-chip">{{ enrollmentStatusText() }}</div>
+      <div class="readiness-ring">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="url(#readGrad)" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="327"
+            [attr.stroke-dashoffset]="327 - (327 * data.stats.readinessScore / 100)"
+            transform="rotate(-90 60 60)"/>
+          <defs><linearGradient id="readGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0f766e"/>
+          </linearGradient></defs>
+          <text x="60" y="56" text-anchor="middle" class="ring-value">{{ data.stats.readinessScore }}%</text>
+          <text x="60" y="72" text-anchor="middle" class="ring-label">Readiness</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- EXECUTIVE SUMMARY ROW -->
+  <section class="stats-grid">
+    <article class="stat-card accent-progress">
+      <span class="stat-icon">📊</span>
+      <div>
+        <span>Overall Progress</span>
+        <strong>{{ data.stats.overallProgressPct }}%</strong>
+        <div class="mini-bar"><div class="mini-fill" [style.width.%]="data.stats.overallProgressPct"></div></div>
+      </div>
+    </article>
+    <article class="stat-card accent-readiness">
+      <span class="stat-icon">🎯</span>
+      <div>
+        <span>Readiness Score</span>
+        <strong>{{ data.stats.readinessScore }}%</strong>
+        <div class="mini-bar"><div class="mini-fill readiness" [style.width.%]="data.stats.readinessScore"></div></div>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">📈</span>
+      <div><span>Average Score</span><strong>{{ data.stats.averageScore }}%</strong></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">📚</span>
+      <div><span>Modules Completed</span><strong>{{ data.stats.modulesCompleted }}</strong></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">🧪</span>
+      <div><span>Simulations</span><strong>{{ data.stats.simulationsCompleted }}</strong></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">🔬</span>
+      <div><span>Case Studies</span><strong>{{ data.stats.caseStudiesCompleted }}</strong></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">⏱️</span>
+      <div><span>Study Time</span><strong>{{ data.stats.totalStudyMinutes }} min</strong></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">🔥</span>
+      <div><span>Streak</span><strong>{{ data.stats.currentStreak }} days</strong></div>
+    </article>
+  </section>
+
+  <!-- INSIGHTS ROW -->
+  <section class="insights-row">
+    <article class="insight-card strength">
+      <div class="insight-icon">💪</div>
+      <h4>Strongest Area</h4>
+      <p>{{ data.stats.strongestArea }}</p>
+    </article>
+    <article class="insight-card weakness">
+      <div class="insight-icon">⚠️</div>
+      <h4>Weakest Area</h4>
+      <p>{{ data.stats.weakestArea }}</p>
+    </article>
+    <article class="insight-card next">
+      <div class="insight-icon">➡️</div>
+      <h4>Recommended Next</h4>
+      <p>{{ data.stats.recommendedNextModule }}</p>
+    </article>
+    <article class="insight-card action">
+      <div class="insight-icon">💡</div>
+      <h4>Next Action</h4>
+      <p>{{ data.stats.recommendedNextAction }}</p>
+    </article>
+  </section>
+
+  <!-- MAIN ANALYTICS ROW -->
+  <section class="chart-grid">
+    <article class="panel chart-panel">
+      <h3>Module Completion</h3>
+      <div class="bars" *ngIf="moduleBars().length > 0; else noModules">
+        <div class="bar-row" *ngFor="let row of moduleBars()">
+          <span class="bar-label">{{ row.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="row.value"
+              [class.bar-low]="row.value < 40"
+              [class.bar-mid]="row.value >= 40 && row.value < 75"
+              [class.bar-high]="row.value >= 75"></div>
+          </div>
+          <b class="bar-pct">{{ row.value }}%</b>
+        </div>
+      </div>
+      <ng-template #noModules>
+        <div class="empty-chart">
+          <span>📊</span>
+          <p>No module progress available yet. Complete your first lesson to see analytics.</p>
+        </div>
+      </ng-template>
+    </article>
+
+    <article class="panel chart-panel">
+      <h3>Assessment Score Trend</h3>
+      <svg viewBox="-5 -5 110 110" preserveAspectRatio="none" class="line-chart">
+        <defs>
+          <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0f766e" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#0f766e" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <polygon [attr.points]="'0,100 ' + scorePolyline(scoreTrend()) + ' 100,100'" fill="url(#aGrad)"/>
+        <polyline [attr.points]="scorePolyline(scoreTrend())" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="0" y1="25" x2="100" y2="25" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+        <line x1="0" y1="50" x2="100" y2="50" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+        <line x1="0" y1="75" x2="100" y2="75" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+      </svg>
+      <p class="chart-caption">Readiness evolution across quizzes and mock exams.</p>
+    </article>
+
+    <article class="panel chart-panel">
+      <h3>Simulation Performance</h3>
+      <svg viewBox="-5 -5 110 110" preserveAspectRatio="none" class="line-chart">
+        <defs>
+          <linearGradient id="sGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0369a1" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#0369a1" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <polygon [attr.points]="'0,100 ' + scorePolyline(simulationTrend()) + ' 100,100'" fill="url(#sGrad)"/>
+        <polyline [attr.points]="scorePolyline(simulationTrend())" fill="none" stroke="#0369a1" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="0" y1="25" x2="100" y2="25" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+        <line x1="0" y1="50" x2="100" y2="50" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+        <line x1="0" y1="75" x2="100" y2="75" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+      </svg>
+      <p class="chart-caption">Performance across computerized and timed simulations.</p>
+    </article>
+
+    <article class="panel chart-panel breakdown-panel">
+      <h3>Performance Breakdown</h3>
+      <div class="breakdown-grid">
+        <div class="breakdown-item">
+          <span>Avg Simulation Score</span>
+          <div class="breakdown-bar-track"><div class="breakdown-bar-fill sim" [style.width.%]="data.stats.averageSimulationScore"></div></div>
+          <strong>{{ data.stats.averageSimulationScore }}%</strong>
+        </div>
+        <div class="breakdown-item">
+          <span>Case Study Rate</span>
+          <div class="breakdown-bar-track"><div class="breakdown-bar-fill case" [style.width.%]="data.stats.caseStudyCompletionRate"></div></div>
+          <strong>{{ data.stats.caseStudyCompletionRate }}%</strong>
+        </div>
+      </div>
+
+      <div class="domain-summary">
+        <div class="domain-row">
+          <span class="domain-label weak">Weakest</span>
+          <span class="domain-value">{{ data.stats.weakestArea }}</span>
+        </div>
+        <div class="domain-row">
+          <span class="domain-label strong">Strongest</span>
+          <span class="domain-value">{{ data.stats.strongestArea }}</span>
+        </div>
+      </div>
+
+      <div class="next-action">
+        <h4>🎯 Recommended Next Action</h4>
+        <p>{{ data.stats.recommendedNextAction }}</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ACTIONS -->
+  <section class="actions">
+    <a routerLink="/my-programs" class="btn ghost">← Back to My Programs</a>
+    <a routerLink="/programs" class="btn primary">Explore More Programs</a>
+  </section>
+</section>

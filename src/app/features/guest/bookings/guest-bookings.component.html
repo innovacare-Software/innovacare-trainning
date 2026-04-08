@@ -1,0 +1,22 @@
+<section class="page-head">
+  <h1>Bookings</h1>
+  <p class="muted">Your reserved live classes appear here.</p>
+</section>
+
+<section *ngIf="rows().length; else emptyState" class="stack">
+  <article class="card row-item" *ngFor="let row of rows()">
+    <div>
+      <h3>{{ row.liveClass?.title || row.booking.liveClassId }}</h3>
+      <div class="muted">Status: {{ row.booking.status }}</div>
+      <div class="muted">Instructor: {{ row.liveClass?.instructorName || 'TBA' }}</div>
+      <div class="muted">Timezone: {{ row.liveClass?.timezone || 'Local' }}</div>
+    </div>
+  </article>
+</section>
+
+<ng-template #emptyState>
+  <section class="card empty">
+    <h3>No bookings yet</h3>
+    <p class="muted">Booked live classes will appear here.</p>
+  </section>
+</ng-template>

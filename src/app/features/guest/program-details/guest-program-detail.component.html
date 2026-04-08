@@ -1,0 +1,58 @@
+<section class="hero" *ngIf="program() as p">
+  <h1>{{ p.title }}</h1>
+  <p class="muted" *ngIf="p.subtitle">{{ p.subtitle }}</p>
+  <p>{{ p.description }}</p>
+</section>
+
+<section class="grid">
+  <article class="card">
+    <h3>Program Progress</h3>
+    <p>{{ access()?.progressPct || 0 }}%</p>
+  </article>
+
+  <article class="card">
+    <h3>Included Courses</h3>
+    <p>{{ includedCourses().length }}</p>
+  </article>
+
+  <article class="card">
+    <h3>Live Classes</h3>
+    <p>{{ liveClasses().length }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <h3>Course Roadmap</h3>
+
+  <div *ngIf="includedCourses().length; else noCourses" class="stack">
+    <div class="row-item" *ngFor="let c of includedCourses()">
+      <div>
+        <strong>{{ c?.title || c?.id }}</strong>
+        <div class="muted">{{ c?.subtitle || c?.description || '' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noCourses>
+    <p class="muted">No included courses configured.</p>
+  </ng-template>
+</section>
+
+<section class="card">
+  <h3>Related Live Classes</h3>
+
+  <div *ngIf="liveClasses().length; else noClasses" class="stack">
+    <div class="row-item" *ngFor="let cls of liveClasses()">
+      <div>
+        <strong>{{ cls.title }}</strong>
+        <div class="muted">{{ cls.instructorName || 'Instructor TBA' }}</div>
+      </div>
+
+      <a class="btn outline" [routerLink]="['/guest/live-classes']">View all</a>
+    </div>
+  </div>
+
+  <ng-template #noClasses>
+    <p class="muted">No live classes available yet.</p>
+  </ng-template>
+</section>

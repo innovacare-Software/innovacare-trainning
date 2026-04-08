@@ -1,0 +1,302 @@
+<div class="page">
+  <header class="course-header">
+    <div class="crumbs container">
+      <button class="btn primary" routerLink="/learner/assignments" title="Retour aux cours">
+        <span class="icon">←</span> Retour
+      </button>
+    </div>
+
+    <div class="hero with-overlay premium">
+      <img
+        [src]="course().imageUrl || '/assets/placeholder-hero.jpg'"
+        [alt]="course().title || 'Course image'"
+        class="hero-img"
+      />
+      <div class="hero-overlay premium-gradient">
+        <div class="hero-content">
+          <h1 class="hero-title premium-title">{{ course().title || 'Course' }}</h1>
+          <p class="hero-subtitle" *ngIf="course().subtitle">{{ course().subtitle }}</p>
+
+          <div class="hero-meta premium-meta">
+            <span *ngIf="course().code" class="chip code premium-chip">
+              <span class="chip-icon">📋</span> {{ course().code }}
+            </span>
+            <span *ngIf="course().durationMin" class="chip premium-chip">
+              <span class="chip-icon">⏱️</span> {{ course().durationMin }} min
+            </span>
+            <span *ngIf="course().ceCredit" class="chip premium-chip">
+              <span class="chip-icon">✓</span> {{ course().ceCredit }} CE
+            </span>
+            <span *ngIf="course().kind" class="chip pill premium-pill">{{ course().kind }}</span>
+            <span *ngIf="course().type" class="chip pill alt premium-pill">{{ course().type }}</span>
+            <span *ngIf="course().healthMeta?.healthCareType" class="chip pill alt2 premium-pill">
+              {{ course().healthMeta?.healthCareType }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-meta container only-mobile">
+      <h1 class="course-title">{{ course().title || 'Course' }}</h1>
+
+      <div class="meta-row">
+        <span *ngIf="course().code" class="muted code">{{ course().code }}</span>
+        <span class="dot" *ngIf="course().code && course().durationMin"></span>
+        <span class="muted" *ngIf="course().durationMin">{{ course().durationMin }} min</span>
+        <span class="dot" *ngIf="course().ceCredit"></span>
+        <span class="muted" *ngIf="course().ceCredit">{{ course().ceCredit }} CE</span>
+        <span class="dot" *ngIf="course().kind"></span>
+        <span class="kind-pill" *ngIf="course().kind">{{ course().kind }}</span>
+      </div>
+    </div>
+  </header>
+
+  <hr class="section-sep" />
+
+  <section class="container intro">
+    <p class="description">{{ course().description }}</p>
+  </section>
+
+  <main class="grid container">
+    <div class="col-left">
+      <!-- Overview -->
+      <section class="card block lift">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">📘</span> Overview
+          </div>
+        </div>
+
+        <p class="muted">{{ course().subtitle || course().description || 'No description.' }}</p>
+
+        <div class="stats-grid">
+          <div class="stat-tile">
+            <div class="stat-value">{{ totalSections() }}</div>
+            <div class="stat-label">Sections</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">{{ totalLessons() }}</div>
+            <div class="stat-label">Lessons</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">{{ totalBlocks() }}</div>
+            <div class="stat-label">Content blocks</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">{{ course().passingScore || 80 }}%</div>
+            <div class="stat-label">Passing score</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button
+            *ngIf="!enrollment(); else enrolledBtns"
+            class="btn primary"
+            (click)="assignToMe(courseId!)"
+            [disabled]="busy"
+          >
+            {{ busy ? 'Assigning…' : 'Assign to me' }}
+          </button>
+
+          <ng-template #enrolledBtns>
+            <button class="btn primary" (click)="startCourse()" [disabled]="isOverdueNow()">
+              {{ enrollment()?.status === 'started' ? 'Resume course' : 'Start course' }}
+            </button>
+
+            <a
+              *ngIf="isExternalCourseUrl(course().url)"
+              class="btn soft"
+              (click)="startCourse()">
+              Open provider
+            </a>
+          </ng-template>
+        </div>
+
+        <p *ngIf="isOverdueNow()" class="note warning">
+          This course is overdue. Please contact support to extend your deadline.
+        </p>
+        <p *ngIf="notice" class="note info">{{ notice }}</p>
+      </section>
+
+      <!-- Learning Details -->
+      <section class="card block lift">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">🧭</span> Learning details
+          </div>
+        </div>
+
+        <div class="meta two-col">
+          <div><strong>Lecturer:</strong> {{ course().lecturer || '—' }}</div>
+          <div><strong>Language:</strong> {{ course().lang || '—' }}</div>
+          <div><strong>Course type:</strong> {{ course().type || '—' }}</div>
+          <div><strong>Kind:</strong> {{ course().kind || '—' }}</div>
+          <div><strong>Duration:</strong> {{ course().durationMin || 0 }} min</div>
+          <div><strong>CE credit:</strong> {{ course().ceCredit || '—' }}</div>
+          <div><strong>Passing score:</strong> {{ course().passingScore || 80 }}%</div>
+          <div><strong>Locked sequence:</strong> {{ course().lockedSequence ? 'Yes' : 'No' }}</div>
+          <div><strong>Public course:</strong> {{ course().isPublic ? 'Yes' : 'No' }}</div>
+          <div><strong>Active:</strong> {{ course().active ? 'Yes' : 'No' }}</div>
+        </div>
+      </section>
+
+      <!-- Audience / Requirements -->
+      <section class="card block lift" *ngIf="hasAudienceData()">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">👥</span> Audience & requirements
+          </div>
+        </div>
+
+        <div class="detail-group" *ngIf="course().targetAudience?.length">
+          <div class="detail-label">Target audience</div>
+          <div class="tag-wrap">
+            <span class="tag" *ngFor="let t of course().targetAudience">{{ t }}</span>
+          </div>
+        </div>
+
+        <div class="detail-group" *ngIf="course().prerequisites?.length">
+          <div class="detail-label">Prerequisites</div>
+          <ul class="clean-list">
+            <li *ngFor="let p of course().prerequisites">{{ p }}</li>
+          </ul>
+        </div>
+
+        <div class="detail-group" *ngIf="course().requirements?.length">
+          <div class="detail-label">Requirements</div>
+          <ul class="clean-list">
+            <li *ngFor="let r of course().requirements">{{ r }}</li>
+          </ul>
+        </div>
+
+        <div class="detail-group" *ngIf="course().accomodations">
+          <div class="detail-label">Accommodations</div>
+          <p class="muted">{{ course().accomodations }}</p>
+        </div>
+      </section>
+
+      <!-- Exams -->
+      <section class="card block lift">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">📝</span> Exams
+            <span class="muted">({{ exams().length }})</span>
+          </div>
+        </div>
+
+        <div *ngIf="!exams().length" class="empty">No exam configured.</div>
+
+        <div class="table" *ngIf="exams().length">
+          <div class="thead">
+            <div>Title</div><div>Questions</div><div>Status</div><div></div>
+          </div>
+          <div class="tbody">
+            <div class="tr" *ngFor="let e of exams()">
+              <div class="title-cell">
+                <div class="row-title">{{ e.title }}</div>
+                <div class="row-sub muted">Pass ≥ {{ e.passPct || course().passingScore || 80 }}%</div>
+              </div>
+              <div>{{ e.questions }}</div>
+              <div>
+                <span class="badge" [class.badge-off]="!e.available">
+                  {{ e.available ? 'Available' : 'Locked' }}
+                </span>
+              </div>
+              <div>
+                <a class="btn link"
+                   [class.disabled]="!e.available"
+                   [routerLink]="['/learner/courses', courseId, 'exam', e.id]">
+                  Take exam →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="col-right">
+      <!-- Certifications -->
+      <section class="card block lift">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">🎓</span> Certifications
+            <span class="muted">({{ certs().length }})</span>
+          </div>
+        </div>
+
+        <div *ngIf="!certs().length" class="empty">No certifications listed.</div>
+
+        <div class="cert-list" *ngIf="certs().length">
+          <div class="cert-row" *ngFor="let c of certs()">
+            <div class="name">
+              <div class="title">{{ c.code }}</div>
+              <div class="sub">{{ c.name }}</div>
+            </div>
+            <div class="credit">{{ c.credit }}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compliance / Publication -->
+      <section class="card block lift" *ngIf="hasPublicationData()">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">🛡️</span> Compliance & publication
+          </div>
+        </div>
+
+        <div class="meta">
+          <div><strong>Release date:</strong> {{ formatDate(course().releaseAt) }}</div>
+          <div><strong>Published date:</strong> {{ formatDate(course().publishedAt) }}</div>
+          <div><strong>Expiration date:</strong> {{ formatDate(course().exipirationDate) }}</div>
+          <div><strong>Confirmed at:</strong> {{ formatDate(course().confirmAt) }}</div>
+          <div><strong>Confirmed by:</strong> {{ course().confirmBy || '—' }}</div>
+          <div *ngIf="course().confirmMessage">
+            <strong>Confirmation message:</strong>
+            <div class="muted">{{ course().confirmMessage }}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Disclosures -->
+      <section class="card block lift" *ngIf="course().disclosures?.length">
+        <div class="block-head">
+          <div class="block-title">
+            <span class="dot-emoji">📄</span> Disclosures
+          </div>
+        </div>
+
+        <ul class="clean-list">
+          <li *ngFor="let d of course().disclosures">{{ d }}</li>
+        </ul>
+      </section>
+
+      <!-- Meta -->
+      <section class="card block lift">
+        <div class="block-head">
+          <div class="block-title"><span class="dot-emoji">ℹ️</span> Details</div>
+        </div>
+
+        <div class="meta">
+          <div><strong>Language:</strong> {{ course().lang || '—' }}</div>
+          <div><strong>Active:</strong> {{ course().active ? 'Yes' : 'No' }}</div>
+          <div><strong>Provider URL:</strong> {{ course().url || 'Local player' }}</div>
+          <div><strong>Organization type:</strong> {{ course().orgType || '—' }}</div>
+          <div><strong>Org ID:</strong> {{ course().orgId || '—' }}</div>
+          <div *ngIf="course().healthMeta?.healthCareType">
+            <strong>Healthcare type:</strong> {{ course().healthMeta?.healthCareType }}
+          </div>
+
+          <div *ngIf="course().tags?.length">
+            <strong>Tags:</strong>
+            <div class="tag-wrap">
+              <span class="tag" *ngFor="let t of course().tags">{{ t }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+</div>

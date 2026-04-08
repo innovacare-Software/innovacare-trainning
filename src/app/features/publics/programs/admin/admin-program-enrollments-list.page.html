@@ -1,0 +1,57 @@
+<section class="panel">
+  <header class="head">
+    <h1>Program Enrollments</h1>
+  </header>
+
+  <div class="filters">
+    <input [formControl]="searchControl" placeholder="Search learner, email, program" />
+    <select [formControl]="categoryControl">
+      <option value="ALL">All categories</option>
+      <option *ngFor="let c of categories" [value]="c">{{ categoryLabel[c] }}</option>
+    </select>
+    <select [formControl]="statusControl">
+      <option value="ALL">All statuses</option>
+      <option *ngFor="let s of statuses" [value]="s">{{ enrollmentStatusLabel[s] }}</option>
+    </select>
+    <select [formControl]="paymentControl">
+      <option value="ALL">All payments</option>
+      <option *ngFor="let p of payments" [value]="p">{{ paymentLabel[p] }}</option>
+    </select>
+  </div>
+
+  <div class="table-wrap" *ngIf="rows().length; else emptyState">
+    <table>
+      <thead>
+        <tr>
+          <th>Learner</th>
+          <th>Program</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows(); trackBy: trackById">
+          <td>
+            <strong>{{ row.learnerName }}</strong>
+            <p>{{ row.learnerEmail }}</p>
+          </td>
+          <td>{{ row.programTitle }}</td>
+          <td>{{ categoryLabel[row.category] }}</td>
+          <td>{{ row.amount | currency: row.currency:'symbol':'1.0-0' }}</td>
+          <td><span class="chip">{{ paymentLabel[row.paymentStatus] }}</span></td>
+          <td><span class="chip soft">{{ enrollmentStatusLabel[row.status] }}</span></td>
+          <td>{{ formatCreatedAt(row.createdAt) ? (formatCreatedAt(row.createdAt) | date:'medium') : '-' }}</td>
+          <td><a [routerLink]="['/program-admin/enrollments', row.id]">Open</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #emptyState>
+    <section class="empty">No enrollments found.</section>
+  </ng-template>
+</section>

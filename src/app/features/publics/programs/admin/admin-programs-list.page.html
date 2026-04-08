@@ -1,0 +1,61 @@
+<section class="panel">
+  <header class="head">
+    <h1>Programs List</h1>
+    <a routerLink="/program-admin/programs/new" class="btn">Create Program</a>
+  </header>
+
+  <div class="filters">
+    <input [formControl]="searchControl" placeholder="Search program" />
+    <select [formControl]="categoryControl">
+      <option value="ALL">All categories</option>
+      <option *ngFor="let c of categories" [value]="c">{{ categoryLabels[c] }}</option>
+    </select>
+  </div>
+
+  <div class="table-wrap" *ngIf="rows().length; else emptyState">
+    <table>
+      <thead>
+        <tr>
+          <th>Program</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Mode</th>
+          <th>Featured</th>
+          <th>Active</th>
+          <th>Status</th>
+          <th>Seats Left</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows(); trackBy: trackById">
+          <td>
+            <div class="program-cell">
+              <img [src]="row.imageUrl" [alt]="row.title" />
+              <div>
+                <strong>{{ row.title }}</strong>
+                <p>{{ row.subtitle }}</p>
+              </div>
+            </div>
+          </td>
+          <td>{{ categoryLabels[row.category] }}</td>
+          <td>{{ (row.discountPrice ?? row.price) | currency: row.currency:'symbol':'1.0-0' }}</td>
+          <td>{{ row.deliveryMode }}</td>
+          <td>{{ row.isFeatured ? 'Yes' : 'No' }}</td>
+          <td>{{ row.active ? 'Yes' : 'No' }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.seatsRemaining ?? '-' }}</td>
+          <td class="actions">
+            <a [routerLink]="['/program-admin/programs', row.id, 'edit']">Edit</a>
+            <button type="button" (click)="publish(row.id)">Publish</button>
+            <button type="button" class="warn" (click)="archive(row.id)">Archive</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #emptyState>
+    <section class="empty">No programs found.</section>
+  </ng-template>
+</section>

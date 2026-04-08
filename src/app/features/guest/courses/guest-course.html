@@ -1,0 +1,128 @@
+<section class="page-head">
+  <div class="head-content">
+    <div>
+      <h1>My Courses</h1>
+      <p class="muted">Courses you purchased or received through a program.</p>
+    </div>
+  </div>
+</section>
+
+<ng-container *ngIf="rows() as courseRows">
+  <section *ngIf="courseRows.length" class="kpi-section">
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-icon">📚</span>
+        <span class="kpi-label">Total Courses</span>
+      </div>
+      <div class="kpi-value">{{ courseRows.length }}</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-icon">✅</span>
+        <span class="kpi-label">Completed</span>
+      </div>
+      <div class="kpi-value">{{ getCompletedCount() }}</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-icon">⏳</span>
+        <span class="kpi-label">In Progress</span>
+      </div>
+      <div class="kpi-value">{{ getInProgressCount() }}</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-icon">📊</span>
+        <span class="kpi-label">Avg. Progress</span>
+      </div>
+      <div class="kpi-value">{{ getAverageProgress() }}%</div>
+    </div>
+  </section>
+
+  <!-- Filter & Sort Controls -->
+  <section *ngIf="courseRows.length" class="controls-section">
+    <div class="controls">
+      <input 
+        type="text" 
+        placeholder="Search courses..." 
+        class="search-input"
+        (input)="onSearch($event)"
+      />
+      <select class="filter-select" (change)="onFilterChange($event)">
+        <option value="">All Courses</option>
+        <option value="completed">Completed</option>
+        <option value="in-progress">In Progress</option>
+        <option value="not-started">Not Started</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Courses Grid -->
+  <section *ngIf="courseRows.length; else emptyState" class="course-grid">
+    <article *ngFor="let row of courseRows" class="course-card">
+      <div class="card-badge" [ngClass]="getProgressStatus(row.enrollment.progressPct || 0)">
+        {{ getProgressBadgeText(row.enrollment.progressPct || 0) }}
+      </div>
+
+      <div class="thumb" *ngIf="row.course?.imageUrl; else noThumb">
+        <img [src]="row.course?.imageUrl" [alt]="row.course?.title || 'Course image'" />
+      </div>
+
+      <ng-template #noThumb>
+        <div class="thumb placeholder">{{ row.course?.title?.charAt(0) || 'C' }}</div>
+      </ng-template>
+
+      <div class="body">
+        <h3>{{ row.course?.title || row.enrollment.courseId }}</h3>
+
+        <p class="muted" *ngIf="row.course?.subtitle">{{ row.course?.subtitle }}</p>
+        <p class="desc" *ngIf="row.course?.description">{{ row.course?.description | slice:0:100 }}{{ (row.course?.description?.length || 0) > 100 ? '...' : '' }}</p>
+
+        <div class="meta muted">
+          <span *ngIf="row.course?.lang" class="meta-item">🌐 {{ row.course?.lang }}</span>
+          <span *ngIf="row.course?.durationMin" class="meta-item">⏱️ {{ row.course?.durationMin }} min</span>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progress</span>
+            <span class="progress-value">{{ row.enrollment.progressPct || 0 }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="row.enrollment.progressPct || 0"></div>
+          </div>
+        </div>
+
+        <div class="course-stats">
+          <div class="stat">
+            <span class="stat-label">Status</span>
+            <span class="stat-value" [ngClass]="getProgressStatus(row.enrollment.progressPct || 0)">
+              {{ getProgressStatusText(row.enrollment.progressPct || 0) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" type="button" (click)="openCourse(row)">
+            {{ (row.enrollment.progressPct || 0) > 0 ? 'Resume Course' : 'Start Course' }}
+          </button>
+          <button class="btn secondary" type="button" (click)="viewDetails(row)">
+            Details
+          </button>
+        </div>
+      </div>
+    </article>
+  </section>
+</ng-container>
+
+<ng-template #emptyState>
+  <section class="card empty">
+    <div class="empty-icon">📚</div>
+    <h3>No courses yet</h3>
+    <p class="muted">Your purchased guest courses will appear here.</p>
+    <button class="btn primary" type="button" (click)="browseCourses()">Browse Courses</button>
+  </section>
+</ng-template>

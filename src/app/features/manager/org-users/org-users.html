@@ -1,0 +1,94 @@
+<section class="org-users-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Administration Organisation</p>
+      <h1>Utilisateurs de mon organisation</h1>
+      <p class="sub">Ajoutez et consultez uniquement les comptes rattachés à votre organisation.</p>
+    </div>
+    <span class="org-chip" *ngIf="orgId() as oid">Org ID: {{ oid }}</span>
+  </header>
+
+  <div class="layout">
+    <article class="card form-card">
+      <h2>Ajouter un utilisateur</h2>
+      <p class="sub">Création type register: email + mot de passe initial, puis email de changement du mot de passe.</p>
+      <form [formGroup]="form" (ngSubmit)="addUserToOrganization()" class="form-grid">
+        <label>
+          Email
+          <input formControlName="email" type="email" placeholder="user@org.com" />
+        </label>
+
+        <label>
+          Mot de passe initial
+          <input formControlName="initialPassword" type="password" placeholder="Minimum 8 caractères" />
+        </label>
+
+        <label>
+          Nom affiché
+          <input formControlName="displayName" placeholder="Nom complet" />
+        </label>
+
+        <label>
+          Téléphone
+          <input formControlName="phone" type="tel" placeholder="+1 514 000 0000" />
+        </label>
+
+        <label>
+          Département
+          <input formControlName="department" placeholder="Nursing / RH / IT..." />
+        </label>
+
+        <label>
+          Poste
+          <input formControlName="title" placeholder="Infirmière, Manager, Coordonnateur..." />
+        </label>
+
+        <label>
+          Rôle
+          <select formControlName="role">
+            <option value="learner">Learner</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+            <option value="guest">Guest</option>
+          </select>
+        </label>
+
+        <label>
+          Statut
+          <select formControlName="status">
+            <option value="active">Actif</option>
+          </select>
+        </label>
+
+        <button class="btn" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Ajout en cours...' : 'Ajouter à mon organisation' }}
+        </button>
+      </form>
+
+      <p class="notice" *ngIf="notice()">{{ notice() }}</p>
+    </article>
+
+    <article class="card list-card">
+      <h2>Utilisateurs de l'organisation</h2>
+
+      <div class="rows" *ngIf="users().length; else emptyTpl">
+        <div class="row" *ngFor="let u of users()">
+          <div>
+            <strong>{{ u.displayName || 'Sans nom' }}</strong>
+            <p>{{ u.email || 'email inconnu' }}</p>
+          </div>
+          <div class="meta">
+            <span>{{ u.role || 'n/a' }}</span>
+            <span [class.ok]="u.active !== false" [class.off]="u.active === false">
+              {{ u.active === false ? 'Inactif' : 'Actif' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #emptyTpl>
+        <p class="empty">Aucun utilisateur trouvé dans votre organisation.</p>
+      </ng-template>
+    </article>
+  </div>
+</section>
