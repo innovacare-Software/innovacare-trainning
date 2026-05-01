@@ -27,6 +27,17 @@ export class CourseCatalogService {
   private readonly firestore = inject(Firestore);
   private readonly auth = inject(Auth);
 
+  private loadActiveCourses(): Observable<Course[]> {
+    const coursesRef = collection(this.firestore, 'courses');
+    return from(getDocs(coursesRef)).pipe(
+      map((coursesSnap) =>
+        coursesSnap.docs
+          .map((d) => ({ id: d.id, ...(d.data() as object) }) as Course)
+          .filter((course) => course.active === true)
+      )
+    );
+  }
+
   private loadCoursesForOffers(offers: Array<{ id: string; courseId?: string; title?: string; description?: string; imageUrl?: string }>): Observable<Course[]> {
     const courseIdToOffer = new Map<string, { id: string; title?: string; description?: string; imageUrl?: string }>();
     for (const offer of offers) {
@@ -67,6 +78,32 @@ export class CourseCatalogService {
     );
   }
 
+  private loadVisibleCourses(
+    offers: Array<{ id: string; courseId?: string; title?: string; description?: string; imageUrl?: string }>
+  ): Observable<Course[]> {
+    return combineLatest([this.loadCoursesForOffers(offers), this.loadActiveCourses()]).pipe(
+      map(([offeredCourses, activeCourses]) => {
+        const merged = new Map<string, Course>();
+
+        for (const course of activeCourses) {
+          if (!course.id) {
+            continue;
+          }
+          merged.set(String(course.id), course);
+        }
+
+        for (const course of offeredCourses) {
+          if (!course.id) {
+            continue;
+          }
+          merged.set(String(course.id), course);
+        }
+
+        return Array.from(merged.values());
+      })
+    );
+  }
+
   getPublicActiveCourses(): Observable<Course[]> {
     const offersRef = collection(this.firestore, 'publicOffers');
     const globalOffersQ = query(
@@ -83,7 +120,7 @@ export class CourseCatalogService {
         if (!user?.uid) {
           return global$.pipe(
             map((snap) => snap.docs.map((d) => ({ id: d.id, ...(d.data() as object) } as any))),
-            switchMap((offers) => this.loadCoursesForOffers(offers))
+            switchMap((offers) => this.loadVisibleCourses(offers))
           );
         }
 
@@ -94,7 +131,7 @@ export class CourseCatalogService {
             if (!orgId) {
               return global$.pipe(
                 map((snap) => snap.docs.map((d) => ({ id: d.id, ...(d.data() as object) } as any))),
-                switchMap((offers) => this.loadCoursesForOffers(offers))
+                switchMap((offers) => this.loadVisibleCourses(offers))
               );
             }
 
@@ -116,7 +153,7 @@ export class CourseCatalogService {
                 }
                 return Array.from(merged.values()) as Array<{ id: string; courseId?: string; title?: string; description?: string; imageUrl?: string }>;
               }),
-              switchMap((offers) => this.loadCoursesForOffers(offers))
+              switchMap((offers) => this.loadVisibleCourses(offers))
             );
           })
         );

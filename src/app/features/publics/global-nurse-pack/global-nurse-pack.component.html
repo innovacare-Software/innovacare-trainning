@@ -1,0 +1,341 @@
+<main class="global-pack-page">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom border-light-subtle sticky-top" style="backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.95) !important;">
+    <div class="container">
+      <span class="navbar-brand fw-bold text-primary" style="font-size: 1.3rem;">{{ content.nav.brand | localizedField }}</span>
+      <div class="ms-auto">
+        <a [routerLink]="localizedPath('/contact')" class="btn btn-sm btn-outline-primary">{{ content.nav.cta | localizedField }}</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="global-pack-hero bg-white py-5 py-lg-7 position-relative overflow-hidden">
+    <div class="position-absolute top-0 end-0 w-50 h-100 opacity-5" style="background: radial-gradient(circle, var(--bs-primary) 0%, transparent 70%); pointer-events: none;"></div>
+    <div class="container py-lg-3 position-relative">
+      <div class="row g-4 align-items-center py-lg-4">
+        <div class="col-12 col-lg-6">
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill border border-primary border-opacity-25 small fw-semibold mb-4" style="background-color: rgba(13, 110, 253, 0.05);">
+            <span class="badge text-bg-primary rounded-pill">{{ content.hero.badge | localizedField }}</span>
+            <span class="text-primary">{{ content.hero.trusted | localizedField }}</span>
+          </div>
+
+          <h1 class="display-3 fw-bold lh-sm mb-4 text-dark">
+            {{ content.hero.title | localizedField }}
+            <span class="d-block text-primary" style="font-size: 0.6em; font-weight: 600;">{{ content.hero.accent | localizedField }}</span>
+          </h1>
+
+          <p class="fs-5 text-secondary mb-4 lh-lg">
+            {{ content.hero.lead | localizedField }}
+          </p>
+
+          <div class="row row-cols-2 row-cols-md-4 gap-3 mb-5">
+            @for (highlight of content.hero.highlights; track $index) {
+              <div class="col">
+                <div class="d-flex align-items-center gap-2">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-primary"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                  <span class="small fw-semibold text-dark">{{ highlight | localizedField }}</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
+            <button
+              type="button"
+              class="btn btn-primary btn-lg px-5 fw-semibold shadow-sm"
+              (click)="startCheckout()"
+              [disabled]="checkoutPending()">
+              {{ checkoutPending() ? (content.pricing.primaryLoading | localizedField) : (content.hero.primaryCta | localizedField) }}
+            </button>
+            <a href="#pricing" class="btn btn-outline-primary btn-lg px-5">{{ content.hero.secondaryCta | localizedField }}</a>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="alert alert-warning shadow-sm border-0" role="alert">
+              <strong>{{ content.hero.errorLabel | localizedField }}</strong> {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="row row-cols-1 row-cols-sm-3 g-4 pt-4 border-top border-light">
+            @for (stat of content.hero.stats; track stat.value) {
+              <div class="col">
+                <div class="h-100">
+                  <div class="h2 fw-bold text-primary mb-2">{{ stat.value }}</div>
+                  <div class="small text-uppercase text-secondary fw-semibold mb-1">{{ stat.label | localizedField }}</div>
+                  <div class="small text-secondary">{{ stat.body | localizedField }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="card border-0 shadow-lg rounded-5 overflow-hidden global-pack-hero__feature-image">
+                <img [src]="heroImages[0]" class="w-100 object-fit-cover" [alt]="content.imageAlt.hero | localizedField" />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 global-pack-hero__thumb">
+                <img [src]="heroImages[1]" class="w-100 h-100 object-fit-cover" [alt]="content.imageAlt.documents | localizedField" />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 global-pack-hero__thumb">
+                <img [src]="heroImages[2]" class="w-100 h-100 object-fit-cover" [alt]="content.imageAlt.roadmap | localizedField" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-white">
+    <div class="container">
+      <div class="row g-4 align-items-start">
+        <div class="col-12 col-lg-5">
+          <span class="badge rounded-pill text-bg-primary mb-3">{{ content.problem.badge | localizedField }}</span>
+          <h2 class="display-6 fw-bold mb-3">{{ content.problem.title | localizedField }}</h2>
+          <p class="text-secondary fs-5 mb-0">
+            {{ content.problem.body | localizedField }}
+          </p>
+        </div>
+        <div class="col-12 col-lg-7">
+          <div class="row row-cols-1 row-cols-md-2 g-3">
+            @for (pain of painPoints; track pain) {
+              <div class="col">
+                <div class="card h-100 border-0 shadow-sm rounded-4 bg-body-tertiary">
+                  <div class="card-body p-4">
+                    <div class="small text-uppercase text-primary fw-semibold mb-2">{{ content.problem.itemLabel | localizedField }}</div>
+                    <p class="mb-0 text-dark-emphasis">{{ pain | localizedField }}</p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-body-tertiary border-top border-bottom border-light-subtle">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow rounded-5 overflow-hidden">
+            <img [src]="heroImages[3]" class="w-100 object-fit-cover" [alt]="content.imageAlt.premium | localizedField" />
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <span class="badge rounded-pill text-bg-info mb-3">{{ content.solution.badge | localizedField }}</span>
+          <h2 class="display-6 fw-bold mb-3">{{ content.solution.title | localizedField }}</h2>
+          <p class="text-secondary fs-5">
+            {{ content.solution.body | localizedField }}
+          </p>
+          <div class="vstack gap-3 mt-4">
+            @for (pillar of solutionPillars; track pillar) {
+              <div class="d-flex align-items-start gap-3 rounded-4 bg-white shadow-sm border p-3">
+                <span class="badge text-bg-primary rounded-pill mt-1">{{ content.solution.yes | localizedField }}</span>
+                <div class="text-dark-emphasis fw-medium">{{ pillar | localizedField }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-white">
+    <div class="container">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+        <div>
+          <span class="badge rounded-pill text-bg-primary mb-3">{{ content.included.badge | localizedField }}</span>
+          <h2 class="display-6 fw-bold mb-2">{{ content.included.title | localizedField }}</h2>
+          <p class="text-secondary fs-5 mb-0">{{ content.included.body | localizedField }}</p>
+        </div>
+        <div class="text-secondary fw-semibold">{{ content.included.meta | localizedField }}</div>
+      </div>
+
+      <div class="row row-cols-1 row-cols-lg-2 g-4">
+        @for (module of modules; track module.title) {
+          <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-5">
+              <div class="card-body p-4 p-lg-5">
+                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                  <h3 class="h4 mb-0">{{ module.title | localizedField }}</h3>
+                  <span class="badge rounded-pill text-bg-light border text-primary">{{ content.included.includedBadge | localizedField }}</span>
+                </div>
+                <ul class="list-group list-group-flush">
+                  @for (point of module.points; track point) {
+                    <li class="list-group-item px-0 py-3 bg-transparent d-flex gap-3 align-items-start">
+                      <span class="badge text-bg-primary rounded-pill mt-1">+</span>
+                      <span class="text-dark-emphasis">{{ point | localizedField }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-body-tertiary">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-lg-4">
+          <span class="badge rounded-pill text-bg-primary mb-3">{{ content.proof.badge | localizedField }}</span>
+          <h2 class="display-6 fw-bold mb-3">{{ content.proof.title | localizedField }}</h2>
+          <p class="text-secondary fs-5 mb-4">
+            {{ content.proof.body | localizedField }}
+          </p>
+          <div class="row row-cols-2 g-3">
+            <div class="col">
+              <div class="rounded-4 bg-white border shadow-sm p-3 h-100">
+                <div class="small text-uppercase text-secondary fw-semibold mb-1">{{ content.proof.nursesGuided | localizedField }}</div>
+                <div class="h3 mb-0">300+</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="rounded-4 bg-white border shadow-sm p-3 h-100">
+                <div class="small text-uppercase text-secondary fw-semibold mb-1">{{ content.proof.marketsCovered | localizedField }}</div>
+                <div class="h3 mb-0">USA · CA · UAE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-8">
+          <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+            @for (testimonial of testimonials; track testimonial.author) {
+              <div class="col">
+                <div class="card h-100 border-0 shadow-sm rounded-4 bg-white">
+                  <div class="card-body p-4">
+                    <p class="text-dark-emphasis mb-4">“{{ testimonial.quote | localizedField }}”</p>
+                    <div class="fw-semibold">{{ testimonial.author }}</div>
+                    <div class="text-secondary small">{{ testimonial.role | localizedField }}</div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="global-pack-pricing py-5 bg-white border-top border-light-subtle border-bottom border-light-subtle">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow rounded-5 overflow-hidden">
+            <img [src]="heroImages[4]" class="w-100 object-fit-cover" [alt]="content.imageAlt.pricing | localizedField" />
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <span class="badge rounded-pill text-bg-primary mb-3">{{ content.pricing.badge | localizedField }}</span>
+          <div class="card border-0 shadow-lg rounded-5 bg-primary bg-gradient text-white">
+            <div class="card-body p-4 p-lg-5">
+              <div class="small text-uppercase fw-semibold text-white-50 mb-2">{{ content.pricing.offerLabel | localizedField }}</div>
+              <h2 class="display-5 fw-bold mb-2">{{ content.pricing.title | localizedField }}</h2>
+              <p class="text-white-50 fs-5 mb-4">
+                {{ content.pricing.body | localizedField }}
+              </p>
+
+              <div class="display-4 fw-bold mb-3">$99</div>
+
+              <ul class="list-group list-group-flush mb-4">
+                @for (bullet of content.pricing.bullets; track $index) {
+                  <li class="list-group-item bg-transparent text-white px-0 border-white border-opacity-25">{{ bullet | localizedField }}</li>
+                }
+              </ul>
+
+              <div class="d-grid gap-3 d-sm-flex">
+                <button
+                  type="button"
+                  class="btn btn-light btn-lg px-4 fw-semibold"
+                  (click)="startCheckout()"
+                  [disabled]="checkoutPending()">
+                  {{ checkoutPending() ? (content.pricing.primaryLoading | localizedField) : (content.pricing.primaryCta | localizedField) }}
+                </button>
+                <a [routerLink]="localizedPath('/register')" [queryParams]="{ returnUrl: localizedPath('/global-nurse-pack') }" class="btn btn-outline-light btn-lg px-4">
+                  {{ content.pricing.secondaryCta | localizedField }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-body-tertiary">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <div class="col-12 col-lg-7">
+          <span class="badge rounded-pill text-bg-primary mb-3">{{ content.guarantee.badge | localizedField }}</span>
+          <h2 class="display-6 fw-bold mb-3">{{ content.guarantee.title | localizedField }}</h2>
+          <p class="text-secondary fs-5 mb-0">
+            {{ content.guarantee.body | localizedField }}
+          </p>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="row row-cols-2 g-3">
+            <div class="col">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <img [src]="heroImages[5]" class="w-100 h-100 object-fit-cover" [alt]="content.imageAlt.customer | localizedField" />
+              </div>
+            </div>
+            <div class="col">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <img [src]="heroImages[6]" class="w-100 h-100 object-fit-cover" [alt]="content.imageAlt.relocation | localizedField" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="global-pack-cta py-5 bg-primary bg-gradient text-white">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <div class="col-12 col-lg-7">
+          <span class="badge rounded-pill text-bg-light text-primary mb-3">{{ content.finalCta.badge | localizedField }}</span>
+          <h2 class="display-5 fw-bold mb-3">{{ content.finalCta.title | localizedField }}</h2>
+          <p class="lead text-white-50 mb-4">
+            {{ content.finalCta.body | localizedField }}
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            @for (cta of ctaVariations; track cta) {
+              <span class="badge rounded-pill text-bg-light text-primary fs-6 px-3 py-2">{{ cta | localizedField }}</span>
+            }
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+            <img [src]="heroImages[7]" class="w-100 object-fit-cover" [alt]="content.imageAlt.finalCta | localizedField" />
+            <div class="card-body p-4 bg-white text-dark">
+              <div class="small text-uppercase text-primary fw-semibold mb-2">{{ content.finalCta.cardEyebrow | localizedField }}</div>
+              <h3 class="h2 mb-2">{{ content.finalCta.cardTitle | localizedField }}</h3>
+              <p class="text-secondary mb-4">
+                {{ content.finalCta.cardBody | localizedField }}
+              </p>
+              <div class="d-grid gap-2">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-lg"
+                  (click)="startCheckout()"
+                  [disabled]="checkoutPending()">
+                  {{ checkoutPending() ? (content.pricing.primaryLoading | localizedField) : (content.finalCta.primaryCta | localizedField) }}
+                </button>
+                <a [routerLink]="localizedPath('/contact')" class="btn btn-outline-secondary btn-lg">{{ content.finalCta.secondaryCta | localizedField }}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

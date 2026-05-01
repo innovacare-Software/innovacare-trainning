@@ -1,6 +1,14 @@
 export type OrgType = 'health' | 'IT' | 'school';
 export type PlanType = 'free' | 'pro' | 'enterprise';
-export type UserRole = 'super_admin' | 'admin' | 'manager' | 'learner' | 'guest';
+export type UserRole =
+  | 'super_admin'
+  | 'admin'
+  | 'manager'
+  | 'learner'
+  | 'guest'
+  | 'programAdmin'
+  | 'programStaff'
+  | 'programLearner';
 
 export interface SuperAdminOrganization {
   id?: string;
@@ -72,6 +80,24 @@ export interface SuperAdminDashboardStats {
   activeUsers: number;
   billingActive: number;
   criticalLogs: number;
+}
+
+export interface SuperAdminRegistration {
+  id?: string;
+  uid: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  country?: string;
+  learnerType?: string;
+  examGoal?: string;
+  organizationName?: string;
+  referralSource?: string;
+  goals?: string;
+  status?: 'new' | 'reviewed' | 'contacted' | 'converted' | 'archived' | string;
+  source?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface OrganizationAssignedCourse {

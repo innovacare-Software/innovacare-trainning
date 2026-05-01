@@ -1,0 +1,17 @@
+<section class="main" [class.unanswered]="!submitted()" [class.is-paused]="paused()">
+  <app-quiz-question-pane
+    [question]="question()"
+    [selectedAnswer]="selectedAnswer()"
+    [submitted]="submitted()"
+    [optionPercentages]="optionPercentages()"
+    [peerRightPct]="peerRightPct()"
+    [questionTime]="questionTime()"
+    [canSubmit]="canSubmit()"
+    (answerSelected)="answerSelected.emit($event)"
+    (answerSubmitted)="answerSubmitted.emit()"
+  />
+
+  @if (submitted()) {
+    <app-quiz-explanation-pane [question]="question()" />
+  }
+</section>

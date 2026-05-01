@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
+import { GlobalSearchTriggerComponent } from '../../../shared/global-search/global-search-trigger.component';
+import { OnboardingTriggerComponent } from '../../../shared/onboarding/onboarding-trigger.component';
 
 @Component({
   selector: 'app-shell',
@@ -12,6 +14,8 @@ import { LanguageSwitcherComponent } from '../../../shared/components/language-s
     RouterModule,
     TranslocoModule,
     LanguageSwitcherComponent,
+    GlobalSearchTriggerComponent,
+    OnboardingTriggerComponent,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
@@ -28,6 +32,7 @@ export class Shell {
   { labelKey: 'nav.woundReport', path: '/super-admin/wound-report' },
   { labelKey: 'nav.setup', path: '/super-admin/setup' },
   { labelKey: 'nav.users', path: '/super-admin/users' },
+  { labelKey: 'Tutor Bookings', path: '/super-admin/tutor-bookings' },
   { labelKey: 'nav.billing', path: '/super-admin/billing' },
   { labelKey: 'nav.logs', path: '/super-admin/logs' },
   { labelKey: 'nav.settings', path: '/super-admin/settings' },

@@ -1,0 +1,136 @@
+<main class="sl-page">
+  <section class="sl-hero sl-hero-parallax" appHeroParallax [parallaxClamp]="44">
+    <div class="sl-hero__overlay"></div>
+    <div class="sl-orb sl-orb--one" data-parallax-depth="-0.16"></div>
+    <div class="sl-orb sl-orb--two" data-parallax-depth="-0.08"></div>
+
+    <div class="sl-container sl-hero__grid">
+      <div class="sl-hero__copy" data-parallax-depth="0.06">
+        <span class="sl-kicker">Social Learning</span>
+        <h1>Join Innovacare Review communities that keep learners active between sessions</h1>
+        <p>
+          Explore Innovacare Review communities for NCLEX, FNP, TEAS 7, and medical review.
+          Each destination is designed to keep learners connected, accountable, and moving back into active study.
+        </p>
+
+        <div class="sl-hero__actions">
+          <a href="#nclex" class="sl-btn sl-btn--primary">Explore NCLEX communities</a>
+          <a routerLink="/home" fragment="quiz" class="sl-btn sl-btn--secondary">Start your study path</a>
+        </div>
+
+        <div class="sl-stats">
+          @for (item of heroStats; track item.label) {
+            <article class="sl-stat">
+              <strong>{{ item.value }}</strong>
+              <span>{{ item.label }}</span>
+            </article>
+          }
+        </div>
+      </div>
+
+      <aside class="sl-hero__panel" data-parallax-depth="0.14">
+        <span class="sl-panel__eyebrow">What this page does</span>
+        <h2>One public Innovacare Review destination for community-led engagement</h2>
+        <p>
+          Use this page for referrals, ambassador sharing, affiliate traffic, and community discovery.
+          It gives each Innovacare Review study track a clear public destination instead of burying social learning inside the home page.
+        </p>
+        <ul class="sl-panel__list">
+          <li>Segmented by NCLEX, FNP, TEAS 7, and Medical</li>
+          <li>Direct outbound links to active public channels</li>
+          <li>Built as a standalone marketing route with SEO</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="sl-jumpbar">
+    <div class="sl-container sl-jumpbar__inner">
+      @for (track of tracks; track track.id) {
+        <a [href]="'#' + track.id" class="sl-jumpbar__link">{{ track.label }}</a>
+      }
+    </div>
+  </section>
+
+  <section class="sl-section sl-section--benefits">
+    <div class="sl-container">
+      <div class="sl-section__head">
+        <span class="sl-kicker">Why it works</span>
+        <h2>Social learning turns isolated study into visible progress</h2>
+      </div>
+
+      <div class="sl-benefits">
+        @for (benefit of benefits; track benefit.title) {
+          <article class="sl-benefit-card">
+            <h3>{{ benefit.title }}</h3>
+            <p>{{ benefit.body }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  @for (track of tracks; track track.id) {
+    <section class="sl-section sl-track" [attr.id]="track.id">
+      <div class="sl-container">
+        <div class="sl-section__head sl-section__head--row">
+          <div>
+            <span class="sl-kicker">{{ track.label }}</span>
+            <h2>{{ track.title }}</h2>
+            <p>{{ track.intro }}</p>
+          </div>
+          <aside class="sl-track__note">
+            <strong>Who it is for</strong>
+            <span>{{ track.sample }}</span>
+          </aside>
+        </div>
+
+        <div class="sl-channel-grid">
+          @for (channel of track.channels; track channel.platform + channel.handle) {
+            <article class="sl-channel-card" [class.sl-channel-card--teal]="channel.accent === 'teal'" [class.sl-channel-card--gold]="channel.accent === 'gold'" [class.sl-channel-card--navy]="channel.accent === 'navy'">
+              <div class="sl-channel-card__top">
+                <span class="sl-pill">{{ channel.platform }}</span>
+                <strong>{{ channel.handle }}</strong>
+              </div>
+
+              <p>{{ channel.audience }}</p>
+
+              <div class="sl-channel-card__stats">
+                <div>
+                  <small>Followers</small>
+                  <strong>{{ channel.followers }}</strong>
+                </div>
+                <div>
+                  <small>Posts</small>
+                  <strong>{{ channel.posts }}</strong>
+                </div>
+              </div>
+
+              @if (channel.href.startsWith('/')) {
+                <a [routerLink]="channel.href" class="sl-inline-link">Explore now</a>
+              } @else {
+                <a [href]="channel.href" target="_blank" rel="noreferrer" class="sl-inline-link">Explore now</a>
+              }
+            </article>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <section class="sl-section sl-cta">
+    <div class="sl-container sl-cta__inner">
+      <div>
+        <span class="sl-kicker">Next step</span>
+        <h2>Send learners from community discovery into the right Innovacare Review path</h2>
+        <p>
+          Pair this public page with the quiz, course catalogue, and tutoring offers to turn Innovacare Review community traffic into active study journeys.
+        </p>
+      </div>
+      <div class="sl-cta__actions">
+        <a routerLink="/home" fragment="quiz" class="sl-btn sl-btn--primary">Take the quiz</a>
+        <a routerLink="/courses" class="sl-btn sl-btn--secondary">Browse programs</a>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,31 @@
+@use '../../quiz.scss' as quiz;
+
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.quiz-page {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--ink);
+}
+
+.quiz-screen {
+  min-height: 100vh;
+}
+
+.state-card {
+  max-width: 720px;
+  margin: 80px auto;
+  padding: 32px;
+  border-radius: 8px;
+  background: var(--paper);
+  box-shadow: var(--shadow-md);
+  color: var(--ink-2);
+}
+
+.state-card--error {
+  color: var(--incorrect);
+}

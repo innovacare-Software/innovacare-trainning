@@ -5,7 +5,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 import { ProgramLiveSessionsAdminService } from '../services/program-live-sessions-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
-import { ContentStatus, LiveSessionType, ProgramContentModule } from '../models/content-builder.models';
+import {
+  ContentStatus,
+  LiveSessionType,
+  ProgramContentModule,
+  ProgramLiveSessionAccessMode,
+} from '../models/content-builder.models';
 
 @Component({
   selector: 'app-live-session-form-page',
@@ -66,8 +71,30 @@ import { ContentStatus, LiveSessionType, ProgramContentModule } from '../models/
             <input type="text" formControlName="instructorName" placeholder="Instructor name" />
           </div>
           <div class="field">
+            <label>Access Mode</label>
+            <select formControlName="accessMode">
+              <option [value]="accessModeEnum.INCLUDED">Included in program</option>
+              <option [value]="accessModeEnum.FREE">Free ($0)</option>
+              <option [value]="accessModeEnum.PAID">Paid reservation</option>
+            </select>
+          </div>
+          <div class="field">
             <label>Capacity</label>
             <input type="number" formControlName="capacity" min="0" />
+          </div>
+          <div class="field" *ngIf="isPaidAccessMode()">
+            <label>Price *</label>
+            <input type="number" formControlName="price" min="0" step="0.01" />
+          </div>
+          <div class="field" *ngIf="isPaidAccessMode()">
+            <label>Currency</label>
+            <select formControlName="currency">
+              <option value="USD">USD</option>
+              <option value="CAD">CAD</option>
+              <option value="AED">AED</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </select>
           </div>
           <div class="field">
             <label>Status</label>
@@ -80,6 +107,9 @@ import { ContentStatus, LiveSessionType, ProgramContentModule } from '../models/
           <div class="field checkboxes">
             <label class="checkbox-label">
               <input type="checkbox" formControlName="required" /> Required
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="bookingRequired" /> Reservation required
             </label>
             <label class="checkbox-label">
               <input type="checkbox" formControlName="active" /> Active
@@ -132,6 +162,7 @@ export class LiveSessionFormPage implements OnInit {
   saving = false;
   error = '';
   modules: ProgramContentModule[] = [];
+  readonly accessModeEnum = ProgramLiveSessionAccessMode;
 
   readonly form = this.fb.group({
     moduleId: [''],
@@ -143,6 +174,10 @@ export class LiveSessionFormPage implements OnInit {
     timezone: ['UTC'],
     meetingUrl: [''],
     instructorName: [''],
+    accessMode: [ProgramLiveSessionAccessMode.INCLUDED, Validators.required],
+    bookingRequired: [true],
+    price: [0],
+    currency: ['USD'],
     required: [false],
     capacity: [0],
     active: [true],
@@ -150,7 +185,7 @@ export class LiveSessionFormPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.programId = this.route.snapshot.params['programId'];
+    this.programId = this.getRequiredProgramId();
     this.sessionId = this.route.snapshot.params['sessionId'] ?? null;
     this.isEditMode = !!this.sessionId;
 
@@ -180,6 +215,10 @@ export class LiveSessionFormPage implements OnInit {
           timezone: s.timezone,
           meetingUrl: s.meetingUrl,
           instructorName: s.instructorName,
+          accessMode: s.accessMode ?? ProgramLiveSessionAccessMode.INCLUDED,
+          bookingRequired: s.bookingRequired ?? true,
+          price: s.price ?? 0,
+          currency: s.currency ?? 'USD',
           required: s.required,
           capacity: s.capacity,
           active: s.active,
@@ -195,6 +234,7 @@ export class LiveSessionFormPage implements OnInit {
     this.error = '';
     try {
       const raw = this.form.getRawValue();
+      const isPaid = raw.accessMode === ProgramLiveSessionAccessMode.PAID;
       const payload = {
         programId: this.programId,
         moduleId: raw.moduleId ?? '',
@@ -206,6 +246,10 @@ export class LiveSessionFormPage implements OnInit {
         timezone: raw.timezone ?? 'UTC',
         meetingUrl: raw.meetingUrl ?? '',
         instructorName: raw.instructorName ?? '',
+        accessMode: raw.accessMode as ProgramLiveSessionAccessMode,
+        bookingRequired: raw.bookingRequired ?? true,
+        price: isPaid ? Number(raw.price ?? 0) : 0,
+        currency: (raw.currency ?? 'USD') as 'USD' | 'CAD' | 'AED' | 'EUR' | 'GBP',
         required: raw.required ?? false,
         capacity: raw.capacity ?? 0,
         active: raw.active ?? true,
@@ -222,5 +266,21 @@ export class LiveSessionFormPage implements OnInit {
     } finally {
       this.saving = false;
     }
+  }
+
+  private getRequiredProgramId(): string {
+    const programId = this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim());
+
+    if (!programId) {
+      throw new Error('Missing programId in route. Open this page from a specific program.');
+    }
+
+    return programId;
+  }
+
+  isPaidAccessMode(): boolean {
+    return this.form.controls.accessMode.value === ProgramLiveSessionAccessMode.PAID;
   }
 }

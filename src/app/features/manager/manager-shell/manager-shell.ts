@@ -8,11 +8,13 @@ import { NotificationBell } from '../../../shared/components/notifications/notif
 import { NotificationBellPlainComponent } from '../../../shared/components/notifications/notification-bell-plain/notification-bell-plain';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
 import { AuthService } from '../../../core/auth';
+import { GlobalSearchTriggerComponent } from '../../../shared/global-search/global-search-trigger.component';
+import { OnboardingTriggerComponent } from '../../../shared/onboarding/onboarding-trigger.component';
 
 @Component({
   selector: 'app-manager-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslocoModule, NotificationBellPlainComponent, LanguageSwitcherComponent],
+  imports: [CommonModule, RouterModule, TranslocoModule, NotificationBellPlainComponent, LanguageSwitcherComponent, GlobalSearchTriggerComponent, OnboardingTriggerComponent],
   templateUrl: './manager-shell.html',
   styleUrl: './manager-shell.css'
 })

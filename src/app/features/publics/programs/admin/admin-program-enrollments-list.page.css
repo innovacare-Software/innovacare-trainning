@@ -57,6 +57,29 @@ td p {
   font-size: 0.84rem;
 }
 
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.inline-action {
+  border: 1px solid #c9dbee;
+  border-radius: 0.55rem;
+  background: #f8fbff;
+  color: #224f7d;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inline-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .chip {
   border-radius: 999px;
   border: 1px solid #c9dbef;

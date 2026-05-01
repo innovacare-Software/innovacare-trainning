@@ -426,8 +426,10 @@ export class CataloguePage  {
     this.startTestimonialsAutoplay();
   }
   login(): void {
-    // Redirige vers la page de connexion
-    window.location.href = '/login';
+    const returnUrl = encodeURIComponent(
+      `${window.location.pathname}${window.location.search}${window.location.hash}`
+    );
+    window.location.href = `/register?returnUrl=${returnUrl}`;
   }
   private readonly courseService = inject(CourseCatalogService);
   private readonly snackBar = inject(MatSnackBar);
@@ -651,7 +653,14 @@ export class CataloguePage  {
         duration: 4000,
       });
       await this.router.navigate(['/cart']);
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message === 'AUTH_REQUIRED') {
+        await this.router.navigate(['/register'], {
+          queryParams: { returnUrl: this.router.url },
+        });
+        return;
+      }
+
       console.error('Erreur addToCart', error);
       this.snackBar.open(
         'Impossible d’ajouter ce cours au panier.',

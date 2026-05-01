@@ -7,10 +7,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function signedIn() {
-      return isSignedIn();
-    }
-
     function isOwner(uid) {
       return isSignedIn() && request.auth.uid == uid;
     }
@@ -33,10 +29,6 @@ service cloud.firestore {
       return isSignedIn() && requesterOrgId() != null && requesterOrgId() == orgId;
     }
 
-    function sameOrg(orgId) {
-      return sameRequesterOrg(orgId);
-    }
-
     function isOrgMember(orgId) {
       return isSignedIn()
         && hasUser(request.auth.uid)
@@ -52,10 +44,6 @@ service cloud.firestore {
 
     function isOrgManager(orgId) {
       return isOrgMember(orgId) && userRole(request.auth.uid) in ["manager", "org_manager"];
-    }
-
-    function isOrgLearner(orgId) {
-      return isOrgMember(orgId) && userRole(request.auth.uid) in ["learner", "guest", "org_learner"];
     }
 
     // Read role from users/{uid}
@@ -104,21 +92,11 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/organizations/$(orgId)/courses/$(courseId));
     }
 
-    function isProgramsAdmin() {
-      return isSignedIn()
-        && hasUser(request.auth.uid)
-        && (
-          userRole(request.auth.uid) == "super_admin"
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramAdmin == true
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramStaff == true
-        );
-    }
-
     function isProgramAdmin() {
       return isSignedIn()
         && hasUser(request.auth.uid)
         && (
-          userRole(request.auth.uid) == "super_admin"
+          userRole(request.auth.uid) in ["super_admin", "admin", "manager", "org_admin", "org_manager"]
           || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramAdmin == true
         );
     }
@@ -132,6 +110,42 @@ service cloud.firestore {
     function canManagePrograms() {
       return isProgramAdmin() || isProgramStaff();
     }
+
+      function canManageProgramOrg(orgId) {
+        return isSuperAdmin()
+          || (
+            canManagePrograms()
+            && orgId is string
+            && orgId.size() > 0
+            && sameRequesterOrg(orgId)
+          );
+      }
+
+      function programDocOrgId(programId) {
+        return exists(/databases/$(database)/documents/programs/$(programId))
+          ? get(/databases/$(database)/documents/programs/$(programId)).data.orgId
+          : null;
+      }
+
+      function canManageProgramById(programId) {
+        return programId is string
+          && programId.size() > 0
+          && canManageProgramOrg(programDocOrgId(programId));
+      }
+
+      function canReadManagedUserPrivateData(uid, orgId) {
+        return isSuperAdmin()
+          || (
+            isSignedIn()
+            && hasUser(request.auth.uid)
+            && hasUser(uid)
+            && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
+            && (
+              (orgId is string && orgId.size() > 0 && sameRequesterOrg(orgId))
+              || get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
+            )
+          );
+      }
 
     function isProgramLearner() {
       return isSignedIn()
@@ -293,26 +307,6 @@ service cloud.firestore {
         && ((!('updatedAt' in d)) || d.updatedAt is timestamp);
     }
 
-    function hasAdminClaim() {
-      return isSignedIn() && (
-        (request.auth.token.admin == true) ||
-        (request.auth.token.role == 'admin')
-      );
-    }
-
-    function hasManagerClaim() {
-      return isSignedIn() && (
-        (request.auth.token.manager == true) ||
-        (request.auth.token.role == 'manager')
-      );
-    }
-
-    function isManager() {
-      return isSignedIn() && (
-        userRole(request.auth.uid) in ['manager', 'org_manager'] || hasManagerClaim()
-      );
-    }
-
     // ---------- Admin allow-list doc ----------
     match /admins/{uid} {
       allow read, write: if false; // managed server-side/console only
@@ -346,7 +340,11 @@ service cloud.firestore {
           isSignedIn()
           && request.auth.uid == uid
           && request.resource.data.role == "guest"
-          && (!('orgId' in request.resource.data) || request.resource.data.orgId == null)
+          && (
+            !('orgId' in request.resource.data)
+            || request.resource.data.orgId == null
+            || request.resource.data.orgId == "Waxxi8M4qpTSsoGJ8fJS"
+          )
         );
 
       allow update: if isSuperAdmin()
@@ -523,6 +521,67 @@ service cloud.firestore {
         allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
         allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
+
+      match /examPrograms/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /examCourseGroups/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /examModules/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /questionBank/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /caseStudies/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /examBlueprints/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /assessmentDefinitions/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /jurisdictionOverlays/{docId} {
+        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+      }
+
+      match /attemptSessions/{docId} {
+        allow read: if sameRequesterOrg(orgId)
+          && (
+            canManagePrograms()
+            || (isSignedIn() && resource.data.learnerId == request.auth.uid)
+          );
+        allow create, update: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow delete: if false;
+
+        match /events/{eventId} {
+          allow read: if sameRequesterOrg(orgId)
+            && (
+              canManagePrograms()
+              || (isSignedIn() && get(/databases/$(database)/documents/organizations/$(orgId)/attemptSessions/$(docId)).data.learnerId == request.auth.uid)
+            );
+          allow create, update, delete: if false;
+        }
+      }
+
+      match /attemptReviewSnapshots/{docId} {
+        allow read: if sameRequesterOrg(orgId)
+          && (
+            canManagePrograms()
+            || (isSignedIn() && resource.data.learnerId == request.auth.uid)
+          );
+        allow create, update: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow delete: if false;
+      }
     }
 
     // Legacy path compatibility: /org/{orgId}/orgUsers/{uid}
@@ -545,7 +604,7 @@ service cloud.firestore {
 
     // ---------- USER COMMERCE DATA (owner-read, sensitive server-write) ----------
     match /users/{uid}/carts/{cartId} {
-      allow read: if isAdmin()
+        allow read: if canReadManagedUserPrivateData(uid, resource.data.orgId)
         || (
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
@@ -554,7 +613,7 @@ service cloud.firestore {
     }
 
     match /users/{uid}/orders/{orderId} {
-      allow read: if isAdmin()
+        allow read: if canReadManagedUserPrivateData(uid, resource.data.orgId)
         || (
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
@@ -562,8 +621,13 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /payments/{paymentId} {
+      allow read: if canReadManagedUserPrivateData(resource.data.userId, resource.data.orgId);
+      allow create, update, delete: if false;
+    }
+
     match /users/{uid}/guestEnrollments/{enrollmentId} {
-      allow read: if isAdmin()
+        allow read: if canReadManagedUserPrivateData(uid, resource.data.orgId)
         || (
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
@@ -572,7 +636,7 @@ service cloud.firestore {
     }
 
     match /users/{uid}/guestPrograms/{programAccessId} {
-      allow read: if isAdmin()
+        allow read: if canReadManagedUserPrivateData(uid, resource.data.orgId)
         || (
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
@@ -581,7 +645,16 @@ service cloud.firestore {
     }
 
     match /users/{uid}/bookings/{bookingId} {
-      allow read: if isAdmin()
+        allow read: if canReadManagedUserPrivateData(uid, resource.data.orgId)
+        || (
+          isSignedIn() && request.auth.uid == uid
+          && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
+        );
+      allow create, update, delete: if false;
+    }
+
+    match /users/{uid}/programLiveSessionBookings/{bookingId} {
+        allow read: if canReadManagedUserPrivateData(uid, resource.data.orgId)
         || (
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
@@ -590,6 +663,19 @@ service cloud.firestore {
     }
 
     match /users/{uid}/notificationReads/{notificationId} {
+      allow read: if canManageUser(uid);
+      allow create, update: if canManageUser(uid);
+      allow delete: if isSuperAdmin() || isOwner(uid);
+    }
+
+    match /users/{uid}/notifications/{notificationId} {
+      allow read: if canManageUser(uid);
+      allow update: if canManageUser(uid);
+      allow create: if false;
+      allow delete: if isSuperAdmin() || isOwner(uid);
+    }
+
+    match /users/{uid}/preferences/{preferenceId} {
       allow read: if canManageUser(uid);
       allow create, update: if canManageUser(uid);
       allow delete: if isSuperAdmin() || isOwner(uid);
@@ -726,14 +812,7 @@ service cloud.firestore {
 
     // ---------- NOTIFICATIONS (consolidated) ----------
     match /notifications/{notificationId} {
-      // Authenticated users can read notifications
-      allow read: if request.auth != null;
-      
-      // Admin or manager can create/update notifications
-      allow create, update: if isAdmin() || isManager();
-      
-      // Only admin can delete
-      allow delete: if isAdmin();
+      allow read, create, update, delete: if isSuperAdmin();
     }
 
     match /demoRequests/{requestId} {
@@ -850,17 +929,46 @@ service cloud.firestore {
           resource.data.active == true
           && resource.data.status == "PUBLISHED"
         )
-        || canManagePrograms();
+          || (
+            isSignedIn()
+            && resource.data.orgId is string
+            && resource.data.orgId.size() > 0
+            && sameRequesterOrg(resource.data.orgId)
+          )
+          || canManageProgramOrg(resource.data.orgId);
 
-      allow create, update, delete: if canManagePrograms();
+        allow create: if isSuperAdmin()
+          || (
+            canManagePrograms()
+            && request.resource.data.orgId is string
+            && request.resource.data.orgId.size() > 0
+            && sameRequesterOrg(request.resource.data.orgId)
+          );
+
+        allow update: if isSuperAdmin()
+          || (
+            canManagePrograms()
+            && resource.data.orgId is string
+            && resource.data.orgId.size() > 0
+            && request.resource.data.orgId == resource.data.orgId
+            && sameRequesterOrg(resource.data.orgId)
+          );
+
+        allow delete: if isSuperAdmin()
+          || (
+            canManagePrograms()
+            && resource.data.orgId is string
+            && resource.data.orgId.size() > 0
+            && sameRequesterOrg(resource.data.orgId)
+          );
 
       match /modules/{moduleId} {
         allow read: if (
             get(/databases/$(database)/documents/programs/$(programId)).data.active == true
             && get(/databases/$(database)/documents/programs/$(programId)).data.status == "PUBLISHED"
           )
-          || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+            || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
 
       match /lessons/{lessonId} {
@@ -868,33 +976,38 @@ service cloud.firestore {
             get(/databases/$(database)/documents/programs/$(programId)).data.active == true
             && get(/databases/$(database)/documents/programs/$(programId)).data.status == "PUBLISHED"
           )
-          || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+            || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
 
       match /simulations/{simulationId} {
-        allow read: if isProgramLearner() || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+          allow read: if isProgramLearner() || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
 
       match /caseStudies/{caseStudyId} {
-        allow read: if isProgramLearner() || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+          allow read: if isProgramLearner() || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
 
       match /assessments/{assessmentId} {
-        allow read: if isProgramLearner() || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+          allow read: if isProgramLearner() || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
 
       match /documents/{documentId} {
-        allow read: if isProgramLearner() || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+          allow read: if isProgramLearner() || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
 
       match /liveSessions/{sessionId} {
-        allow read: if isProgramLearner() || canManagePrograms();
-        allow create, update, delete: if canManagePrograms();
+          allow read: if isProgramLearner() || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
+      }
+
+      match /resources/{resourceId} {
+          allow read: if isProgramLearner() || canManageProgramById(programId);
+          allow create, update, delete: if canManageProgramById(programId);
       }
     }
 
@@ -927,14 +1040,24 @@ service cloud.firestore {
         && request.resource.data.learnerName is string
         && request.resource.data.learnerEmail is string
         && request.resource.data.learnerPhone is string
+        && request.resource.data.orgId == programDocOrgId(request.resource.data.programId)
         && request.resource.data.status == 'pending'
         && request.resource.data.paymentStatus == 'unpaid'
         && request.resource.data.reviewStatus == 'pending_review';
 
-      allow read: if canManagePrograms()
+      allow read: if canManageProgramOrg(resource.data.orgId)
+        || canManageProgramById(resource.data.programId)
         || isOwner(resource.data.userId);
 
-      allow update: if canManagePrograms()
+      allow update: if (
+          canManageProgramOrg(resource.data.orgId)
+          || canManageProgramById(resource.data.programId)
+          || (
+            isOwner(resource.data.userId)
+            && resource.data.status == 'pending'
+            && resource.data.paymentStatus in ['unpaid', 'pending']
+          )
+        )
         && request.resource.data.userId == resource.data.userId
         && request.resource.data.programId == resource.data.programId
         && request.resource.data.programTitle == resource.data.programTitle
@@ -942,7 +1065,8 @@ service cloud.firestore {
         && request.resource.data.paymentStatus in ['unpaid', 'pending', 'paid', 'refunded']
         && request.resource.data.reviewStatus in ['pending_review', 'approved', 'denied'];
 
-      allow delete: if canManagePrograms();
+      allow delete: if canManageProgramOrg(resource.data.orgId)
+        || canManageProgramById(resource.data.programId);
     }
 
     match /programSubscriptions/{subscriptionId} {
@@ -950,39 +1074,39 @@ service cloud.firestore {
     }
 
     match /users/{uid}/programProgress/{programId} {
-      allow read: if canManagePrograms() || isOwner(uid);
-      allow create, update: if canManagePrograms() || isOwner(uid);
-      allow delete: if canManagePrograms();
+        allow read: if canManageProgramById(programId) || isOwner(uid);
+        allow create, update: if canManageProgramById(programId) || isOwner(uid);
+        allow delete: if canManageProgramById(programId);
     }
 
     match /users/{uid}/moduleProgress/{moduleId} {
-      allow read: if canManagePrograms() || isOwner(uid);
-      allow create, update: if canManagePrograms() || isOwner(uid);
-      allow delete: if canManagePrograms();
+        allow read: if (resource.data.programId is string && canManageProgramById(resource.data.programId)) || isOwner(uid);
+        allow create, update: if (request.resource.data.programId is string && canManageProgramById(request.resource.data.programId)) || isOwner(uid);
+        allow delete: if resource.data.programId is string && canManageProgramById(resource.data.programId);
     }
 
     match /users/{uid}/simulationAttempts/{attemptId} {
-      allow read: if canManagePrograms() || isOwner(uid);
-      allow create, update: if canManagePrograms() || isOwner(uid);
-      allow delete: if canManagePrograms();
+        allow read: if (resource.data.programId is string && canManageProgramById(resource.data.programId)) || isOwner(uid);
+        allow create, update: if (request.resource.data.programId is string && canManageProgramById(request.resource.data.programId)) || isOwner(uid);
+        allow delete: if resource.data.programId is string && canManageProgramById(resource.data.programId);
     }
 
     match /users/{uid}/assessmentAttempts/{attemptId} {
-      allow read: if canManagePrograms() || isOwner(uid);
-      allow create, update: if canManagePrograms() || isOwner(uid);
-      allow delete: if canManagePrograms();
+        allow read: if (resource.data.programId is string && canManageProgramById(resource.data.programId)) || isOwner(uid);
+        allow create, update: if (request.resource.data.programId is string && canManageProgramById(request.resource.data.programId)) || isOwner(uid);
+        allow delete: if resource.data.programId is string && canManageProgramById(resource.data.programId);
     }
 
     match /users/{uid}/lessonProgress/{lessonId} {
-      allow read: if canManagePrograms() || isOwner(uid);
-      allow create, update: if canManagePrograms() || isOwner(uid);
-      allow delete: if canManagePrograms();
+        allow read: if (resource.data.programId is string && canManageProgramById(resource.data.programId)) || isOwner(uid);
+        allow create, update: if (request.resource.data.programId is string && canManageProgramById(request.resource.data.programId)) || isOwner(uid);
+        allow delete: if resource.data.programId is string && canManageProgramById(resource.data.programId);
     }
 
     match /users/{uid}/caseStudyAttempts/{attemptId} {
-      allow read: if canManagePrograms() || isOwner(uid);
-      allow create, update: if canManagePrograms() || isOwner(uid);
-      allow delete: if canManagePrograms();
+        allow read: if (resource.data.programId is string && canManageProgramById(resource.data.programId)) || isOwner(uid);
+        allow create, update: if (request.resource.data.programId is string && canManageProgramById(request.resource.data.programId)) || isOwner(uid);
+        allow delete: if resource.data.programId is string && canManageProgramById(resource.data.programId);
     }
 
     // ---------- POLICIES (read by all authenticated; write by admin/manager) ----------
@@ -1005,8 +1129,40 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ---------- LISTENING TEST ENGINE ----------
+    match /listeningTestAssessments/{assessmentId} {
+      // Learners can read published tests; instructors can read/write all
+      allow read: if isSignedIn() && (
+        resource.data.status == 'PUBLISHED'
+        || isAdmin()
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /listeningTestResults/{resultId} {
+      // Learner can create their own result
+      allow create: if isSignedIn()
+        && request.resource.data.learnerId == request.auth.uid;
+      // Learner or admin can read
+      allow read: if isSignedIn() && (
+        resource.data.learnerId == request.auth.uid
+        || isAdmin()
+      );
+      // Learner can update own result (error log); admin can update anything
+      allow update: if isSignedIn() && (
+        (resource.data.learnerId == request.auth.uid)
+        || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /users/{uid}/listeningProgress/{assessmentId} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
     match /policy_acknowledgements/{ackId} {
-      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow read: if (isSignedIn() && resource.data.userId is string && canManageUser(resource.data.userId))
+          || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if false;
     }
@@ -1231,9 +1387,167 @@ match /bookings/{doc} {
       }
     }
 
+    // Transactional notification pipeline collections
+    match /notificationEvents/{eventId} {
+      allow read: if isSuperAdmin()
+        || (
+          isAdmin()
+          && resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && sameRequesterOrg(resource.data.orgId)
+        )
+        || (isSignedIn() && resource.data.recipientUserId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /notificationTemplates/{templateId} {
+      allow read: if isSuperAdmin() || isAdmin();
+      allow write: if false;
+    }
+
+    match /notificationLogs/{logId} {
+      allow read: if isSuperAdmin()
+        || (
+          isAdmin()
+          && resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && sameRequesterOrg(resource.data.orgId)
+        )
+        || (isSignedIn() && resource.data.recipientUserId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /notificationPreferences/{uid} {
+      allow read: if canManageUser(uid);
+      allow create, update: if isOwner(uid)
+        || (
+          isSignedIn()
+          && hasUser(uid)
+          && hasUser(request.auth.uid)
+          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
+          && get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
+        );
+      allow delete: if isOwner(uid) || isSuperAdmin();
+    }
+
     // Admin-only collection for in-app pings, etc.
     match /adminNotifications/{id} {
-      allow read, write: if isAdmin();
+      allow read: if isSuperAdmin()
+        || (
+          isAdmin()
+          && resource.data.organizationId is string
+          && resource.data.organizationId.size() > 0
+          && sameRequesterOrg(resource.data.organizationId)
+        );
+      allow write: if false;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Nursing School Courses  (public catalog, admin-managed content)
+    // ──────────────────────────────────────────────────────────────────
+    match /nursing_school_courses/{courseId} {
+      // Anyone can browse the catalog (isActive checked client-side via query)
+      allow read: if true;
+      // Only platform admins may add / edit / delete courses
+      allow write: if isSuperAdmin() || isAdmin();
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Demo Requests  (institution leads from the For Educators page)
+    // ──────────────────────────────────────────────────────────────────
+    match /demo_requests/{requestId} {
+      // Admins can read all requests (CRM / sales pipeline view)
+      allow read: if isSuperAdmin() || isAdmin();
+      // Any visitor (even unauthenticated) may submit a request
+      allow create: if
+        request.resource.data.keys().hasAll(['institutionName', 'contactName', 'email', 'studentCount', 'programType'])
+        && request.resource.data.institutionName is string && request.resource.data.institutionName.size() > 0
+        && request.resource.data.institutionName.size() <= 200
+        && request.resource.data.contactName is string && request.resource.data.contactName.size() > 0
+        && request.resource.data.contactName.size() <= 200
+        && request.resource.data.email is string && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() <= 320
+           && request.resource.data.studentCount is string
+           && request.resource.data.studentCount.size() > 0
+           && request.resource.data.studentCount.size() <= 50
+        && request.resource.data.programType is string
+           && request.resource.data.programType.size() > 0
+           && request.resource.data.programType.size() <= 50
+           && (!('phone' in request.resource.data) || request.resource.data.phone is string)
+           && (!('message' in request.resource.data) || request.resource.data.message is string)
+           && request.resource.data.status == 'pending'
+        // Prevent mass-field injection — only allow known keys
+        && request.resource.data.keys().hasOnly([
+             'institutionName','contactName','email','phone',
+             'studentCount','programType','message','status','createdAt'
+           ]);
+      // Authenticated owner (matched by email) can read their own submission
+      allow read: if isSignedIn()
+        && request.auth.token.email != null
+        && resource.data.email == request.auth.token.email;
+      // Only admins may update (e.g. change status to 'contacted' / 'closed')
+      allow update: if isSuperAdmin() || isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Public Register Intake  (enriched self-registration profile)
+    // ──────────────────────────────────────────────────────────────────
+    match /register/{registrationId} {
+      allow read: if isSuperAdmin() || isAdmin()
+        || (isSignedIn() && request.auth.uid == registrationId);
+
+      allow create: if isSignedIn()
+        && request.auth.uid == registrationId
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasAll([
+             'uid','fullName','email','phone','country','learnerType','examGoal','status','source'
+           ])
+        && request.resource.data.keys().hasOnly([
+             'uid','fullName','email','phone','country','learnerType','examGoal',
+             'organizationName','referralSource','goals','status','source','role','orgId',
+             'profileComplete','createdAt','updatedAt'
+           ]);
+
+      allow update: if (isSuperAdmin() || isAdmin())
+        || (
+          isSignedIn()
+          && request.auth.uid == registrationId
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.source == resource.data.source
+        );
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Tutors  (public profile directory)
+    // ──────────────────────────────────────────────────────────────────
+    match /tutors/{tutorId} {
+      // Public read — active tutors are visible to everyone
+      allow read: if true;
+      // Only admins may manage tutor profiles
+      allow write: if isSuperAdmin() || isAdmin();
+
+      // Availability sub-collection (time slots per date)
+      match /availability/{slotId} {
+        allow read: if true;
+        allow write: if isSuperAdmin() || isAdmin();
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Tutor Bookings  (session requests from students)
+    // ──────────────────────────────────────────────────────────────────
+    match /tutor_bookings/{bookingId} {
+      allow read: if isSuperAdmin()
+        || isAdmin()
+        || (isSignedIn() && resource.data.studentId == request.auth.uid)
+        || (isSignedIn() && resource.data.tutorOwnerUid == request.auth.uid);
+      // Tutor session creation and state transitions are server-managed through Cloud Functions.
+      allow create, update: if false;
+      allow delete: if isSuperAdmin();
     }
   }
 }

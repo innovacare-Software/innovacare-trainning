@@ -3,6 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { map, switchMap } from 'rxjs';
+import { LearnerExamPrepService } from '../services/learner-exam-prep.service';
 import { LearnerSimulationsService } from '../services/learner-simulations.service';
 
 @Component({
@@ -12,37 +13,39 @@ import { LearnerSimulationsService } from '../services/learner-simulations.servi
   template: `
     <div class="sl-page">
       <h1 class="sl-title">CBT / Simulations</h1>
-      <p class="sl-subtitle">Computer-based testing and simulation practice for exam readiness.</p>
+      <p class="sl-subtitle">Simulation delivery opens in exam-prep when a migrated briefing exists, otherwise the classic runner stays available.</p>
 
-      @if (simulationsWithAttempts().length > 0) {
+      @if (simulationCards().length > 0) {
         <div class="sl-grid">
-          @for (s of simulationsWithAttempts(); track s.id) {
+          @for (card of simulationCards(); track card.id) {
             <div class="sl-card">
               <div class="sl-card-top">
-                <span class="sl-diff" [attr.data-diff]="s.difficulty">{{ s.difficulty }}</span>
-                <span class="sl-sim-type">{{ s.type }}</span>
-                @if (s.bestScore !== null) {
-                  <span class="sl-score" [class.sl-pass]="s.bestScore >= s.passingScore" [class.sl-fail]="s.bestScore < s.passingScore">
-                    Best: {{ s.bestScore }}%
+                <span class="sl-diff" [attr.data-diff]="difficultyTone(card.policy.deliveryMode)">{{ difficultyLabel(card.policy.deliveryMode) }}</span>
+                <span class="sl-sim-type">{{ card.assessmentMode }}</span>
+                @if (card.bestScore !== null) {
+                  <span class="sl-score" [class.sl-pass]="card.bestScore >= card.passingScorePercent" [class.sl-fail]="card.bestScore < card.passingScorePercent">
+                    Best: {{ card.bestScore }}%
                   </span>
                 }
               </div>
-              <h3 class="sl-name">{{ s.title }}</h3>
-              <p class="sl-desc">{{ s.description }}</p>
+              <h3 class="sl-name">{{ card.title }}</h3>
+              <p class="sl-desc">{{ card.description }}</p>
               <div class="sl-meta">
-                <span>❓ {{ s.questionCount }} questions</span>
-                <span>⏱ {{ s.durationMin }} min</span>
-                <span>🎯 Pass: {{ s.passingScore }}%</span>
-                <span>📊 {{ s.attempts }} attempt{{ s.attempts !== 1 ? 's' : '' }}</span>
+                <span>❓ {{ card.drawCount }} questions</span>
+                <span>⏱ {{ card.durationMinutes }} min</span>
+                <span>🎯 Pass: {{ card.passingScorePercent }}%</span>
+                <span>📊 {{ card.attempts }} attempt{{ card.attempts !== 1 ? 's' : '' }}</span>
+                <span>🧭 {{ navigationLabel(card.policy.navigationMode) }}</span>
+                <span>{{ card.policy.allowQuestionFlagging ? '🚩 Flagging on' : '🔒 Strict navigation' }}</span>
               </div>
-              <a class="sl-start-btn" [routerLink]="[s.id]">
-                {{ s.attempts > 0 ? '🔄 Retry' : '🚀 Launch' }} Simulation
+              <a class="sl-start-btn" [routerLink]="['/my-programs', programId(), 'simulations', card.id]">
+                {{ card.attempts > 0 ? '🔄 Reopen briefing' : '🚀 Launch' }} Simulation
               </a>
             </div>
           }
         </div>
       } @else {
-        <div class="sl-empty"><span>🧪</span><p>No simulations available yet.</p></div>
+        <div class="sl-empty"><span>🧪</span><p>No simulations are available yet.</p></div>
       }
     </div>
   `,
@@ -93,29 +96,115 @@ import { LearnerSimulationsService } from '../services/learner-simulations.servi
 })
 export class SimulationsListPage {
   private readonly route = inject(ActivatedRoute);
-  private readonly simsService = inject(LearnerSimulationsService);
+  private readonly examPrep = inject(LearnerExamPrepService);
+  private readonly simulationsService = inject(LearnerSimulationsService);
 
   private readonly programId$ = this.route.parent!.paramMap.pipe(map((p) => p.get('programId') || ''));
+  readonly programId = toSignal(this.programId$, { initialValue: '' });
 
-  private readonly simulations = toSignal(
-    this.programId$.pipe(switchMap((id) => this.simsService.getSimulations(id))),
+  private readonly examPrepSimulations = toSignal(
+    this.programId$.pipe(switchMap((id) => this.examPrep.listCatalog(id, 'simulation'))),
+    { initialValue: [] }
+  );
+
+  private readonly legacySimulations = toSignal(
+    this.programId$.pipe(switchMap((id) => this.simulationsService.getSimulations(id))),
     { initialValue: [] }
   );
 
   private readonly attempts = toSignal(
-    this.programId$.pipe(switchMap((id) => this.simsService.getMyAttempts(id))),
+    this.programId$.pipe(switchMap((id) => this.examPrep.getAttemptSummaries(id))),
     { initialValue: [] }
   );
 
-  readonly simulationsWithAttempts = computed(() => {
-    const sims = this.simulations();
-    const atts = this.attempts();
-    return sims.map((s) => {
-      const myAttempts = atts.filter((t) => t.simulationId === s.id);
+  private readonly legacyAttempts = toSignal(
+    this.programId$.pipe(switchMap((id) => this.simulationsService.getMyAttempts(id))),
+    { initialValue: [] }
+  );
+
+  readonly simulationCards = computed(() => {
+    const examPrepCards = this.examPrepSimulations().map((item) => {
+      const myAttempts = this.attempts().filter((attempt) => attempt.assessmentId === item.id);
       const bestScore = myAttempts.length > 0
-        ? Math.max(...myAttempts.map((t) => Number(t.score || 0)))
+        ? Math.max(...myAttempts.map((attempt) => Number(attempt.score || 0)))
         : null;
-      return { ...s, attempts: myAttempts.length, bestScore };
+
+      return {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        assessmentMode: this.examPrep.formatModeLabel(item.assessmentMode),
+        drawCount: item.drawCount,
+        durationMinutes: item.durationMinutes,
+        passingScorePercent: item.passingScorePercent,
+        attempts: myAttempts.length,
+        bestScore,
+        policy: item.policy,
+      };
     });
+
+    const promotedTitles = new Set(examPrepCards.map((item) => item.title.trim().toLowerCase()).filter(Boolean));
+    const legacyCards = this.legacySimulations()
+      .filter((item) => !promotedTitles.has(String(item.title || '').trim().toLowerCase()))
+      .map((item) => {
+        const myAttempts = this.legacyAttempts().filter((attempt) => attempt.simulationId === item.id);
+        const bestScore = myAttempts.length > 0
+          ? Math.max(...myAttempts.map((attempt) => Number(attempt.score || 0)))
+          : null;
+
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          assessmentMode: String(item.type || 'Simulation').replaceAll('_', ' '),
+          drawCount: item.questionCount,
+          durationMinutes: item.durationMin,
+          passingScorePercent: item.passingScore,
+          attempts: myAttempts.length,
+          bestScore,
+          policy: {
+            deliveryMode: item.type === 'computer_test' ? 'strict_nclex_mode' : 'practice_mode',
+            navigationMode: item.type === 'computer_test' ? 'strict_no_backtrack' : 'free_navigation',
+            allowQuestionFlagging: item.type !== 'computer_test',
+          },
+        };
+      });
+
+    return [...examPrepCards, ...legacyCards];
   });
+
+  difficultyLabel(deliveryMode: string): string {
+    switch (deliveryMode) {
+      case 'strict_nclex_mode':
+        return 'strict';
+      case 'flaggable_mock_mode':
+        return 'mock';
+      case 'review_mode':
+        return 'review';
+      default:
+        return 'practice';
+    }
+  }
+
+  difficultyTone(deliveryMode: string): string {
+    switch (deliveryMode) {
+      case 'strict_nclex_mode':
+        return 'hard';
+      case 'flaggable_mock_mode':
+        return 'medium';
+      default:
+        return 'easy';
+    }
+  }
+
+  navigationLabel(mode: string): string {
+    switch (mode) {
+      case 'strict_no_backtrack':
+        return 'No backtracking';
+      case 'forward_only':
+        return 'Forward only';
+      default:
+        return 'Free navigation';
+    }
+  }
 }

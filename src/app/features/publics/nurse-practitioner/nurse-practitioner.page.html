@@ -1,0 +1,151 @@
+<div class="ep-page ep-nurse-practitioner">
+  <!-- HERO SECTION -->
+  <section class="ep-hero ep-hero--premium">
+    <div class="ep-hero__background">
+      <div class="ep-hero__gradient"></div>
+    </div>
+    <div class="ep-container">
+      <div class="ep-hero__grid">
+        <div class="ep-hero__copy">
+          <span class="ep-kicker">{{ content.hero.kicker | localizedField }}</span>
+          <h1>{{ content.hero.title | localizedField }}</h1>
+          <p class="ep-hero__lead">{{ content.hero.lead | localizedField }}</p>
+          <div class="ep-hero__highlights">
+            @for (highlight of content.hero.highlights; track $index) {
+              <span class="ep-highlight">{{ highlight | localizedField }}</span>
+            }
+          </div>
+          <div class="ep-hero__stats">
+            @for (stat of content.hero.stats; track $index) {
+              <div class="ep-hero__stat">
+                <strong>{{ stat.value }}</strong>
+                <small>{{ stat.label | localizedField }}</small>
+              </div>
+            }
+          </div>
+          <div class="ep-hero__actions">
+            <a routerLink="/login" class="ep-btn ep-btn--primary ep-btn--lg">
+              <span>{{ content.hero.primaryCta | localizedField }}</span>
+              <small>{{ content.hero.primarySubcopy | localizedField }}</small>
+            </a>
+            <a routerLink="/pricing" class="ep-btn ep-btn--secondary ep-btn--lg">{{ content.hero.secondaryCta | localizedField }}</a>
+          </div>
+          <p class="ep-hero__trust">{{ content.hero.trust | localizedField }}</p>
+        </div>
+        <div class="ep-hero__visual">
+          <div class="ep-hero__card ep-hero__card--premium">
+            <div class="ep-hero__card-badge">{{ content.hero.cardBadge | localizedField }}</div>
+            <p class="ep-hero__card-title">{{ content.hero.cardTitle | localizedField }}</p>
+            <ul class="ep-check-list">
+              @for (item of checkList; track $index) { 
+                <li>
+                  <span class="ep-check-icon">✓</span>
+                  <span>{{ item | localizedField }}</span>
+                </li> 
+              }
+            </ul>
+            <div class="ep-hero__card-footer">
+              <p><strong>{{ content.hero.cardFooter | localizedField }}</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--white">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.tools.title | localizedField }}</h2>
+        <p>{{ content.tools.body | localizedField }}</p>
+      </div>
+      <div class="ep-features-grid">
+        @for (f of features; track $index) {
+          <div class="ep-feature-card">
+            <span class="ep-feature-card__icon">{{ f.icon }}</span>
+            <h3>{{ f.title | localizedField }}</h3>
+            <p>{{ f.desc | localizedField }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--light">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.plans.title | localizedField }}</h2>
+        <p>{{ content.plans.body | localizedField }}</p>
+      </div>
+      <div class="ep-packages-grid">
+        @for (pkg of packages; track $index) {
+          <div class="ep-pkg" [class.ep-pkg--popular]="pkg.popular">
+            @if (pkg.popular) { <span class="ep-pkg__badge">{{ content.plans.popularBadge | localizedField }}</span> }
+            <p class="ep-pkg__name">{{ pkg.name | localizedField }}</p>
+            <p class="ep-pkg__price">{{ pkg.price }}<span>{{ pkg.period | localizedField }}</span></p>
+            <p class="ep-pkg__desc">{{ pkg.desc | localizedField }}</p>
+            <ul class="ep-pkg__features">
+              @for (feat of pkg.features; track $index) { <li>{{ feat | localizedField }}</li> }
+            </ul>
+            <a routerLink="/login" class="ep-pkg__cta">{{ content.plans.cta | localizedField }}</a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--white">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.stories.title | localizedField }}</h2>
+        <p>{{ content.stories.body | localizedField }}</p>
+      </div>
+      <div class="ep-testimonials-grid">
+        @for (testimonial of testimonials; track $index) {
+          <div class="ep-testimonial">
+            <div class="ep-testimonial__header">
+              <div class="ep-testimonial__avatar">
+                <img [src]="testimonial.image" [alt]="testimonial.alt">
+              </div>
+              <div class="ep-testimonial__meta">
+                <p class="ep-testimonial__name">{{ testimonial.name }}</p>
+                <p class="ep-testimonial__title">{{ testimonial.title | localizedField }}</p>
+              </div>
+            </div>
+            <p class="ep-testimonial__text">{{ testimonial.text | localizedField }}</p>
+            <div class="ep-testimonial__rating">⭐⭐⭐⭐⭐</div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--light">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.comparison.title | localizedField }}</h2>
+        <p>{{ content.comparison.body | localizedField }}</p>
+      </div>
+      <div class="ep-comparison-grid">
+        @for (card of comparisonCards; track $index) {
+          <div class="ep-comparison-card">
+            <div class="ep-comparison-icon">{{ card.icon }}</div>
+            <h3>{{ card.title | localizedField }}</h3>
+            <p>{{ card.desc | localizedField }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="ep-cta-banner">
+    <div class="ep-container">
+      <h2>{{ content.ctaBanner.title | localizedField }}</h2>
+      <p>{{ content.ctaBanner.body | localizedField }}</p>
+      <div class="ep-hero__actions" style="justify-content:center">
+        <a routerLink="/login" class="ep-btn ep-btn--primary">{{ content.ctaBanner.primaryCta | localizedField }}</a>
+        <a routerLink="/contact" class="ep-btn ep-btn--ghost">{{ content.ctaBanner.secondaryCta | localizedField }}</a>
+      </div>
+    </div>
+  </div>
+</div>

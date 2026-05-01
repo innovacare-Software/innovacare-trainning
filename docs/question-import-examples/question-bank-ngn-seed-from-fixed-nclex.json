@@ -1,0 +1,374 @@
+{
+  "items": [
+    {
+      "id": "qb-ngn-bowtie-hand-hygiene-001",
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse completes hygiene care for a client with Clostridioides difficile and removes gloves and gown.",
+      "scenarioText": "The client has had multiple episodes of diarrhea. The nurse must respond using infection-prevention priorities.",
+      "leadInQuestion": "Complete the bow tie by selecting the organism-related concern, the two priority actions, and the most important monitoring focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 monitoring focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Priority Concern",
+            "prompt": "Identify the infection-control concern driving the response.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": ["COND_A", "COND_B", "COND_C"]
+          },
+          {
+            "id": "actions",
+            "label": "Priority Actions",
+            "prompt": "Choose the two immediate nursing actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": ["ACT_A", "ACT_B", "ACT_C", "ACT_D"]
+          },
+          {
+            "id": "monitor",
+            "label": "Monitor First",
+            "prompt": "Select the most important focus to reassess after interventions.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": ["MON_A", "MON_B", "MON_C"]
+          }
+        ]
+      },
+      "choices": [
+        { "id": "COND_A", "label": "A", "text": "Spore transmission risk from C. difficile" },
+        { "id": "COND_B", "label": "B", "text": "Airborne isolation failure" },
+        { "id": "COND_C", "label": "C", "text": "Need for neutropenic precautions" },
+        { "id": "ACT_A", "label": "D", "text": "Wash hands with soap and water" },
+        { "id": "ACT_B", "label": "E", "text": "Dispose of PPE and maintain contact precautions" },
+        { "id": "ACT_C", "label": "F", "text": "Use alcohol-based hand rub only" },
+        { "id": "ACT_D", "label": "G", "text": "Remove isolation signage because care is complete" },
+        { "id": "MON_A", "label": "H", "text": "Consistency of ongoing diarrhea and contamination risk" },
+        { "id": "MON_B", "label": "I", "text": "Pupil size symmetry" },
+        { "id": "MON_C", "label": "J", "text": "Peripheral capillary refill only" }
+      ],
+      "correctAnswerKey": ["COND_A", "ACT_A", "ACT_B", "MON_A"],
+      "explanation": "C. difficile requires soap-and-water hand hygiene and sustained contact precautions because spores persist in the environment.",
+      "rationale": "This bow tie was derived from the fixed NCLEX infection-prevention items on C. difficile and standard precautions.",
+      "distractorRationale": {
+        "COND_B": "C. difficile requires contact, not airborne, precautions.",
+        "COND_C": "Neutropenic precautions are not driven by this presentation.",
+        "ACT_C": "Alcohol-based hand rub alone is not sufficient for C. difficile spores.",
+        "ACT_D": "Precautions remain necessary while contamination risk persists.",
+        "MON_B": "Pupil size does not evaluate infection-control response.",
+        "MON_C": "Capillary refill is not the main infection-control monitoring focus here."
+      },
+      "learningObjectives": [
+        "Apply C. difficile hand-hygiene precautions",
+        "Identify immediate infection-prevention actions",
+        "Prioritize the most relevant follow-up assessment"
+      ],
+      "tags": ["ngn", "bow_tie", "c-diff", "hand-hygiene", "contact-precautions"],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX C. difficile and standard precautions items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Derived from source items aligned to US infection-prevention guidance.",
+      "points": 1,
+      "estimatedTimeSeconds": 90,
+      "active": true,
+      "workflowStatus": "draft",
+      "version": 1,
+      "remediationModuleIds": ["safety-and-infection"],
+      "remediationLessonIds": ["infection-control-basics"],
+      "remediationTags": ["c-diff", "hand-hygiene"],
+      "createdBy": "import-script",
+      "updatedBy": "import-script"
+    },
+    {
+      "id": "qb-ngn-bowtie-line-bundle-002",
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "itemType": "bow_tie",
+      "cognitiveLevel": "analyze",
+      "difficulty": "medium",
+      "stem": "A nurse is caring for a client with both a urinary catheter and a central line during a busy shift.",
+      "scenarioText": "The nurse must prioritize evidence-based bundle actions to reduce device-related infection risk.",
+      "leadInQuestion": "Complete the bow tie by selecting the device-risk concern, the two priority actions, and the most important ongoing review focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 review focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Priority Concern",
+            "prompt": "Identify the highest-level infection-prevention concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": ["COND_A", "COND_B", "COND_C"]
+          },
+          {
+            "id": "actions",
+            "label": "Priority Actions",
+            "prompt": "Choose the two actions most consistent with CAUTI and CLABSI prevention bundles.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": ["ACT_A", "ACT_B", "ACT_C", "ACT_D"]
+          },
+          {
+            "id": "monitor",
+            "label": "Review Focus",
+            "prompt": "Select what the nurse should review each day.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": ["MON_A", "MON_B", "MON_C"]
+          }
+        ]
+      },
+      "choices": [
+        { "id": "COND_A", "label": "A", "text": "Prolonged device use increases infection risk" },
+        { "id": "COND_B", "label": "B", "text": "Routine scheduled replacement is the best prevention strategy" },
+        { "id": "COND_C", "label": "C", "text": "Prophylactic irrigation prevents most device infections" },
+        { "id": "ACT_A", "label": "D", "text": "Use maximal sterile barrier precautions for central-line care" },
+        { "id": "ACT_B", "label": "E", "text": "Reassess catheter necessity every day" },
+        { "id": "ACT_C", "label": "F", "text": "Change all invasive devices every 72 hours regardless of need" },
+        { "id": "ACT_D", "label": "G", "text": "Irrigate the urinary catheter each shift" },
+        { "id": "MON_A", "label": "H", "text": "Whether each device is still clinically necessary" },
+        { "id": "MON_B", "label": "I", "text": "Client hair distribution" },
+        { "id": "MON_C", "label": "J", "text": "Preferred meal tray color" }
+      ],
+      "correctAnswerKey": ["COND_A", "ACT_A", "ACT_B", "MON_A"],
+      "explanation": "CLABSI and CAUTI prevention both depend on aseptic bundle compliance and removing devices as soon as they are no longer needed.",
+      "rationale": "This bow tie consolidates the source items on CAUTI daily necessity review and CLABSI sterile barrier precautions.",
+      "distractorRationale": {
+        "COND_B": "Routine replacement alone is not the core prevention strategy.",
+        "COND_C": "Routine irrigation is not an evidence-based prevention measure.",
+        "ACT_C": "Time-based replacement is not the key evidence-based intervention here.",
+        "ACT_D": "Routine catheter irrigation may increase risk.",
+        "MON_B": "Hair distribution is unrelated to device infection prevention.",
+        "MON_C": "Meal tray color is irrelevant."
+      },
+      "learningObjectives": [
+        "Compare CAUTI and CLABSI prevention priorities",
+        "Select evidence-based device bundle actions",
+        "Identify the most important daily review target"
+      ],
+      "tags": ["ngn", "bow_tie", "cauti", "clabsi", "bundle", "priority"],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX CAUTI and CLABSI bundle items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Derived from source items aligned to US device-associated infection prevention guidance.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "active": true,
+      "workflowStatus": "draft",
+      "version": 1,
+      "remediationModuleIds": ["safety-and-infection"],
+      "remediationLessonIds": ["infection-control-basics"],
+      "remediationTags": ["cauti", "clabsi", "bundle"],
+      "createdBy": "import-script",
+      "updatedBy": "import-script"
+    },
+    {
+      "id": "qb-ngn-cloze-rights-medication-003",
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "easy",
+      "stem": "The nurse prepares to administer a medication and reviews the medication safety rights before entering the room.",
+      "scenarioText": "The medication label and MAR match, and the client is alert enough to participate in verification.",
+      "leadInQuestion": "Complete the sentence by selecting the best option for each blank.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each statement.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The nurse should verify the client's ___ before administration.",
+            "optionIds": ["OPT_A", "OPT_B", "OPT_C"],
+            "correctOptionId": "OPT_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "The nurse should confirm the medication's ___ on the MAR and label.",
+            "optionIds": ["OPT_D", "OPT_E", "OPT_F"],
+            "correctOptionId": "OPT_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "The nurse should explain the medication's ___ to the client before giving it.",
+            "optionIds": ["OPT_G", "OPT_H", "OPT_I"],
+            "correctOptionId": "OPT_G"
+          }
+        ]
+      },
+      "choices": [
+        { "id": "OPT_A", "label": "A", "text": "identity" },
+        { "id": "OPT_B", "label": "B", "text": "meal preference" },
+        { "id": "OPT_C", "label": "C", "text": "visitor list" },
+        { "id": "OPT_D", "label": "D", "text": "dose" },
+        { "id": "OPT_E", "label": "E", "text": "television channel" },
+        { "id": "OPT_F", "label": "F", "text": "room paint color" },
+        { "id": "OPT_G", "label": "G", "text": "purpose" },
+        { "id": "OPT_H", "label": "H", "text": "parking location" },
+        { "id": "OPT_I", "label": "I", "text": "laundry schedule" }
+      ],
+      "correctAnswerKey": ["OPT_A", "OPT_D", "OPT_G"],
+      "explanation": "Safe medication administration includes verifying the right client, the ordered dose, and educating the client about the medication's purpose.",
+      "rationale": "This cloze item converts medication-rights content from the fixed NCLEX bank into an NGN fill-in selection format.",
+      "distractorRationale": {
+        "OPT_B": "Meal preference is not a core medication right.",
+        "OPT_C": "Visitor list verification does not establish medication safety.",
+        "OPT_E": "Television channel is unrelated to medication administration.",
+        "OPT_F": "Room color is irrelevant.",
+        "OPT_H": "Parking location does not support medication safety.",
+        "OPT_I": "Laundry schedule is unrelated."
+      },
+      "learningObjectives": [
+        "Apply core medication rights",
+        "Reinforce client identification before administration",
+        "Provide essential medication teaching"
+      ],
+      "tags": ["ngn", "cloze", "medication-safety", "rights-of-medication-administration"],
+      "sourceAuthority": "Internal SME Board",
+      "sourceReferenceTitle": "Derived from fixed NCLEX medication safety items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Derived from medication safety concepts already present in the fixed NCLEX source file.",
+      "points": 1,
+      "estimatedTimeSeconds": 75,
+      "active": true,
+      "workflowStatus": "draft",
+      "version": 1,
+      "remediationModuleIds": ["safety-and-infection"],
+      "remediationLessonIds": [],
+      "remediationTags": ["medication-safety"],
+      "createdBy": "import-script",
+      "updatedBy": "import-script"
+    },
+    {
+      "id": "qb-ngn-cloze-hand-hygiene-004",
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "The nurse chooses a hand-hygiene method based on the exposure and isolation context.",
+      "scenarioText": "One client has no visible soil after glove removal, and another client has confirmed C. difficile infection.",
+      "leadInQuestion": "Complete each statement with the best option.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "After routine glove removal with no visible soil, the preferred method is ___.",
+            "optionIds": ["OPT_A", "OPT_B", "OPT_C"],
+            "correctOptionId": "OPT_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "After caring for a client with C. difficile, the nurse should use ___.",
+            "optionIds": ["OPT_D", "OPT_E", "OPT_F"],
+            "correctOptionId": "OPT_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "A key reason is that C. difficile can form alcohol-resistant ___.",
+            "optionIds": ["OPT_G", "OPT_H", "OPT_I"],
+            "correctOptionId": "OPT_G"
+          }
+        ]
+      },
+      "choices": [
+        { "id": "OPT_A", "label": "A", "text": "alcohol-based hand rub" },
+        { "id": "OPT_B", "label": "B", "text": "no hand hygiene" },
+        { "id": "OPT_C", "label": "C", "text": "surgical scrub brush" },
+        { "id": "OPT_D", "label": "D", "text": "soap and water" },
+        { "id": "OPT_E", "label": "E", "text": "alcohol-based hand rub only" },
+        { "id": "OPT_F", "label": "F", "text": "plain glove change without hand hygiene" },
+        { "id": "OPT_G", "label": "G", "text": "spores" },
+        { "id": "OPT_H", "label": "H", "text": "viruses only" },
+        { "id": "OPT_I", "label": "I", "text": "allergens" }
+      ],
+      "correctAnswerKey": ["OPT_A", "OPT_D", "OPT_G"],
+      "explanation": "Alcohol-based hand rub is preferred when hands are not visibly soiled, but soap and water is required after C. difficile exposure because spores persist.",
+      "rationale": "This cloze item directly derives from the fixed NCLEX hand-hygiene and C. difficile items in the source file.",
+      "distractorRationale": {
+        "OPT_B": "Hand hygiene is still required after glove removal.",
+        "OPT_C": "Surgical scrub brushes are not used for routine hand hygiene.",
+        "OPT_E": "Alcohol-based rub alone is insufficient for C. difficile spores.",
+        "OPT_F": "Changing gloves does not replace hand hygiene.",
+        "OPT_H": "The major issue is spore formation.",
+        "OPT_I": "Allergens do not explain this infection-control distinction."
+      },
+      "learningObjectives": [
+        "Select the correct hand-hygiene method by context",
+        "Apply C. difficile precautions",
+        "Explain why soap and water is required in spore-forming infections"
+      ],
+      "tags": ["ngn", "cloze", "hand-hygiene", "c-diff", "standard-precautions"],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX hand hygiene and C. difficile items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Derived from source items aligned to US infection-prevention guidance.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "active": true,
+      "workflowStatus": "draft",
+      "version": 1,
+      "remediationModuleIds": ["safety-and-infection"],
+      "remediationLessonIds": ["infection-control-basics"],
+      "remediationTags": ["hand-hygiene", "c-diff"],
+      "createdBy": "import-script",
+      "updatedBy": "import-script"
+    }
+  ]
+}

@@ -205,9 +205,7 @@ export class LearnerDashboardService {
   } | null> {
     return this.enrollmentsService.getMyEnrollments().pipe(
       map(enrollments => {
-        const active = enrollments.find(e => e.status === 'active') ??
-                       enrollments.find(e => e.status === 'approved') ??
-                       enrollments[0];
+        const active = enrollments.find((row) => this.enrollmentsService.canAccessLearnerSpace(row));
         if (!active) return null;
         return {
           programTitle: active.programTitle,

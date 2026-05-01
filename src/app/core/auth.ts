@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import {
   Auth,
   authState,
@@ -13,6 +13,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
+  getIdToken,
 } from '@angular/fire/auth';
 import {
   Firestore,
@@ -28,12 +29,15 @@ import {
 } from '@angular/fire/firestore';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
-export type AppRole = 'super_admin' | 'manager' | 'admin' | 'learner' | 'guest';
+const AUTO_CONNECTED_ORG_ID = 'Waxxi8M4qpTSsoGJ8fJS';
+
+export type AppRole = 'super_admin' | 'manager' | 'admin' | 'learner' | 'guest' | 'instructor' | 'programAdmin' | 'programStaff' | 'programLearner';
 
 export interface AppProfile {
   uid: string;
   email?: string;
   role: AppRole;
+  primaryRole?: AppRole;
   orgId?: string | null;
   accessCode?: string | null;
   orgAccessCode?: string | null;
@@ -44,6 +48,14 @@ export interface AppProfile {
   displayName?: string;
   createdAt?: any;
   updatedAt?: any;
+  onboarding?: {
+    version?: string;
+    completedStepIds?: string[];
+    minimized?: boolean;
+    dismissedAt?: any;
+    completedAt?: any;
+    updatedAt?: any;
+  };
 }
 
 export interface OrgValidationResult {
@@ -52,10 +64,25 @@ export interface OrgValidationResult {
   message?: string;
 }
 
+export interface RegisterWithEmailPayload {
+  fullName: string;
+  email: string;
+  password: string;
+  phone: string;
+  country: string;
+  learnerType: string;
+  examGoal: string;
+  organizationName?: string;
+  referralSource?: string;
+  goals?: string;
+  rememberMe?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
   private afs = inject(Firestore);
+  private injector = inject(Injector);
 
   private readySubject = new BehaviorSubject<boolean>(false);
   readonly ready$ = this.readySubject.asObservable();
@@ -66,8 +93,12 @@ export class AuthService {
   private authSub?: Subscription;
   private profileSub?: Subscription;
 
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
+
   constructor() {
-    this.authSub = authState(this.auth).subscribe((user) => {
+    this.authSub = this.inContext(() => authState(this.auth)).subscribe((user) => {
       this.readySubject.next(false);
       this.profileSubject.next(null);
 
@@ -80,7 +111,7 @@ export class AuthService {
       }
 
       const ref = doc(this.afs, `users/${user.uid}`);
-      this.profileSub = docData(ref, { idField: 'uid' }).subscribe({
+      this.profileSub = this.inContext(() => docData(ref, { idField: 'uid' })).subscribe({
         next: (profile: any) => {
           this.profileSubject.next(profile ? (profile as AppProfile) : null);
           this.readySubject.next(true);
@@ -110,32 +141,42 @@ export class AuthService {
     rememberMe = true
   ): Promise<UserCredential> {
     await this.setRememberMe(rememberMe);
-    return signInWithEmailAndPassword(this.auth, email, password);
+    const cred = await signInWithEmailAndPassword(this.auth, email, password);
+    await this.reconcileAutoConnectedGuestProfile(cred.user.uid);
+    return cred;
   }
 
-  async registerWithEmail(
-    email: string,
-    password: string,
-    fullName: string,
-    rememberMe = true
-  ): Promise<UserCredential> {
+  async registerWithEmail(payload: RegisterWithEmailPayload): Promise<UserCredential> {
+    const fullName = payload.fullName?.trim() ?? '';
+    const email = payload.email?.trim() ?? '';
+    const password = payload.password;
+    const rememberMe = payload.rememberMe ?? true;
+
     await this.setRememberMe(rememberMe);
 
     const cred = await createUserWithEmailAndPassword(this.auth, email, password);
 
-    if (fullName?.trim()) {
+    if (fullName) {
       await updateProfile(cred.user, {
-        displayName: fullName.trim(),
+        displayName: fullName,
       });
     }
+
+    await this.ensureAuthTokenReady();
 
     await this.ensureUserProfile({
       uid: cred.user.uid,
       email: cred.user.email ?? email,
-      displayName: fullName?.trim() || '',
+      displayName: fullName,
       role: 'guest',
-      orgId: null,
+      orgId: AUTO_CONNECTED_ORG_ID,
       active: true,
+    });
+
+    await this.storeRegistrationRecord(cred.user.uid, {
+      ...payload,
+      email,
+      fullName,
     });
 
     return cred;
@@ -146,14 +187,18 @@ export class AuthService {
 
     const cred = await signInWithPopup(this.auth, new GoogleAuthProvider());
 
+    await this.ensureAuthTokenReady();
+
     await this.ensureUserProfile({
       uid: cred.user.uid,
       email: cred.user.email ?? '',
       displayName: cred.user.displayName ?? '',
       role: 'guest',
-      orgId: null,
+      orgId: AUTO_CONNECTED_ORG_ID,
       active: true,
     });
+
+    await this.reconcileAutoConnectedGuestProfile(cred.user.uid);
 
     return cred;
   }
@@ -245,7 +290,8 @@ export class AuthService {
       throw new Error('This account is inactive.');
     }
 
-    const profileOrgId = String(profile.orgId || '').trim();
+    let profileOrgId = String(profile.orgId || '').trim();
+
     if (!profileOrgId) {
       throw new Error('This account is not linked to an organization. Contact your admin.');
     }
@@ -293,6 +339,19 @@ export class AuthService {
     await sendPasswordResetEmail(this.auth, clean);
   }
 
+  private async ensureAuthTokenReady(): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      return;
+    }
+
+    try {
+      await getIdToken(user);
+    } catch {
+      // Firestore will still reject if the token cannot be established.
+    }
+  }
+
   private async ensureUserProfile(profile: AppProfile): Promise<void> {
     await setDoc(
       doc(this.afs, `users/${profile.uid}`),
@@ -301,9 +360,68 @@ export class AuthService {
         email: profile.email ?? '',
         role: profile.role,
         orgId: profile.orgId ?? null,
+        accessCode: profile.accessCode ?? null,
+        orgAccessCode: profile.orgAccessCode ?? null,
         active: profile.active ?? true,
         displayName: profile.displayName ?? '',
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+
+  private async storeRegistrationRecord(
+    uid: string,
+    payload: Omit<RegisterWithEmailPayload, 'password'> & { password?: string }
+  ): Promise<void> {
+    await setDoc(
+      doc(this.afs, `register/${uid}`),
+      {
+        uid,
+        fullName: payload.fullName,
+        email: payload.email,
+        phone: payload.phone?.trim() ?? '',
+        country: payload.country?.trim() ?? '',
+        learnerType: payload.learnerType?.trim() ?? '',
+        examGoal: payload.examGoal?.trim() ?? '',
+        organizationName: payload.organizationName?.trim() ?? '',
+        referralSource: payload.referralSource?.trim() ?? '',
+        goals: payload.goals?.trim() ?? '',
+        source: 'public_register',
+        status: 'new',
+        role: 'guest',
+        orgId: AUTO_CONNECTED_ORG_ID,
+        profileComplete: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+
+  private async reconcileAutoConnectedGuestProfile(uid: string): Promise<void> {
+    const userRef = doc(this.afs, `users/${uid}`);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return;
+    }
+
+    const profile = userSnap.data() as AppProfile;
+    const role = String(profile.role || profile.primaryRole || '').trim();
+    if (role !== 'guest') {
+      return;
+    }
+
+    const currentOrgId = String(profile.orgId || '').trim();
+    if (currentOrgId === AUTO_CONNECTED_ORG_ID) {
+      return;
+    }
+
+    await setDoc(
+      userRef,
+      {
+        orgId: AUTO_CONNECTED_ORG_ID,
         updatedAt: serverTimestamp(),
       },
       { merge: true }

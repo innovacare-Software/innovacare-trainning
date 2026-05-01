@@ -1,0 +1,11 @@
+<footer class="bottom-bar">
+  <div class="left-actions">
+    <button type="button" (click)="end.emit()">⏹ End</button>
+    <button type="button" (click)="pauseToggle.emit()">{{ paused() ? '▶ Resume' : '⏸ Pause' }}</button>
+  </div>
+
+  <div class="right-actions">
+    <button type="button" [disabled]="!canPrev()" (click)="prev.emit()">← Previous</button>
+    <button type="button" [disabled]="!canNext()" (click)="next.emit()">{{ nextLabel() }}</button>
+  </div>
+</footer>

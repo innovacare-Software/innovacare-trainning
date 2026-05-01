@@ -1,0 +1,154 @@
+<div class="ns-page">
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <section class="ns-hero">
+    <div class="ns-hero__pattern" aria-hidden="true"></div>
+    <div class="ns-container ns-hero__inner">
+      <div class="ns-hero__copy">
+        <span class="ns-badge">{{ 'NURSING_SCHOOL.badge' | transloco }}</span>
+        <h1>{{ 'NURSING_SCHOOL.hero_title' | transloco }} {{ 'NURSING_SCHOOL.hero_title_accent' | transloco }}</h1>
+        <p class="ns-hero__sub">
+          {{ 'NURSING_SCHOOL.hero_desc' | transloco }}
+        </p>
+        <div class="ns-hero__actions">
+          <a routerLink="/login" class="ns-btn ns-btn--primary" [attr.aria-label]="'NURSING_SCHOOL.cta_primary' | transloco">
+            {{ 'NURSING_SCHOOL.cta_primary' | transloco }}
+          </a>
+          <a routerLink="/nursing-school#courses" class="ns-btn ns-btn--outline" [attr.aria-label]="'NURSING_SCHOOL.cta_secondary' | transloco">
+            {{ 'NURSING_SCHOOL.cta_secondary' | transloco }}
+          </a>
+        </div>
+      </div>
+      <div class="ns-hero__stats">
+        <div class="ns-stat-card">
+          <strong>{{ totalQuestions | number }}+</strong>
+          <span>{{ 'NURSING_SCHOOL.stats.questions' | transloco }}</span>
+        </div>
+        <div class="ns-stat-card">
+          <strong>{{ totalVideos | number }} hrs</strong>
+          <span>{{ 'NURSING_SCHOOL.stats.videos' | transloco }}</span>
+        </div>
+        <div class="ns-stat-card">
+          <strong>{{ totalCourses }}</strong>
+          <span>{{ 'NURSING_SCHOOL.stats.courses' | transloco }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COURSE CATALOG ─────────────────────────────────────── -->
+  <section class="ns-section ns-section--white" id="courses">
+    <div class="ns-container">
+      <div class="ns-section-head">
+        <h2>{{ 'NURSING_SCHOOL.catalogue.title' | transloco }}</h2>
+        <p>{{ 'NURSING_SCHOOL.hero_desc' | transloco }}</p>
+      </div>
+      <div class="ns-catalog">
+
+        <!-- Category tabs -->
+        <nav class="ns-tabs" [attr.aria-label]="'NURSING_SCHOOL.catalogue.title' | transloco">
+          @for (cat of categories; track cat.key) {
+            <button
+              type="button"
+              class="ns-tab"
+              [class.ns-tab--active]="activeCategory() === cat.key"
+              [style.--cat-color]="cat.color"
+              (click)="setCategory(cat.key)"
+              [attr.aria-selected]="activeCategory() === cat.key"
+            >
+              <span class="ns-tab__label">{{ cat.labelKey | transloco }}</span>
+              <span class="ns-tab__badge">{{ cat.badgeKey | transloco }}</span>
+            </button>
+          }
+        </nav>
+
+        <!-- Course cards -->
+        <div class="ns-courses-grid">
+          @for (course of activeCourses(); track course.id) {
+            <div
+              class="ns-course-card"
+              [class.ns-course-card--selected]="isSelected(course.id)"
+              [style.--cat-color]="getCategoryColor(course.category)"
+            >
+              <div class="ns-course-card__dot" [style.background]="getCategoryColor(course.category)"></div>
+              <h3 class="ns-course-card__name">{{ course.name | localizedField }}</h3>
+              <div class="ns-course-card__meta">
+                <span>🎥 {{ course.videos }} {{ 'NURSING_SCHOOL.catalogue.videos_label' | transloco }}</span>
+                @if (course.questions > 0) {
+                  <span>📖 {{ course.questions | number }} {{ 'NURSING_SCHOOL.catalogue.questions_label' | transloco }}</span>
+                }
+              </div>
+              <div class="ns-course-card__price">${{ course.price }}/course</div>
+              <div class="ns-course-card__actions">
+                <a [routerLink]="'/courses'" class="ns-btn-ghost" [attr.aria-label]="('NURSING_SCHOOL.catalogue.explore' | transloco) + ' ' + (course.name | localizedField)">{{ 'NURSING_SCHOOL.catalogue.explore' | transloco }}</a>
+                <button
+                  type="button"
+                  class="ns-btn-add"
+                  [class.ns-btn-add--added]="isSelected(course.id)"
+                  (click)="toggleCourse(course.id)"
+                  [attr.aria-label]="(isSelected(course.id) ? 'Remove ' : ('NURSING_SCHOOL.catalogue.add_bundle' | transloco) + ' ') + (course.name | localizedField)"
+                >
+                  {{ isSelected(course.id) ? '✓ ' + ('COMMON.confirm' | transloco) : '+ ' + ('NURSING_SCHOOL.catalogue.add_bundle' | transloco) }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY INNOVACARE ─────────────────────────────────────── -->
+  <section class="ns-section ns-section--light">
+    <div class="ns-container">
+      <div class="ns-section-head">
+        <h2>{{ 'NURSING_SCHOOL.why.title' | transloco }}</h2>
+        <p>{{ 'NURSING_SCHOOL.why.subtitle' | transloco }}</p>
+      </div>
+      <div class="ns-why-grid">
+        @for (card of whyCards; track $index) {
+          <div class="ns-why-card">
+            <span class="ns-why-card__icon" aria-hidden="true">{{ card.icon }}</span>
+            <h3>{{ card.titleKey | transloco }}</h3>
+            <p>{{ card.descKey | transloco }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA BANNER ─────────────────────────────────────────── -->
+  <section class="ns-cta-banner">
+    <div class="ns-container ns-cta-banner__inner">
+      <div>
+        <h2>{{ 'NURSING_SCHOOL.cta_primary' | transloco }}</h2>
+        <p>{{ 'COMMON.free' | transloco }} 7-day trial · No credit card required</p>
+      </div>
+      <div class="ns-hero__actions">
+        <a routerLink="/login" class="ns-btn ns-btn--primary">{{ 'NURSING_SCHOOL.cta_primary' | transloco }}</a>
+        <a routerLink="/contact" class="ns-btn ns-btn--outline-light">{{ 'FOR_EDUCATORS.cta_demo' | transloco }}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BUNDLE BUILDER (sticky bottom) ────────────────────── -->
+  @if (selectedIds().size > 0) {
+    <div class="ns-bundle-bar" role="complementary" [attr.aria-label]="'NURSING_SCHOOL.bundle.total' | transloco">
+      <div class="ns-container ns-bundle-bar__inner">
+        <div class="ns-bundle-bar__info">
+          <strong>{{ bundleSelectedLabel(selectedIds().size) }}</strong>
+          @if (bundle().discountRate > 0) {
+            <span class="ns-bundle-bar__discount">
+              {{ bundle().discountRate >= 0.2 ? ('NURSING_SCHOOL.bundle.discount_5' | transloco) : ('NURSING_SCHOOL.bundle.discount_3' | transloco) }}
+            </span>
+          }
+          <span class="ns-bundle-bar__total">{{ 'NURSING_SCHOOL.bundle.total' | transloco }}: <b>${{ bundle().total | number:'1.2-2' }}</b></span>
+        </div>
+        <div class="ns-bundle-bar__actions">
+          <button type="button" class="ns-bundle-bar__clear" (click)="clearBundle()">{{ 'NURSING_SCHOOL.bundle.clear' | transloco }}</button>
+          <a routerLink="/login" class="ns-btn ns-btn--primary">{{ 'NURSING_SCHOOL.bundle.build' | transloco }}</a>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -60,4 +60,7 @@ export class AdminProgramEnrollmentDetailPage {
   }
 
   paymentStatuses = Object.values(PaymentStatus);
+  async markAsPaid(id: string): Promise<void> {
+    await this.service.updatePaymentStatus(id, PaymentStatus.PAID);
+  }
 }

@@ -1,0 +1,173 @@
+{
+  "items": [
+    {
+      "id": "nclex-med-surg-fluid-volume-overload-001",
+      "programId": "nclex-rn-review",
+      "programTitle": "NCLEX RN Review",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "adult-health",
+      "courseGroupTitle": "Adult Health",
+      "moduleId": "cardiac-care",
+      "moduleTitle": "Cardiac Care",
+      "itemType": "single_choice",
+      "cognitiveLevel": "application",
+      "difficulty": "medium",
+      "stem": "A client with heart failure is admitted with dyspnea, bilateral crackles, and 3+ pitting edema. The nurse reviews the new provider prescriptions.",
+      "leadInQuestion": "Which prescription should the nurse implement first?",
+      "choices": [
+        {
+          "id": "A",
+          "label": "A",
+          "text": "Administer furosemide IV as prescribed.",
+          "rationale": "This is the priority intervention because the assessment findings indicate fluid volume overload with pulmonary congestion. IV loop diuretics reduce preload quickly and improve respiratory status."
+        },
+        {
+          "id": "B",
+          "label": "B",
+          "text": "Encourage the client to increase oral fluid intake.",
+          "rationale": "This is inappropriate because the client already shows evidence of fluid overload. Increasing fluids would worsen edema and pulmonary congestion."
+        },
+        {
+          "id": "C",
+          "label": "C",
+          "text": "Place the client flat in bed for rest.",
+          "rationale": "This is unsafe because a flat position can worsen dyspnea in a client with pulmonary congestion. Clients with heart failure generally breathe better upright."
+        },
+        {
+          "id": "D",
+          "label": "D",
+          "text": "Hold all cardiac medications until morning rounds.",
+          "rationale": "This is not appropriate because delaying prescribed therapy can prolong respiratory compromise. The client needs timely treatment based on current symptoms."
+        }
+      ],
+      "correctAnswerKey": ["A"],
+      "points": 1,
+      "estimatedTimeSeconds": 75,
+      "learningObjectives": [
+        "Prioritize interventions for fluid volume overload in heart failure.",
+        "Apply airway, breathing, circulation principles to acute med-surg changes."
+      ],
+      "tags": ["heart-failure", "prioritization", "fluid-balance"],
+      "explanation": "This item tests early recognition of heart-failure decompensation and the ability to prioritize the action that improves oxygenation fastest.",
+      "rationale": "The client has classic findings of fluid volume overload and pulmonary congestion. The most urgent action is the intervention that directly reduces excess fluid and decreases respiratory distress.",
+      "sourceAuthority": "Innovacare Faculty",
+      "sourceReferenceTitle": "Adult Health Priority Review",
+      "sourceVersionDate": "2026-04-19",
+      "workflowStatus": "published",
+      "createdBy": "seed-script",
+      "updatedBy": "seed-script",
+      "active": true
+    },
+    {
+      "id": "nclex-pharm-heparin-bleeding-002",
+      "programId": "nclex-rn-review",
+      "programTitle": "NCLEX RN Review",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "pharmacology",
+      "courseGroupTitle": "Pharmacology",
+      "moduleId": "anticoagulants",
+      "moduleTitle": "Anticoagulants",
+      "itemType": "single_choice",
+      "cognitiveLevel": "analysis",
+      "difficulty": "medium",
+      "stem": "A postoperative client is receiving IV heparin. During reassessment, the nurse notes new frank hematuria and oozing at the IV site.",
+      "leadInQuestion": "Which action should the nurse take first?",
+      "choices": [
+        { "id": "A", "label": "A", "text": "Stop the heparin infusion and notify the provider." },
+        { "id": "B", "label": "B", "text": "Increase the IV rate to maintain urine output." },
+        { "id": "C", "label": "C", "text": "Document the findings and reassess in one hour." },
+        { "id": "D", "label": "D", "text": "Administer aspirin for additional antiplatelet effect." }
+      ],
+      "choiceRationales": {
+        "A": "This is the priority action because the client shows active bleeding while receiving an anticoagulant. The infusion should be stopped immediately to reduce further hemorrhage risk while the provider is notified.",
+        "B": "Increasing IV fluids does not address the source of bleeding. The priority is to stop the anticoagulant causing ongoing hemorrhagic risk.",
+        "C": "Delaying intervention is unsafe. Active bleeding on heparin requires immediate action rather than observation alone.",
+        "D": "Aspirin would increase bleeding risk further and is contraindicated in a client already showing signs of anticoagulant-associated bleeding."
+      },
+      "correctAnswerKey": ["A"],
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "learningObjectives": [
+        "Recognize major bleeding in anticoagulated clients.",
+        "Prioritize first actions for medication-related complications."
+      ],
+      "tags": ["heparin", "bleeding", "postoperative", "safety"],
+      "explanation": "This item evaluates whether the learner recognizes anticoagulant complications and intervenes before additional harm occurs.",
+      "rationale": "Hematuria and oozing are signs of active bleeding. The nurse should first stop the infusion responsible for the bleeding risk, then escalate care promptly.",
+      "sourceAuthority": "Innovacare Faculty",
+      "sourceReferenceTitle": "Pharmacology Safety Drill",
+      "sourceVersionDate": "2026-04-19",
+      "workflowStatus": "published",
+      "createdBy": "seed-script",
+      "updatedBy": "seed-script",
+      "active": true
+    },
+    {
+      "id": "nclex-maternity-preeclampsia-003",
+      "programId": "nclex-rn-review",
+      "programTitle": "NCLEX RN Review",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "maternal-newborn",
+      "courseGroupTitle": "Maternal-Newborn",
+      "moduleId": "hypertensive-disorders",
+      "moduleTitle": "Hypertensive Disorders of Pregnancy",
+      "itemType": "multiple_response",
+      "cognitiveLevel": "analysis",
+      "difficulty": "hard",
+      "stem": "A pregnant client at 35 weeks gestation is admitted with severe preeclampsia.",
+      "leadInQuestion": "Which findings require immediate nursing follow-up? Select all that apply.",
+      "choices": [
+        {
+          "id": "A",
+          "label": "A",
+          "text": "Reports persistent headache",
+          "rationale": "A severe persistent headache can indicate worsening cerebral vasospasm or impending eclampsia and requires immediate follow-up."
+        },
+        {
+          "id": "B",
+          "label": "B",
+          "text": "Deep tendon reflexes 3+",
+          "rationale": "Hyperreflexia is concerning in severe preeclampsia because it may precede seizure activity and should be addressed promptly."
+        },
+        {
+          "id": "C",
+          "label": "C",
+          "text": "Urine protein trace only",
+          "rationale": "Trace protein alone is not the priority finding in this scenario compared with neurologic signs and respiratory compromise."
+        },
+        {
+          "id": "D",
+          "label": "D",
+          "text": "New epigastric pain",
+          "rationale": "Epigastric or right upper quadrant pain can indicate hepatic involvement and severe disease progression, so it requires immediate follow-up."
+        },
+        {
+          "id": "E",
+          "label": "E",
+          "text": "Oxygen saturation 89% on room air",
+          "rationale": "A low oxygen saturation may indicate pulmonary edema, which is an emergency complication in severe preeclampsia."
+        }
+      ],
+      "correctAnswerKey": ["A", "B", "D", "E"],
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "learningObjectives": [
+        "Identify severe features of preeclampsia requiring escalation.",
+        "Differentiate urgent maternal assessment findings from lower-priority findings."
+      ],
+      "tags": ["preeclampsia", "maternal-newborn", "prioritization", "multiple-response"],
+      "explanation": "This item measures the learner's ability to recognize severe maternal warning signs that suggest neurologic, hepatic, or pulmonary compromise.",
+      "rationale": "Immediate follow-up is needed for findings associated with worsening end-organ involvement or seizure risk. Lower-priority data should not distract from red-flag maternal symptoms.",
+      "sourceAuthority": "Innovacare Faculty",
+      "sourceReferenceTitle": "Maternal-Newborn High-Risk Review",
+      "sourceVersionDate": "2026-04-19",
+      "workflowStatus": "published",
+      "createdBy": "seed-script",
+      "updatedBy": "seed-script",
+      "active": true
+    }
+  ]
+}

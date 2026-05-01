@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SuperAdminDashboardStats } from '../models/super-admin.models';
+import { SuperAdminDashboardStats, SuperAdminRegistration } from '../models/super-admin.models';
 import { SuperAdminDashboardService } from '../services/super-admin-facade';
 
 @Component({
@@ -30,6 +30,7 @@ export class Dashboard {
     billingActive: 0,
     criticalLogs: 0,
   });
+  registrations = signal<SuperAdminRegistration[]>([]);
   healthIndicators = signal<any[]>([]);
   recentActivities = signal<any[]>([]);
 
@@ -49,11 +50,31 @@ export class Dashboard {
 
   async ngOnInit(): Promise<void> {
     try {
-      const data = await this.dashboardSvc.getStats();
-      this.stats.set(data);
+      const [stats, registrations] = await Promise.all([
+        this.dashboardSvc.getStats(),
+        this.dashboardSvc.getRecentRegistrations(),
+      ]);
+      this.stats.set(stats);
+      this.registrations.set(registrations);
+      this.healthIndicators.set([
+        { name: 'Auth and onboarding', status: registrations.length ? 'healthy' : 'monitoring' },
+        { name: 'Registration intake', status: 'healthy' },
+        { name: 'Billing signal', status: stats.billingActive > 0 ? 'healthy' : 'monitoring' },
+      ]);
+      this.recentActivities.set([
+        `${registrations.length} recent registrations available for review`,
+        `${stats.activeOrganizations} organizations currently active`,
+        `${stats.criticalLogs} critical alerts flagged across the platform`,
+      ]);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  formatTimestamp(value: any): string {
+    const raw = typeof value?.toDate === 'function' ? value.toDate() : value;
+    const date = raw instanceof Date ? raw : new Date(raw);
+    return Number.isNaN(date.getTime()) ? 'Pending timestamp' : date.toLocaleString();
   }
 
 }

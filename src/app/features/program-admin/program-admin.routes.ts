@@ -26,9 +26,19 @@ export const PROGRAM_ADMIN_ROUTES: Routes = [
           import('./programs/program-create.page').then((m) => m.ProgramCreatePage),
       },
       {
+        path: 'programs/import',
+        loadComponent: () =>
+          import('./programs/program-import.page').then((m) => m.ProgramImportPage),
+      },
+      {
         path: 'programs/:id/edit',
         loadComponent: () =>
           import('./programs/program-edit.page').then((m) => m.ProgramEditPage),
+      },
+      {
+        path: 'programs/:programId',
+        loadChildren: () =>
+          import('./content/content.routes').then((m) => m.CONTENT_ROUTES),
       },
       {
         path: 'enrollments',
@@ -48,6 +58,10 @@ export const PROGRAM_ADMIN_ROUTES: Routes = [
         path: 'analytics',
         loadComponent: () =>
           import('./analytics/program-analytics.page').then((m) => m.ProgramAnalyticsPage),
+      },
+      {
+        path: 'exam-prep',
+        loadChildren: () => import('./exam-prep/exam-prep.routes').then((m) => m.EXAM_PREP_ROUTES),
       },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],

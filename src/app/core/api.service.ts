@@ -6,6 +6,7 @@ import { environment } from '../../enviroments/enviroment';
 export interface CheckoutHttpPayload {
   offerId?: string;
   cartId?: string;
+  productId?: string;
   successUrl: string;
   cancelUrl: string;
 }

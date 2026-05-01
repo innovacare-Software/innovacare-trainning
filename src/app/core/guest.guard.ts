@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { combineLatest, filter, map, take } from 'rxjs';
 import { AuthService } from './auth';
-import { defaultRouteForRole } from './auth-redirect.service';
+import { resolveDefaultRoute } from './auth-redirect.service';
 
 export const guestGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
@@ -18,14 +18,12 @@ export const guestGuard: CanActivateFn = () => {
       }
 
       const isActive = profile.active ?? true;
-      const role = profile.role;
-
       if (!isActive) {
         return router.parseUrl('/login');
       }
 
-      if (role !== 'guest') {
-        return router.parseUrl(defaultRouteForRole(role));
+      if (profile.role !== 'guest') {
+        return router.parseUrl(resolveDefaultRoute(profile));
       }
 
       return true;

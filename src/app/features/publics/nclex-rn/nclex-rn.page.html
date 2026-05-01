@@ -1,0 +1,144 @@
+<div class="ep-page ep-nclex-rn">
+  <section class="ep-hero">
+    <div class="ep-container">
+      <div class="ep-hero__content">
+        <div class="ep-hero__header">
+          <span class="ep-kicker">{{ content.hero.kicker | localizedField }}</span>
+          <h1>{{ content.hero.title | localizedField }}</h1>
+        </div>
+        <div class="ep-hero__main">
+          <div class="ep-hero__copy">
+            <p class="ep-hero__lead">{{ content.hero.lead | localizedField }}</p>
+            <div class="ep-hero__highlights">
+              @for (item of institutionFeatures; track $index) {
+                <div class="ep-hero__highlight-item">
+                  <strong>{{ item.icon }} {{ item.title | localizedField }}</strong>
+                  <span>{{ item.desc | localizedField }}</span>
+                </div>
+              }
+            </div>
+            <div class="ep-hero__actions">
+              <a routerLink="/login" class="ep-btn ep-btn--primary">{{ content.hero.primaryCta | localizedField }}</a>
+              <a routerLink="/for-educators/request-demo" class="ep-btn ep-btn--secondary">{{ content.hero.secondaryCta | localizedField }}</a>
+            </div>
+          </div>
+          <div class="ep-hero__visual">
+            <img src="https://res.cloudinary.com/dtdpx59sc/image/upload/v1767040410/UmNCYjFktnyXK68-_2w6WME2DjttuaNrB_jfk12r.jpg" [alt]="content.hero.imageAlt | localizedField" class="ep-hero__image" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--light">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.institutions.title | localizedField }}</h2>
+        <p>{{ content.institutions.body | localizedField }}</p>
+      </div>
+      <div class="ep-features-grid">
+        @for (feature of institutionFeatures; track $index) {
+          <div class="ep-feature-card">
+            <span class="ep-feature-card__icon">{{ feature.icon }}</span>
+            <h3>{{ feature.title | localizedField }}</h3>
+            <p>{{ feature.desc | localizedField }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--white ep-section--journeys">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.journeys.title | localizedField }}</h2>
+        <p>{{ content.journeys.body | localizedField }}</p>
+      </div>
+      <div class="ep-journey-grid">
+        @for (card of journeyCards; track $index) {
+          <article class="ep-journey-card">
+            <h3>{{ card.title | localizedField }}</h3>
+            <p>{{ card.body | localizedField }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--white">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.tools.title | localizedField }}</h2>
+        <p>{{ content.tools.body | localizedField }}</p>
+      </div>
+      <div class="ep-features-grid">
+        @for (f of features; track $index) {
+          <div class="ep-feature-card">
+            <span class="ep-feature-card__icon">{{ f.icon }}</span>
+            <h3>{{ f.title | localizedField }}</h3>
+            <p>{{ f.desc | localizedField }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--light">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>{{ content.plans.title | localizedField }}</h2>
+        <p>{{ content.plans.body | localizedField }}</p>
+      </div>
+      <div class="ep-packages-grid">
+        @for (pkg of packages; track $index) {
+          <div class="ep-pkg" [class.ep-pkg--popular]="pkg.popular">
+            @if (pkg.popular) { <span class="ep-pkg__badge">{{ content.plans.popularBadge | localizedField }}</span> }
+            <p class="ep-pkg__name">{{ pkg.name | localizedField }}</p>
+            <p class="ep-pkg__price">{{ pkg.price | localizedField }}<span>{{ pkg.period | localizedField }}</span></p>
+            <p class="ep-pkg__desc">{{ pkg.desc | localizedField }}</p>
+            <ul class="ep-pkg__features">
+              @for (feat of pkg.features; track $index) { <li>{{ feat | localizedField }}</li> }
+            </ul>
+            <a routerLink="/login" class="ep-pkg__cta">{{ content.plans.cta | localizedField }}</a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--dark">
+    <div class="ep-container ep-org-grid">
+      <div>
+        <div class="ep-section-head ep-section-head--left">
+          <h2>{{ content.organizations.title | localizedField }}</h2>
+          <p>{{ content.organizations.body | localizedField }}</p>
+        </div>
+        <ul class="ep-org-list">
+          @for (item of organizationBenefits; track $index) {
+            <li>{{ item | localizedField }}</li>
+          }
+        </ul>
+      </div>
+      <aside class="ep-org-panel">
+        <span class="ep-org-panel__eyebrow">{{ content.organizations.panelEyebrow | localizedField }}</span>
+        <h3>{{ content.organizations.panelTitle | localizedField }}</h3>
+        <p>{{ content.organizations.panelBody | localizedField }}</p>
+        <div class="ep-hero__actions">
+          <a routerLink="/for-educators/request-demo" class="ep-btn ep-btn--primary">{{ content.organizations.primaryCta | localizedField }}</a>
+          <a routerLink="/contact" class="ep-btn ep-btn--ghost">{{ content.organizations.secondaryCta | localizedField }}</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="ep-cta-banner">
+    <div class="ep-container">
+      <h2>{{ content.ctaBanner.title | localizedField }}</h2>
+      <p>{{ content.ctaBanner.body | localizedField }}</p>
+      <div class="ep-hero__actions" style="justify-content:center">
+        <a routerLink="/login" class="ep-btn ep-btn--primary">{{ content.ctaBanner.primaryCta | localizedField }}</a>
+        <a routerLink="/for-educators/request-demo" class="ep-btn ep-btn--ghost">{{ content.ctaBanner.secondaryCta | localizedField }}</a>
+      </div>
+    </div>
+  </div>
+</div>

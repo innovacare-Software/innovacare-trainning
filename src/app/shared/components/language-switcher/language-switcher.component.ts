@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslocoService } from '@jsverse/transloco';
+import { Router } from '@angular/router';
+import { LanguageService } from '../../../core/language.service';
 
 @Component({
   selector: 'app-language-switcher',
@@ -51,18 +52,57 @@ import { TranslocoService } from '@jsverse/transloco';
   `],
 })
 export class LanguageSwitcherComponent {
-  private readonly transloco = inject(TranslocoService);
+  private readonly langService = inject(LanguageService);
+  private readonly router = inject(Router);
 
   readonly availableLangs = ['en', 'fr'] as const;
   readonly langLabels: Record<string, string> = { en: 'English', fr: 'Français' };
 
-  activeLang = this.transloco.langChanges$
-    ? () => this.transloco.getActiveLang()
-    : () => 'en';
+  activeLang = () => this.langService.currentLang();
 
   switchLang(lang: string): void {
-    this.transloco.setActiveLang(lang);
-    localStorage.setItem('preferredLang', lang);
-    document.documentElement.lang = lang;
+    void this.langService.setLanguage(lang as 'en' | 'fr');
+
+    const currentPath = window.location.pathname;
+    if (this.isMarketingPath(currentPath)) {
+      const localizedPath = lang === 'fr' ? this.toFrenchPath(currentPath) : this.toEnglishPath(currentPath);
+      void this.router.navigateByUrl(`${localizedPath}${window.location.search}${window.location.hash}`);
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  private isMarketingPath(path: string): boolean {
+    const normalized = this.toEnglishPath(path);
+    return (
+      normalized === '/home' ||
+      normalized === '/courses' ||
+      normalized === '/catalogue' ||
+      normalized === '/blog' ||
+      normalized.startsWith('/blog/') ||
+      normalized === '/testimonials' ||
+      normalized === '/medical-program' ||
+      normalized === '/it-courses' ||
+      normalized === '/global-nurse-pack' ||
+      normalized === '/contact' ||
+      normalized === '/pricing' ||
+      normalized === '/fonctionnalites'
+    );
+  }
+
+  private toFrenchPath(path: string): string {
+    const normalized = this.toEnglishPath(path);
+    return normalized === '/' ? '/fr/home' : `/fr${normalized}`;
+  }
+
+  private toEnglishPath(path: string): string {
+    if (path === '/fr') {
+      return '/home';
+    }
+
+    return path.startsWith('/fr/') ? path.slice(3) || '/home' : path;
   }
 }

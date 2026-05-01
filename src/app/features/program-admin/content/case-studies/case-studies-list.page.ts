@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, combineLatest, map } from 'rxjs';
+import { combineLatest, map, of } from 'rxjs';
 import { ProgramCaseStudiesAdminService } from '../services/program-case-studies-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { CONTENT_STATUS_LABELS, CASE_STUDY_SCORING_LABELS } from '../models/content-builder.models';
@@ -30,7 +30,7 @@ import { CONTENT_STATUS_LABELS, CASE_STUDY_SCORING_LABELS } from '../models/cont
               <th>Title</th>
               <th>Module</th>
               <th>Scoring</th>
-              <th>Prompts</th>
+              <th>Questions</th>
               <th>Active</th>
               <th>Status</th>
               <th>Actions</th>
@@ -42,7 +42,7 @@ import { CONTENT_STATUS_LABELS, CASE_STUDY_SCORING_LABELS } from '../models/cont
               <td><strong>{{ cs.title }}</strong></td>
               <td>{{ vm()?.moduleMap?.[cs.moduleId] ?? cs.moduleId }}</td>
               <td><span class="scoring-pill">{{ SCORING_LABELS[cs.scoringMode] }}</span></td>
-              <td>{{ cs.prompts.length }}</td>
+              <td>{{ cs.questions.length || cs.prompts.length || 0 }}</td>
               <td><span class="pill" [class.yes]="cs.active">{{ cs.active ? 'Yes' : 'No' }}</span></td>
               <td><span class="status-pill" [class]="'status-' + cs.status.toLowerCase()">{{ STATUS_LABELS[cs.status] }}</span></td>
               <td class="actions-cell">
@@ -94,25 +94,20 @@ export class CaseStudiesListPage {
   private readonly caseStudiesService = inject(ProgramCaseStudiesAdminService);
   private readonly modulesService = inject(ProgramModulesAdminService);
 
-  readonly programId = toSignal(
-    this.route.params.pipe(switchMap((p) => [p['programId'] as string])),
-    { initialValue: '' }
-  );
+  readonly programId = signal(this.getRequiredProgramId());
 
   readonly vm = toSignal(
-    this.route.params.pipe(
-      switchMap((p) =>
-        combineLatest([
-          this.caseStudiesService.getCaseStudies(p['programId']),
-          this.modulesService.getModules(p['programId']),
+    this.programId()
+      ? combineLatest([
+          this.caseStudiesService.getCaseStudies(this.programId()),
+          this.modulesService.getModules(this.programId()),
         ]).pipe(
           map(([caseStudies, modules]) => ({
             caseStudies,
             moduleMap: modules.reduce<Record<string, string>>((acc, m) => { acc[m.id] = m.title; return acc; }, {}),
           }))
         )
-      )
-    )
+      : of({ caseStudies: [], moduleMap: {} as Record<string, string> })
   );
 
   protected readonly STATUS_LABELS = CONTENT_STATUS_LABELS;
@@ -121,5 +116,11 @@ export class CaseStudiesListPage {
   async deleteCaseStudy(caseStudyId: string): Promise<void> {
     if (!confirm('Delete this case study? This cannot be undone.')) return;
     await this.caseStudiesService.deleteCaseStudy(this.programId(), caseStudyId);
+  }
+
+  private getRequiredProgramId(): string {
+    return this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim()) ?? '';
   }
 }

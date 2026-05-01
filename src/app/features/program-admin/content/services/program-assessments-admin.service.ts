@@ -30,13 +30,17 @@ export class ProgramAssessmentsAdminService {
     return collectionData(
       query(this.col(programId), orderBy('order', 'asc')),
       { idField: 'id' }
-    ) as Observable<ProgramContentAssessment[]>;
+    ).pipe(
+      map((assessments) =>
+        (assessments as ProgramContentAssessment[]).map((assessment) => this.normalizeAssessment(assessment))
+      )
+    );
   }
 
   getAssessmentById(programId: string, assessmentId: string): Observable<ProgramContentAssessment | null> {
     return (
       docData(doc(this.db, `programs/${programId}/assessments/${assessmentId}`), { idField: 'id' }) as Observable<ProgramContentAssessment>
-    ).pipe(map((a) => a ?? null));
+    ).pipe(map((assessment) => (assessment ? this.normalizeAssessment(assessment) : null)));
   }
 
   async createAssessment(programId: string, payload: CreateAssessmentPayload): Promise<string> {
@@ -62,5 +66,14 @@ export class ProgramAssessmentsAdminService {
 
   async deleteAssessment(programId: string, assessmentId: string): Promise<void> {
     await deleteDoc(doc(this.db, `programs/${programId}/assessments/${assessmentId}`));
+  }
+
+  private normalizeAssessment(assessment: ProgramContentAssessment): ProgramContentAssessment {
+    const questions = Array.isArray(assessment.questions) ? assessment.questions : [];
+    return {
+      ...assessment,
+      questions,
+      questionCount: questions.length || Number(assessment.questionCount || 0),
+    };
   }
 }

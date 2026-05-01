@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "qb-sample-001",
+      "organizationId": "demo-org",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "adult-health-med-surg",
+      "courseGroupTitle": "Adult Health / Med-Surg",
+      "moduleId": "cardiovascular",
+      "moduleTitle": "Cardiovascular",
+      "parentCaseId": null,
+      "itemType": "single_choice",
+      "cognitiveLevel": "clinical_judgment",
+      "difficulty": "medium",
+      "stem": "A client with heart failure develops sudden dyspnea, frothy sputum, and bilateral crackles.",
+      "scenarioText": "The nurse is assessing the patient during a rapid deterioration event.",
+      "leadInQuestion": "Which action should the nurse prioritize first?",
+      "choices": [
+        { "id": "A", "label": "A", "text": "Place the client in high Fowler position", "rationale": null },
+        { "id": "B", "label": "B", "text": "Administer oral fluids", "rationale": null },
+        { "id": "C", "label": "C", "text": "Prepare for ambulation", "rationale": null },
+        { "id": "D", "label": "D", "text": "Collect stool specimen", "rationale": null }
+      ],
+      "correctAnswerKey": ["A"],
+      "explanation": "Positioning improves oxygenation immediately while the provider and respiratory response are activated.",
+      "rationale": "High Fowler reduces venous return and improves chest expansion during pulmonary edema.",
+      "distractorRationale": {
+        "B": "Oral fluids worsen fluid overload in acute pulmonary edema.",
+        "C": "Ambulation increases oxygen demand and is unsafe in respiratory distress.",
+        "D": "A stool specimen does not address the immediate airway-breathing threat."
+      },
+      "learningObjectives": ["Prioritize emergency cardiopulmonary interventions"],
+      "tags": ["prioritization", "cardiovascular", "pulmonary-edema"],
+      "sourceAuthority": "Internal SME Board",
+      "sourceReferenceTitle": "Cardiovascular rapid response review set",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-01-01",
+      "jurisdictionNotes": null,
+      "points": 1,
+      "estimatedTimeSeconds": 75,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "remediationModuleIds": ["cardiovascular"],
+      "remediationLessonIds": ["lesson-pulmonary-edema"],
+      "remediationTags": ["oxygenation", "priority"],
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "createdBy": "seed",
+      "updatedBy": "seed"
+    }
+  ],
+  "caseStudies": []
+}

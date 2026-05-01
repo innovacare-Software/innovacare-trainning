@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { combineLatest, map, Observable, of } from 'rxjs';
+import { catchError, combineLatest, map, Observable, of } from 'rxjs';
 import { OrganizationDashboardStats } from '../org.models';
 import { OrganizationAlertsService } from './organization-alerts.service';
 import { OrganizationAuditService } from './organization-audit.service';
@@ -19,36 +19,38 @@ export class OrganizationAdminDashboardService {
   private readonly followUp = inject(OrganizationFollowUpService);
   private readonly audit = inject(OrganizationAuditService);
 
+  private readonly emptyStats: OrganizationDashboardStats = {
+    totalUsers: 0,
+    activeLearners: 0,
+    assignedCourses: 0,
+    learnersInProgress: 0,
+    completionRate: 0,
+    overdueCount: 0,
+    pendingPolicyAcknowledgments: 0,
+    activeAlerts: 0,
+    criticalAuditEvents: 0,
+    usersAtRisk: 0,
+    averageProgress: 0,
+    followUpCompletionRate: 0,
+    stalledLearners: 0,
+    notStartedLearners: 0,
+    completedLearners: 0,
+    assignmentCoverageRate: 0,
+  };
+
   stats(orgId: string): Observable<OrganizationDashboardStats> {
     if (!orgId?.trim()) {
-      return of({
-        totalUsers: 0,
-        activeLearners: 0,
-        assignedCourses: 0,
-        learnersInProgress: 0,
-        completionRate: 0,
-        overdueCount: 0,
-        pendingPolicyAcknowledgments: 0,
-        activeAlerts: 0,
-        criticalAuditEvents: 0,
-        usersAtRisk: 0,
-        averageProgress: 0,
-        followUpCompletionRate: 0,
-        stalledLearners: 0,
-        notStartedLearners: 0,
-        completedLearners: 0,
-        assignmentCoverageRate: 0,
-      });
+      return of(this.emptyStats);
     }
 
     return combineLatest([
-      this.users.list(orgId),
-      this.assignments.list(orgId),
-      this.progress.list(orgId),
-      this.overdue.list(orgId),
-      this.alerts.list(orgId),
-      this.followUp.list(orgId),
-      this.audit.list(orgId),
+      this.safeList('organizations/{orgId}/users', orgId, this.users.list(orgId)),
+      this.safeList('organizations/{orgId}/courseAssignments', orgId, this.assignments.list(orgId)),
+      this.safeList('organizations/{orgId}/progress', orgId, this.progress.list(orgId)),
+      this.safeList('organizations/{orgId}/overdue', orgId, this.overdue.list(orgId)),
+      this.safeList('organizations/{orgId}/alerts', orgId, this.alerts.list(orgId)),
+      this.safeList('organizations/{orgId}/followUpActions', orgId, this.followUp.list(orgId)),
+      this.safeList('organizations/{orgId}/auditLogs', orgId, this.audit.list(orgId)),
     ]).pipe(
       map(([users, assignments, progressRows, overdueRows, alerts, followUpRows, auditRows]) => {
         const totalUsers = users.length;
@@ -94,8 +96,30 @@ export class OrganizationAdminDashboardService {
           completedLearners,
           assignmentCoverageRate: totalUsers ? Math.round((assignments.length / totalUsers) * 1000) / 10 : 0,
         };
+      }),
+      catchError((error) => {
+        this.logAccessError('dashboard aggregate', orgId, error);
+        return of(this.emptyStats);
       })
     );
+  }
+
+  private safeList<T>(label: string, orgId: string, source: Observable<T[]>): Observable<T[]> {
+    return source.pipe(
+      catchError((error) => {
+        this.logAccessError(label, orgId, error);
+        return of([] as T[]);
+      })
+    );
+  }
+
+  private logAccessError(scope: string, orgId: string, error: unknown): void {
+    console.error('[OrgAdminDashboardService] Firestore access failed', {
+      scope,
+      orgId,
+      error,
+      hint: 'Verify deployed firestore.rules and the signed-in user document role/orgId.',
+    });
   }
 
   completionBreakdown(stats: OrganizationDashboardStats): Array<{ label: string; value: number }> {

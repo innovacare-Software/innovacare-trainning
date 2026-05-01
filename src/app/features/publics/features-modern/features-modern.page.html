@@ -1,0 +1,33 @@
+<main class="mk-page">
+  <section class="mk-section mk-courses-hero mk-features-hero mk-hero-parallax" appHeroParallax [parallaxClamp]="38">
+    <div class="mk-orbit mk-orbit--gold mk-features-hero__orb mk-features-hero__orb--one" data-parallax-depth="-0.18"></div>
+    <div class="mk-orbit mk-orbit--cyan mk-features-hero__orb mk-features-hero__orb--two" data-parallax-depth="-0.08"></div>
+    <div class="mk-container mk-features-hero__grid">
+      <div class="mk-features-hero__copy mk-reveal" data-parallax-depth="0.06">
+        <span class="mk-kicker">Features</span>
+        <h1>A modern exam prep platform designed like a growth product</h1>
+        <p>Everything from content architecture to CTA placement is designed to convert, retain, and scale.</p>
+      </div>
+
+      <div class="mk-features-hero__stats mk-stagger" data-parallax-depth="0.14">
+        @for (item of heroStats; track item) {
+          <article class="mk-feature-stat">
+            <strong>{{ item }}</strong>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mk-section">
+    <div class="mk-container mk-features-grid mk-stagger">
+      @for (feature of features; track feature.title) {
+        <article class="mk-award-card mk-feature-tile">
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.body }}</p>
+          <a routerLink="/contact" class="mk-link">Learn More</a>
+        </article>
+      }
+    </div>
+  </section>
+</main>

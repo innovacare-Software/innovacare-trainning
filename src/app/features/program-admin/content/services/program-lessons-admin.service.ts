@@ -16,6 +16,7 @@ import { Observable, map } from 'rxjs';
 import {
   ProgramContentLesson,
   CreateLessonPayload,
+  LessonType,
 } from '../models/content-builder.models';
 
 @Injectable({ providedIn: 'root' })
@@ -43,6 +44,7 @@ export class ProgramLessonsAdminService {
     const ref = await addDoc(this.col(programId), {
       ...payload,
       programId,
+      type: toLearnerLessonType(payload.lessonType),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -56,11 +58,27 @@ export class ProgramLessonsAdminService {
   ): Promise<void> {
     await updateDoc(doc(this.db, `programs/${programId}/lessons/${lessonId}`), {
       ...payload,
+      ...(payload.lessonType ? { type: toLearnerLessonType(payload.lessonType) } : {}),
       updatedAt: serverTimestamp(),
     });
   }
 
   async deleteLesson(programId: string, lessonId: string): Promise<void> {
     await deleteDoc(doc(this.db, `programs/${programId}/lessons/${lessonId}`));
+  }
+}
+
+function toLearnerLessonType(lessonType: LessonType): string {
+  switch (lessonType) {
+    case LessonType.VIDEO:
+      return 'video';
+    case LessonType.DOCUMENT:
+      return 'document';
+    case LessonType.MIXED:
+      return 'mixed';
+    case LessonType.WEB:
+      return 'web';
+    default:
+      return 'reading';
   }
 }

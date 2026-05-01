@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
@@ -15,27 +15,36 @@ import { GuestProgramAccess } from '../data/guest-commerce.model';
 export class GuestProgramsService {
   private auth = inject(Auth);
   private afs = inject(Firestore);
+  private injector = inject(Injector);
+
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   listMyPrograms$(): Observable<GuestProgramAccess[]> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid) return of([]);
-        return collectionData(
-          collection(this.afs, `users/${user.uid}/guestPrograms`),
-          { idField: 'id' }
-        ) as Observable<GuestProgramAccess[]>;
+        return this.inContext(
+          () => collectionData(
+            collection(this.afs, `users/${user.uid}/guestPrograms`),
+            { idField: 'id' }
+          ) as Observable<GuestProgramAccess[]>
+        );
       })
     );
   }
 
   myProgramById$(programAccessId: string): Observable<GuestProgramAccess | null> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid || !programAccessId) return of(null);
-        return docData(
-          doc(this.afs, `users/${user.uid}/guestPrograms/${programAccessId}`),
-          { idField: 'id' }
-        ) as Observable<GuestProgramAccess>;
+        return this.inContext(
+          () => docData(
+            doc(this.afs, `users/${user.uid}/guestPrograms/${programAccessId}`),
+            { idField: 'id' }
+          ) as Observable<GuestProgramAccess>
+        );
       })
     );
   }

@@ -1,0 +1,30 @@
+{
+  "title": "Acute Heart Failure Case Study",
+  "description": "Clinical reasoning case on fluid overload recognition and priority interventions.",
+  "scenario": "A client with a history of heart failure presents with worsening dyspnea, bilateral edema, and orthopnea over the past 48 hours.",
+  "scoringMode": "MANUAL",
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "Which assessment findings support fluid volume excess in this client?",
+      "expectedKeywords": ["crackles", "edema", "orthopnea", "weight gain"],
+      "maxScore": 4,
+      "explanation": "Fluid volume excess (hypervolemia) in heart failure produces predictable signs: pulmonary crackles from interstitial fluid, bilateral dependent edema, orthopnea from fluid redistribution in the supine position, and rapid weight gain (>2 lb/day signals fluid retention). Jugular venous distension, S3 gallop, and decreased SpO2 are additional hallmarks. Learners should identify and cluster these objective findings to support the nursing diagnosis.",
+      "modelAnswer": "Assessment findings supporting fluid volume excess include bilateral crackles (reflecting pulmonary edema from elevated left-sided filling pressures), 2+ pitting edema of bilateral lower extremities (dependent edema from elevated venous pressure), orthopnea requiring 3-pillow positioning (dyspnea relieved when upright due to fluid redistribution away from the lungs), and a documented 4 kg weight gain over 48 hours (consistent with fluid accumulation at approximately 1 L per kg). Together, these findings are consistent with acute decompensated heart failure with volume overload."
+    },
+    {
+      "prompt": "What nursing actions should be prioritized in the first assessment cycle?",
+      "expectedKeywords": ["high fowler", "oxygen", "vital signs", "lung sounds"],
+      "maxScore": 4,
+      "explanation": "The first assessment cycle in acute heart failure focuses on airway and breathing. Positioning the client in high Fowler's reduces preload and work of breathing. Applying supplemental oxygen addresses hypoxemia. Obtaining a full set of vital signs (including SpO2, BP, RR) establishes a hemodynamic baseline. Auscultating lung sounds confirms or rules out pulmonary edema. These four nurse-initiated actions occur before or concurrent with provider notification.",
+      "modelAnswer": "Priority nursing actions in the first assessment cycle include: (1) Position the client in high Fowler's (60\u201390\u00b0) to reduce venous return and alleviate orthopnea; (2) Apply supplemental oxygen per protocol to maintain SpO2 \u226590%; (3) Obtain a full set of vital signs including heart rate, blood pressure, respiratory rate, temperature, and oxygen saturation to establish a hemodynamic baseline and detect deterioration; (4) Auscultate lung sounds bilaterally to assess for worsening crackles or wheezing indicating pulmonary edema progression. Notify the provider with SBAR communication including current assessment findings and change from baseline."
+    },
+    {
+      "prompt": "Which findings would show that interventions are improving the client status?",
+      "expectedKeywords": ["improved oxygenation", "less dyspnea", "decreased crackles", "urine output"],
+      "maxScore": 4,
+      "explanation": "Improvement in acute heart failure is measured by reversal of the fluid overload findings: SpO2 returning toward baseline, subjective reduction in dyspnea, clearing of crackles on auscultation, and adequate urinary output (>30 mL/hr) indicating that diuresis is mobilizing excess fluid. Decreasing edema and return to previous weight are additional positive indicators over the next 24\u201348 hours.",
+      "modelAnswer": "Indicators of improving client status include: (1) SpO2 improving to \u226594% on supplemental oxygen or returning toward the client's baseline, reflecting improved gas exchange; (2) Client reports decreased dyspnea with ability to speak in full sentences and tolerance of a lower head-of-bed angle; (3) Diminished or clearing crackles on auscultation compared to the initial assessment, suggesting fluid is mobilizing from the alveolar space; (4) Urine output of \u226530 mL/hr in response to diuretic therapy, confirming effective fluid removal. These findings together indicate a positive response to fluid management and should be communicated to the provider."
+    }
+  ]
+}

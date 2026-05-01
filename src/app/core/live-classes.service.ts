@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
@@ -21,6 +21,11 @@ import { LiveClassBooking } from '../data/guest-commerce.model';
 export class LiveClassesService {
   private auth = inject(Auth);
   private afs = inject(Firestore);
+  private injector = inject(Injector);
+
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   listActiveLiveClasses$(): Observable<LiveClass[]> {
     const q = query(
@@ -28,23 +33,25 @@ export class LiveClassesService {
       where('isActive', '==', true)
     );
 
-    return collectionData(q, { idField: 'id' }) as Observable<LiveClass[]>;
+    return this.inContext(() => collectionData(q, { idField: 'id' }) as Observable<LiveClass[]>);
   }
 
   listMyBookings$(): Observable<LiveClassBooking[]> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid) return of([]);
-        return collectionData(
-          collection(this.afs, `users/${user.uid}/bookings`),
-          { idField: 'id' }
-        ) as Observable<LiveClassBooking[]>;
+        return this.inContext(
+          () => collectionData(
+            collection(this.afs, `users/${user.uid}/bookings`),
+            { idField: 'id' }
+          ) as Observable<LiveClassBooking[]>
+        );
       })
     );
   }
 
   async bookLiveClass(liveClassId: string): Promise<string> {
-    const user = await firstValueFrom(authState(this.auth));
+    const user = await firstValueFrom(this.inContext(() => authState(this.auth)));
     if (!user?.uid) {
       throw new Error('User not authenticated.');
     }

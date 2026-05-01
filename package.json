@@ -5,9 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "postbuild": "node scripts/prerender-marketing-seo-locales.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:rules:smoke": "firebase emulators:exec --only firestore \"node scripts/firestore-rules-smoke.mjs\""
+    "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\""
   },
   "prettier": {
     "printWidth": 100,
@@ -34,12 +35,14 @@
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@jsverse/transloco": "^8.3.0",
+    "bootstrap": "^5.3.3",
     "cors": "^2.8.6",
     "echarts": "^6.0.0",
     "firebase": "^11.10.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.6.82",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "uuid": "^13.0.0",
@@ -51,6 +54,7 @@
     "@angular/cli": "^20.3.2",
     "@angular/compiler-cli": "^20.3.0",
     "@firebase/rules-unit-testing": "^4.0.1",
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/html2canvas": "^0.5.35",
     "@types/jasmine": "~5.1.0",
     "baseline-browser-mapping": "^2.9.11",
@@ -60,6 +64,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2",
     "typescript": "~5.9.2"
   }
 }

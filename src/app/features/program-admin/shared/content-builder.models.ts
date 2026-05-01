@@ -11,6 +11,7 @@ export enum LessonType {
   TEXT = 'TEXT',
   DOCUMENT = 'DOCUMENT',
   MIXED = 'MIXED',
+  WEB = 'WEB',
 }
 
 export enum DocumentFileType {
@@ -208,6 +209,7 @@ export const LESSON_TYPE_LABELS: Record<LessonType, string> = {
   [LessonType.TEXT]: 'Text',
   [LessonType.DOCUMENT]: 'Document',
   [LessonType.MIXED]: 'Mixed',
+  [LessonType.WEB]: 'Web Page',
 };
 
 export const LIVE_SESSION_TYPE_LABELS: Record<LiveSessionType, string> = {

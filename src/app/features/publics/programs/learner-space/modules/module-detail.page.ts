@@ -3,7 +3,8 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { combineLatest, map, switchMap } from 'rxjs';
-import { PROGRAM_LESSON_TYPE_LABELS } from '../../program.models';
+import { DOCUMENT_FILE_TYPE_LABELS, PROGRAM_LESSON_TYPE_LABELS } from '../../program.models';
+import { LearnerDocumentsService } from '../services/learner-documents.service';
 import { LearnerModulesService } from '../services/learner-modules.service';
 import { LearnerLessonsService } from '../services/learner-lessons.service';
 
@@ -40,13 +41,38 @@ import { LearnerLessonsService } from '../services/learner-lessons.service';
                   </span>
                 </div>
                 <span class="md-lesson-type-icon">
-                  {{ lesson.type === 'video' ? '🎬' : lesson.type === 'reading' ? '📖' : lesson.type === 'interactive' ? '🧩' : lesson.type === 'lab' ? '🔬' : '📄' }}
+                  {{ lesson.type === 'video' ? '🎬' : lesson.type === 'reading' ? '📖' : lesson.type === 'interactive' ? '🧩' : lesson.type === 'lab' ? '🔬' : lesson.type === 'web' ? '🖥️' : '📄' }}
                 </span>
               </a>
             }
           </div>
         } @else {
           <p class="md-empty">No lessons in this module yet.</p>
+        }
+
+        <h2 class="md-section-title md-section-title--spaced">Documents</h2>
+        @if (documents().length > 0) {
+          <div class="md-docs">
+            @for (doc of documents(); track doc.id) {
+              <div class="md-doc-row">
+                <div class="md-doc-icon">
+                  {{ doc.fileType === 'pdf' ? '📕' : doc.fileType === 'docx' ? '📘' : doc.fileType === 'pptx' ? '📙' : doc.fileType === 'xlsx' ? '📗' : '📄' }}
+                </div>
+                <div class="md-doc-info">
+                  <span class="md-doc-title">{{ doc.title }}</span>
+                  @if (doc.description) {
+                    <span class="md-doc-desc">{{ doc.description }}</span>
+                  }
+                  <span class="md-doc-meta">{{ fileTypeLabel(doc.fileType) }}</span>
+                </div>
+                <a class="md-doc-action" [href]="doc.fileUrl" target="_blank" rel="noopener">
+                  {{ doc.downloadable ? '⬇ Download' : '👁 View' }}
+                </a>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="md-empty">No documents in this module yet.</p>
         }
       </div>
     } @else {
@@ -68,6 +94,7 @@ import { LearnerLessonsService } from '../services/learner-lessons.service';
     .md-meta { display: flex; gap: .8rem; font-size: .72rem; color: #9ca3af; }
 
     .md-section-title { font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 .8rem; }
+  .md-section-title--spaced { margin-top: 1.4rem; }
 
     .md-lessons { display: flex; flex-direction: column; gap: .4rem; }
     .md-lesson-row {
@@ -89,6 +116,26 @@ import { LearnerLessonsService } from '../services/learner-lessons.service';
     .md-preview-tag { color: #6366f1; font-weight: 600; }
     .md-lesson-type-icon { font-size: 1.1rem; }
 
+    .md-docs { display: flex; flex-direction: column; gap: .5rem; }
+    .md-doc-row {
+      display: flex; align-items: center; gap: .8rem;
+      background: #ffffff; border: 1px solid #e5e7eb;
+      border-radius: 10px; padding: .8rem .9rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+    }
+    .md-doc-row:hover { border-color: #6366f1; }
+    .md-doc-icon { font-size: 1.3rem; }
+    .md-doc-info { flex: 1; display: flex; flex-direction: column; gap: .12rem; }
+    .md-doc-title { font-size: .84rem; font-weight: 700; color: #111827; }
+    .md-doc-desc { font-size: .72rem; color: #6b7280; }
+    .md-doc-meta { font-size: .62rem; color: #6366f1; text-transform: uppercase; letter-spacing: .04em; }
+    .md-doc-action {
+      font-size: .74rem; font-weight: 700; text-decoration: none; white-space: nowrap;
+      color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+      padding: .4rem .8rem;
+    }
+    .md-doc-action:hover { background: #dbeafe; }
+
     .md-empty { font-size: .82rem; color: #9ca3af; font-style: italic; }
 
     .md-loading { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 4rem 0; color: #9ca3af; }
@@ -103,6 +150,7 @@ export class ModuleDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly modulesService = inject(LearnerModulesService);
   private readonly lessonsService = inject(LearnerLessonsService);
+  private readonly documentsService = inject(LearnerDocumentsService);
 
   private readonly programId$ = this.route.parent!.paramMap.pipe(map((p) => p.get('programId') || ''));
   private readonly moduleId$ = this.route.paramMap.pipe(map((p) => p.get('moduleId') || ''));
@@ -121,7 +169,18 @@ export class ModuleDetailPage {
     { initialValue: [] }
   );
 
+  readonly documents = toSignal(
+    combineLatest([this.programId$, this.moduleId$]).pipe(
+      switchMap(([pid, mid]) => this.documentsService.getDocuments(pid, mid))
+    ),
+    { initialValue: [] }
+  );
+
   lessonTypeLabel(type: string): string {
     return (PROGRAM_LESSON_TYPE_LABELS as Record<string, string>)[type] || type;
+  }
+
+  fileTypeLabel(type: string): string {
+    return (DOCUMENT_FILE_TYPE_LABELS as Record<string, string>)[type] || type;
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProgramEnrollment } from '../shared/program-admin.models';
+import { PaymentStatus } from '../../publics/programs/program.models';
 import { ProgramEnrollmentsService } from '../../publics/programs/program-enrollments.service';
 
 @Injectable({ providedIn: 'root' })
@@ -33,5 +34,13 @@ export class ProgramEnrollmentsAdminService {
 
   cancelEnrollment(enrollmentId: string): Promise<void> {
     return this.enrollments.cancelEnrollment(enrollmentId);
+  }
+
+  markPaid(enrollmentId: string): Promise<void> {
+    return this.enrollments.updatePaymentStatus(enrollmentId, PaymentStatus.PAID);
+  }
+
+  markUnpaid(enrollmentId: string): Promise<void> {
+    return this.enrollments.updatePaymentStatus(enrollmentId, PaymentStatus.UNPAID);
   }
 }

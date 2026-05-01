@@ -1,22 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AppProfile, AppRole } from './auth';
+import { AppProfile } from './auth';
+import { defaultRouteForRole, resolveDefaultRoute } from './auth-redirect.util';
 
-export function defaultRouteForRole(role: AppRole): string {
-  switch (role) {
-    case 'super_admin':
-      return '/super-admin/dashboard';
-    case 'admin':
-    case 'manager':
-      return '/manager/dashboard';
-    case 'learner':
-      return '/learner';
-    case 'guest':
-      return '/guest/dashboard';
-    default:
-      return '/login';
-  }
-}
+export { defaultRouteForRole, resolveDefaultRoute } from './auth-redirect.util';
 
 @Injectable({ providedIn: 'root' })
 export class AuthRedirectService {
@@ -28,7 +15,7 @@ export class AuthRedirectService {
       return;
     }
 
-    await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+    await this.router.navigateByUrl(resolveDefaultRoute(profile), {
       replaceUrl: true,
     });
   }

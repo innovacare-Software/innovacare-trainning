@@ -40,7 +40,7 @@ export interface LiveClassBooking {
 export interface Order {
   id?: string;
   uid: string;
-  itemType: 'course' | 'program' | 'live_class';
+  itemType: 'course' | 'program' | 'live_class' | 'tutor_session';
   itemId: string;
   title: string;
   amount: number;

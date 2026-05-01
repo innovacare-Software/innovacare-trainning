@@ -1,0 +1,311 @@
+<main class="arx-catalogue">
+  <section class="arx-catalogue-hero">
+    <div class="arx-catalogue-hero__overlay"></div>
+
+    <div class="arx-container arx-catalogue-hero__grid">
+      <div class="arx-catalogue-hero__copy">
+        <span class="arx-kicker">Courses</span>
+        <h1>{{ heroTitle() }}</h1>
+        <p>{{ heroDescription() }}</p>
+
+        <div class="arx-hero-stats">
+          <article class="arx-stat">
+            <strong>{{ courses().length }}</strong>
+            <span>Active courses</span>
+          </article>
+
+          <article class="arx-stat">
+            <strong>{{ nursingCourses().length }}</strong>
+            <span>Nursing paths</span>
+          </article>
+
+          <article class="arx-stat">
+            <strong>{{ medicalCourses().length }}</strong>
+            <span>Medical paths</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="arx-catalogue-hero__visual" aria-hidden="true">
+        <div class="arx-brand-glow"></div>
+
+        <div class="arx-parallax arx-parallax--back" [style.transform]="backParallax()">
+          <article class="arx-visual-card arx-visual-card--back">
+            <img [src]="visuals.medical" alt="" />
+          </article>
+        </div>
+
+        <div class="arx-parallax arx-parallax--front" [style.transform]="frontParallax()">
+          <article class="arx-visual-card arx-visual-card--front">
+            <img [src]="visuals.nursing" alt="Premium nursing catalogue visual" />
+            <div class="arx-visual-card__shade"></div>
+
+            <div class="arx-visual-card__content">
+              <span>Course catalogue</span>
+              <strong>Programs organized for direct enrollment</strong>
+              <small>Clear offers for learners, schools, and workforce training teams.</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="arx-float-card arx-float-card--top" [style.transform]="topFloatParallax()">
+          <strong>NCLEX</strong>
+          <span>High-interest public offer</span>
+        </div>
+
+        <div class="arx-float-card arx-float-card--bottom" [style.transform]="bottomFloatParallax()">
+          <strong>Medical</strong>
+          <span>Board and clinical review</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-sticky-toolbar">
+    <div class="arx-container arx-sticky-toolbar__inner">
+      <div class="arx-toolbar-copy">
+        <span class="arx-toolbar-label">Course navigator</span>
+        <strong>{{ displayedCourses().length }} programs available</strong>
+      </div>
+
+      <div class="arx-filter-row">
+        <button
+          type="button"
+          class="arx-filter-chip"
+          [class.active]="activeFilter() === 'all'"
+          (click)="setFilter('all')"
+        >
+          All
+        </button>
+
+        <button
+          type="button"
+          class="arx-filter-chip"
+          [class.active]="activeFilter() === 'nursing'"
+          (click)="setFilter('nursing')"
+        >
+          Nursing
+        </button>
+
+        <button
+          type="button"
+          class="arx-filter-chip"
+          [class.active]="activeFilter() === 'medical'"
+          (click)="setFilter('medical')"
+        >
+          Medical
+        </button>
+      </div>
+
+      <a routerLink="/home" fragment="quiz" class="arx-toolbar-link">Need help choosing?</a>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--spotlights">
+    <div class="arx-container">
+      <div class="arx-pathway-grid">
+        <article class="arx-pathway-card" id="nursing">
+          <div class="arx-pathway-card__copy">
+            <span class="arx-pill">Nursing</span>
+            <h2>NCLEX, nursing school, NP and progression-focused learning</h2>
+            <p>
+              Present your nursing catalogue as premium, supportive and highly structured,
+              with cleaner visual hierarchy and stronger purchase confidence.
+            </p>
+            <button type="button" class="arx-inline-btn" (click)="setFilter('nursing')">
+              View nursing courses
+            </button>
+          </div>
+
+          <div class="arx-pathway-card__image">
+            <img [src]="visuals.nursing" alt="Nursing pathway visual" />
+          </div>
+        </article>
+
+        <article class="arx-pathway-card arx-pathway-card--medical" id="medical">
+          <div class="arx-pathway-card__copy">
+            <span class="arx-pill arx-pill--teal">Medical</span>
+            <h2>Clinical review, board prep and advanced medical readiness</h2>
+            <p>
+              Position medical offerings with a stronger premium feel so the catalogue looks
+              intentional, trustworthy and easy to navigate.
+            </p>
+            <button type="button" class="arx-inline-btn" (click)="setFilter('medical')">
+              View medical courses
+            </button>
+          </div>
+
+          <div class="arx-pathway-card__image">
+            <img [src]="visuals.medical" alt="Medical pathway visual" />
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--catalogue">
+    <div class="arx-container">
+      <div class="arx-section__head">
+        <span class="arx-kicker">Catalogue</span>
+        <h2>
+          {{
+            activeFilter() === 'nursing'
+              ? 'Programs for NCLEX-RN, NCLEX-PN, and nurse practitioner pathways'
+              : activeFilter() === 'medical'
+                ? 'Clinical review, professional refreshers, and medical board support'
+                : 'A curated catalogue for nursing, clinical review, and medical learners'
+          }}
+        </h2>
+      </div>
+
+      @if (displayedCourses().length) {
+        <div class="arx-course-grid" [@gridAnimation]="activeFilter()">
+          @for (course of displayedCourses(); track course.id ?? course.title) {
+            <article class="arx-course-card">
+              <div class="arx-course-card__thumb">
+                <img [src]="getCourseImage(course)" [alt]="course.title" />
+
+                <div class="arx-course-card__thumb-badges">
+                  <span class="arx-pill arx-pill--glass">{{ course.kind }}</span>
+                  <span
+                    class="arx-track-badge"
+                    [class.medical]="resolveTrack(course) === 'medical'"
+                  >
+                    {{ resolveTrack(course) === 'nursing' ? 'Nursing' : 'Medical' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="arx-course-card__body">
+                <h3>{{ course.title }}</h3>
+                <p>{{ getCourseSummary(course) }}</p>
+
+                @if (getCourseTags(course).length) {
+                  <div class="arx-tag-row">
+                    @for (tag of getCourseTags(course); track tag) {
+                      <span class="arx-tag">{{ tag }}</span>
+                    }
+                  </div>
+                }
+
+                <div class="arx-course-meta">
+                  <span>{{ getCourseDuration(course) }}</span>
+                  <span>{{ getCourseLevel(course) }}</span>
+                </div>
+
+                <button
+                  type="button"
+                  class="arx-btn arx-btn--primary arx-btn--full"
+                  (click)="openCourseDrawer(course)"
+                >
+                  Learn More
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <article class="arx-empty-state">
+          <span class="arx-pill">No results</span>
+          <h3>No public courses match this filter yet.</h3>
+          <p>Try another category or publish more active courses from Firestore.</p>
+          <button type="button" class="arx-btn arx-btn--secondary-dark" (click)="setFilter('all')">
+            Show all courses
+          </button>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--cta">
+    <div class="arx-container">
+      <article class="arx-discovery-card">
+        <div class="arx-discovery-card__copy">
+          <span class="arx-kicker">Discovery</span>
+          <h2>Need help choosing the right path?</h2>
+          <p>
+            Use the personalized quiz flow to map exam window, confidence level, and target track
+            to the right offer.
+          </p>
+        </div>
+
+        <a routerLink="/home" fragment="quiz" class="arx-btn arx-btn--primary">
+          Take Quiz
+        </a>
+      </article>
+    </div>
+  </section>
+
+  @if (selectedCourse(); as course) {
+    <div class="arx-drawer-backdrop" [@backdropAnimation] (click)="closeCourseDrawer()"></div>
+
+    <aside
+      class="arx-drawer"
+      [@drawerAnimation]
+      role="dialog"
+      aria-modal="true"
+      aria-label="Course details"
+    >
+      <button type="button" class="arx-drawer__close" (click)="closeCourseDrawer()">✕</button>
+
+      <div class="arx-drawer__media">
+        <img [src]="getCourseImage(course)" [alt]="course.title" />
+      </div>
+
+      <div class="arx-drawer__content">
+        <div class="arx-drawer__top">
+          <span class="arx-pill">{{ course.kind }}</span>
+          <span
+            class="arx-track-badge"
+            [class.medical]="resolveTrack(course) === 'medical'"
+          >
+            {{ resolveTrack(course) === 'nursing' ? 'Nursing' : 'Medical' }}
+          </span>
+        </div>
+
+        <h3>{{ course.title }}</h3>
+
+        @if (course.subtitle) {
+          <h4>{{ course.subtitle }}</h4>
+        }
+
+        <p>{{ getCourseSummary(course) }}</p>
+
+        @if (getCourseTags(course).length) {
+          <div class="arx-tag-row arx-tag-row--drawer">
+            @for (tag of getCourseTags(course); track tag) {
+              <span class="arx-tag">{{ tag }}</span>
+            }
+          </div>
+        }
+
+        <div class="arx-drawer__stats">
+          <article>
+            <strong>{{ getCourseDuration(course) }}</strong>
+            <span>Duration</span>
+          </article>
+
+          <article>
+            <strong>{{ getCourseLevel(course) }}</strong>
+            <span>Level</span>
+          </article>
+
+          <article>
+            <strong>{{ course.ceCredit || 0 }}</strong>
+            <span>CE Credit</span>
+          </article>
+        </div>
+
+        <div class="arx-drawer__actions">
+          <button type="button" class="arx-btn arx-btn--primary" (click)="goToCourse(course)">
+            Open Full Course
+          </button>
+
+          <button type="button" class="arx-btn arx-btn--secondary-dark" (click)="closeCourseDrawer()">
+            Close
+          </button>
+        </div>
+      </div>
+    </aside>
+  }
+</main>

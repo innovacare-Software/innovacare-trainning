@@ -1,293 +1,57 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslocoService } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import {
-  PROGRAM_ENROLLMENT_STATUS_LABELS,
   ProgramEnrollmentStatus,
 } from '../../program.models';
+import {
+  LearnerDashboardExperienceService,
+  LearnerSessionCard,
+} from '../services/learner-dashboard-experience.service';
+import { LanguageService } from '../../../../../core/language.service';
+import { LearnerPopupService } from '../services/learner-popup.service';
 import { ProgramProgressService } from '../../program-progress.service';
+import { CustomTestBuilderDialog } from './custom-test-builder.dialog';
 
 @Component({
   selector: 'app-learner-dashboard-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
-    @if (vm(); as data) {
-      <!-- Hero Banner -->
-      <div class="ld-hero">
-        <div class="ld-hero-glow"></div>
-        <div class="ld-hero-content">
-          <div class="ld-hero-left">
-            <h1 class="ld-title">My Learning Dashboard</h1>
-            <p class="ld-subtitle">{{ enrollmentMessage() }}</p>
-            <span class="ld-status" [attr.data-status]="data.enrollment?.status">
-              {{ enrollmentStatusText() }}
-            </span>
-          </div>
-          <!-- Readiness Ring -->
-          <div class="ld-readiness-ring">
-            <svg viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="8"/>
-              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad)"
-                stroke-width="8" stroke-linecap="round"
-                [attr.stroke-dasharray]="ringDash()"
-                stroke-dashoffset="0"
-                transform="rotate(-90 60 60)"/>
-              <defs>
-                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#6366f1"/>
-                  <stop offset="100%" stop-color="#a78bfa"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <div class="ld-ring-center">
-              <span class="ld-ring-pct">{{ data.stats.readinessScore }}</span>
-              <span class="ld-ring-label">Readiness</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- KPI Strip -->
-      <div class="ld-kpi-strip">
-        @for (kpi of kpis(); track kpi.label) {
-          <div class="ld-kpi-card">
-            <span class="ld-kpi-icon">{{ kpi.icon }}</span>
-            <div class="ld-kpi-data">
-              <span class="ld-kpi-value">{{ kpi.value }}</span>
-              <span class="ld-kpi-label">{{ kpi.label }}</span>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Insights Row -->
-      <div class="ld-insights">
-        <div class="ld-insight green">
-          <span class="ld-insight-icon">💪</span>
-          <div>
-            <span class="ld-insight-label">Strongest Area</span>
-            <span class="ld-insight-val">{{ data.stats.strongestArea }}</span>
-          </div>
-        </div>
-        <div class="ld-insight amber">
-          <span class="ld-insight-icon">⚠️</span>
-          <div>
-            <span class="ld-insight-label">Weakest Area</span>
-            <span class="ld-insight-val">{{ data.stats.weakestArea }}</span>
-          </div>
-        </div>
-        <div class="ld-insight blue">
-          <span class="ld-insight-icon">🎯</span>
-          <div>
-            <span class="ld-insight-label">Next Action</span>
-            <span class="ld-insight-val">{{ data.stats.recommendedNextAction }}</span>
-          </div>
-        </div>
-        <div class="ld-insight purple">
-          <span class="ld-insight-icon">📘</span>
-          <div>
-            <span class="ld-insight-label">Recommended Module</span>
-            <span class="ld-insight-val">{{ data.stats.recommendedNextModule }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Module Progress Bars -->
-      <section class="ld-section">
-        <h2 class="ld-section-title">Module Progress</h2>
-        @if (moduleBars().length > 0) {
-          <div class="ld-bars">
-            @for (bar of moduleBars(); track bar.label) {
-              <div class="ld-bar-row">
-                <span class="ld-bar-label">{{ bar.label }}</span>
-                <div class="ld-bar-track">
-                  <div class="ld-bar-fill" [style.width.%]="bar.value"
-                    [class.ld-bar-complete]="bar.value >= 100"
-                    [class.ld-bar-mid]="bar.value >= 40 && bar.value < 100"
-                    [class.ld-bar-low]="bar.value < 40">
-                  </div>
-                </div>
-                <span class="ld-bar-pct">{{ bar.value }}%</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="ld-empty">No module progress yet. Start your first module to begin tracking.</p>
-        }
-      </section>
-
-      <!-- Score Trend Chart -->
-      <section class="ld-section">
-        <h2 class="ld-section-title">Assessment Score Trend</h2>
-        @if (scoreTrend().points.length > 1) {
-          <div class="ld-chart-container">
-            <svg class="ld-chart" viewBox="0 0 400 160" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#6366f1" stop-opacity="0.3"/>
-                  <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
-                </linearGradient>
-              </defs>
-              <polygon [attr.points]="scoreTrend().area" fill="url(#trendFill)"/>
-              <polyline [attr.points]="scoreTrend().line" fill="none" stroke="#818cf8" stroke-width="2" stroke-linejoin="round"/>
-              @for (pt of scoreTrend().points; track $index) {
-                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3" fill="#6366f1" stroke="#ffffff" stroke-width="1.5"/>
-              }
-            </svg>
-          </div>
-        } @else {
-          <p class="ld-empty">Take at least 2 assessments to see your score trend.</p>
-        }
-      </section>
-
-      <!-- Quick Action Cards -->
-      <div class="ld-actions">
-        <a class="ld-action-card" routerLink="../modules">
-          <span class="ld-action-icon">📚</span>
-          <span class="ld-action-text">Continue Modules</span>
-        </a>
-        <a class="ld-action-card" routerLink="../assessments">
-          <span class="ld-action-icon">📝</span>
-          <span class="ld-action-text">Take Assessment</span>
-        </a>
-        <a class="ld-action-card" routerLink="../simulations">
-          <span class="ld-action-icon">🧪</span>
-          <span class="ld-action-text">CBT Practice</span>
-        </a>
-        <a class="ld-action-card" routerLink="../live-sessions">
-          <span class="ld-action-icon">🎥</span>
-          <span class="ld-action-text">Live Sessions</span>
-        </a>
-      </div>
-    } @else {
-      <div class="ld-loading">
-        <div class="ld-spinner"></div>
-        <span>Loading dashboard…</span>
-      </div>
-    }
-  `,
-  styles: [`
-    :host { display: block; }
-
-    .ld-hero {
-      position: relative;
-      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f0f9ff 100%);
-      border-radius: 16px;
-      padding: 2rem 2.2rem;
-      margin-bottom: 1.5rem;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-    }
-    .ld-hero-glow {
-      position: absolute; top: -40%; right: -10%; width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(99,102,241,.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .ld-hero-content { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
-    .ld-hero-left { flex: 1; }
-    .ld-title { font-size: 1.6rem; font-weight: 800; color: #111827; margin: 0 0 .3rem; }
-    .ld-subtitle { font-size: .85rem; color: #6b7280; margin: 0 0 .6rem; max-width: 480px; }
-    .ld-status {
-      display: inline-block; font-size: .7rem; font-weight: 700; text-transform: uppercase;
-      padding: .25rem .7rem; border-radius: 20px; letter-spacing: .04em;
-      background: #eef2ff; color: #4f46e5;
-    }
-    .ld-status[data-status="active"] { background: #d1fae5; color: #059669; }
-    .ld-status[data-status="completed"] { background: #cffafe; color: #0891b2; }
-
-    .ld-readiness-ring { width: 120px; height: 120px; position: relative; flex-shrink: 0; }
-    .ld-readiness-ring svg { width: 100%; height: 100%; }
-    .ld-ring-center {
-      position: absolute; inset: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-    }
-    .ld-ring-pct { font-size: 1.6rem; font-weight: 800; color: #4f46e5; }
-    .ld-ring-label { font-size: .6rem; color: #6366f1; text-transform: uppercase; letter-spacing: .08em; }
-
-    .ld-kpi-strip {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: .8rem; margin-bottom: 1.5rem;
-    }
-    .ld-kpi-card {
-      background: #ffffff; border: 1px solid #e5e7eb;
-      border-radius: 12px; padding: .8rem; display: flex; gap: .6rem; align-items: center;
-      transition: border-color .2s; box-shadow: 0 1px 3px rgba(0,0,0,.04);
-    }
-    .ld-kpi-card:hover { border-color: #c7d2fe; }
-    .ld-kpi-icon { font-size: 1.3rem; }
-    .ld-kpi-data { display: flex; flex-direction: column; }
-    .ld-kpi-value { font-size: 1.1rem; font-weight: 800; color: #111827; }
-    .ld-kpi-label { font-size: .65rem; color: #9ca3af; text-transform: uppercase; letter-spacing: .04em; }
-
-    .ld-insights {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: .7rem; margin-bottom: 1.5rem;
-    }
-    .ld-insight {
-      display: flex; gap: .5rem; align-items: flex-start; padding: .7rem;
-      border-radius: 10px; border-left: 3px solid; background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,.04);
-    }
-    .ld-insight.green { background: #f0fdf4; border-color: #059669; }
-    .ld-insight.amber { background: #fffbeb; border-color: #d97706; }
-    .ld-insight.blue { background: #f0f9ff; border-color: #0284c7; }
-    .ld-insight.purple { background: #faf5ff; border-color: #7c3aed; }
-    .ld-insight-icon { font-size: 1.1rem; }
-    .ld-insight-label { font-size: .62rem; color: #9ca3af; text-transform: uppercase; display: block; }
-    .ld-insight-val { font-size: .8rem; color: #374151; font-weight: 600; }
-
-    .ld-section { margin-bottom: 1.8rem; }
-    .ld-section-title { font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 .8rem; }
-
-    .ld-bars { display: flex; flex-direction: column; gap: .5rem; }
-    .ld-bar-row { display: flex; align-items: center; gap: .5rem; }
-    .ld-bar-label { font-size: .72rem; color: #6b7280; width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ld-bar-track { flex: 1; height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden; }
-    .ld-bar-fill { height: 100%; border-radius: 5px; transition: width .6s ease; }
-    .ld-bar-complete { background: linear-gradient(90deg, #059669, #34d399); }
-    .ld-bar-mid { background: linear-gradient(90deg, #6366f1, #818cf8); }
-    .ld-bar-low { background: linear-gradient(90deg, #d97706, #fbbf24); }
-    .ld-bar-pct { font-size: .7rem; color: #6366f1; font-weight: 700; width: 36px; text-align: right; }
-
-    .ld-chart-container { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
-    .ld-chart { width: 100%; height: 160px; }
-
-    .ld-actions {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: .8rem; margin-top: 1rem;
-    }
-    .ld-action-card {
-      display: flex; flex-direction: column; align-items: center; gap: .4rem;
-      padding: 1rem; background: #ffffff; border: 1px solid #e5e7eb;
-      border-radius: 12px; text-decoration: none; color: #374151; transition: all .2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,.04);
-    }
-    .ld-action-card:hover { border-color: #6366f1; background: #eef2ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
-    .ld-action-icon { font-size: 1.5rem; }
-    .ld-action-text { font-size: .78rem; font-weight: 600; }
-
-    .ld-empty { font-size: .82rem; color: #9ca3af; font-style: italic; }
-
-    .ld-loading { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 4rem 0; color: #9ca3af; }
-    .ld-spinner {
-      width: 36px; height: 36px; border: 3px solid #e5e7eb; border-top-color: #6366f1;
-      border-radius: 50%; animation: spin .8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 768px) {
-      .ld-hero-content { flex-direction: column; gap: 1rem; text-align: center; }
-      .ld-kpi-strip { grid-template-columns: repeat(2, 1fr); }
-      .ld-insights { grid-template-columns: 1fr; }
-    }
-  `],
+  imports: [CommonModule, RouterModule, MatIconModule],
+  templateUrl: './learner-dashboard.page.html',
+  styleUrls: ['./learner-dashboard.page.css'],
 })
-export class LearnerDashboardPage {
+export class LearnerDashboardPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
   private readonly progressService = inject(ProgramProgressService);
+  private readonly experienceService = inject(LearnerDashboardExperienceService);
+  private readonly language = inject(LanguageService);
+  private readonly popup = inject(LearnerPopupService);
+  private readonly transloco = inject(TranslocoService);
+
+  private inactivityTimer?: ReturnType<typeof setTimeout>;
+  private readonly hasShownMotivation = signal(false);
+  private readonly hasShownReminder = signal(false);
+  private readonly hasShownUpsell = signal(false);
+
+  readonly selectedOrderId = signal<string | null>(null);
+  private readonly activeTranslation = toSignal(this.transloco.selectTranslation(), {
+    initialValue: null,
+  });
+
+  private readonly programId$ = this.route.parent!.paramMap.pipe(
+    map((params) => params.get('programId') || '')
+  );
+
+  readonly programId = toSignal(this.programId$, { initialValue: '' });
 
   readonly vm = toSignal(
     this.route.parent!.paramMap.pipe(
@@ -299,17 +63,22 @@ export class LearnerDashboardPage {
     }
   );
 
+  readonly experience = toSignal(
+    this.programId$.pipe(switchMap((id) => this.experienceService.buildExperience(id))),
+    { initialValue: null }
+  );
+
   readonly enrollmentStatusText = computed(() => {
     const status = this.vm()?.enrollment?.status;
-    return status ? PROGRAM_ENROLLMENT_STATUS_LABELS[status] : 'Pending';
+    return this.programEnrollmentStatusLabel(status);
   });
 
   readonly enrollmentMessage = computed(() => {
     const status = this.vm()?.enrollment?.status;
-    if (status === ProgramEnrollmentStatus.ACTIVE) return 'Your learning pathway is active. Keep going!';
-    if (status === ProgramEnrollmentStatus.COMPLETED) return 'Congratulations — program completed!';
-    if (status === ProgramEnrollmentStatus.PENDING) return 'Enrollment pending approval.';
-    return 'Continue your learning journey.';
+    if (status === ProgramEnrollmentStatus.ACTIVE) return this.t('programs.learnerSpace.dashboard.enrollmentActive');
+    if (status === ProgramEnrollmentStatus.COMPLETED) return this.t('programs.learnerSpace.dashboard.enrollmentCompleted');
+    if (status === ProgramEnrollmentStatus.PENDING) return this.t('programs.learnerSpace.dashboard.enrollmentPending');
+    return this.t('programs.learnerSpace.dashboard.enrollmentContinue');
   });
 
   readonly ringDash = computed(() => {
@@ -322,25 +91,36 @@ export class LearnerDashboardPage {
     const s = this.vm()?.stats;
     if (!s) return [];
     return [
-      { icon: '📈', value: s.overallProgressPct + '%', label: 'Overall' },
-      { icon: '📦', value: s.modulesCompleted + '', label: 'Modules Done' },
-      { icon: '🧪', value: s.simulationsCompleted + '', label: 'Simulations' },
-      { icon: '📋', value: s.caseStudiesCompleted + '', label: 'Case Studies' },
-      { icon: '⏱️', value: s.totalStudyMinutes + ' min', label: 'Study Time' },
-      { icon: '🔥', value: s.currentStreak + ' days', label: 'Streak' },
-      { icon: '🎯', value: s.averageScore + '%', label: 'Avg Score' },
-      { icon: '🧠', value: s.averageSimulationScore + '%', label: 'Sim Score' },
+      { icon: 'trending_up', value: s.overallProgressPct + '%', label: 'Overall', emoji: '📈', tip: 'Overall lesson completion across your active program.' },
+      { icon: 'inventory_2', value: s.modulesCompleted + '', label: 'Modules Done', emoji: '🧩', tip: 'Modules fully completed from your current learning path.' },
+      { icon: 'science', value: s.simulationsCompleted + '', label: 'Simulations', emoji: '🧪', tip: 'Unique simulations you have already finished.' },
+      { icon: 'assignment', value: s.caseStudiesCompleted + '', label: 'Case Studies', emoji: '📝', tip: 'Case studies completed and counted in your training flow.' },
+      { icon: 'schedule', value: s.totalStudyMinutes + ' min', label: 'Study Time', emoji: '⏱️', tip: 'Tracked practice time from timed study experiences.' },
+      { icon: 'local_fire_department', value: s.currentStreak + ' days', label: 'Streak', emoji: '🔥', tip: 'Consecutive active days recorded in your learning activity.' },
+      { icon: 'track_changes', value: s.averageScore + '%', label: 'Avg Score', emoji: '🎯', tip: 'Average score across completed assessments.' },
+      { icon: 'neurology', value: s.averageSimulationScore + '%', label: 'Sim Score', emoji: '🧠', tip: 'Average performance inside simulation exercises.' },
     ];
   });
 
   readonly moduleBars = computed(() =>
-    (this.vm()?.moduleProgress || [])
+    (() => {
+      const vm = this.vm();
+      const moduleTitleById = new Map((vm?.modules || []).map((module) => [module.id, module.title]));
+
+      return (vm?.moduleProgress || [])
       .slice()
-      .sort((a, b) => a.moduleId.localeCompare(b.moduleId))
+      .sort((a, b) => {
+        const leftTitle = moduleTitleById.get(a.moduleId) || a.moduleId;
+        const rightTitle = moduleTitleById.get(b.moduleId) || b.moduleId;
+        return leftTitle.localeCompare(rightTitle);
+      })
       .map((m) => ({
-        label: m.moduleId,
+        label: moduleTitleById.get(m.moduleId) || this.formatModuleLabel(m.moduleId),
         value: Math.max(0, Math.min(100, Math.round(Number(m.progressPct || 0)))),
-      }))
+        emoji: Number(m.progressPct || 0) >= 100 ? '✅' : Number(m.progressPct || 0) > 0 ? '🚀' : '🌱',
+        tip: `${moduleTitleById.get(m.moduleId) || this.formatModuleLabel(m.moduleId)}: ${Math.max(0, Math.min(100, Math.round(Number(m.progressPct || 0))))}% completion for this module.`,
+      }));
+    })()
   );
 
   readonly scoreTrend = computed(() => {
@@ -362,12 +142,201 @@ export class LearnerDashboardPage {
     return { line, area, points: pts };
   });
 
-  private toEpoch(val: unknown): number {
-    if (!val) return 0;
-    if (typeof val === 'object' && val !== null && 'toMillis' in val) {
-      return (val as { toMillis(): number }).toMillis();
+  readonly selectedOrder = computed(() => {
+    const orders = this.experience()?.orders ?? [];
+    if (!orders.length) {
+      return undefined;
     }
-    if (val instanceof Date) return val.getTime();
-    return 0;
+
+    const experience = this.experience();
+    return orders.find((order) => order.id === this.selectedOrderId()) || experience?.selectedOrder;
+  });
+
+  constructor() {
+    effect(() => {
+      const experience = this.experience();
+      const stats = this.vm()?.stats;
+
+      if (experience?.selectedOrder?.id && !this.selectedOrderId()) {
+        this.selectedOrderId.set(experience.selectedOrder.id);
+      }
+
+      if (stats && !this.hasShownMotivation() && stats.readinessScore >= 35) {
+        this.hasShownMotivation.set(true);
+        queueMicrotask(() => this.popup.showMotivation(stats.readinessScore));
+      }
+
+      if (experience && !this.hasShownReminder() && experience.exam.status !== 'Passed' && experience.exam.countdownDays > 0 && experience.exam.countdownDays <= 10) {
+        this.hasShownReminder.set(true);
+        queueMicrotask(() => this.popup.showStudyReminder());
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.resetInactivityTimer();
+    window.addEventListener('mousemove', this.resetInactivityTimer, { passive: true });
+    window.addEventListener('keydown', this.resetInactivityTimer, { passive: true });
+    window.addEventListener('click', this.resetInactivityTimer, { passive: true });
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.inactivityTimer);
+    window.removeEventListener('mousemove', this.resetInactivityTimer);
+    window.removeEventListener('keydown', this.resetInactivityTimer);
+    window.removeEventListener('click', this.resetInactivityTimer);
+  }
+
+  selectOrder(orderId?: string): void {
+    this.selectedOrderId.set(orderId || null);
+  }
+
+  formatModuleLabel(value: string): string {
+    return value
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  formatOrderAmount(amount: number, currency = 'USD'): string {
+    return new Intl.NumberFormat(this.localeTag(), {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(Number(amount || 0));
+  }
+
+  formatOrderDate(value: unknown): string {
+    const date = this.toDate(value);
+    return date
+      ? new Intl.DateTimeFormat(this.localeTag(), { month: 'short', day: 'numeric', year: 'numeric' }).format(date)
+      : this.t('programs.learnerSpace.dashboard.pendingDate');
+  }
+
+  orderStatusLabel(status?: string): string {
+    return this.localizedValue('programs.learnerSpace.orderStatuses', status, this.t('programs.learnerSpace.statuses.pending'));
+  }
+
+  orderItemTypeLabel(value?: string): string {
+    return this.localizedValue('programs.learnerSpace.orderTypes', value, '');
+  }
+
+  sessionBadge(session: LearnerSessionCard): string {
+    if (session.status === 'live') {
+      return this.t('programs.learnerSpace.dashboard.joinNow');
+    }
+    if (session.status === 'upcoming') {
+      return this.t('programs.learnerSpace.dashboard.reserveSeat');
+    }
+    return this.t('programs.learnerSpace.dashboard.replayAvailable');
+  }
+
+  translateExamStatus(status: 'Passed' | 'Upcoming' | 'In Progress'): string {
+    if (status === 'Passed') {
+      return this.t('programs.learnerSpace.experience.examPassed');
+    }
+    if (status === 'Upcoming') {
+      return this.t('programs.learnerSpace.experience.examUpcoming');
+    }
+    return this.t('programs.learnerSpace.experience.examInProgress');
+  }
+
+  async openCustomTestBuilder(): Promise<void> {
+    const programId = this.programId();
+    if (!programId) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(CustomTestBuilderDialog, {
+      width: '760px',
+      maxWidth: 'calc(100vw - 1rem)',
+      panelClass: 'ld-custom-test-dialog',
+      data: { programId },
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (!result || typeof result !== 'object' || !result.assessmentId) {
+      return;
+    }
+
+    await this.router.navigate(['../exam-prep', result.assessmentId], { relativeTo: this.route });
+  }
+
+  private readonly resetInactivityTimer = () => {
+    clearTimeout(this.inactivityTimer);
+    this.inactivityTimer = setTimeout(() => {
+      if (this.hasShownUpsell()) {
+        return;
+      }
+
+      const product = this.experience()?.products[0];
+      if (!product) {
+        return;
+      }
+
+      this.hasShownUpsell.set(true);
+      this.popup.showUpsell(product.title, this.t('programs.learnerSpace.dashboard.upsellMessage', { title: product.title }));
+    }, 45000);
+  };
+
+  private toDate(val: unknown): Date | null {
+    if (!val) return null;
+    if (typeof val === 'object' && val !== null && 'toDate' in val) {
+      return (val as { toDate(): Date }).toDate();
+    }
+    if (val instanceof Date) return val;
+    const parsed = new Date(val as string);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  private toEpoch(val: unknown): number {
+    return this.toDate(val)?.getTime() ?? 0;
+  }
+
+  private localeTag(): string {
+    return this.transloco.getActiveLang() === 'fr' ? 'fr-CA' : 'en-US';
+  }
+
+  private programEnrollmentStatusLabel(status?: ProgramEnrollmentStatus): string {
+    switch (status) {
+      case ProgramEnrollmentStatus.APPROVED:
+        return this.t('programs.learnerSpace.statuses.approved');
+      case ProgramEnrollmentStatus.CONFIRMED:
+        return this.t('programs.learnerSpace.statuses.confirmed');
+      case ProgramEnrollmentStatus.ACTIVE:
+        return this.t('programs.learnerSpace.statuses.active');
+      case ProgramEnrollmentStatus.COMPLETED:
+        return this.t('programs.learnerSpace.statuses.completed');
+      case ProgramEnrollmentStatus.CANCELLED:
+        return this.t('programs.learnerSpace.statuses.cancelled');
+      case ProgramEnrollmentStatus.REJECTED:
+        return this.t('programs.learnerSpace.statuses.rejected');
+      case ProgramEnrollmentStatus.PENDING:
+      default:
+        return this.t('programs.learnerSpace.statuses.pending');
+    }
+  }
+
+  private localizedValue(prefix: string, value: string | undefined, fallback: string): string {
+    const normalized = (value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    if (!normalized) {
+      return fallback;
+    }
+
+    const key = `${prefix}.${normalized}`;
+    const localized = this.t(key);
+    if (localized !== key) {
+      return localized;
+    }
+
+    return value!
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  t(key: string, params?: Record<string, unknown>): string {
+    this.activeTranslation();
+    return this.language.instant(key, params);
   }
 }

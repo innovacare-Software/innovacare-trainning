@@ -1,6 +1,6 @@
-import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
-import { Firestore, collectionGroup, collectionData } from '@angular/fire/firestore';
-import { combineLatest, map, Observable } from 'rxjs';
+import { Injectable, inject, Injector, runInInjectionContext, signal } from '@angular/core';
+import { Firestore, doc, docData } from '@angular/fire/firestore';
+import { catchError, combineLatest, filter, map, Observable, of, shareReplay, switchMap } from 'rxjs';
 import {
   CategoryBreakdownItem,
   EnrollmentStatusBreakdownItem,
@@ -13,29 +13,93 @@ import {
 } from '../shared/program-admin.models';
 import { ProgramEnrollmentsAdminService } from './program-enrollments-admin.service';
 import { ProgramsAdminService } from './programs-admin.service';
+import { AuthService } from '../../../core/auth';
+import { AccessCapabilitiesService } from '../../../core/access-capabilities.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProgramAdminAnalyticsService {
   private readonly firestore = inject(Firestore);
   private readonly injector = inject(Injector);
+  private readonly auth = inject(AuthService);
+  private readonly capabilities = inject(AccessCapabilitiesService);
   private readonly programs = inject(ProgramsAdminService);
   private readonly enrollments = inject(ProgramEnrollmentsAdminService);
+  readonly deniedScopes = signal<string[]>([]);
 
   private inContext<T>(factory: () => Observable<T>): Observable<T> {
     return runInInjectionContext(this.injector, factory);
   }
 
-  private readonly progressRows$ = this.inContext(
-    () =>
-      collectionData(collectionGroup(this.firestore, 'programProgress'), {
-        idField: 'id',
-      }) as Observable<UserProgramProgress[]>
+  private readonly canReadProgramAnalytics$ = combineLatest([
+    this.auth.ready$,
+    this.auth.profile$,
+  ]).pipe(
+    filter(([ready]) => ready),
+    map(([_, profile]) => this.capabilities.canAccessProgramAdmin(profile)),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  private readonly programs$ = this.programs.getAllProgramsForAdmin().pipe(
+    catchError((error) => {
+      this.logAccessError('programs', error);
+      return of([] as Program[]);
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  private readonly enrollments$ = this.enrollments.getAllEnrollments().pipe(
+    catchError((error) => {
+      this.logAccessError('programEnrollments', error);
+      return of([] as ProgramEnrollment[]);
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  private readonly progressRows$ = combineLatest([
+    this.canReadProgramAnalytics$,
+    this.enrollments$,
+  ]).pipe(
+    switchMap(([canRead, enrollments]) => {
+      if (!canRead) {
+        return of([] as UserProgramProgress[]);
+      }
+
+      const trackedPairs = [...new Map(
+        enrollments
+          .filter((row) => !!row.userId && !!row.programId)
+          .map((row) => [`${row.userId}:${row.programId}`, row] as const)
+      ).values()];
+
+      if (!trackedPairs.length) {
+        return of([] as UserProgramProgress[]);
+      }
+
+      return combineLatest(
+        trackedPairs.map((row) =>
+          this.inContext(
+            () =>
+              docData(
+                doc(this.firestore, `users/${row.userId}/programProgress/${row.programId}`),
+                { idField: 'id' }
+              ) as Observable<UserProgramProgress | undefined>
+          ).pipe(
+            catchError((error) => {
+              this.logAccessError(`users/${row.userId}/programProgress/${row.programId}`, error);
+              return of(undefined);
+            })
+          )
+        )
+      ).pipe(
+        map((rows) => rows.filter((row): row is UserProgramProgress => !!row))
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
 
   getProgramAdminStats(): Observable<ProgramAdminStatCards> {
     return combineLatest([
-      this.programs.getAllProgramsForAdmin(),
-      this.enrollments.getAllEnrollments(),
+      this.programs$,
+      this.enrollments$,
       this.progressRows$,
     ]).pipe(
       map(([programs, enrollments, progressRows]) =>
@@ -45,19 +109,19 @@ export class ProgramAdminAnalyticsService {
   }
 
   getRecentPrograms(limitCount = 6): Observable<Program[]> {
-    return this.programs.getAllProgramsForAdmin().pipe(
+    return this.programs$.pipe(
       map((rows) => rows.slice(0, Math.max(1, limitCount)))
     );
   }
 
   getRecentEnrollments(limitCount = 8): Observable<ProgramEnrollment[]> {
-    return this.enrollments.getAllEnrollments().pipe(
+    return this.enrollments$.pipe(
       map((rows) => rows.slice(0, Math.max(1, limitCount)))
     );
   }
 
   getCategoryBreakdown(): Observable<CategoryBreakdownItem[]> {
-    return this.programs.getAllProgramsForAdmin().pipe(
+    return this.programs$.pipe(
       map((programs) => {
         const mapByCategory = new Map<string, number>();
         for (const program of programs) {
@@ -73,7 +137,7 @@ export class ProgramAdminAnalyticsService {
   }
 
   getEnrollmentStatusBreakdown(): Observable<EnrollmentStatusBreakdownItem[]> {
-    return this.enrollments.getAllEnrollments().pipe(
+    return this.enrollments$.pipe(
       map((rows) => {
         const byStatus = new Map<string, number>();
         for (const enrollment of rows) {
@@ -104,7 +168,7 @@ export class ProgramAdminAnalyticsService {
     const completedProgress = progressRows.filter((row) => row.status === 'completed').length;
     const avgReadiness =
       progressRows.length > 0
-        ? progressRows.reduce((acc, row) => acc + Number(row.readinessScore || 0), 0) /
+        ? progressRows.reduce((acc, row) => acc + this.resolveReadinessScore(row), 0) /
           progressRows.length
         : 0;
 
@@ -124,5 +188,26 @@ export class ProgramAdminAnalyticsService {
       averageReadinessScore: Number(avgReadiness.toFixed(1)),
       completionRate: Number(completionRate.toFixed(1)),
     };
+  }
+
+  private resolveReadinessScore(row: UserProgramProgress): number {
+    const stored = Number(row.readinessScore || 0);
+    if (stored > 0) {
+      return stored;
+    }
+
+    const derived = Number(row.averageScore || 0) * 0.6 + Number(row.progressPct || 0) * 0.4;
+    return Math.max(0, Math.min(100, Math.round(derived)));
+  }
+
+  private logAccessError(scope: string, error: unknown): void {
+    this.deniedScopes.update((current) =>
+      current.includes(scope) ? current : [...current, scope]
+    );
+    console.error('[ProgramAdminAnalyticsService] Firestore access failed', {
+      scope,
+      error,
+      hint: 'Verify deployed firestore.rules and that the signed-in user has an explicit programAdmin/programStaff role or org-admin access.',
+    });
   }
 }

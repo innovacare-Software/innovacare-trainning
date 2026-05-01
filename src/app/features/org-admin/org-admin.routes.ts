@@ -9,6 +9,7 @@ export const ORG_ADMIN_ROUTES: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', loadComponent: () => import('./pages/dashboard/org-admin-dashboard.page').then((m) => m.OrgAdminDashboardPage) },
+      { path: 'learner', redirectTo: '/learner', pathMatch: 'full' },
       { path: 'users', loadComponent: () => import('./pages/users/org-admin-users.page').then((m) => m.OrgAdminUsersPage) },
       { path: 'users/:uid', loadComponent: () => import('./pages/users/org-admin-user-detail.page').then((m) => m.OrgAdminUserDetailPage) },
       { path: 'courses', loadComponent: () => import('./pages/courses/org-admin-courses.page').then((m) => m.OrgAdminCoursesPage) },

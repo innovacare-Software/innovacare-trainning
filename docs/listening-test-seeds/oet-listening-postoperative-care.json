@@ -1,0 +1,126 @@
+{
+  "id": "oet-listening-postoperative-care",
+  "title": "OET Listening — Post-operative Patient Assessment (Nursing)",
+  "description": "Healthcare professionals listen to a nurse-to-nurse handover conversation about a post-operative patient. Questions target clinical comprehension, medication details, and patient status.",
+  "targetTest": "OET",
+  "language": "en",
+  "mode": "PRACTICE",
+  "status": "PUBLISHED",
+  "durationMin": 25,
+  "passingScore": 70,
+  "professionalContext": "Nursing — Post-operative Care",
+  "scenario": "You are an incoming night-shift nurse at Riverside General Hospital. Listen to the handover recording from your colleague, Nurse Allen, about Mrs. Patricia Clarke in Bed 4, post-appendectomy.",
+  "audioUrl": "https://storage.googleapis.com/innovacare-stripe.appspot.com/listening/oet-postop-handover.mp3",
+  "audioSettings": {
+    "maxPlays": 1,
+    "allowReplay": false,
+    "disableSeeking": false,
+    "requireHeadphonesConfirmation": true,
+    "showTranscriptAfterSubmit": true,
+    "autoStart": false
+  },
+  "postSubmissionReview": {
+    "showCorrectAnswers": true,
+    "showExplanations": true,
+    "showTranscript": true
+  },
+  "errorLogRequired": true,
+  "errorCategories": [
+    "VOCABULARY", "NUMBER_DATE", "DISTRACTOR",
+    "INFERENCE", "SPELLING", "ATTENTION_LOSS", "UNKNOWN"
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "mode": "short_text",
+      "prompt": "What surgical procedure did Mrs. Clarke undergo?",
+      "points": 1,
+      "acceptedAnswers": ["appendectomy", "laparoscopic appendectomy", "appendix removal"],
+      "explanation": "Nurse Allen states 'Mrs. Clarke came out of theatre at 14:30 following a laparoscopic appendectomy'.",
+      "rationale": "Clinical terminology comprehension."
+    },
+    {
+      "id": "q2",
+      "mode": "single",
+      "prompt": "What is Mrs. Clarke's current pain score (0–10)?",
+      "points": 1,
+      "choices": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "5" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "9" }
+      ],
+      "correctAnswerKey": ["B"],
+      "explanation": "Nurse Allen says 'She reports her pain as 5 out of 10 at rest'.",
+      "rationale": "Numeric comprehension in clinical context."
+    },
+    {
+      "id": "q3",
+      "mode": "fill_blank",
+      "prompt": "Mrs. Clarke has been prescribed ________ mg of paracetamol every four hours.",
+      "points": 1,
+      "acceptedAnswers": ["1000", "one thousand", "1,000", "1 gram", "1g"],
+      "explanation": "The recording states 'she is on 1,000 milligrams of paracetamol every four hours'.",
+      "rationale": "Drug dosage accuracy is critical in OET."
+    },
+    {
+      "id": "q4",
+      "mode": "multi",
+      "prompt": "Which TWO observations should you document at the start of your shift? (Select 2)",
+      "points": 2,
+      "choices": [
+        { "id": "A", "text": "Blood pressure and oxygen saturation" },
+        { "id": "B", "text": "Wound dressing check" },
+        { "id": "C", "text": "Patient's dietary preferences" },
+        { "id": "D", "text": "Urine output measurement" },
+        { "id": "E", "text": "Family visitor log" }
+      ],
+      "correctAnswerKey": ["A", "B"],
+      "explanation": "Nurse Allen says 'please check her BP and sats at the start of your shift, and also inspect the dressing for any signs of ooze'.",
+      "rationale": "Multi-detail clinical instruction comprehension."
+    },
+    {
+      "id": "q5",
+      "mode": "true_false",
+      "prompt": "Mrs. Clarke is allergic to penicillin.",
+      "points": 1,
+      "choices": [
+        { "id": "TRUE", "text": "TRUE" },
+        { "id": "FALSE", "text": "FALSE" },
+        { "id": "NOT_STATED", "text": "NOT STATED" }
+      ],
+      "correctAnswerKey": ["TRUE"],
+      "explanation": "Nurse Allen explicitly states 'She's got a documented allergy to penicillin — flagged on the wristband'.",
+      "rationale": "Critical safety information must be extracted accurately."
+    },
+    {
+      "id": "q6",
+      "mode": "matching",
+      "prompt": "Match each clinical item with the action required.",
+      "points": 3,
+      "matchingPairs": [
+        { "left": "IV line (right forearm)", "right": "Flush every 8 hours" },
+        { "left": "Wound dressing", "right": "Inspect for ooze or redness" },
+        { "left": "Drain output", "right": "Record volume each hour" }
+      ],
+      "matchingOptions": [
+        "Flush every 8 hours",
+        "Inspect for ooze or redness",
+        "Record volume each hour",
+        "Replace immediately"
+      ],
+      "explanation": "Nurse Allen gives specific instructions for each of these three clinical items.",
+      "rationale": "Following multi-step clinical instructions is essential for OET success."
+    },
+    {
+      "id": "q7",
+      "mode": "short_text",
+      "prompt": "At what time did Mrs. Clarke last receive pain medication?",
+      "points": 1,
+      "acceptedAnswers": ["18:00", "6pm", "6:00 pm", "18h00", "1800"],
+      "explanation": "Nurse Allen says 'her last dose of paracetamol was given at 18:00'.",
+      "rationale": "Time comprehension in 24-hour format."
+    }
+  ],
+  "transcript": "Nurse Allen: Good evening. Let me give you the handover for Mrs. Patricia Clarke in Bed 4.\n\nShe's a 52-year-old woman who came out of theatre at 14:30 following a laparoscopic appendectomy. The procedure was uncomplicated and she's been stable since recovery.\n\nVitals are within normal range. She reports her pain as 5 out of 10 at rest. She is on 1,000 milligrams of paracetamol every four hours — her last dose was given at 18:00, so the next is due at 22:00.\n\nImportant note: she's got a documented allergy to penicillin — flagged on the wristband. Please make sure anyone prescribing is aware of that.\n\nFor your tasks tonight: please check her BP and sats at the start of your shift, and also inspect the dressing for any signs of ooze or redness. The IV line in her right forearm needs to be flushed every 8 hours — that's due at 22:00 as well. And be sure to record the drain output volume each hour.\n\nShe's on a fluid-only diet for now, and she's been tolerating sips of water well. Any questions?"
+}

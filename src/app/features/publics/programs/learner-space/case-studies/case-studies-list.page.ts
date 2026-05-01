@@ -100,7 +100,13 @@ export class CaseStudiesListPage {
       const bestScore = myAttempts.length > 0
         ? Math.max(...myAttempts.map((a) => Number(a.score || 0)))
         : null;
-      return { ...c, attempts: myAttempts.length, bestScore };
+      return {
+        ...c,
+        questions: Array.isArray(c.questions) ? c.questions : [],
+        scenario: c.scenario ?? '',
+        attempts: myAttempts.length,
+        bestScore,
+      };
     });
   });
 }

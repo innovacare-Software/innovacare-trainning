@@ -1,0 +1,86 @@
+<div class="ep-page ep-educators-ns">
+  <section class="ep-hero">
+    <div class="ep-container">
+      <div class="ep-hero__grid">
+        <div class="ep-hero__copy">
+          <span class="ep-kicker">For Nursing Schools</span>
+          <h1>Align Your Curriculum, Raise Retention &amp; Graduate Exam-Ready Nurses</h1>
+          <p class="ep-hero__lead">
+            Manage curriculum delivery, cohort performance, clinical readiness benchmarks,
+            and NCLEX forecasting from one academic platform.
+          </p>
+          <div class="ep-hero__stats">
+            <div class="ep-hero__stat"><strong>Cohort</strong><small>Performance dashboards</small></div>
+            <div class="ep-hero__stat"><strong>Curriculum</strong><small>Blueprint alignment tools</small></div>
+            <div class="ep-hero__stat"><strong>NCLEX</strong><small>Readiness predictor</small></div>
+            <div class="ep-hero__stat"><strong>ACEN/CCNE</strong><small>Accreditation support</small></div>
+          </div>
+          <div class="ep-hero__actions">
+            <a routerLink="/contact" class="ep-btn ep-btn--primary">Request a Demo</a>
+            <a routerLink="/pricing" class="ep-btn ep-btn--ghost">View Institutional Pricing</a>
+          </div>
+        </div>
+        <div class="ep-hero__visual">
+          <div class="ep-hero__card">
+            <p class="ep-hero__card-title">What nursing schools get</p>
+            <ul class="ep-check-list">
+              @for (item of checkList; track $index) { <li>{{ item }}</li> }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--white">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>A Smarter Academic Platform for Nursing Programs</h2>
+        <p>From day one of enrollment to NCLEX day — support students at every step.</p>
+      </div>
+      <div class="ep-features-grid">
+        @for (f of features; track $index) {
+          <div class="ep-feature-card">
+            <span class="ep-feature-card__icon">{{ f.icon }}</span>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.desc }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ep-section ep-section--light">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>Nursing School Program Tiers</h2>
+        <p>Flexible options for ADN, BSN, and accelerated programs.</p>
+      </div>
+      <div class="ep-packages-grid">
+        @for (pkg of packages; track $index) {
+          <div class="ep-pkg" [class.ep-pkg--popular]="pkg.popular">
+            @if (pkg.popular) { <span class="ep-pkg__badge">Most Popular</span> }
+            <p class="ep-pkg__name">{{ pkg.name }}</p>
+            <p class="ep-pkg__price">{{ pkg.price }}<span>{{ pkg.period }}</span></p>
+            <p class="ep-pkg__desc">{{ pkg.desc }}</p>
+            <ul class="ep-pkg__features">
+              @for (feat of pkg.features; track $index) { <li>{{ feat }}</li> }
+            </ul>
+            <a routerLink="/contact" class="ep-pkg__cta">Request Demo</a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="ep-cta-banner">
+    <div class="ep-container">
+      <h2>Build a Nursing Program Students Love &amp; Employers Trust</h2>
+      <p>Schedule a free institutional demo with our academic team.</p>
+      <div class="ep-hero__actions" style="justify-content:center">
+        <a routerLink="/contact" class="ep-btn ep-btn--primary">Request a Demo</a>
+        <a routerLink="/pricing" class="ep-btn ep-btn--ghost">View Institutional Pricing</a>
+      </div>
+    </div>
+  </div>
+</div>

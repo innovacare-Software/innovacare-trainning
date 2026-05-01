@@ -1,0 +1,29 @@
+<section class="complete-screen">
+  <h1>Quiz Complete</h1>
+
+  <div class="score-circle">
+    <div class="pct">{{ percent() }}%</div>
+    <div class="of">{{ correct() }} / {{ total() }}</div>
+  </div>
+
+  <p class="grade-msg">{{ gradeMessage() }}</p>
+
+  <div class="complete-stats">
+    <article class="stat-box correct">
+      <div class="stat-num">{{ correct() }}</div>
+      <div class="stat-lbl">Correct</div>
+    </article>
+
+    <article class="stat-box incorrect">
+      <div class="stat-num">{{ incorrect() }}</div>
+      <div class="stat-lbl">Incorrect</div>
+    </article>
+
+    <article class="stat-box">
+      <div class="stat-num">{{ totalTime() }}</div>
+      <div class="stat-lbl">Total Time</div>
+    </article>
+  </div>
+
+  <button type="button" class="btn-restart" (click)="restart.emit()">Restart Quiz</button>
+</section>

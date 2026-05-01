@@ -1,0 +1,45 @@
+{
+  "title": "Cardiac Rhythm Response Simulation",
+  "description": "Simulation on recognition of unstable dysrhythmias and early intervention priorities.",
+  "simulationType": "READINESS_SIMULATION",
+  "durationMin": 50,
+  "passingScore": 80,
+  "difficulty": "HARD",
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "A telemetry client becomes dizzy and hypotensive. Which rhythm changes are most concerning? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "B", "D"],
+      "choices": [
+        { "id": "A", "text": "Sustained ventricular tachycardia", "correct": true },
+        { "id": "B", "text": "New-onset atrial fibrillation with rapid ventricular response", "correct": true },
+        { "id": "C", "text": "Sinus rhythm at 72/min", "correct": false },
+        { "id": "D", "text": "Second-degree AV block with symptomatic bradycardia", "correct": true }
+      ],
+      "explanation": "Sustained VT, rapid AF, and symptomatic second-degree AV block can each produce hemodynamic compromise (hypotension, dizziness, syncope). All three require urgent assessment and escalation. Normal sinus rhythm at 72/min does not contribute to the clinical deterioration described.",
+      "rationale": "Distinguishing hemodynamically stable from unstable dysrhythmias is a core NCLEX-RN content area. Rhythm recognition paired with clinical context (dizziness, hypotension) is the foundation of ACLS decision-making and safe telemetry nursing practice.",
+      "distractorRationale": {
+        "C": "Sinus rhythm at 72/min is a normal finding and is not a source of concern. Including this option tests whether learners can filter clinically irrelevant data from a complex presentation."
+      }
+    },
+    {
+      "prompt": "Which action should the nurse take first for a pulseless ventricular tachycardia rhythm?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Initiate CPR and activate the emergency response system.", "correct": true },
+        { "id": "B", "text": "Obtain a 12-lead ECG before intervening.", "correct": false },
+        { "id": "C", "text": "Administer oral amiodarone.", "correct": false },
+        { "id": "D", "text": "Place the client in Trendelenburg position.", "correct": false }
+      ],
+      "explanation": "Pulseless VT is a shockable cardiac arrest rhythm. The nurse must call for help and start CPR immediately. Early high-quality CPR and rapid defibrillation are the two interventions with the strongest evidence for survival. No assessment or medication step precedes CPR in a pulseless client.",
+      "rationale": "Cardiopulmonary arrest management follows the ACLS algorithm: confirm pulselessness, call for help, start CPR, deliver early defibrillation. Every minute of delay in defibrillation for pulseless VT/VF reduces survival to discharge by approximately 10%.",
+      "distractorRationale": {
+        "B": "A 12-lead ECG is contraindicated as the first action in a pulseless client. Confirmation of arrest is clinical (no pulse, unresponsive), not ECG-dependent. Delayed defibrillation worsens outcomes.",
+        "C": "Oral amiodarone has no role in pulseless arrest; IV/IO amiodarone is used in refractory pulseless VT/VF after initial shocks, not as a first action.",
+        "D": "Trendelenburg positioning is not recommended for cardiac arrest; CPR and defibrillation take absolute priority."
+      }
+    }
+  ]
+}

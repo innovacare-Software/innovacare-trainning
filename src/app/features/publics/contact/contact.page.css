@@ -1,0 +1,735 @@
+/* Contact Page Main */
+.arx-contact-page {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Hero Section */
+.arx-contact-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.arx-contact-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.arx-overlay--gradient-dark {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.arx-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.arx-grid--enterprise {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .arx-grid--enterprise {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Hero Copy */
+.arx-contact-hero__copy {
+  color: white;
+  z-index: 3;
+}
+
+.arx-hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.arx-hero-badge--enterprise {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  width: fit-content;
+}
+
+.arx-kicker {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #00d9ff;
+}
+
+.arx-kicker--enterprise {
+  color: #00d9ff;
+}
+
+.arx-badge-accent {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.arx-badge-accent--premium {
+  background: #00d9ff;
+}
+
+.arx-hero-title--enterprise {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .arx-hero-title--enterprise {
+    font-size: 2rem;
+  }
+}
+
+.arx-hero-description--enterprise {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Chips */
+.arx-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.arx-chip-row--enterprise {
+  flex-wrap: wrap;
+}
+
+.arx-chip {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.arx-chip--enterprise {
+  background: rgba(0, 217, 255, 0.1);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  color: #00d9ff;
+}
+
+/* Contact Cards */
+.arx-contact-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .arx-contact-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arx-contact-cards--enterprise {
+  margin-bottom: 2rem;
+}
+
+.arx-contact-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.arx-contact-card--enterprise {
+  backdrop-filter: blur(10px);
+}
+
+.arx-contact-card:hover {
+  background: rgba(0, 217, 255, 0.1);
+  border-color: rgba(0, 217, 255, 0.3);
+}
+
+.arx-card-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(0, 217, 255, 0.2);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.arx-card-icon--enterprise {
+  background: rgba(0, 217, 255, 0.2);
+}
+
+.arx-card-title--enterprise {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.arx-card-value--enterprise {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #00d9ff;
+  margin-bottom: 0.5rem;
+}
+
+.arx-card-value--highlight {
+  color: #00d9ff;
+}
+
+.arx-card-note--enterprise {
+  display: block;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Hero Visual */
+.arx-contact-hero__visual {
+  position: relative;
+  height: 500px;
+}
+
+.arx-visual--enterprise {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arx-brand-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(40px);
+}
+
+.arx-glow--enterprise {
+  opacity: 0.6;
+}
+
+.arx-hero-visual-card {
+  position: absolute;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.arx-card--enterprise {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.arx-card--elevated {
+  box-shadow: 0 20px 50px rgba(0, 217, 255, 0.2);
+}
+
+.arx-hero-visual-card--back {
+  width: 200px;
+  height: 250px;
+  bottom: 10%;
+  right: 10%;
+}
+
+.arx-hero-visual-card--front {
+  width: 300px;
+  height: 350px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.arx-image--enterprise {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.arx-hero-visual-card__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.arx-shade--enterprise {
+  opacity: 0.5;
+}
+
+.arx-hero-visual-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+}
+
+.arx-content--enterprise {
+  text-align: left;
+}
+
+.arx-visual-kicker {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #00d9ff;
+  margin-bottom: 0.5rem;
+}
+
+.arx-visual-kicker--enterprise {
+  color: #00d9ff;
+}
+
+.arx-visual-title--enterprise {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.arx-visual-body--enterprise {
+  display: block;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Float Cards */
+.arx-float-card {
+  position: absolute;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+}
+
+.arx-float--enterprise {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+}
+
+.arx-float-card--top {
+  top: 10%;
+  left: -50px;
+}
+
+.arx-float-card--bottom {
+  bottom: 10%;
+  right: -50px;
+}
+
+.arx-float-accent {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00d9ff;
+  margin-bottom: 0.5rem;
+}
+
+.arx-float-accent--enterprise {
+  background: #00d9ff;
+}
+
+.arx-float-value--enterprise {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.arx-float-label--enterprise {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Contact Section */
+.arx-section {
+  padding: 4rem 0;
+  background: white;
+}
+
+.arx-section--contact {
+  background: #f8f9fa;
+}
+
+.arx-contact-main {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+}
+
+@media (max-width: 768px) {
+  .arx-contact-main {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Sidebar */
+.arx-contact-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.arx-sidebar-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.arx-sidebar-card--soft {
+  background: rgba(0, 217, 255, 0.05);
+  border: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.arx-sidebar-card--compliance {
+  background: rgba(0, 217, 255, 0.02);
+  border: 1px solid rgba(0, 217, 255, 0.1);
+}
+
+.arx-sidebar-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 1rem;
+}
+
+.arx-sidebar-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.arx-sidebar-card strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.arx-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.arx-bullet-list li {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #666;
+  font-size: 0.95rem;
+  position: relative;
+}
+
+.arx-bullet-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #00d9ff;
+  font-weight: 700;
+}
+
+.arx-link-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.arx-link-stack a {
+  color: #00d9ff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.arx-link-stack a:hover {
+  opacity: 0.7;
+}
+
+/* Form */
+.arx-contact-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.arx-form-head {
+  margin-bottom: 2rem;
+}
+
+.arx-form-head h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.arx-form-head p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.arx-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .arx-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arx-form-grid label {
+  display: flex;
+  flex-direction: column;
+}
+
+.arx-form-grid label.full {
+  grid-column: 1 / -1;
+}
+
+.arx-form-grid label span {
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.arx-form-grid input,
+.arx-form-grid select,
+.arx-form-grid textarea {
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.arx-form-grid input:focus,
+.arx-form-grid select:focus,
+.arx-form-grid textarea:focus {
+  outline: none;
+  border-color: #00d9ff;
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+}
+
+.arx-form-grid input.invalid,
+.arx-form-grid textarea.invalid {
+  border-color: #dc3545;
+}
+
+.arx-form-grid textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.arx-error {
+  display: block;
+  color: #dc3545;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Form Actions */
+.arx-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+}
+
+.arx-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.arx-btn--primary {
+  background: #00d9ff;
+  color: #1a1a2e;
+}
+
+.arx-btn--primary:hover:not(:disabled) {
+  background: #00b8d4;
+  transform: translateY(-2px);
+}
+
+.arx-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.arx-form-note {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.arx-form-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.arx-form-legal-links a {
+  color: #00d9ff;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.arx-form-legal-links a:hover {
+  opacity: 0.7;
+}
+
+/* Reveal Animation */
+.arx-reveal {
+  opacity: 0;
+  animation: revealFadeIn 0.6s ease-out forwards;
+}
+
+.arx-reveal--delay-1 {
+  animation-delay: 0.1s;
+}
+
+.arx-reveal--delay-2 {
+  animation-delay: 0.2s;
+}
+
+.arx-reveal--delay-3 {
+  animation-delay: 0.3s;
+}
+
+@keyframes revealFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger Animation */
+.arx-stagger {
+  animation: staggerFadeIn 0.6s ease-out forwards;
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .arx-hero-title--enterprise {
+    font-size: 2.5rem;
+  }
+
+  .arx-contact-hero__visual {
+    height: 400px;
+  }
+
+  .arx-hero-visual-card--back {
+    width: 150px;
+    height: 200px;
+  }
+
+  .arx-hero-visual-card--front {
+    width: 250px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .arx-container {
+    padding: 0 1rem;
+  }
+
+  .arx-hero-badge--enterprise {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .arx-hero-title--enterprise {
+    font-size: 1.75rem;
+  }
+
+  .arx-chip-row {
+    gap: 0.5rem;
+  }
+
+  .arx-chip {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .arx-contact-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .arx-form-grid {
+    gap: 1rem;
+  }
+
+  .arx-float-card--top,
+  .arx-float-card--bottom {
+    display: none;
+  }
+}

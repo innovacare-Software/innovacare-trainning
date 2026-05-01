@@ -1,21 +1,60 @@
-<div class="auth">
-    <div class="card">
-      <h1>Reset password</h1>
-      <p class="muted">Enter your account email. We’ll send a reset link.</p>
-  
-      <form [formGroup]="form" (ngSubmit)="submit()" class="form">
-        <label class="label">Email</label>
-        <input class="input" type="email" formControlName="email" placeholder="you@clinic.com" />
-        <small class="help" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-          Valid email required
-        </small>
-  
-        <button class="btn" type="submit" [disabled]="loading()">Send reset link</button>
-        <a routerLink="/login" class="btn outline" style="margin-left:8px">Back to sign in</a>
-      </form>
-  
-      <p class="ok" *ngIf="success()">{{ success() }}</p>
-      <p class="error" *ngIf="error()">{{ error() }}</p>
-    </div>
+<div class="reset-page">
+  <div class="reset-glow reset-glow--left" aria-hidden="true"></div>
+  <div class="reset-glow reset-glow--right" aria-hidden="true"></div>
+
+  <div class="reset-shell">
+    <section class="reset-showcase">
+      <a routerLink="/home" class="reset-brand" aria-label="Innovacare home">
+        <img [src]="logoUrl" alt="Innovacare logo" />
+        <div>
+          <strong>Innovacare Training</strong>
+          <span>Secure learner access</span>
+        </div>
+      </a>
+
+      <span class="reset-eyebrow">Account recovery</span>
+      <h1>Reset access without breaking your learner workflow.</h1>
+      <p>
+        Enter the email tied to your Innovacare account and we’ll send a secure password reset link.
+      </p>
+
+      <div class="reset-note">
+        <strong>What happens next</strong>
+        <ul>
+          <li>You receive a reset email at the registered address.</li>
+          <li>You create a new password through a secure link.</li>
+          <li>You return to login and continue purchases, programs, or bookings.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="reset-panel">
+      <div class="reset-card">
+        <h2>Reset password</h2>
+        <p class="muted">Enter your account email. We’ll send a reset link.</p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+          <div class="form-group">
+            <label class="label">Work Email</label>
+            <div class="input-shell">
+              <span>@</span>
+              <input class="input" type="email" formControlName="email" placeholder="you@clinic.com" />
+            </div>
+            <small class="help" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+              Valid email required
+            </small>
+          </div>
+
+          <button class="btn" type="submit" [disabled]="loading()">
+            {{ loading() ? 'Sending reset link...' : 'Send reset link' }}
+          </button>
+          <a routerLink="/login" class="btn outline">Back to sign in</a>
+        </form>
+
+        <p class="ok" *ngIf="success()">{{ success() }}</p>
+        <p class="error" *ngIf="error()">{{ error() }}</p>
+      </div>
+    </section>
   </div>
+</div>
   

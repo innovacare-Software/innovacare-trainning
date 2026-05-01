@@ -38,12 +38,14 @@
     <button type="button" (click)="setActive(row.id)">Mark Active</button>
     <button type="button" (click)="setCompleted(row.id)">Mark Completed</button>
     <button type="button" (click)="setCancelled(row.id)">Mark Cancelled</button>
+    <button type="button" (click)="markAsPaid(row.id)">Mark as Paid</button>
     <div class="payment">
       <label>Payment</label>
       <select #paymentSel>
         <option *ngFor="let p of paymentStatuses" [value]="p">{{ paymentLabel[p] }}</option>
       </select>
       <button type="button" (click)="setPayment(row.id, paymentSel.value)">Update Payment</button>
+      
     </div>
   </section>
 </section>

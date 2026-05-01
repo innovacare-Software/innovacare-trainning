@@ -1,0 +1,109 @@
+.mk-pricing-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(0, 168, 168, 0.12), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(255, 159, 67, 0.11), transparent 24%),
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(238, 245, 249, 0.98));
+}
+
+.mk-pricing-hero__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 420px);
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.mk-pricing-hero__copy {
+  position: relative;
+  z-index: 1;
+}
+
+.mk-pricing-hero__copy p {
+  font-size: clamp(1.04rem, 1.2vw, 1.14rem);
+  line-height: 1.72;
+  max-width: 42rem;
+}
+
+.mk-pricing-hero__panel {
+  position: relative;
+  z-index: 1;
+  padding: 1.4rem;
+  border-radius: 1.7rem;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(11, 60, 93, 0.08);
+  box-shadow: 0 18px 40px rgba(11, 60, 93, 0.08);
+}
+
+.mk-pricing-hero__orb {
+  position: absolute;
+  width: 16rem;
+  height: 16rem;
+}
+
+.mk-pricing-hero__orb--one {
+  top: -1rem;
+  right: -4rem;
+}
+
+.mk-pricing-hero__orb--two {
+  left: -4rem;
+  bottom: -4rem;
+  width: 12rem;
+  height: 12rem;
+}
+
+.mk-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.mk-pricing-card {
+  padding: 1.6rem;
+  border-radius: 1.6rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(11, 60, 93, 0.08);
+  box-shadow: 0 18px 40px rgba(11, 60, 93, 0.08);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.mk-pricing-card:nth-child(1),
+.mk-pricing-card:nth-child(3) {
+  margin-top: 1.1rem;
+}
+
+.mk-pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 54px rgba(11, 60, 93, 0.12);
+}
+
+.mk-pricing-card.featured {
+  background: linear-gradient(180deg, rgba(11, 60, 93, 0.97), rgba(9, 82, 109, 0.95));
+  color: #fff;
+  transform: translateY(-0.6rem) scale(1.01);
+}
+
+.mk-pricing-card.featured h2,
+.mk-pricing-card.featured p,
+.mk-pricing-card.featured li {
+  color: #fff;
+}
+
+@media (max-width: 1080px) {
+  .mk-pricing-hero__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mk-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mk-pricing-card:nth-child(1),
+  .mk-pricing-card:nth-child(3),
+  .mk-pricing-card.featured {
+    margin-top: 0;
+    transform: none;
+  }
+}

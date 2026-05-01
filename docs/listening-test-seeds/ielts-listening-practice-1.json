@@ -1,0 +1,110 @@
+{
+  "id": "ielts-listening-practice-1",
+  "title": "IELTS Listening — Section 2: Community Facilities Tour",
+  "description": "A practice listening session based on IELTS Listening Section 2 (monologue on a general topic). Learners hear a guide describe community facilities and answer comprehension questions.",
+  "targetTest": "IELTS",
+  "language": "en",
+  "mode": "PRACTICE",
+  "status": "PUBLISHED",
+  "durationMin": 30,
+  "passingScore": 65,
+  "audioUrl": "https://storage.googleapis.com/innovacare-stripe.appspot.com/listening/ielts-community-tour.mp3",
+  "audioSettings": {
+    "maxPlays": 1,
+    "allowReplay": false,
+    "disableSeeking": false,
+    "requireHeadphonesConfirmation": true,
+    "showTranscriptAfterSubmit": true,
+    "autoStart": false
+  },
+  "postSubmissionReview": {
+    "showCorrectAnswers": true,
+    "showExplanations": true,
+    "showTranscript": true
+  },
+  "errorLogRequired": true,
+  "errorCategories": [
+    "VOCABULARY", "ACCENT", "SPEED", "DISTRACTOR",
+    "INFERENCE", "SPELLING", "NUMBER_DATE",
+    "ATTENTION_LOSS", "TIME_PRESSURE", "PARAPHRASE", "UNKNOWN"
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "mode": "single",
+      "prompt": "What is the main purpose of the new community centre?",
+      "points": 1,
+      "choices": [
+        { "id": "A", "text": "To provide sports facilities for young people" },
+        { "id": "B", "text": "To offer a range of services for all age groups" },
+        { "id": "C", "text": "To host concerts and cultural events" },
+        { "id": "D", "text": "To replace the old library building" }
+      ],
+      "correctAnswerKey": ["B"],
+      "explanation": "The guide states the centre was designed 'for everyone in the community, from toddlers to seniors'.",
+      "rationale": "Distractor A is partially true (sports facilities exist) but the overall purpose is broader."
+    },
+    {
+      "id": "q2",
+      "mode": "short_text",
+      "prompt": "On which floor is the swimming pool located?",
+      "points": 1,
+      "acceptedAnswers": ["second", "2nd", "floor 2", "the second floor"],
+      "explanation": "The guide says 'Head upstairs to the second floor for our Olympic-size pool.'",
+      "rationale": "Learners must listen for ordinal numbers and floor references."
+    },
+    {
+      "id": "q3",
+      "mode": "fill_blank",
+      "prompt": "Membership for a family of four costs ________ per month.",
+      "points": 1,
+      "acceptedAnswers": ["£45", "45 pounds", "45", "£45 per month"],
+      "explanation": "The guide mentions 'a family package at just forty-five pounds a month'.",
+      "rationale": "Number and currency comprehension is tested."
+    },
+    {
+      "id": "q4",
+      "mode": "multi",
+      "prompt": "Which TWO facilities are available on the ground floor? (Select 2)",
+      "points": 2,
+      "choices": [
+        { "id": "A", "text": "Café and restaurant" },
+        { "id": "B", "text": "Children's soft play area" },
+        { "id": "C", "text": "Table tennis room" },
+        { "id": "D", "text": "Main reception and information desk" },
+        { "id": "E", "text": "Climbing wall" }
+      ],
+      "correctAnswerKey": ["A", "D"],
+      "explanation": "The guide says 'On the ground floor you'll find our café, restaurant, and the main reception'.",
+      "rationale": "Multi-answer questions require holding multiple pieces of information."
+    },
+    {
+      "id": "q5",
+      "mode": "true_false",
+      "prompt": "The fitness studio offers classes in the evenings only.",
+      "points": 1,
+      "choices": [
+        { "id": "TRUE", "text": "TRUE" },
+        { "id": "FALSE", "text": "FALSE" },
+        { "id": "NOT_GIVEN", "text": "NOT GIVEN" }
+      ],
+      "correctAnswerKey": ["FALSE"],
+      "explanation": "The guide states 'classes run from 6am right through to 10pm'.",
+      "rationale": "The 'only' qualifier makes this FALSE."
+    },
+    {
+      "id": "q6",
+      "mode": "matching",
+      "prompt": "Match each room with its correct location.",
+      "points": 3,
+      "matchingPairs": [
+        { "left": "Dance studio", "right": "Third floor" },
+        { "left": "Library corner", "right": "Ground floor" },
+        { "left": "Indoor cycling room", "right": "Second floor" }
+      ],
+      "matchingOptions": ["Ground floor", "Second floor", "Third floor", "Basement"],
+      "explanation": "The guide describes each room's location sequentially."
+    }
+  ],
+  "transcript": "Welcome everyone, and thank you for joining today's tour of the Riverside Community Centre. My name is David and I'll be guiding you through this wonderful new facility.\n\nThe centre was designed for everyone in the community, from toddlers to seniors. We really wanted to create a space where the whole family could come and enjoy themselves.\n\nOn the ground floor, you'll find our café and restaurant, which serves freshly prepared meals from 7 in the morning. You'll also find the main reception and information desk right here — the staff are always happy to answer questions.\n\nHead upstairs to the second floor for our Olympic-size pool. Adjacent to the pool, you'll find the indoor cycling room.\n\nContinue up to the third floor where you'll discover our dance studio, which hosts over twenty different classes per week. Classes run from 6am right through to 10pm, catering for all schedules.\n\nA family package — that's two adults and up to three children — is available at just forty-five pounds a month. Quite the bargain, I think you'll agree."
+}

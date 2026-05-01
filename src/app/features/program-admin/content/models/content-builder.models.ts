@@ -15,6 +15,7 @@ export enum LessonType {
   TEXT = 'TEXT',
   DOCUMENT = 'DOCUMENT',
   MIXED = 'MIXED',
+  WEB = 'WEB',
 }
 
 export enum ContentStatus {
@@ -40,6 +41,12 @@ export enum LiveSessionType {
   GROUP_QA = 'GROUP_QA',
 }
 
+export enum ProgramLiveSessionAccessMode {
+  INCLUDED = 'included',
+  FREE = 'free',
+  PAID = 'paid',
+}
+
 export enum AssessmentType {
   QUIZ = 'QUIZ',
   MOCK_EXAM = 'MOCK_EXAM',
@@ -56,6 +63,11 @@ export enum SimulationDifficulty {
   EASY = 'EASY',
   MEDIUM = 'MEDIUM',
   HARD = 'HARD',
+}
+
+export enum SimulationQuestionMode {
+  SINGLE = 'single',
+  MULTI = 'multi',
 }
 
 export enum CaseStudyScoringMode {
@@ -82,6 +94,7 @@ export const LESSON_TYPE_LABELS: Record<LessonType, string> = {
   [LessonType.TEXT]: 'Text',
   [LessonType.DOCUMENT]: 'Document',
   [LessonType.MIXED]: 'Mixed',
+  [LessonType.WEB]: 'Web Page',
 };
 
 export const DOCUMENT_FILE_TYPE_LABELS: Record<DocumentFileType, string> = {
@@ -101,6 +114,12 @@ export const LIVE_SESSION_TYPE_LABELS: Record<LiveSessionType, string> = {
   [LiveSessionType.GROUP_QA]: 'Group Q&A',
 };
 
+export const LIVE_SESSION_ACCESS_MODE_LABELS: Record<ProgramLiveSessionAccessMode, string> = {
+  [ProgramLiveSessionAccessMode.INCLUDED]: 'Included in program',
+  [ProgramLiveSessionAccessMode.FREE]: 'Free ($0)',
+  [ProgramLiveSessionAccessMode.PAID]: 'Paid reservation',
+};
+
 export const ASSESSMENT_TYPE_LABELS: Record<AssessmentType, string> = {
   [AssessmentType.QUIZ]: 'Quiz',
   [AssessmentType.MOCK_EXAM]: 'Mock Exam',
@@ -117,6 +136,11 @@ export const SIMULATION_DIFFICULTY_LABELS: Record<SimulationDifficulty, string> 
   [SimulationDifficulty.EASY]: 'Easy',
   [SimulationDifficulty.MEDIUM]: 'Medium',
   [SimulationDifficulty.HARD]: 'Hard',
+};
+
+export const SIMULATION_QUESTION_MODE_LABELS: Record<SimulationQuestionMode, string> = {
+  [SimulationQuestionMode.SINGLE]: 'Single choice',
+  [SimulationQuestionMode.MULTI]: 'Multiple choice',
 };
 
 export const CONTENT_STATUS_LABELS: Record<ContentStatus, string> = {
@@ -202,6 +226,8 @@ export interface ProgramContentDocument {
   title: string;
   description: string;
   fileUrl: string;
+  filePath?: string;
+  fileName?: string;
   fileType: DocumentFileType;
   downloadable: boolean;
   order: number;
@@ -230,6 +256,10 @@ export interface ProgramLiveSession {
   timezone: string;
   meetingUrl: string;
   instructorName: string;
+  accessMode?: ProgramLiveSessionAccessMode;
+  bookingRequired?: boolean;
+  price?: number;
+  currency?: 'USD' | 'CAD' | 'AED' | 'EUR' | 'GBP';
   required: boolean;
   capacity: number;
   active: boolean;
@@ -239,6 +269,33 @@ export interface ProgramLiveSession {
 }
 
 export type CreateLiveSessionPayload = Omit<ProgramLiveSession, 'id' | 'createdAt' | 'updatedAt'>;
+
+export interface AssessmentQuestionInput {
+  id: string;
+  prompt: string;
+  mode: SimulationQuestionMode;
+  choices: SimulationChoiceInput[];
+}
+
+export interface SimulationChoiceInput {
+  id: string;
+  text: string;
+  correct: boolean;
+}
+
+export interface SimulationQuestionInput {
+  id: string;
+  prompt: string;
+  mode: SimulationQuestionMode;
+  choices: SimulationChoiceInput[];
+}
+
+export interface CaseStudyQuestionInput {
+  id: string;
+  prompt: string;
+  expectedKeywords?: string[];
+  maxScore?: number;
+}
 
 /* ─────────────────────────────────────────
    PROGRAM ASSESSMENT
@@ -252,6 +309,7 @@ export interface ProgramContentAssessment {
   title: string;
   description: string;
   assessmentType: AssessmentType;
+  questions: AssessmentQuestionInput[];
   passingScore: number;
   durationMin: number;
   questionCount: number;
@@ -276,6 +334,7 @@ export interface ProgramContentSimulation {
   title: string;
   description: string;
   simulationType: SimulationType;
+  questions: SimulationQuestionInput[];
   questionCount: number;
   durationMin: number;
   passingScore: number;
@@ -302,6 +361,7 @@ export interface ProgramContentCaseStudy {
   description: string;
   scenario: string;
   prompts: string[];
+  questions: CaseStudyQuestionInput[];
   scoringMode: CaseStudyScoringMode;
   order: number;
   active: boolean;

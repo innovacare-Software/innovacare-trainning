@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import { Functions } from '@angular/fire/functions';
 import { Firestore } from '@angular/fire/firestore';
@@ -34,10 +34,15 @@ export class CartService {
   private functions = inject(Functions);
   private fs = inject(Firestore);
   private checkout = inject(CheckoutService);
+  private injector = inject(Injector);
   private serverCartEnabled = true;
 
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
+
   constructor() {
-    authState(this.auth).subscribe((user) => {
+    this.inContext(() => authState(this.auth)).subscribe((user) => {
       if (!user) return;
       void this.mergeLocalToServer('default').catch(() => {});
     });
@@ -275,9 +280,11 @@ export class CartService {
     const clean = String(offerId || '').trim();
     if (!clean) return;
 
-    await this.addToLocal(clean, seed);
+    if (!this.auth.currentUser?.uid) {
+      throw new Error('AUTH_REQUIRED');
+    }
 
-    if (!this.auth.currentUser?.uid) return;
+    await this.addToLocal(clean, seed);
 
     await this.mergeLocalToServer(cartId);
   }

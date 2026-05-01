@@ -24,6 +24,8 @@ export class MyProgramEnrollmentsPageComponent {
   });
 
   readonly hasData = computed(() => this.enrollments().length > 0);
+  readonly activeCount = computed(() => this.enrollments().filter((row) => this.canContinueLearning(row)).length);
+  readonly pendingCount = computed(() => this.enrollments().length - this.activeCount());
 
   statusLabel = PROGRAM_ENROLLMENT_STATUS_LABELS;
   paymentLabel = PAYMENT_STATUS_LABELS;
@@ -31,5 +33,13 @@ export class MyProgramEnrollmentsPageComponent {
 
   trackById(_: number, row: { id: string }): string {
     return row.id;
+  }
+
+  canContinueLearning(row: Parameters<ProgramEnrollmentsService['canAccessLearnerSpace']>[0]): boolean {
+    return this.enrollmentsService.canAccessLearnerSpace(row);
+  }
+
+  canResumePayment(row: Parameters<ProgramEnrollmentsService['canResumeCheckout']>[0]): boolean {
+    return this.enrollmentsService.canResumeCheckout(row);
   }
 }

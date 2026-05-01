@@ -1,0 +1,53 @@
+<section class="quiz-page">
+  @if (loading()) {
+    <div class="state-card">Loading quiz…</div>
+  } @else if (error()) {
+    <div class="state-card state-card--error">{{ error() }}</div>
+  } @else if (state().status === 'start') {
+    <app-quiz-start [copy]="moduleCopy()" (start)="startQuiz()" />
+  } @else if (state().status === 'complete') {
+    <app-quiz-complete
+      [percent]="quizState.scorePercent()"
+      [correct]="quizState.getCompletionStats().correct"
+      [incorrect]="quizState.getCompletionStats().incorrect"
+      [total]="quizState.getCompletionStats().total"
+      [totalTime]="totalTime()"
+      [gradeMessage]="quizState.getGradeMessage()"
+      (restart)="restart()"
+    />
+  } @else if (currentQuestion(); as question) {
+    <div class="quiz-screen">
+      <app-quiz-header [qid]="qid()" [timerText]="timerText()" [counterText]="counterText()" />
+
+      <app-quiz-action-bar
+        [marked]="state().marked[state().currentIdx]"
+        [disabled]="state().paused"
+        (toggleMark)="toggleMark()"
+      />
+
+      <app-quiz-question
+        [question]="question"
+        [selectedAnswer]="currentAnswer()"
+        [submitted]="currentSubmitted()"
+        [paused]="state().paused"
+        [optionPercentages]="optionPercentages()"
+        [peerRightPct]="peerRightPct()"
+        [questionTime]="questionTime()"
+        [canSubmit]="quizState.canSubmit()"
+        (answerSelected)="selectAnswer($event)"
+        (answerSubmitted)="submitAnswer()"
+      />
+
+      <app-quiz-bottom-bar
+        [canPrev]="quizState.canGoPrev()"
+        [canNext]="quizState.canGoNext()"
+        [paused]="state().paused"
+        [nextLabel]="nextLabel()"
+        (prev)="prev()"
+        (next)="next()"
+        (end)="endQuiz()"
+        (pauseToggle)="togglePause()"
+      />
+    </div>
+  }
+</section>

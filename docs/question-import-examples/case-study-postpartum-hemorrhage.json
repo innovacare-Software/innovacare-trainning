@@ -1,0 +1,30 @@
+{
+  "title": "Postpartum Hemorrhage Case Study",
+  "description": "Maternal nursing case focused on rapid recognition and response to postpartum bleeding.",
+  "scenario": "Two hours after a vaginal delivery, a client has heavy vaginal bleeding, a boggy uterus, pallor, and increasing tachycardia.",
+  "scoringMode": "MANUAL",
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "Which findings indicate postpartum hemorrhage and possible hypovolemia?",
+      "expectedKeywords": ["heavy bleeding", "boggy uterus", "tachycardia", "pallor"],
+      "maxScore": 4,
+      "explanation": "Postpartum hemorrhage (PPH) is defined as cumulative blood loss >500 mL after vaginal delivery (or >1000 mL after cesarean). The classic cluster includes: heavy/excessive vaginal bleeding, uterine atony (boggy, displaced uterus) as the most common cause, compensatory tachycardia from hypovolemia, and pallor from decreased perfusion. Hypotension is a late sign of hemorrhagic shock; tachycardia typically precedes it.",
+      "modelAnswer": "Findings indicating postpartum hemorrhage and possible hypovolemia include: (1) Heavy vaginal bleeding with saturated pads more frequently than expected postpartum (quantitative blood loss assessment is the standard of care); (2) Boggy uterus on fundal assessment, indicating uterine atony \u2014 the most common cause of primary PPH, occurring when the uterus fails to contract adequately after delivery of the placenta; (3) Tachycardia (HR >100 bpm) representing a compensatory response to reduced circulating volume; (4) Pallor of the skin and mucous membranes reflecting decreased peripheral perfusion from hypovolemia. Together these findings constitute an obstetric emergency requiring immediate interdisciplinary response."
+    },
+    {
+      "prompt": "What immediate nursing interventions should be performed first?",
+      "expectedKeywords": ["fundal massage", "call for help", "assess lochia", "vital signs", "IV access"],
+      "maxScore": 5,
+      "explanation": "Initial PPH management is simultaneous and nurse-driven: activate the hemorrhage response team, perform uterine fundal massage to promote contraction, establish or confirm large-bore IV access for fluid resuscitation and medication delivery, quantify blood loss, and obtain serial vital signs to track hemodynamic status. Uterotonic medications (oxytocin) are administered per provider order as part of the concurrent response.",
+      "modelAnswer": "Immediate nursing interventions include: (1) Call for help \u2014 activate the maternal hemorrhage protocol and notify the provider, charge nurse, and blood bank; (2) Perform fundal massage \u2014 apply firm circular massage to the fundus to stimulate uterine contraction and control atonic bleeding; (3) Assess lochia quantitatively \u2014 count saturated pads and weigh underpads or use a calibrated graduated cylinder to measure cumulative blood loss; (4) Obtain vital signs every 5\u201315 minutes including BP, HR, RR, SpO2, and level of consciousness to detect hemodynamic deterioration; (5) Ensure large-bore IV access (16\u201318 gauge) with isotonic crystalloid infusing to support circulating volume pending provider orders for uterotonics and blood products."
+    },
+    {
+      "prompt": "What ongoing data should the nurse monitor to evaluate the response to treatment?",
+      "expectedKeywords": ["bleeding amount", "fundal tone", "blood pressure", "heart rate", "urine output"],
+      "maxScore": 5,
+      "explanation": "Evaluation of PPH treatment response requires tracking direct bleeding control (lochia amount, fundal tone), hemodynamic recovery (blood pressure trending up toward baseline, heart rate slowing), and end-organ perfusion (urine output \u226530 mL/hr indicating adequate renal perfusion). Improving level of consciousness and skin color and temperature also reflect restoration of perfusion.",
+      "modelAnswer": "Ongoing monitoring to evaluate treatment response includes: (1) Bleeding amount \u2014 reassess quantitative blood loss at defined intervals; decreasing lochia and no further pad saturation indicate hemorrhage is controlled; (2) Fundal tone and position \u2014 a firm, midline fundus at or below the umbilicus confirms effective uterine contraction; continued bogginess requires additional intervention; (3) Blood pressure \u2014 systolic BP returning toward the client's baseline (goal \u226590 mmHg systolic) reflects adequate circulating volume restoration; (4) Heart rate \u2014 trending down toward <100 bpm indicates compensation is successful and hypovolemia is resolving; (5) Urine output \u2014 \u226530 mL/hr via indwelling urinary catheter confirms adequate renal perfusion and is the most sensitive early indicator of hemodynamic recovery."
+    }
+  ]
+}

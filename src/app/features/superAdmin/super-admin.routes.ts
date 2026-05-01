@@ -24,6 +24,16 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./organizations/organizations').then(m => m.Organizations),
       },
       {
+        path: 'organization-admin',
+        redirectTo: '/org-admin/dashboard',
+        pathMatch: 'full',
+      },
+      {
+        path: 'program-admin',
+        redirectTo: '/program-admin/dashboard',
+        pathMatch: 'full',
+      },
+      {
         path: 'setup',
         loadComponent: () =>
           import('./setup/setup').then(m => m.Setup),
@@ -33,6 +43,16 @@ export const SUPER_ADMIN_ROUTES: Routes = [
   loadComponent: () =>
     import('./users/users').then(m => m.Users),
 },
+      {
+        path: 'tutor-bookings',
+        loadComponent: () =>
+          import('./tutor-bookings/tutor-bookings.page').then(m => m.SuperAdminTutorBookingsPage),
+      },
+            {
+              path: 'users/:uid/program-access',
+              loadComponent: () =>
+                import('./users/program-access-diagnostic.page').then(m => m.ProgramAccessDiagnosticPage),
+            },
       {
         path: 'billing',
         loadComponent: () =>

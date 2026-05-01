@@ -45,7 +45,17 @@
           <td><span class="chip">{{ paymentLabel[row.paymentStatus] }}</span></td>
           <td><span class="chip soft">{{ enrollmentStatusLabel[row.status] }}</span></td>
           <td>{{ formatCreatedAt(row.createdAt) ? (formatCreatedAt(row.createdAt) | date:'medium') : '-' }}</td>
-          <td><a [routerLink]="['/program-admin/enrollments', row.id]">Open</a></td>
+          <td class="actions-cell">
+            <a [routerLink]="['/program-admin/enrollments', row.id]">Open</a>
+            <button
+              type="button"
+              class="inline-action"
+              (click)="markAsPaid(row.id)"
+              [disabled]="row.paymentStatus === 'paid'"
+            >
+              Mark as Paid
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>

@@ -1,0 +1,94 @@
+<div class="ep-page ep-pre-nursing">
+
+  <!-- ── Hero ──────────────────────────────────────── -->
+  <section class="ep-hero">
+    <div class="ep-container">
+      <div class="ep-hero__grid">
+        <div class="ep-hero__copy">
+          <span class="ep-kicker">Pre-Nursing Prep</span>
+          <h1>Ace TEAS 7 &amp; HESI A2 — Get Into Your Dream Nursing Program</h1>
+          <p class="ep-hero__lead">
+            Join 50,000+ pre-nursing students who used Innovacare to score higher on the TEAS 7 and HESI A2
+            admission exams and secure their spot in top nursing programs.
+          </p>
+          <div class="ep-hero__stats">
+            <div class="ep-hero__stat"><strong>95%</strong><small>Average pass rate</small></div>
+            <div class="ep-hero__stat"><strong>50K+</strong><small>Students enrolled</small></div>
+            <div class="ep-hero__stat"><strong>3,000+</strong><small>Practice questions</small></div>
+            <div class="ep-hero__stat"><strong>TEAS 7 &amp; HESI A2</strong><small>Both exams covered</small></div>
+          </div>
+          <div class="ep-hero__actions">
+            <a routerLink="/login" class="ep-btn ep-btn--primary">Start Free Trial</a>
+            <a routerLink="/pricing" class="ep-btn ep-btn--ghost">View Pricing</a>
+          </div>
+        </div>
+        <div class="ep-hero__visual">
+          <div class="ep-hero__card">
+            <p class="ep-hero__card-title">What's included</p>
+            <ul class="ep-check-list">
+              @for (item of checkList; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ──────────────────────────────────── -->
+  <section class="ep-section ep-section--white">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>Everything You Need to Pass TEAS 7 &amp; HESI A2</h2>
+        <p>Comprehensive preparation tools built around the official exam blueprints.</p>
+      </div>
+      <div class="ep-features-grid">
+        @for (f of features; track $index) {
+          <div class="ep-feature-card">
+            <span class="ep-feature-card__icon">{{ f.icon }}</span>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.desc }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Packages ──────────────────────────────────── -->
+  <section class="ep-section ep-section--light">
+    <div class="ep-container">
+      <div class="ep-section-head">
+        <h2>Choose Your Prep Plan</h2>
+        <p>Flexible pricing so you can prep at your pace without breaking the bank.</p>
+      </div>
+      <div class="ep-packages-grid">
+        @for (pkg of packages; track $index) {
+          <div class="ep-pkg" [class.ep-pkg--popular]="pkg.popular">
+            @if (pkg.popular) { <span class="ep-pkg__badge">Most Popular</span> }
+            <p class="ep-pkg__name">{{ pkg.name }}</p>
+            <p class="ep-pkg__price">{{ pkg.price }}<span>{{ pkg.period }}</span></p>
+            <p class="ep-pkg__desc">{{ pkg.desc }}</p>
+            <ul class="ep-pkg__features">
+              @for (feat of pkg.features; track $index) { <li>{{ feat }}</li> }
+            </ul>
+            <a routerLink="/login" class="ep-pkg__cta">Get Started</a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────── -->
+  <div class="ep-cta-banner">
+    <div class="ep-container">
+      <h2>Ready to Get Into Nursing School?</h2>
+      <p>Start your free 7-day trial today — no credit card required.</p>
+      <div class="ep-hero__actions" style="justify-content:center">
+        <a routerLink="/login" class="ep-btn ep-btn--primary">Start Free Trial</a>
+        <a routerLink="/contact" class="ep-btn ep-btn--ghost">Talk to an Advisor</a>
+      </div>
+    </div>
+  </div>
+
+</div>

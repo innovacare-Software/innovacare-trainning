@@ -1,0 +1,216 @@
+<nav>
+  <div class="nav-inner">
+    <div class="logo">InnovaCare<span>.</span>Review</div>
+    <div class="nav-links">
+      <a href="#tests">Tests</a>
+      <a href="#programme">Programme</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact" class="nav-cta">Evaluation gratuite</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <div class="kicker">Preparation aux tests d'immigration</div>
+        <h1 class="hero-title">Le score qu'il vous faut, <em>pas un mot de plus.</em></h1>
+        <p class="hero-sub">
+          InnovaCare Review prepare les candidats a l'immigration aux tests IELTS, TEF et OET avec une methode
+          orientee score, des groupes limites et un suivi concret.
+        </p>
+        <div class="hero-ctas">
+          <a href="#contact" class="btn btn-primary">Demander une evaluation gratuite</a>
+          <a href="#tests" class="btn btn-ghost">Decouvrir les tests</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="test-stack">
+          <div class="test-card" (click)="setTab('ielts')">
+            <div class="tc-top">
+              <h4>IELTS</h4>
+              <div class="tc-badge">Anglais general</div>
+            </div>
+            <p>Canada · Australie · Royaume-Uni · USA</p>
+            <div class="tc-actions">
+              <a [routerLink]="programDetailLink('ielts')">Voir programme</a>
+              <a [routerLink]="programEnrollLink('ielts')" [queryParams]="{ preferredPayment: 'cinetpay' }">Payer via CinetPay</a>
+            </div>
+          </div>
+
+          <div class="test-card" (click)="setTab('tef')">
+            <div class="tc-top">
+              <h4>TEF</h4>
+              <div class="tc-badge">Francais</div>
+            </div>
+            <p>Canada · Quebec · France · Naturalisation</p>
+            <div class="tc-actions">
+              <a [routerLink]="programDetailLink('tef')">Voir programme</a>
+              <a [routerLink]="programEnrollLink('tef')" [queryParams]="{ preferredPayment: 'cinetpay' }">Payer via CinetPay</a>
+            </div>
+          </div>
+
+          <div class="test-card" (click)="setTab('oet')">
+            <div class="tc-top">
+              <h4>OET</h4>
+              <div class="tc-badge">Soignants</div>
+            </div>
+            <p>Infirmiers · Medecins · Pharmaciens · Dentistes</p>
+            <div class="tc-actions">
+              <a [routerLink]="programDetailLink('oet')">Voir programme</a>
+              <a [routerLink]="programEnrollLink('oet')" [queryParams]="{ preferredPayment: 'cinetpay' }">Payer via CinetPay</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="stats-band">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat reveal" *ngFor="let stat of stats">
+        <div class="stat-num">{{ stat.value }}</div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tests" class="tests-detail">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">Trois tests, trois publics</div>
+      <h2 class="section-title">Choisissez votre test, <em>nous adaptons la methode.</em></h2>
+      <p class="section-lead">
+        Chaque test a sa logique. Nous adaptons les supports, les evaluations et les parcours selon votre objectif de visa.
+      </p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab() === 'ielts'" (click)="setTab('ielts')">IELTS</button>
+      <button class="tab" [class.active]="activeTab() === 'tef'" (click)="setTab('tef')">TEF</button>
+      <button class="tab" [class.active]="activeTab() === 'oet'" (click)="setTab('oet')">OET</button>
+    </div>
+
+    <div class="tab-content" [class.active]="activeTab() === 'ielts'">
+      <div class="test-detail-left">
+        <h3>IELTS</h3>
+        <div class="test-fullname">International English Language Testing System</div>
+        <p>Le test d'anglais le plus reconnu pour immigration et etudes. Notre accompagnement couvre Academic et General Training.</p>
+        <div class="test-meta">
+          <div class="meta-row"><div class="meta-label">Format</div><div class="meta-value">4 sections · 2h45 · score sur 9.0</div></div>
+          <div class="meta-row"><div class="meta-label">Validite</div><div class="meta-value">2 ans</div></div>
+        </div>
+      </div>
+      <div class="test-detail-right">
+        <h4>Action rapide</h4>
+        <a class="btn btn-primary full" [routerLink]="programEnrollLink('ielts')" [queryParams]="{ preferredPayment: 'cinetpay' }">M'inscrire et payer via CinetPay</a>
+      </div>
+    </div>
+
+    <div class="tab-content" [class.active]="activeTab() === 'tef'">
+      <div class="test-detail-left">
+        <h3>TEF</h3>
+        <div class="test-fullname">Test d'Evaluation de Francais</div>
+        <p>TEF Canada, TEF Quebec et naturalisation. Parcours cible sur les descripteurs CECRL et la performance a l'oral/ecrit.</p>
+        <div class="test-meta">
+          <div class="meta-row"><div class="meta-label">Format</div><div class="meta-value">5 epreuves · environ 3h · CECRL A1 a C2</div></div>
+          <div class="meta-row"><div class="meta-label">Validite</div><div class="meta-value">2 ans</div></div>
+        </div>
+      </div>
+      <div class="test-detail-right">
+        <h4>Action rapide</h4>
+        <a class="btn btn-primary full" [routerLink]="programEnrollLink('tef')" [queryParams]="{ preferredPayment: 'cinetpay' }">M'inscrire et payer via CinetPay</a>
+      </div>
+    </div>
+
+    <div class="tab-content" [class.active]="activeTab() === 'oet'">
+      <div class="test-detail-left">
+        <h3>OET</h3>
+        <div class="test-fullname">Occupational English Test</div>
+        <p>Anglais clinique pour soignants. Scenarios reels, coaching speaking et preparation ciblee pour les standards de registration.</p>
+        <div class="test-meta">
+          <div class="meta-row"><div class="meta-label">Format</div><div class="meta-value">4 sous-tests · score A a E</div></div>
+          <div class="meta-row"><div class="meta-label">Validite</div><div class="meta-value">2 ans</div></div>
+        </div>
+      </div>
+      <div class="test-detail-right">
+        <h4>Action rapide</h4>
+        <a class="btn btn-primary full" [routerLink]="programEnrollLink('oet')" [queryParams]="{ preferredPayment: 'cinetpay' }">M'inscrire et payer via CinetPay</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="programme" class="bloc">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">Notre methode</div>
+      <h2 class="section-title">Quatre competences. <em>Un seul systeme.</em></h2>
+      <p class="section-lead">Listening, Reading, Writing et Speaking avec progression mesuree et entrainements chronometres.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tarifs" class="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">Trois formules</div>
+      <h2 class="section-title">Une seule promesse : <em>votre score vise.</em></h2>
+    </div>
+    <div class="pricing-grid">
+      <article class="price-card reveal">
+        <div class="price-name">Essentiel</div>
+        <div class="price-amount">$99</div>
+        <p class="price-period">4 semaines</p>
+        <a class="price-cta" [routerLink]="programEnrollLink('ielts')" [queryParams]="{ preferredPayment: 'cinetpay' }">Choisir et payer CinetPay</a>
+      </article>
+      <article class="price-card featured reveal">
+        <div class="featured-badge">Le plus populaire</div>
+        <div class="price-name">Complet</div>
+        <div class="price-amount">$199</div>
+        <p class="price-period">12 semaines</p>
+        <a class="price-cta" [routerLink]="programEnrollLink('tef')" [queryParams]="{ preferredPayment: 'cinetpay' }">Choisir et payer CinetPay</a>
+      </article>
+      <article class="price-card reveal">
+        <div class="price-name">Premium</div>
+        <div class="price-amount">$299</div>
+        <p class="price-period">12 semaines + coaching</p>
+        <a class="price-cta" [routerLink]="programEnrollLink('oet')" [queryParams]="{ preferredPayment: 'cinetpay' }">Choisir et payer CinetPay</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="faq">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">Questions frequentes</div>
+      <h2 class="section-title">Vous hésitez ? <em>C'est normal.</em></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item" *ngFor="let item of faq" [class.open]="isFaqOpen(item.id)" (click)="toggleFaq(item.id)">
+        <div class="faq-q">{{ item.question }}</div>
+        <div class="faq-a">{{ item.answer }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="final-cta">
+  <div class="container">
+    <div class="final-cta-inner">
+      <h2>Votre score, <em>votre nouvelle vie.</em></h2>
+      <p>Commencez par votre test cible, ouvrez le programme, puis finalisez votre paiement via CinetPay en quelques minutes.</p>
+      <div class="hero-ctas center">
+        <a class="btn btn-primary" [routerLink]="['/programs']">Voir les programmes</a>
+        <a class="btn btn-ghost" [routerLink]="programEnrollLink(activeTab())" [queryParams]="{ preferredPayment: 'cinetpay' }">Aller au paiement CinetPay</a>
+      </div>
+    </div>
+  </div>
+</section>

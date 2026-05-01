@@ -150,7 +150,9 @@ export class ContentShellComponent {
   private route = inject(ActivatedRoute);
   private programsService = inject(ProgramsAdminService);
 
-  readonly programId: string = this.route.snapshot.params['programId'];
+  readonly programId: string = this.route.snapshot.pathFromRoot
+    .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+    .find((value): value is string => !!value?.trim()) ?? '';
 
   private program$ = this.programsService.getProgramById(this.programId);
   readonly program = toSignal(this.program$, { initialValue: null });

@@ -14,7 +14,12 @@
     </div>
 
     <div class="top-actions">
-      <span class="role">{{ t('roles.superAdmin') }}</span>
+      <span class="role">Level 1 · {{ t('roles.superAdmin') }}</span>
+      <app-global-search-trigger></app-global-search-trigger>
+      <app-onboarding-trigger></app-onboarding-trigger>
+      <a routerLink="/admin-spaces" class="btn route-link">Switch Admin Space</a>
+      <a routerLink="/program-admin/dashboard" class="btn route-link">Program Admin Workspace</a>
+      <a routerLink="/org-admin/dashboard" class="btn route-link">Organization Admin Workspace</a>
       <app-language-switcher></app-language-switcher>
       <button class="btn logout" type="button" (click)="logout()">{{ t('actions.logout') }}</button>
     </div>

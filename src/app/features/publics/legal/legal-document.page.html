@@ -1,0 +1,36 @@
+<div class="legal-page">
+  <div class="legal-glow legal-glow--left" aria-hidden="true"></div>
+  <div class="legal-glow legal-glow--right" aria-hidden="true"></div>
+
+  <div class="legal-shell">
+    <header class="legal-hero">
+      <a class="legal-back" [routerLink]="localizedPath('/home')">{{ isFrench() ? 'Retour à l’accueil' : 'Back to home' }}</a>
+      <h1>{{ content().title }}</h1>
+      <p>{{ content().subtitle }}</p>
+      <span class="legal-updated">{{ isFrench() ? 'Dernière mise à jour' : 'Last updated' }}: {{ content().updatedAt }}</span>
+    </header>
+
+    <div class="legal-layout">
+      <aside class="legal-sidebar">
+        <div class="legal-sidebar__card">
+          <strong>{{ isFrench() ? 'Sections' : 'Sections' }}</strong>
+          <a *ngFor="let section of content().sections" [href]="'#' + section.id">{{ section.title }}</a>
+        </div>
+      </aside>
+
+      <main class="legal-content">
+        <section class="legal-card legal-card--intro">
+          <p *ngFor="let paragraph of content().intro">{{ paragraph }}</p>
+        </section>
+
+        <section class="legal-card" *ngFor="let section of content().sections" [attr.id]="section.id">
+          <h2>{{ section.title }}</h2>
+          <p *ngFor="let paragraph of section.body">{{ paragraph }}</p>
+          <ul *ngIf="section.bullets?.length">
+            <li *ngFor="let bullet of section.bullets">{{ bullet }}</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>

@@ -8,6 +8,7 @@
   "functions": [
     {
       "codebase": "default",
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"],
       "ignore": [
         "node_modules",
         ".git",
@@ -36,17 +37,82 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/*.css",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/assets/i18n/*.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.css.map",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=86400"
+          }
+        ]
+      }
+    ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/secure-pdf/**",
+        "function": {
+          "functionId": "securePdf",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/debug/product/**",
+        "function": {
+          "functionId": "debugProduct",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/sitemap.xml",
+        "function": {
+          "functionId": "sitemapXml",
+          "region": "us-central1"
+        }
+      },
+      {
+        "regex": "^/(?:[^/.]+(?:/[^/.]+)*)?/?$",
         "destination": "/index.html"
       }
     ]
   },
   "storage": {
     "rules": "storage.rules"
-  },
-  "database": {
-    "rules": "database.rules.json"
   }
 }

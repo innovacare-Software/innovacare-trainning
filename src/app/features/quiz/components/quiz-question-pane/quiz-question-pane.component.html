@@ -1,0 +1,84 @@
+<section class="pane left">
+  <div class="qstem" [innerHTML]="question().stem"></div>
+
+  <ul class="options-list" role="radiogroup" [attr.aria-label]="'Question ' + question().qnum">
+    @for (option of question().options; track option; let i = $index) {
+      <li
+        class="opt"
+        [class.correct]="isCorrectOption(i)"
+        [class.incorrect]="isIncorrectSelection(i)"
+        [class.disabled]="submitted()"
+        [attr.aria-checked]="selectedAnswer() === i"
+        [attr.data-index]="i"
+        (click)="select(i)"
+      >
+        <input
+          type="radio"
+          name="quiz-option"
+          [checked]="selectedAnswer() === i"
+          [disabled]="submitted()"
+          [attr.aria-checked]="selectedAnswer() === i"
+          (change)="select(i)"
+        />
+        <span class="opt-letter">{{ letters[i] }}.</span>
+        <span class="opt-text">{{ option }}</span>
+        <span class="opt-pct">{{ submitted() ? '[' + optionPercentages()[i] + '%]' : '' }}</span>
+        <span class="icon">{{ isCorrectOption(i) ? '✓' : (isIncorrectSelection(i) ? '✗' : '') }}</span>
+      </li>
+    }
+  </ul>
+
+  @if (submitted()) {
+    <div class="ans-status show" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()" aria-live="polite">
+      <span class="status-icon">{{ isCorrect() ? '✓' : '✗' }}</span>
+      <span class="status-text">{{ isCorrect() ? 'Correct' : 'Incorrect' }}</span>
+      <span class="answer-text">Correct Answer: {{ correctLetter() }}</span>
+    </div>
+  }
+
+  @if (!submitted()) {
+    <div class="submit-row">
+      <button type="button" class="btn-submit" [disabled]="!canSubmit()" (click)="answerSubmitted.emit()">
+        Submit Answer
+      </button>
+    </div>
+  }
+
+  <section class="meta-strip">
+    <div class="meta-item">
+      <div class="label">Difficulty Level</div>
+      <div class="value">{{ question().difficulty }}</div>
+    </div>
+    <div class="meta-item bp">
+      <div class="label">% of peers got it right</div>
+      <div class="value">{{ peerRightPct() }}%</div>
+    </div>
+    <div class="meta-item ti">
+      <div class="label">Time Taken</div>
+      <div class="value">{{ formatShortTime(questionTime()) }}</div>
+    </div>
+  </section>
+
+  <section class="tags-block">
+    <div class="tag-row">
+      <div class="tag-label">Subject</div>
+      <div class="tag-value">{{ question().subject }}</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag-label">Lesson</div>
+      <div class="tag-value">{{ question().lesson }}</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag-label">Client Need Area</div>
+      <div class="tag-value">{{ question().needArea }}</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag-label">Client Need Topic</div>
+      <div class="tag-value">{{ question().needTopic }}</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag-label">Question Type</div>
+      <div class="tag-value">{{ question().qType }}</div>
+    </div>
+  </section>
+</section>

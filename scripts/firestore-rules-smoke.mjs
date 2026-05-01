@@ -7,10 +7,14 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
   setDoc,
   updateDoc,
+  query,
+  where,
   serverTimestamp,
 } from 'firebase/firestore';
 
@@ -48,10 +52,143 @@ async function run() {
         orgId: 'orgZ',
         active: true,
       });
+      await setDoc(doc(db, 'users/mgrB'), {
+        role: 'manager',
+        orgId: 'orgB',
+        active: true,
+      });
       await setDoc(doc(db, 'notifications/n1'), {
         title: 'hello',
         body: 'world',
         audience: { type: 'all' },
+        createdAt: new Date(),
+      });
+      await setDoc(doc(db, 'programs/programA'), {
+        title: 'Program A',
+        slug: 'program-a',
+        description: 'A',
+        subtitle: 'A',
+        category: 'nclex_prep',
+        tags: [],
+        imageUrl: '',
+        durationText: '4 weeks',
+        scheduleText: 'Flexible',
+        price: 100,
+        currency: 'USD',
+        level: 'beginner',
+        deliveryMode: 'online',
+        isFeatured: false,
+        active: true,
+        status: 'PUBLISHED',
+        requirements: [],
+        outcomes: [],
+        ownerId: 'mgrA',
+        orgId: 'orgA',
+        updatedAt: new Date(),
+      });
+      await setDoc(doc(db, 'programs/programB'), {
+        title: 'Program B',
+        slug: 'program-b',
+        description: 'B',
+        subtitle: 'B',
+        category: 'nclex_prep',
+        tags: [],
+        imageUrl: '',
+        durationText: '4 weeks',
+        scheduleText: 'Flexible',
+        price: 100,
+        currency: 'USD',
+        level: 'beginner',
+        deliveryMode: 'online',
+        isFeatured: false,
+        active: false,
+        status: 'DRAFT',
+        ownerId: 'mgrB',
+        requirements: [],
+        outcomes: [],
+        orgId: 'orgB',
+        updatedAt: new Date(),
+      });
+      await setDoc(doc(db, 'programEnrollments/enrollA'), {
+        programId: 'programA',
+        userId: 'learnerA',
+        programTitle: 'Program A',
+        category: 'nclex_prep',
+        learnerName: 'Learner A',
+        learnerEmail: 'a@example.com',
+        learnerPhone: '111',
+        status: 'active',
+        amount: 100,
+        currency: 'USD',
+        paymentStatus: 'paid',
+        reviewStatus: 'approved',
+        orgId: 'orgA',
+        createdAt: new Date(),
+      });
+      await setDoc(doc(db, 'programEnrollments/enrollB'), {
+        programId: 'programB',
+        userId: 'learnerB',
+        programTitle: 'Program B',
+        category: 'nclex_prep',
+        learnerName: 'Learner B',
+        learnerEmail: 'b@example.com',
+        learnerPhone: '222',
+        status: 'active',
+        amount: 100,
+        currency: 'USD',
+        paymentStatus: 'paid',
+        reviewStatus: 'approved',
+        orgId: 'orgB',
+        createdAt: new Date(),
+      });
+      await setDoc(doc(db, 'users/learnerA/programProgress/programA'), {
+        userId: 'learnerA',
+        programId: 'programA',
+        progressPct: 55,
+        averageScore: 77,
+        status: 'in_progress',
+      });
+      await setDoc(doc(db, 'users/learnerB/programProgress/programB'), {
+        userId: 'learnerB',
+        programId: 'programB',
+        progressPct: 80,
+        averageScore: 88,
+        status: 'in_progress',
+      });
+      await setDoc(doc(db, 'users/learnerA/orders/orderA'), {
+        orgId: 'orgA',
+        total: 100,
+      });
+      await setDoc(doc(db, 'users/learnerB/orders/orderB'), {
+        orgId: 'orgB',
+        total: 100,
+      });
+      await setDoc(doc(db, 'policy_acknowledgements/p1_learnerA'), {
+        policyId: 'p1',
+        policyVersion: 'v1',
+        userId: 'learnerA',
+        acknowledgedAt: new Date(),
+      });
+      await setDoc(doc(db, 'policy_acknowledgements/p1_learnerB'), {
+        policyId: 'p1',
+        policyVersion: 'v1',
+        userId: 'learnerB',
+        acknowledgedAt: new Date(),
+      });
+      await setDoc(doc(db, 'adminNotifications/an-orgA'), {
+        title: 'Org A notice',
+        body: 'Scoped',
+        audience: { type: 'all' },
+        organizationId: 'orgA',
+        recipientsCount: 1,
+        createdAt: new Date(),
+      });
+      await setDoc(doc(db, 'adminNotifications/an-orgB'), {
+        title: 'Org B notice',
+        body: 'Scoped',
+        audience: { type: 'all' },
+        organizationId: 'orgB',
+        recipientsCount: 1,
         createdAt: new Date(),
       });
     });
@@ -66,8 +203,8 @@ async function run() {
     const superDb = superCtx.firestore();
     const anonDb = anonCtx.firestore();
 
-    // 1) Learner can read notifications and mark one as read for self.
-    await assertSucceeds(getDoc(doc(learnerDb, 'notifications/n1')));
+    // 1) Learner cannot read consolidated admin notifications, but can mark read-state for self.
+    await assertFails(getDoc(doc(learnerDb, 'notifications/n1')));
     await assertSucceeds(
       setDoc(doc(learnerDb, 'users/learnerA/notificationReads/n1'), {
         readAt: serverTimestamp(),
@@ -113,6 +250,7 @@ async function run() {
         message: 'Need a demo',
         source: 'landing-page',
         status: 'new',
+        createdAt: serverTimestamp(),
       })
     );
 
@@ -134,6 +272,29 @@ async function run() {
         updatedAt: serverTimestamp(),
       })
     );
+
+    // 7) Manager can access only same-org program admin surfaces.
+    await assertSucceeds(getDoc(doc(managerDb, 'programs/programA')));
+    await assertFails(getDoc(doc(managerDb, 'programs/programB')));
+    await assertSucceeds(getDoc(doc(managerDb, 'programEnrollments/enrollA')));
+    await assertFails(getDoc(doc(managerDb, 'programEnrollments/enrollB')));
+    await assertSucceeds(getDoc(doc(managerDb, 'users/learnerA/programProgress/programA')));
+    await assertFails(getDoc(doc(managerDb, 'users/learnerB/programProgress/programB')));
+
+    // 8) Manager cannot read private user commerce data outside own org.
+    await assertSucceeds(getDoc(doc(managerDb, 'users/learnerA/orders/orderA')));
+    await assertFails(getDoc(doc(managerDb, 'users/learnerB/orders/orderB')));
+
+    // 9) Policy acknowledgements are limited to manageable users.
+    await assertSucceeds(getDoc(doc(managerDb, 'policy_acknowledgements/p1_learnerA')));
+    await assertFails(getDoc(doc(managerDb, 'policy_acknowledgements/p1_learnerB')));
+
+    // 10) Admin notifications are tenant-scoped for non-super-admin users.
+    await assertSucceeds(
+      getDocs(query(collection(managerDb, 'adminNotifications'), where('organizationId', '==', 'orgA')))
+    );
+    await assertFails(getDoc(doc(managerDb, 'adminNotifications/an-orgB')));
+    await assertSucceeds(getDoc(doc(superDb, 'adminNotifications/an-orgB')));
 
     console.log('Firestore rules smoke test: PASS');
   } finally {

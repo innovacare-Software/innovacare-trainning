@@ -13,6 +13,8 @@ import { AuthService } from '../../../core/auth';
   styleUrls: ['./reset.css'],
 })
 export class ResetComponent {
+  readonly logoUrl = 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775625663/142F3705-07E3-43F3-BD40-F5556DD88AEC_uemn1w.png';
+
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
 

@@ -1,0 +1,180 @@
+<div class="book-page">
+  <div class="book-container">
+    <a routerLink="/private-tutors" class="book-back" [attr.aria-label]="'COMMON.back' | transloco">← {{ 'COMMON.back' | transloco }}</a>
+
+    @if (loading()) {
+      <div class="book-loading" role="status" [attr.aria-label]="'COMMON.loading' | transloco">
+        <div class="book-spinner"></div>
+        <span>{{ 'COMMON.loading' | transloco }}</span>
+      </div>
+    }
+
+    @if (!loading() && tutor()) {
+      <div class="book-layout">
+
+          <!-- Left: Tutor summary -->
+          <aside class="book-tutor-card">
+            <div class="book-tutor-card__avatar" aria-hidden="true">
+              @if (tutor()!.profileImageUrl) {
+                <img [src]="tutor()!.profileImageUrl" [alt]="tutor()!.name + ' profile'" loading="eager" />
+              } @else {
+                <span class="book-avatar-placeholder">{{ tutor()!.name[0] }}</span>
+              }
+            </div>
+            <h2 class="book-tutor-card__name">{{ tutor()!.name }}</h2>
+            <p class="book-tutor-card__creds">{{ tutor()!.credentials }}</p>
+            <p class="book-tutor-card__bio">{{ tutor()!.bio | localizedField }}</p>
+            <div class="book-tutor-card__rate">
+              <span class="book-rate-label">{{ 'TUTORS.book_session' | transloco }}</span>
+              <strong>${{ tutor()!.hourlyRate }}/hr</strong>
+            </div>
+            <div class="book-tutor-card__tags" role="list" [attr.aria-label]="'TUTORS.specialties' | transloco">
+              @for (s of tutor()!.specialties; track $index) {
+                <span class="book-tag" role="listitem">{{ s }}</span>
+              }
+            </div>
+          </aside>
+
+          <!-- Right: Booking form -->
+          <div class="book-form-wrapper">
+            <h1>{{ 'TUTORS.book_session' | transloco }}</h1>
+            <p class="book-form-sub">{{ 'TUTORS.hero_desc' | transloco }}</p>
+
+            @if (errorMsg()) {
+              <div class="book-alert book-alert--error" role="alert">{{ errorMsg() }}</div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="book-form" [attr.aria-label]="'TUTORS.book_session' | transloco">
+
+              <div class="book-field">
+                <label for="subject">{{ 'COMMON.subject' | transloco }} <span class="book-required" aria-hidden="true">*</span></label>
+                <select
+                  id="subject"
+                  formControlName="subject"
+                  [class.book-input--error]="showError('subject')"
+                  aria-required="true"
+                >
+                  <option value="">{{ 'COMMON.subject' | transloco }}</option>
+                  @for (sub of subjects; track $index) {
+                    <option [value]="sub">{{ sub }}</option>
+                  }
+                </select>
+                @if (showError('subject')) {
+                  <span class="book-error-msg" role="alert">{{ 'COMMON.subject' | transloco }}</span>
+                }
+              </div>
+
+              <div class="book-field-row">
+                <div class="book-field">
+                  <label for="sessionDate">{{ 'COMMON.date' | transloco }} <span class="book-required" aria-hidden="true">*</span></label>
+                  <input
+                    id="sessionDate"
+                    type="date"
+                    formControlName="sessionDate"
+                    [min]="minDate"
+                    [class.book-input--error]="showError('sessionDate')"
+                    (change)="onDateChange($event)"
+                    aria-required="true"
+                  />
+                  @if (showError('sessionDate')) {
+                    <span class="book-error-msg" role="alert">{{ 'COMMON.date' | transloco }}</span>
+                  }
+                </div>
+
+                <div class="book-field">
+                  <label for="sessionTime">{{ 'COMMON.time' | transloco }} <span class="book-required" aria-hidden="true">*</span></label>
+                  <select
+                    id="sessionTime"
+                    formControlName="sessionTime"
+                    [class.book-input--error]="showError('sessionTime')"
+                    aria-required="true"
+                  >
+                    <option value="">
+                      {{ availableSlots().length ? ('COMMON.time' | transloco) : ('COMMON.date' | transloco) }}
+                    </option>
+                    @for (slot of availableSlots(); track $index) {
+                      <option [value]="slot">{{ slot }}</option>
+                    }
+                  </select>
+                  @if (showError('sessionTime')) {
+                    <span class="book-error-msg" role="alert">{{ 'COMMON.time' | transloco }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="book-field-row">
+                <div class="book-field">
+                  <label for="durationMinutes">{{ 'TUTORS.bookings.duration' | transloco }} <span class="book-required" aria-hidden="true">*</span></label>
+                  <select id="durationMinutes" formControlName="durationMinutes" aria-required="true">
+                    @for (d of durationOptions; track $index) {
+                      <option [value]="d">{{ d }} {{ 'TUTORS.bookings.duration' | transloco }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="book-field">
+                  <label for="sessionType">{{ 'TUTORS.bookings.type' | transloco }}</label>
+                  <select id="sessionType" formControlName="sessionType">
+                    <option value="individual">{{ 'TUTORS.bookings.individual' | transloco }}</option>
+                    <option value="group">{{ 'TUTORS.bookings.group' | transloco }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="book-field">
+                <label for="notes">{{ 'TUTORS.bookings.notes' | transloco }}</label>
+                <textarea
+                  id="notes"
+                  formControlName="notes"
+                  rows="3"
+                  [placeholder]="'TUTORS.bookings.notes' | transloco"
+                ></textarea>
+              </div>
+
+              <!-- Price summary -->
+              <div class="book-summary" [attr.aria-label]="'TUTORS.bookings.summary' | transloco">
+                <div class="book-summary__row">
+                  <span>{{ 'TUTORS.bookings.duration' | transloco }}</span>
+                  <span>{{ form.value.durationMinutes }} min</span>
+                </div>
+                <div class="book-summary__row">
+                  <span>{{ 'TUTORS.bookings.rate' | transloco }}</span>
+                  <span>${{ tutor()!.hourlyRate }}/hr</span>
+                </div>
+                <div class="book-summary__row book-summary__row--total">
+                  <strong>{{ 'COMMON.total' | transloco }}</strong>
+                  <strong>${{ calcTotal() | number:'1.2-2' }}</strong>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                class="book-submit"
+                [disabled]="submitting()"
+                [attr.aria-busy]="submitting()"
+                [attr.aria-label]="'TUTORS.book_session' | transloco"
+              >
+                @if (submitting()) {
+                  <span class="book-spinner-inline" aria-hidden="true"></span>
+                  {{ 'COMMON.loading' | transloco }}
+                } @else {
+                  {{ 'WALLET.payment.secure_checkout' | transloco }} →
+                }
+              </button>
+
+              <p class="book-terms">
+                {{ 'COMMON.submit' | transloco }}.
+              </p>
+            </form>
+          </div>
+        </div>
+    }
+
+    @if (!loading() && !tutor() && errorMsg()) {
+      <div class="book-not-found" role="alert">
+        <p>{{ errorMsg() }}</p>
+        <a routerLink="/private-tutors" class="book-back">← {{ 'COMMON.back' | transloco }}</a>
+      </div>
+    }
+  </div>
+</div>

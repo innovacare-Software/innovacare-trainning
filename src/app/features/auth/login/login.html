@@ -1,303 +1,481 @@
 <div class="auth-container">
-    <div class="auth-wrapper">
-      <div class="card auth-card">
-        <div class="card-header">
-          <div class="logo-section" style="text-align: center;">
-            <h1 class="title">Welcome Back</h1>
-            <p class="subtitle">INNOVACARE TRAINING PLATFORM</p>
-          </div>
+  <div class="auth-glow auth-glow--left" aria-hidden="true"></div>
+  <div class="auth-glow auth-glow--right" aria-hidden="true"></div>
 
-          <!-- Tab Switch Buttons -->
-          <div class="tab-switch-container">
-            <button 
-              class="tab-switch" 
-              [class.active]="currentTab() === 'guest'"
-              (click)="switchTab('guest')"
-              type="button">
-              Guest Login
-            </button>
-            <button 
-              class="tab-switch" 
-              [class.active]="currentTab() === 'org'"
-              (click)="switchTab('org')"
-              type="button">
-              Organization Login
-            </button>
-            <button 
-              class="tab-switch" 
-              [class.active]="currentTab() === 'register'"
-              (click)="switchTab('register')"
-              type="button">
-              Register
-            </button>
-          </div>
+  <div class="auth-shell">
+    <section class="auth-showcase">
+      <a routerLink="/home" class="brand-lockup" aria-label="Innovacare home">
+        <img class="brand-lockup__logo" [src]="logoUrl" alt="Innovacare logo" />
+      </a>
+
+      <div class="showcase-copy">
+        <h1 class="showcase-title">
+          Empower Your
+          <span>
+            {{ currentTab() === 'register' ? 'NCLEX' : currentTab() === 'org' ? 'Institution' : 'Pre-Nursing' }}
+          </span>
+          Preparation with Innovacare
+        </h1>
+        <p class="showcase-description">
+          {{ currentTab() === 'register'
+            ? 'Create an account to access premium exam prep, bookings, and learner tools with one streamlined onboarding flow.'
+            : currentTab() === 'org'
+              ? 'Use your organization credentials to access assigned content, cohorts, and reporting inside your institutional workspace.'
+              : 'Use your Innovacare learner account to continue purchases, live sessions, and study progress without friction.' }}
+        </p>
+      </div>
+
+      <div class="trust-panel">
+        <p class="trust-panel__quote">
+          “Innovacare gave our learners a cleaner front door. The experience feels clearer, faster, and far more premium from the first click.”
+        </p>
+        <div class="trust-panel__meta">
+          <strong>Glory Ibinayin</strong>
+          <span>{{ currentTab() === 'register' ? 'New account onboarding' : 'Learner success story' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="auth-divider-rail" aria-hidden="true"></div>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="auth-card__topbar" *ngIf="currentTab() === 'register'">
+          <button class="topbar-link" type="button" (click)="switchTab('guest')">Back</button>
+        </div>
+
+        <div class="auth-card__header">
+          <h2 class="auth-title">
+            {{ currentTab() === 'register' ? 'Signup' : currentTab() === 'org' ? 'Organization Login' : 'Login' }}
+          </h2>
+          <p class="auth-subtitle">
+            {{ currentTab() === 'register'
+              ? 'Continue with email'
+              : currentTab() === 'org'
+                ? 'Use your organization account'
+                : 'Use your Innovacare account' }}
+          </p>
+        </div>
+
+        <div class="tab-switch-container" role="tablist" aria-label="Authentication options">
+          <button
+            class="tab-switch"
+            [class.active]="currentTab() === 'guest'"
+            (click)="switchTab('guest')"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="currentTab() === 'guest'">
+            Login
+          </button>
+          <button
+            class="tab-switch"
+            [class.active]="currentTab() === 'org'"
+            (click)="switchTab('org')"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="currentTab() === 'org'">
+            Org
+          </button>
+          <button
+            class="tab-switch"
+            [class.active]="currentTab() === 'register'"
+            (click)="switchTab('register')"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="currentTab() === 'register'">
+            Signup
+          </button>
         </div>
 
         <div class="card-body">
-          <!-- Guest Login Form -->
-          <form 
-            *ngIf="currentTab() === 'guest'" 
+          <form
+            *ngIf="currentTab() === 'guest'"
             [@slideAnimation]
-            [formGroup]="guestForm" 
-            (ngSubmit)="submitGuest()" 
+            [formGroup]="guestForm"
+            (ngSubmit)="submitGuest()"
             class="form">
             <div class="form-group">
-              <label class="label">Email Address</label>
               <div class="input-wrapper">
-                <span class="input-icon">✉️</span>
-                <input 
-                  class="input" 
-                  type="email" 
-                  formControlName="email" 
-                  placeholder="guest@example.com"
+                <span class="input-icon">@</span>
+                <input
+                  class="input"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Email ID"
                   autocomplete="email"
                 />
               </div>
               <small class="help error-text" *ngIf="guestForm.controls.email.invalid && guestForm.controls.email.touched">
-                ⚠️ Valid email address required
+                Valid email address required.
               </small>
             </div>
 
             <div class="form-group">
-              <label class="label">Password</label>
               <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input 
-                  class="input" 
-                  type="password" 
-                  formControlName="password" 
-                  placeholder="••••••••"
+                <span class="input-icon">••</span>
+                <input
+                  class="input"
+                  type="password"
+                  formControlName="password"
+                  placeholder="Password"
                   autocomplete="current-password"
                 />
               </div>
               <small class="help error-text" *ngIf="guestForm.controls.password.invalid && guestForm.controls.password.touched">
-                ⚠️ Minimum 6 characters required
+                Minimum 6 characters required.
               </small>
             </div>
-            <div class="form-group remember-row">
-  <label class="checkbox-label">
-    <input type="checkbox" formControlName="rememberMe" />
-    <span>Remember me</span>
-  </label>
-</div>
+
+            <div class="auth-meta-row">
+              <div class="auth-inline-link-group">
+                <span>New User?</span>
+                <button class="footer-inline-link" type="button" (click)="switchTab('register')">Create Account</button>
+              </div>
+              <a routerLink="/reset" class="utility-link">Forgot Password?</a>
+            </div>
 
             <div class="error-alert" *ngIf="error()">
-              <span class="error-icon">❌</span>
+              <span class="status-icon">!</span>
               <p class="error">{{ error() }}</p>
             </div>
 
-            <button 
-              class="btn btn-primary" 
-              type="submit" 
+            <button
+              class="btn btn-primary"
+              type="submit"
               [disabled]="loading()"
               [class.loading]="loading()">
-              <span *ngIf="!loading()">Sign In as Guest</span>
+              <span *ngIf="!loading()">Next</span>
               <span *ngIf="loading()">Signing in...</span>
             </button>
+
+            <div class="social-auth-block">
+              <span class="social-auth-label">Register/Login With</span>
+              <div class="social-auth-row">
+                <button class="social-icon-button" type="button" (click)="google()" [disabled]="loading()" aria-label="Google sign in">
+                  <span class="social-badge social-badge--google">G</span>
+                </button>
+                <button class="social-icon-button social-icon-button--ghost" type="button" disabled aria-label="Facebook unavailable">
+                  <span class="social-badge social-badge--neutral">f</span>
+                </button>
+                <button class="social-icon-button social-icon-button--ghost" type="button" disabled aria-label="Apple unavailable">
+                  <span class="social-badge social-badge--neutral">A</span>
+                </button>
+                <button class="social-icon-button social-icon-button--ghost" type="button" disabled aria-label="LinkedIn unavailable">
+                  <span class="social-badge social-badge--neutral">in</span>
+                </button>
+                <button class="social-icon-button social-icon-button--ghost" type="button" disabled aria-label="SSO unavailable">
+                  <span class="social-badge social-badge--neutral">SSO</span>
+                </button>
+              </div>
+            </div>
           </form>
 
-          <!-- Organization Login Form -->
-          <form 
-            *ngIf="currentTab() === 'org'" 
+          <form
+            *ngIf="currentTab() === 'org'"
             [@slideAnimation]
-            [formGroup]="orgForm" 
-            (ngSubmit)="submitOrg()" 
+            [formGroup]="orgForm"
+            (ngSubmit)="submitOrg()"
             class="form">
             <div class="form-group">
-              <label class="label">Organization Code</label>
               <div class="input-wrapper">
-                <span class="input-icon">🏢</span>
-                <input 
-                  class="input" 
-                  type="text" 
-                  formControlName="orgCode" 
-                  placeholder="ORG123456"
+                <span class="input-icon">ID</span>
+                <input
+                  class="input"
+                  type="text"
+                  formControlName="orgCode"
+                  placeholder="Organization Code"
                   autocomplete="off"
                 />
               </div>
               <small class="help error-text" *ngIf="orgForm.controls.orgCode.invalid && orgForm.controls.orgCode.touched">
-                ⚠️ Organization code required
+                Organization code required.
               </small>
             </div>
 
             <div class="form-group">
-              <label class="label">Email Address</label>
               <div class="input-wrapper">
-                <span class="input-icon">✉️</span>
-                <input 
-                  class="input" 
-                  type="email" 
-                  formControlName="email" 
-                  placeholder="you@clinic.com"
+                <span class="input-icon">@</span>
+                <input
+                  class="input"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Email ID"
                   autocomplete="email"
                 />
               </div>
               <small class="help error-text" *ngIf="orgForm.controls.email.invalid && orgForm.controls.email.touched">
-                ⚠️ Valid email address required
+                Valid email address required.
               </small>
             </div>
 
             <div class="form-group">
-              <label class="label">Password</label>
               <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input 
-                  class="input" 
-                  type="password" 
-                  formControlName="password" 
-                  placeholder="••••••••"
+                <span class="input-icon">••</span>
+                <input
+                  class="input"
+                  type="password"
+                  formControlName="password"
+                  placeholder="Password"
                   autocomplete="current-password"
                 />
               </div>
               <small class="help error-text" *ngIf="orgForm.controls.password.invalid && orgForm.controls.password.touched">
-                ⚠️ Minimum 6 characters required
+                Minimum 6 characters required.
               </small>
             </div>
 
-            <div class="form-group remember-row">
-  <label class="checkbox-label">
-    <input type="checkbox" formControlName="rememberMe" />
-    <span>Remember me</span>
-  </label>
-</div>
+            <div class="auth-meta-row auth-meta-row--compact">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="rememberMe" />
+                <span>Remember me</span>
+              </label>
+              <button class="footer-inline-link" type="button" (click)="switchTab('guest')">Learner Login</button>
+            </div>
 
             <div class="error-alert" *ngIf="error()">
-              <span class="error-icon">❌</span>
+              <span class="status-icon">!</span>
               <p class="error">{{ error() }}</p>
             </div>
 
-            <button 
-              class="btn btn-primary" 
-              type="submit" 
+            <button
+              class="btn btn-primary"
+              type="submit"
               [disabled]="loading()"
               [class.loading]="loading()">
-              <span *ngIf="!loading()">Sign In</span>
+              <span *ngIf="!loading()">Next</span>
               <span *ngIf="loading()">Signing in...</span>
             </button>
-
-            <div class="divider">
-              <span>or</span>
-            </div>
-
-            <button 
-              class="btn btn-google" 
-              type="button" 
-              (click)="google()" 
-              [disabled]="loading()">
-              <span class="google-icon">🔐</span>
-              Sign in with Google
-            </button>
           </form>
-          
 
-          <!-- Register Form -->
-          <form 
-            *ngIf="currentTab() === 'register'" 
+          <form
+            *ngIf="currentTab() === 'register'"
             [@slideAnimation]
-            [formGroup]="registerForm" 
-            (ngSubmit)="submitRegister()" 
-            class="form">
-            <div class="form-group">
-              <label class="label">Full Name</label>
-              <div class="input-wrapper">
-                <span class="input-icon">👤</span>
-                <input 
-                  class="input" 
-                  type="text" 
-                  formControlName="fullName" 
-                  placeholder="John Doe"
-                  autocomplete="name"
-                />
+            [formGroup]="registerForm"
+            (ngSubmit)="submitRegister()"
+            class="form form--register">
+            <div class="form-grid">
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">A</span>
+                  <input
+                    class="input"
+                    type="text"
+                    formControlName="fullName"
+                    placeholder="Full Name"
+                    autocomplete="name"
+                  />
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.fullName.invalid && registerForm.controls.fullName.touched">
+                  Full name required.
+                </small>
               </div>
-              <small class="help error-text" *ngIf="registerForm.controls.fullName.invalid && registerForm.controls.fullName.touched">
-                ⚠️ Full name required
-              </small>
+
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">@</span>
+                  <input
+                    class="input"
+                    type="email"
+                    formControlName="email"
+                    placeholder="Email ID"
+                    autocomplete="email"
+                  />
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.email.invalid && registerForm.controls.email.touched">
+                  Valid email address required.
+                </small>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">+1</span>
+                  <input
+                    class="input"
+                    type="tel"
+                    formControlName="phone"
+                    placeholder="Contact Number"
+                    autocomplete="tel"
+                  />
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.phone.invalid && registerForm.controls.phone.touched">
+                  Phone number required.
+                </small>
+              </div>
+
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">GL</span>
+                  <input
+                    class="input"
+                    type="text"
+                    formControlName="country"
+                    placeholder="Country"
+                    autocomplete="country-name"
+                  />
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.country.invalid && registerForm.controls.country.touched">
+                  Country required.
+                </small>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <div class="input-wrapper input-wrapper--select">
+                  <span class="input-icon">LT</span>
+                  <select class="input" formControlName="learnerType">
+                    <option value="">Learner Type</option>
+                    <option *ngFor="let option of learnerTypes" [value]="option">{{ option }}</option>
+                  </select>
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.learnerType.invalid && registerForm.controls.learnerType.touched">
+                  Learner type required.
+                </small>
+              </div>
+
+              <div class="form-group">
+                <div class="input-wrapper input-wrapper--select">
+                  <span class="input-icon">PG</span>
+                  <select class="input" formControlName="examGoal">
+                    <option value="">Exam</option>
+                    <option *ngFor="let option of examGoals" [value]="option">{{ option }}</option>
+                  </select>
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.examGoal.invalid && registerForm.controls.examGoal.touched">
+                  Goal required.
+                </small>
+              </div>
             </div>
 
             <div class="form-group">
-              <label class="label">Email Address</label>
               <div class="input-wrapper">
-                <span class="input-icon">✉️</span>
-                <input 
-                  class="input" 
-                  type="email" 
-                  formControlName="email" 
-                  placeholder="you@example.com"
-                  autocomplete="email"
+                <span class="input-icon">ORG</span>
+                <input
+                  class="input"
+                  type="text"
+                  formControlName="organizationName"
+                  placeholder="School or Organization"
+                  autocomplete="organization"
                 />
               </div>
-              <small class="help error-text" *ngIf="registerForm.controls.email.invalid && registerForm.controls.email.touched">
-                ⚠️ Valid email address required
-              </small>
             </div>
 
-            <div class="form-group">
-              <label class="label">Password</label>
-              <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input 
-                  class="input" 
-                  type="password" 
-                  formControlName="password" 
-                  placeholder="••••••••"
-                  autocomplete="new-password"
-                />
+            <div class="form-grid">
+              <div class="form-group">
+                <div class="input-wrapper input-wrapper--select">
+                  <span class="input-icon">RS</span>
+                  <select class="input" formControlName="referralSource">
+                    <option value="">How did you hear about us?</option>
+                    <option *ngFor="let option of referralSources" [value]="option">{{ option }}</option>
+                  </select>
+                </div>
               </div>
-              <small class="help error-text" *ngIf="registerForm.controls.password.invalid && registerForm.controls.password.touched">
-                ⚠️ Minimum 6 characters required
-              </small>
+
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">••</span>
+                  <input
+                    class="input"
+                    type="password"
+                    formControlName="password"
+                    placeholder="Password"
+                    autocomplete="new-password"
+                  />
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.password.invalid && registerForm.controls.password.touched">
+                  Minimum 6 characters required.
+                </small>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label class="label">Confirm Password</label>
-              <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input 
-                  class="input" 
-                  type="password" 
-                  formControlName="confirmPassword" 
-                  placeholder="••••••••"
-                  autocomplete="new-password"
-                />
+            <div class="form-grid form-grid--aligned-end">
+              <div class="form-group form-group--span-2">
+                <div class="input-wrapper input-wrapper--textarea">
+                  <span class="input-icon">TXT</span>
+                  <textarea
+                    class="input input--textarea"
+                    formControlName="goals"
+                    rows="3"
+                    placeholder="What do you need help with?"
+                  ></textarea>
+                </div>
               </div>
-              <small class="help error-text" *ngIf="registerForm.controls.confirmPassword.invalid && registerForm.controls.confirmPassword.touched">
-                ⚠️ Passwords must match
-              </small>
+
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">OK</span>
+                  <input
+                    class="input"
+                    type="password"
+                    formControlName="confirmPassword"
+                    placeholder="Confirm Password"
+                    autocomplete="new-password"
+                  />
+                </div>
+                <small class="help error-text" *ngIf="registerForm.controls.confirmPassword.invalid && registerForm.controls.confirmPassword.touched">
+                  Password confirmation required.
+                </small>
+              </div>
+            </div>
+
+            <div class="inline-row">
+              <label class="checkbox-label checkbox-label--stacked">
+                <input type="checkbox" formControlName="acceptTerms" />
+                <span>
+                  I agree to the
+                  <a routerLink="/terms" class="utility-link">Terms and Conditions</a>
+                  and
+                  <a routerLink="/privacy" class="utility-link">Privacy Policy</a>.
+                </span>
+              </label>
+            </div>
+
+            <small class="help error-text" *ngIf="registerForm.controls.acceptTerms.invalid && registerForm.controls.acceptTerms.touched">
+              You must accept the terms and privacy policy to continue.
+            </small>
+
+            <div class="inline-row">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="rememberMe" />
+                <span>Keep me signed in on this device</span>
+              </label>
+              <span class="form-note">Guest learners are automatically routed into the default B2 workspace.</span>
             </div>
 
             <div class="error-alert" *ngIf="error()">
-              <span class="error-icon">❌</span>
+              <span class="status-icon">!</span>
               <p class="error">{{ error() }}</p>
             </div>
-            <div class="success-alert" *ngIf="success()">
-  <span class="success-icon">✅</span>
-  <p class="success">{{ success() }}</p>
-</div>
 
-            <button 
-              class="btn btn-primary" 
-              type="submit" 
+            <div class="success-alert" *ngIf="success()">
+              <span class="status-icon status-icon--success">✓</span>
+              <p class="success">{{ success() }}</p>
+            </div>
+
+            <button
+              class="btn btn-primary"
+              type="submit"
               [disabled]="loading()"
               [class.loading]="loading()">
-              <span *ngIf="!loading()">Create Account</span>
-              <span *ngIf="loading()">Creating...</span>
+              <span *ngIf="!loading()">Sign Up</span>
+              <span *ngIf="loading()">Creating account...</span>
             </button>
           </form>
 
-          <!-- Forgot Password & Back to Home -->
-          <div class="footer-links" *ngIf="currentTab() !== 'register'">
-            <p class="forgot-password">
-              Forgot your password? <a routerLink="/reset" class="link">Reset it here</a>
+          <div class="footer-links">
+            <p class="footer-copy" *ngIf="currentTab() !== 'register'">
+              
             </p>
-            <button 
-              routerLink="/" 
-              class="btn btn-link" 
-              type="button">
-              ← Back to Home
-            </button>
+            <p class="footer-copy" *ngIf="currentTab() === 'register'">
+              Already have an account? <button class="footer-inline-link" type="button" (click)="switchTab('guest')">Login</button>
+            </p>
+            <a routerLink="/home" class="back-link" *ngIf="currentTab() !== 'register'">Back to home</a>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
+</div>
   

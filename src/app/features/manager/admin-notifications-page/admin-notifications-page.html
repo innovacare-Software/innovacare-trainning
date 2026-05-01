@@ -23,6 +23,24 @@
       </mat-select>
     </mat-form-field>
 
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <mat-select
+        [ngModel]="category()"
+        (ngModelChange)="category.set($event)"
+      >
+        <mat-option *ngFor="let item of categories" [value]="item">
+          {{ categoryLabels[item] }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="category-hint">
+      <div class="category-hint__label">Selected category</div>
+      <div class="category-hint__title">{{ categoryLabel(category()) }}</div>
+      <div class="category-hint__body">{{ currentCategoryHelp() }}</div>
+    </div>
+
     <mat-form-field appearance="outline" class="full">
       <mat-label>Body</mat-label>
       <textarea
@@ -83,7 +101,7 @@
     Send
   </button>
 
-  <div class="notice" *ngIf="notice()">{{ notice() }}</div>
+  <div class="notice" [class.notice--error]="isError()" *ngIf="notice()">{{ notice() }}</div>
 </mat-card>
 
 <mat-card style="margin-top:16px;">
@@ -94,6 +112,7 @@
     <mat-list-item *ngFor="let n of recent()">
       <div matListItemTitle>{{ n.title }}</div>
       <div matListItemLine style="opacity:.75">{{ n.body }}</div>
+      <div matListItemLine class="recent-meta">{{ categoryLabel(n.category) }} • {{ n.severity }} • {{ n.recipientsCount }} recipient(s)</div>
     </mat-list-item>
   </mat-nav-list>
 </mat-card>

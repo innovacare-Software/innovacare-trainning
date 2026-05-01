@@ -78,6 +78,11 @@ interface BasicProgressSummary {
         <button type="button" (click)="activate(row.id)">Activate</button>
         <button type="button" (click)="complete(row.id)">Complete</button>
         <button type="button" (click)="cancel(row.id)" class="warn">Cancel</button>
+        @if (row.paymentStatus !== 'paid') {
+          <button type="button" (click)="markPaid(row.id)" class="success">Mark Paid</button>
+        } @else {
+          <button type="button" (click)="markUnpaid(row.id)" class="warn">Mark Unpaid</button>
+        }
       </section>
     </section>
 
@@ -106,6 +111,7 @@ interface BasicProgressSummary {
       .actions { margin-top: 0.8rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
       .actions button { border: 1px solid #c9dbee; border-radius: 0.65rem; padding: 0.4rem 0.55rem; background: #f8fbff; color: #234f7b; cursor: pointer; }
       .actions button.warn { color: #8b3344; border-color: #efc5ce; background: #fef2f4; }
+      .actions button.success { color: #1a5e35; border-color: #a3d4b5; background: #f0faf4; font-weight: 600; }
       .not-found { border: 1px dashed #c7d8ea; border-radius: 0.8rem; text-align: center; padding: 1.2rem; }
       .not-found a { text-decoration: none; color: #24517d; }
       @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } .progress-grid { grid-template-columns: 1fr; } }
@@ -164,6 +170,14 @@ export class ProgramEnrollmentDetailPage {
 
   async cancel(id: string): Promise<void> {
     await this.service.cancelEnrollment(id);
+  }
+
+  async markPaid(id: string): Promise<void> {
+    await this.service.markPaid(id);
+  }
+
+  async markUnpaid(id: string): Promise<void> {
+    await this.service.markUnpaid(id);
   }
 
   asDate(value: unknown): Date | null {

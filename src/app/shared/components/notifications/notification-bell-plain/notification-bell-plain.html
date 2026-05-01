@@ -9,6 +9,18 @@
       <div class="panel-title">Notifications</div>
       <div class="panel-sub">{{ unreadCount() }} unread</div>
     </div>
+    <button type="button" class="link-btn" (click)="togglePrefs()">Préférences</button>
+  </div>
+
+  <div class="prefs" *ngIf="prefsOpen()">
+    <label class="pref-row" *ngFor="let category of categories">
+      <input
+        type="checkbox"
+        [checked]="preferences()[category]"
+        (change)="setCategoryPreference(category, $event)"
+      />
+      <span>{{ categoryLabels[category] }}</span>
+    </label>
   </div>
 
   <div class="list">
@@ -26,6 +38,7 @@
                          [class.critical]="n.severity==='critical'">
           {{ n.severity || 'info' }}
         </span>
+        <span class="category">{{ categoryLabels[n.category || 'announcements'] }}</span>
       </div>
     </button>
 

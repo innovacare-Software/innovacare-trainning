@@ -1,0 +1,257 @@
+<div class="archer-root">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- TOP HEADER                                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <header class="archer-header">
+    <div class="archer-header-left">
+      <span class="archer-brand-badge">IC</span>
+      <span class="archer-brand-text">{{ sessionTitle }} — {{ userName }}</span>
+    </div>
+    <div class="archer-header-right">
+      <span>QID:&nbsp;{{ qid() }}</span>
+      <span>[{{ examLabel }}]</span>
+      <span class="archer-header-timer">{{ headerTime() }}</span>
+      <span>{{ currentIndex() + 1 }} of {{ questions.length }}</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- ACTION BAR                                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="archer-action-bar">
+    <button
+      class="archer-mark-btn"
+      [class.archer-mark-btn--active]="isMarked()"
+      (click)="toggleMark()"
+      type="button"
+    >
+      {{ isMarked() ? 'MARKED' : 'MARK FOR LATER' }}
+    </button>
+
+    <!-- CBT mode: progress indicator -->
+    @if (showCbtBar()) {
+      <span class="archer-cbt-progress">
+        {{ questions.length - (allSelected() ? questions.length : 0) }} questions remaining
+      </span>
+    }
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- MAIN CONTENT                                                            -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="archer-main" [class.archer-main--split]="revealed()">
+
+    @if (q(); as question) {
+
+      <!-- ── LEFT PANE: QUESTION ──────────────────────────────────────────── -->
+      <div class="archer-pane-left">
+
+        <!-- Stem -->
+        <p class="archer-stem" [innerHTML]="question.stem"></p>
+
+        <!-- Options list -->
+        <ul class="archer-opts-list">
+          @for (choice of question.choices; track choice.id) {
+            <li
+              class="archer-opt"
+              [ngClass]="optClass(choice.id)"
+              (click)="select(choice.id)"
+            >
+              <input
+                [type]="isMultiSelectCurrent() ? 'checkbox' : 'radio'"
+                class="archer-radio"
+                [attr.name]="isMultiSelectCurrent() ? null : ('q-' + question.id)"
+                [checked]="isSelected(choice.id)"
+                [disabled]="revealed()"
+                (change)="select(choice.id)"
+                (click)="$event.stopPropagation()"
+              />
+              <span class="archer-opt-text" [innerHTML]="choice.text"></span>
+              @if (revealed()) {
+                <span class="archer-opt-pct">[{{ dist()[choice.id] }}%]</span>
+                <span
+                  class="archer-opt-icon"
+                  [class.archer-opt-icon--ok]="optClass(choice.id)['archer-opt--correct']"
+                  [class.archer-opt-icon--err]="optClass(choice.id)['archer-opt--wrong']"
+                >{{ optIcon(choice.id) }}</span>
+              }
+            </li>
+          }
+        </ul>
+
+        <!-- ── Status banner (after reveal) ────────────────────────────────── -->
+        @if (revealed() && qs().selectedIds.length > 0) {
+          <div
+            class="archer-status-banner"
+            [class.archer-status-banner--ok]="canEvaluateCurrentQuestion() ? isCorrect() : false"
+            [class.archer-status-banner--err]="canEvaluateCurrentQuestion() ? !isCorrect() : false"
+          >
+            <span>{{ statusText() }}</span>
+            @if (correctAnswerDisplay()) {
+              <span class="archer-status-answer">
+                Correct Answer:&nbsp;<strong>{{ correctAnswerDisplay() }}</strong>
+              </span>
+            } @else {
+              <span class="archer-status-answer archer-status-answer--hidden">Answer disclosed after submission</span>
+            }
+          </div>
+        }
+
+        <!-- ── Submit Answer (quiz mode, before reveal) ──────────────────── -->
+        @if (showSubmit()) {
+          <div class="archer-submit-wrap">
+            <button
+              type="button"
+              class="archer-submit-btn"
+              [disabled]="!canSubmit()"
+              (click)="submitAnswer()"
+            >
+              SUBMIT ANSWER
+            </button>
+          </div>
+        }
+
+        <!-- ── CBT mode exam phase hint ──────────────────────────────────── -->
+        @if (showCbtBar() && !revealed()) {
+          <div class="archer-submit-wrap archer-submit-wrap--cbt">
+            <span class="archer-cbt-hint">
+              Select an answer and navigate to the next question.
+              Submit the full exam when ready.
+            </span>
+          </div>
+        }
+
+        <!-- ── Meta strip ────────────────────────────────────────────────── -->
+        <div class="archer-meta-strip">
+          <div class="archer-meta-col">
+            <span class="archer-meta-label archer-meta-label--diff">Difficulty Level</span>
+            <span class="archer-meta-val">{{ question.difficulty }}</span>
+          </div>
+          <div class="archer-meta-col">
+            <span class="archer-meta-label archer-meta-label--peers">% of peers got it right</span>
+            <span class="archer-meta-val">{{ peerPct() }}%</span>
+          </div>
+          <div class="archer-meta-col">
+            <span class="archer-meta-label archer-meta-label--time">Time Taken</span>
+            <span class="archer-meta-val">{{ timeTaken() }}</span>
+          </div>
+        </div>
+
+        <!-- ── Tags block ────────────────────────────────────────────────── -->
+        <div class="archer-tags">
+          <div class="archer-tag-item">
+            <span class="archer-tag-label">SUBJECT</span>
+            <span class="archer-tag-val">{{ question.subject }}</span>
+          </div>
+          <div class="archer-tag-item">
+            <span class="archer-tag-label">LESSON</span>
+            <span class="archer-tag-val">{{ question.lesson }}</span>
+          </div>
+          <div class="archer-tag-item">
+            <span class="archer-tag-label">CLIENT NEED AREA</span>
+            <span class="archer-tag-val">{{ question.clientNeedArea }}</span>
+          </div>
+          <div class="archer-tag-item">
+            <span class="archer-tag-label">CLIENT NEED TOPIC</span>
+            <span class="archer-tag-val">{{ question.clientNeedTopic }}</span>
+          </div>
+          <div class="archer-tag-item">
+            <span class="archer-tag-label">QUESTION TYPE</span>
+            <span class="archer-tag-val">{{ question.questionType }}</span>
+          </div>
+        </div>
+
+      </div><!-- /archer-pane-left -->
+
+      <!-- ── RIGHT PANE: EXPLANATION (only after reveal) ──────────────────── -->
+      @if (revealed()) {
+        <div class="archer-pane-right">
+
+          <h3 class="archer-expl-head">Explanation</h3>
+
+          <div
+            class="archer-expl-body"
+            [innerHTML]="question.explanation"
+          ></div>
+
+          @if (question.rationale) {
+            <div class="archer-info-block archer-rationale-block">
+              <div class="archer-info-block-head">
+                Clinical Rationale
+              </div>
+              <div
+                class="archer-info-block-body"
+                [innerHTML]="question.rationale"
+              ></div>
+            </div>
+          }
+
+          @if (question.additionalInfo) {
+            <div class="archer-info-block">
+              <div class="archer-info-block-head">
+                <span class="archer-info-icon">i</span>
+                Additional Info
+              </div>
+              <div
+                class="archer-info-block-body"
+                [innerHTML]="question.additionalInfo"
+              ></div>
+            </div>
+          }
+
+        </div><!-- /archer-pane-right -->
+      }
+
+    }<!-- /@if q() -->
+
+  </div><!-- /archer-main -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- BOTTOM BAR                                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="archer-bottom-bar">
+
+    <div class="archer-bottom-left">
+      <button type="button" class="archer-nav-btn" (click)="endExam()">END</button>
+      <button type="button" class="archer-nav-btn" (click)="togglePause()">
+        {{ paused() ? 'RESUME' : 'PAUSE' }}
+      </button>
+    </div>
+
+    <div class="archer-bottom-right">
+      <button
+        type="button"
+        class="archer-nav-btn"
+        [disabled]="!canPrev()"
+        (click)="navigate(-1)"
+      >
+        PREVIOUS
+      </button>
+
+      <!-- CBT exam phase last question: submit exam -->
+      @if (isLast() && getMode() === 'cbt' && cbtPhase() === 'exam') {
+        <button
+          type="button"
+          class="archer-nav-btn archer-nav-btn--finish"
+          [disabled]="!allSelected()"
+          (click)="submitCbt()"
+        >
+          FINISH EXAM
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="archer-nav-btn"
+          [class.archer-nav-btn--finish]="isLast()"
+          [disabled]="!canNext() && !isLast()"
+          (click)="isLast() ? endExam() : navigate(1)"
+        >
+          {{ nextLabel() }}
+        </button>
+      }
+    </div>
+
+  </div><!-- /archer-bottom-bar -->
+
+</div><!-- /archer-root -->

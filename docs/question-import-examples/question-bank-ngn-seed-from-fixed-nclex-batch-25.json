@@ -1,0 +1,3993 @@
+{
+  "items": [
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-standard-precautions-001",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "easy",
+      "stem": "A nurse enters a room to complete a routine assessment for a client without a known communicable diagnosis.",
+      "scenarioText": "The nurse wants to follow standard precautions correctly from entry through exit.",
+      "leadInQuestion": "Complete the bow tie by identifying the safety concern, the two priority actions, and the best follow-up focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 follow-up focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Priority Concern",
+            "prompt": "Identify the core safety principle.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "SC_A",
+              "SC_B",
+              "SC_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Priority Actions",
+            "prompt": "Choose the two best actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "SA_A",
+              "SA_B",
+              "SA_C",
+              "SA_D"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Reassess",
+            "prompt": "Choose the most relevant follow-up focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "SM_A",
+              "SM_B",
+              "SM_C"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "SC_A",
+          "label": "A",
+          "text": "Standard precautions apply to every client"
+        },
+        {
+          "id": "SC_B",
+          "label": "B",
+          "text": "Airborne isolation is always required on entry"
+        },
+        {
+          "id": "SC_C",
+          "label": "C",
+          "text": "No infection-control measures are needed without a diagnosis"
+        },
+        {
+          "id": "SA_A",
+          "label": "D",
+          "text": "Perform hand hygiene before and after client contact"
+        },
+        {
+          "id": "SA_B",
+          "label": "E",
+          "text": "Use PPE based on anticipated exposure"
+        },
+        {
+          "id": "SA_C",
+          "label": "F",
+          "text": "Wear sterile gloves for all vital signs"
+        },
+        {
+          "id": "SA_D",
+          "label": "G",
+          "text": "Skip hand hygiene if gloves are available"
+        },
+        {
+          "id": "SM_A",
+          "label": "H",
+          "text": "Whether exposure to blood or body fluids is anticipated"
+        },
+        {
+          "id": "SM_B",
+          "label": "I",
+          "text": "The client preferred television station"
+        },
+        {
+          "id": "SM_C",
+          "label": "J",
+          "text": "The number of visitors in the hallway"
+        }
+      ],
+      "correctAnswerKey": [
+        "SC_A",
+        "SA_A",
+        "SA_B",
+        "SM_A"
+      ],
+      "explanation": "Standard precautions are universal and require hand hygiene plus PPE based on expected exposure risk.",
+      "rationale": "Derived from fixed NCLEX standard-precautions and hand-hygiene items.",
+      "distractorRationale": {
+        "SC_B": "Airborne isolation is not universal.",
+        "SC_C": "Standard precautions still apply even without a confirmed infection.",
+        "SA_C": "Sterile gloves are not needed for routine assessment.",
+        "SA_D": "Gloves never replace hand hygiene.",
+        "SM_B": "Television preference does not guide standard precautions.",
+        "SM_C": "Hallway traffic is not the key follow-up nursing focus here."
+      },
+      "learningObjectives": [
+        "Apply standard precautions universally",
+        "Select PPE by exposure risk",
+        "Prioritize relevant reassessment after routine contact"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "standard-precautions",
+        "hand-hygiene"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX standard precautions items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to US infection-prevention guidance in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "standard-precautions",
+        "hand-hygiene"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-ppe-blood-002",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "easy",
+      "stem": "A nurse is preparing for venipuncture on a client with hepatitis C and expects possible blood splash.",
+      "scenarioText": "The nurse must choose PPE according to standard precautions.",
+      "leadInQuestion": "Complete each statement with the best option.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The nurse should wear ___ to protect the hands.",
+            "optionIds": [
+              "PB_A",
+              "PB_B",
+              "PB_C"
+            ],
+            "correctOptionId": "PB_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "Because splash is possible, the nurse should add ___.",
+            "optionIds": [
+              "PB_D",
+              "PB_E",
+              "PB_F"
+            ],
+            "correctOptionId": "PB_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "An N95 respirator would be needed only for ___ precautions.",
+            "optionIds": [
+              "PB_G",
+              "PB_H",
+              "PB_I"
+            ],
+            "correctOptionId": "PB_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "PB_A",
+          "label": "A",
+          "text": "gloves"
+        },
+        {
+          "id": "PB_B",
+          "label": "B",
+          "text": "shoe covers"
+        },
+        {
+          "id": "PB_C",
+          "label": "C",
+          "text": "sterile gown only"
+        },
+        {
+          "id": "PB_D",
+          "label": "D",
+          "text": "face shield or eye protection"
+        },
+        {
+          "id": "PB_E",
+          "label": "E",
+          "text": "no additional PPE"
+        },
+        {
+          "id": "PB_F",
+          "label": "F",
+          "text": "lead apron"
+        },
+        {
+          "id": "PB_G",
+          "label": "G",
+          "text": "airborne"
+        },
+        {
+          "id": "PB_H",
+          "label": "H",
+          "text": "contact"
+        },
+        {
+          "id": "PB_I",
+          "label": "I",
+          "text": "routine standard only"
+        }
+      ],
+      "correctAnswerKey": [
+        "PB_A",
+        "PB_D",
+        "PB_G"
+      ],
+      "explanation": "Blood exposure requires gloves and splash protection, while an N95 is reserved for airborne precautions.",
+      "rationale": "Derived from fixed NCLEX PPE and blood-exposure items.",
+      "distractorRationale": {
+        "PB_B": "Shoe covers do not protect the hands.",
+        "PB_C": "A sterile gown alone does not replace gloves.",
+        "PB_E": "Splash risk requires face protection.",
+        "PB_F": "A lead apron is unrelated.",
+        "PB_H": "N95 is not the standard mask for contact precautions.",
+        "PB_I": "Standard precautions alone do not define N95 use."
+      },
+      "learningObjectives": [
+        "Select PPE for blood exposure",
+        "Identify when eye protection is needed",
+        "Differentiate airborne from standard precautions"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "standard-precautions",
+        "ppe",
+        "blood"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX PPE under standard precautions items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to US PPE guidance represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "ppe",
+        "blood",
+        "standard-precautions"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-who-moments-003",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "remember",
+      "difficulty": "medium",
+      "stem": "A nurse uses the WHO 5 Moments framework to plan hand hygiene during bedside care.",
+      "scenarioText": "The nurse is about to assess a client, adjust an IV pump, and leave the room.",
+      "leadInQuestion": "Complete the statements using the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "Hand hygiene is required ___ touching the client.",
+            "optionIds": [
+              "WM_A",
+              "WM_B",
+              "WM_C"
+            ],
+            "correctOptionId": "WM_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "Hand hygiene is also required after touching the client___ .",
+            "optionIds": [
+              "WM_D",
+              "WM_E",
+              "WM_F"
+            ],
+            "correctOptionId": "WM_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "Adjusting the IV pump near the client represents contact with the client___ .",
+            "optionIds": [
+              "WM_G",
+              "WM_H",
+              "WM_I"
+            ],
+            "correctOptionId": "WM_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "WM_A",
+          "label": "A",
+          "text": "before"
+        },
+        {
+          "id": "WM_B",
+          "label": "B",
+          "text": "only if gloves tear"
+        },
+        {
+          "id": "WM_C",
+          "label": "C",
+          "text": "only after"
+        },
+        {
+          "id": "WM_D",
+          "label": "D",
+          "text": "environment"
+        },
+        {
+          "id": "WM_E",
+          "label": "E",
+          "text": "meal tray color"
+        },
+        {
+          "id": "WM_F",
+          "label": "F",
+          "text": "parking assignment"
+        },
+        {
+          "id": "WM_G",
+          "label": "G",
+          "text": "surroundings"
+        },
+        {
+          "id": "WM_H",
+          "label": "H",
+          "text": "family tree"
+        },
+        {
+          "id": "WM_I",
+          "label": "I",
+          "text": "insurance category"
+        }
+      ],
+      "correctAnswerKey": [
+        "WM_A",
+        "WM_D",
+        "WM_G"
+      ],
+      "explanation": "WHO 5 Moments emphasizes hand hygiene before contact, after contact, and after touching the client environment.",
+      "rationale": "Derived from fixed NCLEX WHO 5 Moments items.",
+      "distractorRationale": {
+        "WM_B": "Glove condition does not define the WHO moment.",
+        "WM_C": "Before touching the client is required.",
+        "WM_E": "Meal tray color is irrelevant.",
+        "WM_F": "Parking assignment has no clinical relevance.",
+        "WM_H": "Family tree is unrelated.",
+        "WM_I": "Insurance category is not part of the WHO framework."
+      },
+      "learningObjectives": [
+        "Apply WHO 5 Moments",
+        "Recognize client-environment contact",
+        "Use hand hygiene at the correct points of care"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "who-5-moments",
+        "hand-hygiene",
+        "icu"
+      ],
+      "sourceAuthority": "WHO",
+      "sourceReferenceTitle": "Derived from fixed NCLEX WHO 5 Moments items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Consistent with hand-hygiene teaching represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "hand-hygiene",
+        "who-5-moments"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-safety-culture-004",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "analyze",
+      "difficulty": "medium",
+      "stem": "A nurse notices a colleague missed hand hygiene before touching a client but no harm occurred.",
+      "scenarioText": "The unit emphasizes patient safety culture and nonpunitive reporting.",
+      "leadInQuestion": "Complete the bow tie by identifying the main safety concern, the two best actions, and the best outcome to monitor.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 outcome focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main safety issue.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "CU_A",
+              "CU_B",
+              "CU_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best responses.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "CU_D",
+              "CU_E",
+              "CU_F",
+              "CU_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Outcome",
+            "prompt": "Choose the best outcome to watch for on the unit.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "CU_H",
+              "CU_I",
+              "CU_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "CU_A",
+          "label": "A",
+          "text": "A near-miss process failure that should be addressed"
+        },
+        {
+          "id": "CU_B",
+          "label": "B",
+          "text": "A situation that should be ignored because no harm occurred"
+        },
+        {
+          "id": "CU_C",
+          "label": "C",
+          "text": "A reason to publicly shame the colleague"
+        },
+        {
+          "id": "CU_D",
+          "label": "D",
+          "text": "Address the omission promptly and professionally"
+        },
+        {
+          "id": "CU_E",
+          "label": "E",
+          "text": "Report the near miss using the unit safety process"
+        },
+        {
+          "id": "CU_F",
+          "label": "F",
+          "text": "Wait until the end of the month to mention it informally"
+        },
+        {
+          "id": "CU_G",
+          "label": "G",
+          "text": "Assume the colleague had a valid reason and say nothing"
+        },
+        {
+          "id": "CU_H",
+          "label": "H",
+          "text": "Improved adherence to hand-hygiene expectations"
+        },
+        {
+          "id": "CU_I",
+          "label": "I",
+          "text": "Whether staff like the break-room coffee"
+        },
+        {
+          "id": "CU_J",
+          "label": "J",
+          "text": "The number of parking spaces available"
+        }
+      ],
+      "correctAnswerKey": [
+        "CU_A",
+        "CU_D",
+        "CU_E",
+        "CU_H"
+      ],
+      "explanation": "A strong safety culture treats near misses as opportunities for system learning and timely correction.",
+      "rationale": "Derived from fixed NCLEX safety-culture and hand-hygiene communication items.",
+      "distractorRationale": {
+        "CU_B": "No-harm events still reveal unsafe processes.",
+        "CU_C": "Shame undermines safety culture.",
+        "CU_F": "Delayed informal discussion does not support timely risk reduction.",
+        "CU_G": "Silence allows unsafe practice to continue.",
+        "CU_I": "Coffee preference is unrelated to clinical safety.",
+        "CU_J": "Parking capacity is not the targeted outcome."
+      },
+      "learningObjectives": [
+        "Recognize near misses as reportable safety events",
+        "Use nonpunitive safety responses",
+        "Link process correction to safer unit practice"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "safety-culture",
+        "hand-hygiene",
+        "communication"
+      ],
+      "sourceAuthority": "AHRQ",
+      "sourceReferenceTitle": "Derived from fixed NCLEX patient safety culture items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to safety-culture themes in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "safety-culture",
+        "communication"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-sterile-technique-005",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "analyze",
+      "difficulty": "medium",
+      "stem": "A nurse sets up a sterile field for wound care and reaches across the field to grab supplies.",
+      "scenarioText": "The dressing change has not started yet, and the nurse must decide how to respond safely.",
+      "leadInQuestion": "Complete the bow tie by identifying the concern, the two priority actions, and the most important reassessment focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 reassessment focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main issue.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "ST_A",
+              "ST_B",
+              "ST_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two correct actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "ST_D",
+              "ST_E",
+              "ST_F",
+              "ST_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Focus",
+            "prompt": "Choose the most relevant focus after correction.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "ST_H",
+              "ST_I",
+              "ST_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ST_A",
+          "label": "A",
+          "text": "The sterile field is considered contaminated"
+        },
+        {
+          "id": "ST_B",
+          "label": "B",
+          "text": "The field remains sterile if no supplies were touched"
+        },
+        {
+          "id": "ST_C",
+          "label": "C",
+          "text": "Crossing the field is acceptable if done quickly"
+        },
+        {
+          "id": "ST_D",
+          "label": "D",
+          "text": "Discard the compromised setup and prepare a new sterile field"
+        },
+        {
+          "id": "ST_E",
+          "label": "E",
+          "text": "Perform the procedure with a new sterile setup"
+        },
+        {
+          "id": "ST_F",
+          "label": "F",
+          "text": "Continue because the contamination is minor"
+        },
+        {
+          "id": "ST_G",
+          "label": "G",
+          "text": "Ask the client to decide if the field still looks clean"
+        },
+        {
+          "id": "ST_H",
+          "label": "H",
+          "text": "Maintenance of sterile technique throughout the procedure"
+        },
+        {
+          "id": "ST_I",
+          "label": "I",
+          "text": "The color of the wound-care cart"
+        },
+        {
+          "id": "ST_J",
+          "label": "J",
+          "text": "The room temperature setting only"
+        }
+      ],
+      "correctAnswerKey": [
+        "ST_A",
+        "ST_D",
+        "ST_E",
+        "ST_H"
+      ],
+      "explanation": "Crossing over a sterile field contaminates it and requires a fresh sterile setup before continuing.",
+      "rationale": "Derived from fixed NCLEX sterile-technique and wound-care items.",
+      "distractorRationale": {
+        "ST_B": "Reaching across the field itself breaks sterile technique.",
+        "ST_C": "Speed does not preserve sterility.",
+        "ST_F": "There is no acceptable partial contamination in surgical asepsis.",
+        "ST_G": "Sterility is a clinical standard, not a client preference decision.",
+        "ST_I": "Cart color is irrelevant.",
+        "ST_J": "Room temperature is not the key reassessment focus."
+      },
+      "learningObjectives": [
+        "Identify breaks in sterile technique",
+        "Select corrective actions after contamination",
+        "Prioritize ongoing aseptic monitoring"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "sterile-technique",
+        "surgical-asepsis",
+        "wound-care"
+      ],
+      "sourceAuthority": "Internal SME Board",
+      "sourceReferenceTitle": "Derived from fixed NCLEX sterile technique items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to aseptic technique themes represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "sterile-technique",
+        "wound-care"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-cauti-006",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse cares for a client with an indwelling urinary catheter placed three days ago.",
+      "scenarioText": "The drainage system is closed and urine is clear, but the client is now ambulating to the bathroom with assistance.",
+      "leadInQuestion": "Complete the bow tie by identifying the concern, the two priority actions, and the most important ongoing review focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 review focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main CAUTI concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "CA_A",
+              "CA_B",
+              "CA_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best nursing actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "CA_D",
+              "CA_E",
+              "CA_F",
+              "CA_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Review",
+            "prompt": "Choose what should be reviewed daily.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "CA_H",
+              "CA_I",
+              "CA_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "CA_A",
+          "label": "A",
+          "text": "Ongoing catheter use increases infection risk"
+        },
+        {
+          "id": "CA_B",
+          "label": "B",
+          "text": "A closed drainage system removes all infection risk"
+        },
+        {
+          "id": "CA_C",
+          "label": "C",
+          "text": "Clear urine means the catheter should stay indefinitely"
+        },
+        {
+          "id": "CA_D",
+          "label": "D",
+          "text": "Reassess whether the catheter is still needed"
+        },
+        {
+          "id": "CA_E",
+          "label": "E",
+          "text": "Maintain unobstructed urine flow with the bag below the bladder"
+        },
+        {
+          "id": "CA_F",
+          "label": "F",
+          "text": "Irrigate the catheter routinely each shift"
+        },
+        {
+          "id": "CA_G",
+          "label": "G",
+          "text": "Disconnect the tubing daily for cleaning"
+        },
+        {
+          "id": "CA_H",
+          "label": "H",
+          "text": "Whether the catheter remains clinically necessary"
+        },
+        {
+          "id": "CA_I",
+          "label": "I",
+          "text": "The client preferred breakfast juice"
+        },
+        {
+          "id": "CA_J",
+          "label": "J",
+          "text": "The wall paint near the bed"
+        }
+      ],
+      "correctAnswerKey": [
+        "CA_A",
+        "CA_D",
+        "CA_E",
+        "CA_H"
+      ],
+      "explanation": "CAUTI prevention depends on preserving a closed system and removing the catheter as soon as it is no longer necessary.",
+      "rationale": "Derived from fixed NCLEX CAUTI prevention items.",
+      "distractorRationale": {
+        "CA_B": "A closed system lowers but does not eliminate risk.",
+        "CA_C": "Urine appearance does not determine long-term necessity.",
+        "CA_F": "Routine irrigation can increase infection risk.",
+        "CA_G": "Breaking the system increases contamination risk.",
+        "CA_I": "Juice preference is irrelevant.",
+        "CA_J": "Wall color does not inform CAUTI prevention."
+      },
+      "learningObjectives": [
+        "Apply CAUTI prevention principles",
+        "Prioritize daily catheter necessity review",
+        "Maintain safe urinary drainage"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "cauti",
+        "urinary-catheter",
+        "infection-prevention"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX CAUTI items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to CAUTI prevention guidance represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "cauti",
+        "urinary-catheter"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-clabsi-007",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse assists with central line insertion in the ICU.",
+      "scenarioText": "The team wants to prevent central line-associated bloodstream infection from the moment of insertion.",
+      "leadInQuestion": "Complete the bow tie by selecting the insertion-risk concern, the two priority actions, and the key ongoing review focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 review focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the CLABSI concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "CL_A",
+              "CL_B",
+              "CL_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two highest-priority bundle actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "CL_D",
+              "CL_E",
+              "CL_F",
+              "CL_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Review",
+            "prompt": "Choose the most important ongoing review focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "CL_H",
+              "CL_I",
+              "CL_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "CL_A",
+          "label": "A",
+          "text": "Breaks in insertion sterility increase bloodstream infection risk"
+        },
+        {
+          "id": "CL_B",
+          "label": "B",
+          "text": "Routine line replacement is the main bundle goal"
+        },
+        {
+          "id": "CL_C",
+          "label": "C",
+          "text": "Central lines do not need daily necessity review"
+        },
+        {
+          "id": "CL_D",
+          "label": "D",
+          "text": "Use maximal sterile barrier precautions during insertion"
+        },
+        {
+          "id": "CL_E",
+          "label": "E",
+          "text": "Prepare the insertion site with chlorhexidine"
+        },
+        {
+          "id": "CL_F",
+          "label": "F",
+          "text": "Change the line daily regardless of indication"
+        },
+        {
+          "id": "CL_G",
+          "label": "G",
+          "text": "Access the line without scrub-the-hub technique when in a hurry"
+        },
+        {
+          "id": "CL_H",
+          "label": "H",
+          "text": "Whether the line is still clinically necessary"
+        },
+        {
+          "id": "CL_I",
+          "label": "I",
+          "text": "The client shoe size"
+        },
+        {
+          "id": "CL_J",
+          "label": "J",
+          "text": "The room curtain pattern"
+        }
+      ],
+      "correctAnswerKey": [
+        "CL_A",
+        "CL_D",
+        "CL_E",
+        "CL_H"
+      ],
+      "explanation": "CLABSI prevention begins with sterile insertion, chlorhexidine skin prep, and ongoing daily review of line necessity.",
+      "rationale": "Derived from fixed NCLEX CLABSI bundle items.",
+      "distractorRationale": {
+        "CL_B": "Routine replacement alone is not the central bundle priority.",
+        "CL_C": "Daily necessity review remains essential.",
+        "CL_F": "Time-based replacement is not the main evidence-based action described here.",
+        "CL_G": "Hub disinfection remains required.",
+        "CL_I": "Shoe size is irrelevant.",
+        "CL_J": "Curtain pattern has no preventive value."
+      },
+      "learningObjectives": [
+        "Identify CLABSI insertion priorities",
+        "Select evidence-based line bundle actions",
+        "Review central-line necessity daily"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "clabsi",
+        "central-line",
+        "bundle"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX CLABSI prevention items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to central-line bundle concepts in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "clabsi",
+        "central-line",
+        "bundle"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-vap-008",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A ventilated client has been in the ICU for 48 hours.",
+      "scenarioText": "The nurse wants to reinforce evidence-based interventions that reduce ventilator-associated pneumonia risk.",
+      "leadInQuestion": "Complete the bow tie by identifying the concern, the two bundle actions, and the main ongoing review focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 review focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main VAP concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "VA_A",
+              "VA_B",
+              "VA_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best bundle actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "VA_D",
+              "VA_E",
+              "VA_F",
+              "VA_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Review",
+            "prompt": "Choose the best ongoing review focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "VA_H",
+              "VA_I",
+              "VA_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "VA_A",
+          "label": "A",
+          "text": "Prolonged ventilation increases pneumonia risk"
+        },
+        {
+          "id": "VA_B",
+          "label": "B",
+          "text": "Supine positioning reduces aspiration risk"
+        },
+        {
+          "id": "VA_C",
+          "label": "C",
+          "text": "Oral care is unnecessary if antibiotics are ordered"
+        },
+        {
+          "id": "VA_D",
+          "label": "D",
+          "text": "Maintain head-of-bed elevation as ordered"
+        },
+        {
+          "id": "VA_E",
+          "label": "E",
+          "text": "Provide regular oral care per bundle protocol"
+        },
+        {
+          "id": "VA_F",
+          "label": "F",
+          "text": "Keep the client flat to reduce movement"
+        },
+        {
+          "id": "VA_G",
+          "label": "G",
+          "text": "Disconnect the ventilator tubing routinely for air exposure"
+        },
+        {
+          "id": "VA_H",
+          "label": "H",
+          "text": "Whether sedation and ventilator support can be reduced safely"
+        },
+        {
+          "id": "VA_I",
+          "label": "I",
+          "text": "The client favorite music station"
+        },
+        {
+          "id": "VA_J",
+          "label": "J",
+          "text": "The color of the suction canister cap"
+        }
+      ],
+      "correctAnswerKey": [
+        "VA_A",
+        "VA_D",
+        "VA_E",
+        "VA_H"
+      ],
+      "explanation": "VAP prevention includes head-of-bed elevation, oral care, and ongoing review of readiness to reduce ventilator support.",
+      "rationale": "Derived from fixed NCLEX VAP bundle items.",
+      "distractorRationale": {
+        "VA_B": "Supine positioning increases aspiration risk.",
+        "VA_C": "Antibiotics do not replace prevention bundles.",
+        "VA_F": "Flat positioning worsens aspiration risk.",
+        "VA_G": "Unnecessary disconnections increase contamination risk.",
+        "VA_I": "Music preference is irrelevant.",
+        "VA_J": "Cap color does not guide VAP prevention."
+      },
+      "learningObjectives": [
+        "Identify VAP bundle interventions",
+        "Reduce aspiration and contamination risk",
+        "Monitor readiness for decreased ventilator support"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "vap",
+        "ventilator",
+        "bundle",
+        "oral-care"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX VAP prevention items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to ventilator bundle themes represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "vap",
+        "ventilator",
+        "oral-care"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-ssi-009",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A preoperative client asks about steps used to reduce surgical site infection risk.",
+      "scenarioText": "The nurse reinforces evidence-based surgical preparation practices.",
+      "leadInQuestion": "Complete the statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "If hair removal is necessary, it should be done with ___.",
+            "optionIds": [
+              "SI_A",
+              "SI_B",
+              "SI_C"
+            ],
+            "correctOptionId": "SI_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "Routine shaving with a razor can increase the risk of ___.",
+            "optionIds": [
+              "SI_D",
+              "SI_E",
+              "SI_F"
+            ],
+            "correctOptionId": "SI_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "Pre-op skin preparation commonly includes ___.",
+            "optionIds": [
+              "SI_G",
+              "SI_H",
+              "SI_I"
+            ],
+            "correctOptionId": "SI_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "SI_A",
+          "label": "A",
+          "text": "clippers"
+        },
+        {
+          "id": "SI_B",
+          "label": "B",
+          "text": "a razor the night before"
+        },
+        {
+          "id": "SI_C",
+          "label": "C",
+          "text": "noisy scissors over broken skin"
+        },
+        {
+          "id": "SI_D",
+          "label": "D",
+          "text": "microabrasions and infection"
+        },
+        {
+          "id": "SI_E",
+          "label": "E",
+          "text": "improved wound healing"
+        },
+        {
+          "id": "SI_F",
+          "label": "F",
+          "text": "perfect sterility"
+        },
+        {
+          "id": "SI_G",
+          "label": "G",
+          "text": "chlorhexidine-based prep"
+        },
+        {
+          "id": "SI_H",
+          "label": "H",
+          "text": "petroleum jelly"
+        },
+        {
+          "id": "SI_I",
+          "label": "I",
+          "text": "plain tap water only"
+        }
+      ],
+      "correctAnswerKey": [
+        "SI_A",
+        "SI_D",
+        "SI_G"
+      ],
+      "explanation": "If hair removal is necessary, clippers are preferred because razors create microabrasions that raise SSI risk, and chlorhexidine-based prep is commonly used.",
+      "rationale": "Derived from fixed NCLEX SSI and hair-removal items.",
+      "distractorRationale": {
+        "SI_B": "Razors increase skin injury and infection risk.",
+        "SI_C": "This is not an evidence-based preparation method.",
+        "SI_E": "Razor shaving does not improve healing.",
+        "SI_F": "No prep step guarantees perfect sterility.",
+        "SI_H": "Petroleum jelly is not a skin antiseptic prep.",
+        "SI_I": "Tap water alone is insufficient as surgical skin prep."
+      },
+      "learningObjectives": [
+        "Apply SSI prevention practices",
+        "Select safe hair-removal technique",
+        "Recognize appropriate pre-op skin preparation"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "ssi",
+        "surgical",
+        "hair-removal",
+        "infection-prevention"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX SSI prevention items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to surgical infection prevention content in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "ssi",
+        "surgical",
+        "hair-removal"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-five-rights-010",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "remember",
+      "difficulty": "easy",
+      "stem": "A nursing student reviews the core medication administration rights before giving an oral medication.",
+      "scenarioText": "The instructor asks the student to complete three foundational safety statements.",
+      "leadInQuestion": "Complete the statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "One essential right is the right ___.",
+            "optionIds": [
+              "FR_A",
+              "FR_B",
+              "FR_C"
+            ],
+            "correctOptionId": "FR_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "Another essential right is the right ___.",
+            "optionIds": [
+              "FR_D",
+              "FR_E",
+              "FR_F"
+            ],
+            "correctOptionId": "FR_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "Safe practice also includes the right ___.",
+            "optionIds": [
+              "FR_G",
+              "FR_H",
+              "FR_I"
+            ],
+            "correctOptionId": "FR_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "FR_A",
+          "label": "A",
+          "text": "client"
+        },
+        {
+          "id": "FR_B",
+          "label": "B",
+          "text": "room television"
+        },
+        {
+          "id": "FR_C",
+          "label": "C",
+          "text": "elevator"
+        },
+        {
+          "id": "FR_D",
+          "label": "D",
+          "text": "dose"
+        },
+        {
+          "id": "FR_E",
+          "label": "E",
+          "text": "car model"
+        },
+        {
+          "id": "FR_F",
+          "label": "F",
+          "text": "holiday"
+        },
+        {
+          "id": "FR_G",
+          "label": "G",
+          "text": "time"
+        },
+        {
+          "id": "FR_H",
+          "label": "H",
+          "text": "parking zone"
+        },
+        {
+          "id": "FR_I",
+          "label": "I",
+          "text": "window view"
+        }
+      ],
+      "correctAnswerKey": [
+        "FR_A",
+        "FR_D",
+        "FR_G"
+      ],
+      "explanation": "Medication safety is built on verifying the right client, right dose, and right time along with the other medication rights.",
+      "rationale": "Derived from fixed NCLEX medication-safety and five-rights items.",
+      "distractorRationale": {
+        "FR_B": "Television settings are unrelated.",
+        "FR_C": "Elevator access is irrelevant.",
+        "FR_E": "Car model is not part of medication safety.",
+        "FR_F": "Holiday timing is not a medication right.",
+        "FR_H": "Parking zone is unrelated.",
+        "FR_I": "Window view has no medication safety role."
+      },
+      "learningObjectives": [
+        "Recall core medication rights",
+        "Link basic rights to safer administration",
+        "Differentiate clinical from nonclinical checks"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "medication-safety",
+        "five-rights",
+        "administration"
+      ],
+      "sourceAuthority": "Internal SME Board",
+      "sourceReferenceTitle": "Derived from fixed NCLEX five rights medication items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Consistent with medication-rights content represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "medication-safety",
+        "five-rights"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-potassium-011",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "analyze",
+      "difficulty": "medium",
+      "stem": "A nurse receives an order for IV potassium chloride for a client with hypokalemia.",
+      "scenarioText": "The medication is classified as high alert, and the nurse must respond safely before administration.",
+      "leadInQuestion": "Complete the bow tie by selecting the main medication concern, the two priority actions, and the key monitoring focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 monitoring focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main safety concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "PO_A",
+              "PO_B",
+              "PO_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two priority nursing actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "PO_D",
+              "PO_E",
+              "PO_F",
+              "PO_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Monitor",
+            "prompt": "Choose the highest-priority monitoring focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "PO_H",
+              "PO_I",
+              "PO_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "PO_A",
+          "label": "A",
+          "text": "IV potassium can cause serious harm if given incorrectly"
+        },
+        {
+          "id": "PO_B",
+          "label": "B",
+          "text": "Potassium is safe as a rapid IV push"
+        },
+        {
+          "id": "PO_C",
+          "label": "C",
+          "text": "High-alert labeling means no monitoring is needed"
+        },
+        {
+          "id": "PO_D",
+          "label": "D",
+          "text": "Verify the infusion is diluted and programmed correctly"
+        },
+        {
+          "id": "PO_E",
+          "label": "E",
+          "text": "Confirm renal status and current potassium level"
+        },
+        {
+          "id": "PO_F",
+          "label": "F",
+          "text": "Administer by IV push for faster effect"
+        },
+        {
+          "id": "PO_G",
+          "label": "G",
+          "text": "Hang the infusion without checking the pump settings"
+        },
+        {
+          "id": "PO_H",
+          "label": "H",
+          "text": "Cardiac rhythm during replacement"
+        },
+        {
+          "id": "PO_I",
+          "label": "I",
+          "text": "The client favorite dessert"
+        },
+        {
+          "id": "PO_J",
+          "label": "J",
+          "text": "The bedspread pattern"
+        }
+      ],
+      "correctAnswerKey": [
+        "PO_A",
+        "PO_D",
+        "PO_E",
+        "PO_H"
+      ],
+      "explanation": "IV potassium is high alert, requires correct dilution and pump programming, and should be monitored closely because dysrhythmias can occur.",
+      "rationale": "Derived from fixed NCLEX high-alert potassium items.",
+      "distractorRationale": {
+        "PO_B": "IV potassium should never be given by rapid IV push.",
+        "PO_C": "High-alert status increases the need for vigilance.",
+        "PO_F": "Rapid IV push can be fatal.",
+        "PO_G": "Pump settings must be verified before infusion.",
+        "PO_I": "Dessert preference is irrelevant.",
+        "PO_J": "Bedspread pattern has no safety value."
+      },
+      "learningObjectives": [
+        "Identify high-alert medication risks",
+        "Select safe IV potassium actions",
+        "Prioritize cardiac monitoring during potassium replacement"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "high-alert",
+        "potassium",
+        "medication-safety"
+      ],
+      "sourceAuthority": "ISMP",
+      "sourceReferenceTitle": "Derived from fixed NCLEX potassium safety items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to high-alert medication concepts represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "high-alert",
+        "potassium",
+        "medication-safety"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-insulin-012",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse prepares scheduled rapid-acting insulin for a client whose tray has not yet arrived.",
+      "scenarioText": "The client is alert and reports feeling shaky.",
+      "leadInQuestion": "Complete the bow tie by choosing the priority concern, the two priority actions, and the best monitoring focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 monitoring focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main immediate concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "IN_A",
+              "IN_B",
+              "IN_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best nursing actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "IN_D",
+              "IN_E",
+              "IN_F",
+              "IN_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Monitor",
+            "prompt": "Choose what to monitor first after intervention.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "IN_H",
+              "IN_I",
+              "IN_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "IN_A",
+          "label": "A",
+          "text": "The client may be at risk for hypoglycemia"
+        },
+        {
+          "id": "IN_B",
+          "label": "B",
+          "text": "A meal delay improves insulin timing"
+        },
+        {
+          "id": "IN_C",
+          "label": "C",
+          "text": "Shakiness rules out glucose problems"
+        },
+        {
+          "id": "IN_D",
+          "label": "D",
+          "text": "Check the current blood glucose before giving insulin"
+        },
+        {
+          "id": "IN_E",
+          "label": "E",
+          "text": "Coordinate insulin timing with meal availability"
+        },
+        {
+          "id": "IN_F",
+          "label": "F",
+          "text": "Give the insulin immediately and wait for the tray"
+        },
+        {
+          "id": "IN_G",
+          "label": "G",
+          "text": "Ignore the symptoms because the dose is scheduled"
+        },
+        {
+          "id": "IN_H",
+          "label": "H",
+          "text": "The client blood glucose response"
+        },
+        {
+          "id": "IN_I",
+          "label": "I",
+          "text": "The dessert menu"
+        },
+        {
+          "id": "IN_J",
+          "label": "J",
+          "text": "The room lighting level only"
+        }
+      ],
+      "correctAnswerKey": [
+        "IN_A",
+        "IN_D",
+        "IN_E",
+        "IN_H"
+      ],
+      "explanation": "Rapid-acting insulin should be timed with food intake, and symptoms of shakiness require glucose-focused assessment and follow-up.",
+      "rationale": "Derived from fixed NCLEX insulin and hypoglycemia items.",
+      "distractorRationale": {
+        "IN_B": "Meal delay can increase hypoglycemia risk when insulin is due.",
+        "IN_C": "Shakiness can signal hypoglycemia.",
+        "IN_F": "Giving rapid insulin without food is unsafe.",
+        "IN_G": "Scheduled status does not override symptom assessment.",
+        "IN_I": "Dessert selection is not the priority monitor.",
+        "IN_J": "Lighting level does not address the immediate risk."
+      },
+      "learningObjectives": [
+        "Time rapid insulin safely",
+        "Recognize possible hypoglycemia",
+        "Monitor glucose response after intervention"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "insulin",
+        "hypoglycemia",
+        "medication-safety"
+      ],
+      "sourceAuthority": "Internal SME Board",
+      "sourceReferenceTitle": "Derived from fixed NCLEX insulin safety items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to insulin and hypoglycemia themes in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "insulin",
+        "hypoglycemia",
+        "medication-safety"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-blood-transfusion-013",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "Two licensed staff members prepare to begin a blood transfusion.",
+      "scenarioText": "The nurse wants to complete the final safety verification correctly at the bedside.",
+      "leadInQuestion": "Complete the statements using the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The most important bedside verification is the right ___.",
+            "optionIds": [
+              "BT_A",
+              "BT_B",
+              "BT_C"
+            ],
+            "correctOptionId": "BT_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "The nurse should compare the blood product with the ___.",
+            "optionIds": [
+              "BT_D",
+              "BT_E",
+              "BT_F"
+            ],
+            "correctOptionId": "BT_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "After the transfusion starts, the nurse should monitor first for signs of a transfusion ___.",
+            "optionIds": [
+              "BT_G",
+              "BT_H",
+              "BT_I"
+            ],
+            "correctOptionId": "BT_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "BT_A",
+          "label": "A",
+          "text": "client"
+        },
+        {
+          "id": "BT_B",
+          "label": "B",
+          "text": "wall color"
+        },
+        {
+          "id": "BT_C",
+          "label": "C",
+          "text": "visiting hours"
+        },
+        {
+          "id": "BT_D",
+          "label": "D",
+          "text": "order and client identifiers"
+        },
+        {
+          "id": "BT_E",
+          "label": "E",
+          "text": "cafeteria menu"
+        },
+        {
+          "id": "BT_F",
+          "label": "F",
+          "text": "shift assignment board"
+        },
+        {
+          "id": "BT_G",
+          "label": "G",
+          "text": "reaction"
+        },
+        {
+          "id": "BT_H",
+          "label": "H",
+          "text": "haircut"
+        },
+        {
+          "id": "BT_I",
+          "label": "I",
+          "text": "parking delay"
+        }
+      ],
+      "correctAnswerKey": [
+        "BT_A",
+        "BT_D",
+        "BT_G"
+      ],
+      "explanation": "Transfusion safety depends on strict bedside identification, matching the order and product correctly, and early monitoring for reactions.",
+      "rationale": "Derived from fixed NCLEX blood-transfusion safety items.",
+      "distractorRationale": {
+        "BT_B": "Wall color is irrelevant to transfusion safety.",
+        "BT_C": "Visiting hours do not verify identity.",
+        "BT_E": "Menu details are unrelated.",
+        "BT_F": "Assignment boards are not product verification tools.",
+        "BT_H": "Haircut is unrelated.",
+        "BT_I": "Parking delay is not a transfusion complication."
+      },
+      "learningObjectives": [
+        "Prioritize bedside transfusion verification",
+        "Match product to order and identifiers",
+        "Recognize early transfusion monitoring priorities"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "blood-transfusion",
+        "patient-identification",
+        "safety"
+      ],
+      "sourceAuthority": "AABB",
+      "sourceReferenceTitle": "Derived from fixed NCLEX blood transfusion safety items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to transfusion-safety content represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "blood-transfusion",
+        "patient-identification"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-med-reconciliation-014",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A client is admitted from home with several prescription bottles in a bag.",
+      "scenarioText": "The nurse wants to reduce medication errors during the transition of care.",
+      "leadInQuestion": "Complete the statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The nurse should obtain the most accurate possible home medication ___.",
+            "optionIds": [
+              "MR_A",
+              "MR_B",
+              "MR_C"
+            ],
+            "correctOptionId": "MR_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "The list should then be compared with current ___.",
+            "optionIds": [
+              "MR_D",
+              "MR_E",
+              "MR_F"
+            ],
+            "correctOptionId": "MR_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "This process helps reduce medication ___.",
+            "optionIds": [
+              "MR_G",
+              "MR_H",
+              "MR_I"
+            ],
+            "correctOptionId": "MR_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "MR_A",
+          "label": "A",
+          "text": "list"
+        },
+        {
+          "id": "MR_B",
+          "label": "B",
+          "text": "wallpaper sample"
+        },
+        {
+          "id": "MR_C",
+          "label": "C",
+          "text": "roommate preference"
+        },
+        {
+          "id": "MR_D",
+          "label": "D",
+          "text": "orders"
+        },
+        {
+          "id": "MR_E",
+          "label": "E",
+          "text": "television channels"
+        },
+        {
+          "id": "MR_F",
+          "label": "F",
+          "text": "parking permits"
+        },
+        {
+          "id": "MR_G",
+          "label": "G",
+          "text": "discrepancies"
+        },
+        {
+          "id": "MR_H",
+          "label": "H",
+          "text": "pillow counts"
+        },
+        {
+          "id": "MR_I",
+          "label": "I",
+          "text": "elevator stops"
+        }
+      ],
+      "correctAnswerKey": [
+        "MR_A",
+        "MR_D",
+        "MR_G"
+      ],
+      "explanation": "Medication reconciliation requires the best possible home medication list, comparison with current orders, and resolution of discrepancies.",
+      "rationale": "Derived from fixed NCLEX medication reconciliation items.",
+      "distractorRationale": {
+        "MR_B": "Wallpaper samples are irrelevant.",
+        "MR_C": "Roommate preference does not affect reconciliation.",
+        "MR_E": "Television channels are unrelated.",
+        "MR_F": "Parking permits do not guide medication review.",
+        "MR_H": "Pillow counts are irrelevant.",
+        "MR_I": "Elevator stops have no role in medication safety."
+      },
+      "learningObjectives": [
+        "Apply medication reconciliation at transitions",
+        "Compare home medications with active orders",
+        "Reduce medication discrepancies"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "medication-reconciliation",
+        "transitions",
+        "safety"
+      ],
+      "sourceAuthority": "Joint Commission",
+      "sourceReferenceTitle": "Derived from fixed NCLEX medication reconciliation items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to transitions-of-care safety concepts in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "medication-reconciliation",
+        "transitions"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-sbar-015",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse prepares to call the provider about a client with worsening shortness of breath.",
+      "scenarioText": "The unit uses SBAR for structured escalation.",
+      "leadInQuestion": "Complete the SBAR statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The current breathing problem belongs in the ___.",
+            "optionIds": [
+              "SB_A",
+              "SB_B",
+              "SB_C"
+            ],
+            "correctOptionId": "SB_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "Relevant history such as COPD belongs in the ___.",
+            "optionIds": [
+              "SB_D",
+              "SB_E",
+              "SB_F"
+            ],
+            "correctOptionId": "SB_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "A request for evaluation or new orders belongs in the ___.",
+            "optionIds": [
+              "SB_G",
+              "SB_H",
+              "SB_I"
+            ],
+            "correctOptionId": "SB_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "SB_A",
+          "label": "A",
+          "text": "Situation"
+        },
+        {
+          "id": "SB_B",
+          "label": "B",
+          "text": "Birthday"
+        },
+        {
+          "id": "SB_C",
+          "label": "C",
+          "text": "Schedule"
+        },
+        {
+          "id": "SB_D",
+          "label": "D",
+          "text": "Background"
+        },
+        {
+          "id": "SB_E",
+          "label": "E",
+          "text": "Billing"
+        },
+        {
+          "id": "SB_F",
+          "label": "F",
+          "text": "Bedspread"
+        },
+        {
+          "id": "SB_G",
+          "label": "G",
+          "text": "Recommendation"
+        },
+        {
+          "id": "SB_H",
+          "label": "H",
+          "text": "Recreation"
+        },
+        {
+          "id": "SB_I",
+          "label": "I",
+          "text": "Reservation"
+        }
+      ],
+      "correctAnswerKey": [
+        "SB_A",
+        "SB_D",
+        "SB_G"
+      ],
+      "explanation": "SBAR places the immediate issue in Situation, relevant history in Background, and the nurse request in Recommendation.",
+      "rationale": "Derived from fixed NCLEX SBAR communication items.",
+      "distractorRationale": {
+        "SB_B": "Birthday is not part of SBAR.",
+        "SB_C": "Schedule is not the correct domain.",
+        "SB_E": "Billing is unrelated to clinical handoff.",
+        "SB_F": "Bedspread is not a communication element.",
+        "SB_H": "Recreation is unrelated.",
+        "SB_I": "Reservation is not part of SBAR."
+      },
+      "learningObjectives": [
+        "Use SBAR structure accurately",
+        "Differentiate Situation from Background",
+        "State a clear clinical recommendation"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "sbar",
+        "communication",
+        "escalation"
+      ],
+      "sourceAuthority": "IHI",
+      "sourceReferenceTitle": "Derived from fixed NCLEX SBAR items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to structured escalation themes represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "sbar",
+        "communication"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-radiology-handoff-016",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse prepares to send a client with MRSA wound drainage to radiology.",
+      "scenarioText": "The receiving team must be prepared to continue the correct precautions during transport and imaging.",
+      "leadInQuestion": "Complete the bow tie by identifying the communication concern, the two priority actions, and the best handoff focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 handoff focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "RH_A",
+              "RH_B",
+              "RH_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "RH_D",
+              "RH_E",
+              "RH_F",
+              "RH_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Handoff Focus",
+            "prompt": "Choose the most important information to emphasize.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "RH_H",
+              "RH_I",
+              "RH_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "RH_A",
+          "label": "A",
+          "text": "Failure to communicate contact precautions can spread organisms"
+        },
+        {
+          "id": "RH_B",
+          "label": "B",
+          "text": "Radiology staff do not need isolation information"
+        },
+        {
+          "id": "RH_C",
+          "label": "C",
+          "text": "Transport automatically ends precautions"
+        },
+        {
+          "id": "RH_D",
+          "label": "D",
+          "text": "Notify radiology of the required contact precautions"
+        },
+        {
+          "id": "RH_E",
+          "label": "E",
+          "text": "Contain drainage and maintain appropriate barriers during transport"
+        },
+        {
+          "id": "RH_F",
+          "label": "F",
+          "text": "Send the client without any report to save time"
+        },
+        {
+          "id": "RH_G",
+          "label": "G",
+          "text": "Remove precautions because the client is leaving the unit"
+        },
+        {
+          "id": "RH_H",
+          "label": "H",
+          "text": "The organism risk and precautions needed during transport and imaging"
+        },
+        {
+          "id": "RH_I",
+          "label": "I",
+          "text": "The client favorite dessert order"
+        },
+        {
+          "id": "RH_J",
+          "label": "J",
+          "text": "The transport elevator music volume"
+        }
+      ],
+      "correctAnswerKey": [
+        "RH_A",
+        "RH_D",
+        "RH_E",
+        "RH_H"
+      ],
+      "explanation": "Safe transport requires communicating contact precautions and containing drainage so receiving staff can continue the correct measures.",
+      "rationale": "Derived from fixed NCLEX contact-precautions handoff items.",
+      "distractorRationale": {
+        "RH_B": "Receiving teams must know required precautions.",
+        "RH_C": "Transport does not cancel isolation needs.",
+        "RH_F": "Skipping report increases transmission risk.",
+        "RH_G": "Precautions remain necessary during transport.",
+        "RH_I": "Dessert choice is irrelevant.",
+        "RH_J": "Music volume has no infection-control role."
+      },
+      "learningObjectives": [
+        "Communicate precautions during handoff",
+        "Maintain contact precautions during transport",
+        "Prioritize organism-risk information for receiving teams"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "handoff",
+        "contact-precautions",
+        "communication"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX contact precautions handoff items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to transport and handoff themes in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "handoff",
+        "contact-precautions"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-restraints-alternative-017",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "analyze",
+      "difficulty": "medium",
+      "stem": "A confused client repeatedly tries to remove an IV and climb out of bed.",
+      "scenarioText": "The nurse is considering restraints but must follow least-restrictive safety practice first.",
+      "leadInQuestion": "Complete the bow tie by identifying the concern, the two priority actions, and the best outcome to monitor.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 outcome focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "RA_A",
+              "RA_B",
+              "RA_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two safest initial actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "RA_D",
+              "RA_E",
+              "RA_F",
+              "RA_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Outcome",
+            "prompt": "Choose the best outcome to monitor.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "RA_H",
+              "RA_I",
+              "RA_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "RA_A",
+          "label": "A",
+          "text": "The nurse should try least-restrictive measures before restraints when possible"
+        },
+        {
+          "id": "RA_B",
+          "label": "B",
+          "text": "Restraints should be the first response to agitation"
+        },
+        {
+          "id": "RA_C",
+          "label": "C",
+          "text": "Safety alternatives are unnecessary if staff are busy"
+        },
+        {
+          "id": "RA_D",
+          "label": "D",
+          "text": "Assess for causes such as pain, delirium, or toileting needs"
+        },
+        {
+          "id": "RA_E",
+          "label": "E",
+          "text": "Use de-escalation and environmental safety measures"
+        },
+        {
+          "id": "RA_F",
+          "label": "F",
+          "text": "Apply restraints immediately without assessment"
+        },
+        {
+          "id": "RA_G",
+          "label": "G",
+          "text": "Leave the client alone to see if the behavior stops"
+        },
+        {
+          "id": "RA_H",
+          "label": "H",
+          "text": "Whether the client becomes safer with less restrictive measures"
+        },
+        {
+          "id": "RA_I",
+          "label": "I",
+          "text": "The number of pens at the nurses station"
+        },
+        {
+          "id": "RA_J",
+          "label": "J",
+          "text": "The brand of floor wax used on the unit"
+        }
+      ],
+      "correctAnswerKey": [
+        "RA_A",
+        "RA_D",
+        "RA_E",
+        "RA_H"
+      ],
+      "explanation": "Before restraints, nurses should assess reversible causes and use less restrictive safety interventions whenever possible.",
+      "rationale": "Derived from fixed NCLEX restraints least-restrictive items.",
+      "distractorRationale": {
+        "RA_B": "Restraints are not first-line when alternatives are feasible.",
+        "RA_C": "Workload does not remove the requirement to consider alternatives.",
+        "RA_F": "Immediate restraint without assessment is unsafe.",
+        "RA_G": "Leaving the client alone can worsen risk.",
+        "RA_I": "Pen counts are irrelevant.",
+        "RA_J": "Floor wax brand does not guide restraint decisions."
+      },
+      "learningObjectives": [
+        "Apply least-restrictive safety principles",
+        "Assess reversible causes of agitation",
+        "Monitor outcomes of nonrestraint interventions"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "restraints",
+        "least-restrictive",
+        "patient-safety"
+      ],
+      "sourceAuthority": "CMS",
+      "sourceReferenceTitle": "Derived from fixed NCLEX restraint alternatives items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to restraint safety themes represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "restraints",
+        "least-restrictive"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-restraints-monitoring-018",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A client is in soft wrist restraints after alternatives failed and an order was obtained.",
+      "scenarioText": "The nurse must continue safe monitoring while the restraint is in place.",
+      "leadInQuestion": "Complete the monitoring statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The nurse should assess distal ___ regularly.",
+            "optionIds": [
+              "RM_A",
+              "RM_B",
+              "RM_C"
+            ],
+            "correctOptionId": "RM_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "The restraint should be removed periodically to provide range of motion and meet basic ___ needs.",
+            "optionIds": [
+              "RM_D",
+              "RM_E",
+              "RM_F"
+            ],
+            "correctOptionId": "RM_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "The nurse should also continue to reassess whether restraints remain ___.",
+            "optionIds": [
+              "RM_G",
+              "RM_H",
+              "RM_I"
+            ],
+            "correctOptionId": "RM_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "RM_A",
+          "label": "A",
+          "text": "circulation"
+        },
+        {
+          "id": "RM_B",
+          "label": "B",
+          "text": "wallpaper"
+        },
+        {
+          "id": "RM_C",
+          "label": "C",
+          "text": "visitor parking"
+        },
+        {
+          "id": "RM_D",
+          "label": "D",
+          "text": "care"
+        },
+        {
+          "id": "RM_E",
+          "label": "E",
+          "text": "television"
+        },
+        {
+          "id": "RM_F",
+          "label": "F",
+          "text": "elevator"
+        },
+        {
+          "id": "RM_G",
+          "label": "G",
+          "text": "necessary"
+        },
+        {
+          "id": "RM_H",
+          "label": "H",
+          "text": "decorative"
+        },
+        {
+          "id": "RM_I",
+          "label": "I",
+          "text": "fashionable"
+        }
+      ],
+      "correctAnswerKey": [
+        "RM_A",
+        "RM_D",
+        "RM_G"
+      ],
+      "explanation": "When restraints are in use, nurses must assess circulation, provide ongoing care and range of motion, and reassess the need for continued restraint.",
+      "rationale": "Derived from fixed NCLEX restraint monitoring items.",
+      "distractorRationale": {
+        "RM_B": "Wallpaper is unrelated.",
+        "RM_C": "Parking access is not a restraint monitor.",
+        "RM_E": "Television use is not the essential care need described.",
+        "RM_F": "Elevator access is irrelevant.",
+        "RM_H": "Restraints are not cosmetic devices.",
+        "RM_I": "Fashion has no place in restraint decisions."
+      },
+      "learningObjectives": [
+        "Monitor safety while restraints are in place",
+        "Assess circulation and provide care",
+        "Reevaluate continued restraint necessity"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "restraints",
+        "monitoring",
+        "circulation"
+      ],
+      "sourceAuthority": "CMS",
+      "sourceReferenceTitle": "Derived from fixed NCLEX restraint monitoring items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to restraint-monitoring content in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "restraints",
+        "monitoring"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-fall-prevention-019",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "An older client received an antihypertensive and asks to walk to the bathroom right away.",
+      "scenarioText": "The client reports dizziness on standing and has a history of falls.",
+      "leadInQuestion": "Complete the bow tie by choosing the priority concern, the two priority actions, and the best monitoring focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 monitor focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the immediate concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "FP_A",
+              "FP_B",
+              "FP_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best fall-prevention actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "FP_D",
+              "FP_E",
+              "FP_F",
+              "FP_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Monitor",
+            "prompt": "Choose the best reassessment focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "FP_H",
+              "FP_I",
+              "FP_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "FP_A",
+          "label": "A",
+          "text": "Orthostatic symptoms increase the immediate fall risk"
+        },
+        {
+          "id": "FP_B",
+          "label": "B",
+          "text": "Dizziness after medication has no safety significance"
+        },
+        {
+          "id": "FP_C",
+          "label": "C",
+          "text": "A history of falls becomes irrelevant once admitted"
+        },
+        {
+          "id": "FP_D",
+          "label": "D",
+          "text": "Assist the client with mobility instead of allowing independent ambulation"
+        },
+        {
+          "id": "FP_E",
+          "label": "E",
+          "text": "Reassess blood pressure and symptoms before ambulation"
+        },
+        {
+          "id": "FP_F",
+          "label": "F",
+          "text": "Tell the client to hurry before symptoms worsen"
+        },
+        {
+          "id": "FP_G",
+          "label": "G",
+          "text": "Leave the bed alarm off because the client is alert"
+        },
+        {
+          "id": "FP_H",
+          "label": "H",
+          "text": "Improvement or persistence of dizziness with position change"
+        },
+        {
+          "id": "FP_I",
+          "label": "I",
+          "text": "The color of the call bell cord"
+        },
+        {
+          "id": "FP_J",
+          "label": "J",
+          "text": "The number of magazines in the waiting room"
+        }
+      ],
+      "correctAnswerKey": [
+        "FP_A",
+        "FP_D",
+        "FP_E",
+        "FP_H"
+      ],
+      "explanation": "Dizziness after antihypertensive therapy increases fall risk and requires assisted mobility plus reassessment before ambulation.",
+      "rationale": "Derived from fixed NCLEX fall-prevention and risk-assessment items.",
+      "distractorRationale": {
+        "FP_B": "Dizziness is a clinically significant fall warning sign.",
+        "FP_C": "History of falls remains highly relevant.",
+        "FP_F": "Rushing ambulation increases risk.",
+        "FP_G": "Safety supports should not be removed casually.",
+        "FP_I": "Call bell color is not the priority.",
+        "FP_J": "Waiting-room magazines are irrelevant."
+      },
+      "learningObjectives": [
+        "Recognize immediate fall risk cues",
+        "Use assisted ambulation appropriately",
+        "Monitor symptom change before mobilization"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "fall-prevention",
+        "risk-assessment",
+        "safety"
+      ],
+      "sourceAuthority": "AHRQ",
+      "sourceReferenceTitle": "Derived from fixed NCLEX fall prevention items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to fall-prevention themes in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "fall-prevention",
+        "risk-assessment"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-race-fire-020",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "remember",
+      "difficulty": "easy",
+      "stem": "Smoke is seen coming from a trash can in a client room.",
+      "scenarioText": "The nurse reviews the RACE response sequence for healthcare fire safety.",
+      "leadInQuestion": "Complete the fire-safety statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The letter R in RACE stands for ___.",
+            "optionIds": [
+              "FI_A",
+              "FI_B",
+              "FI_C"
+            ],
+            "correctOptionId": "FI_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "The letter A stands for sound the ___ .",
+            "optionIds": [
+              "FI_D",
+              "FI_E",
+              "FI_F"
+            ],
+            "correctOptionId": "FI_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "The letter E stands for extinguish or ___ if needed.",
+            "optionIds": [
+              "FI_G",
+              "FI_H",
+              "FI_I"
+            ],
+            "correctOptionId": "FI_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "FI_A",
+          "label": "A",
+          "text": "Rescue"
+        },
+        {
+          "id": "FI_B",
+          "label": "B",
+          "text": "Relax"
+        },
+        {
+          "id": "FI_C",
+          "label": "C",
+          "text": "Repaint"
+        },
+        {
+          "id": "FI_D",
+          "label": "D",
+          "text": "alarm"
+        },
+        {
+          "id": "FI_E",
+          "label": "E",
+          "text": "television"
+        },
+        {
+          "id": "FI_F",
+          "label": "F",
+          "text": "intercom music"
+        },
+        {
+          "id": "FI_G",
+          "label": "G",
+          "text": "evacuate"
+        },
+        {
+          "id": "FI_H",
+          "label": "H",
+          "text": "evaluate wallpaper"
+        },
+        {
+          "id": "FI_I",
+          "label": "I",
+          "text": "exchange badges"
+        }
+      ],
+      "correctAnswerKey": [
+        "FI_A",
+        "FI_D",
+        "FI_G"
+      ],
+      "explanation": "RACE stands for Rescue, Alarm, Contain, and Extinguish/Evacuate.",
+      "rationale": "Derived from fixed NCLEX fire safety and RACE items.",
+      "distractorRationale": {
+        "FI_B": "Relax is not part of the fire response acronym.",
+        "FI_C": "Repaint is unrelated.",
+        "FI_E": "Television systems are not the fire alarm.",
+        "FI_F": "Intercom music is irrelevant.",
+        "FI_H": "Wallpaper is not the final fire-response step.",
+        "FI_I": "Badge exchange has no role in fire safety."
+      },
+      "learningObjectives": [
+        "Recall the RACE acronym",
+        "Prioritize alarm activation",
+        "Recognize evacuation as part of the response sequence"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "fire-safety",
+        "race",
+        "emergency-response"
+      ],
+      "sourceAuthority": "NFPA",
+      "sourceReferenceTitle": "Derived from fixed NCLEX fire safety items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to emergency-safety content represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "fire-safety",
+        "race"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-needlestick-021",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse sustains a needlestick immediately after giving an injection.",
+      "scenarioText": "The source client status is not yet known, and the nurse must follow exposure protocol promptly.",
+      "leadInQuestion": "Complete the bow tie by selecting the main exposure concern, the two priority actions, and the best follow-up focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 follow-up focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the primary concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "NS_A",
+              "NS_B",
+              "NS_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best immediate actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "NS_D",
+              "NS_E",
+              "NS_F",
+              "NS_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Follow-up",
+            "prompt": "Choose the most important follow-up focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "NS_H",
+              "NS_I",
+              "NS_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "NS_A",
+          "label": "A",
+          "text": "Bloodborne pathogen exposure requires prompt response"
+        },
+        {
+          "id": "NS_B",
+          "label": "B",
+          "text": "Needlesticks can be ignored if the client seems healthy"
+        },
+        {
+          "id": "NS_C",
+          "label": "C",
+          "text": "Covering the site is the only needed step"
+        },
+        {
+          "id": "NS_D",
+          "label": "D",
+          "text": "Wash the site promptly according to exposure guidance"
+        },
+        {
+          "id": "NS_E",
+          "label": "E",
+          "text": "Report the exposure and begin occupational follow-up immediately"
+        },
+        {
+          "id": "NS_F",
+          "label": "F",
+          "text": "Delay reporting until the next shift"
+        },
+        {
+          "id": "NS_G",
+          "label": "G",
+          "text": "Recap the used needle to see what happened"
+        },
+        {
+          "id": "NS_H",
+          "label": "H",
+          "text": "Timely exposure evaluation and indicated postexposure management"
+        },
+        {
+          "id": "NS_I",
+          "label": "I",
+          "text": "The brand of syringe packaging used"
+        },
+        {
+          "id": "NS_J",
+          "label": "J",
+          "text": "The client pillow thickness"
+        }
+      ],
+      "correctAnswerKey": [
+        "NS_A",
+        "NS_D",
+        "NS_E",
+        "NS_H"
+      ],
+      "explanation": "Needlesticks require immediate cleansing, reporting, and prompt occupational evaluation for bloodborne exposure management.",
+      "rationale": "Derived from fixed NCLEX needlestick exposure items.",
+      "distractorRationale": {
+        "NS_B": "Appearance does not rule out exposure risk.",
+        "NS_C": "More than site coverage is required.",
+        "NS_F": "Delay can compromise evaluation and prophylaxis decisions.",
+        "NS_G": "Recapping is unsafe.",
+        "NS_I": "Packaging brand is not the priority issue.",
+        "NS_J": "Pillow thickness is irrelevant."
+      },
+      "learningObjectives": [
+        "Respond correctly to needlestick exposure",
+        "Prioritize reporting and follow-up",
+        "Differentiate helpful from unsafe postexposure actions"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "needlestick",
+        "exposure",
+        "bloodborne-pathogens"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX needlestick items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to occupational exposure content in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "needlestick",
+        "exposure"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-specimen-022",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse collects a urine specimen for culture from a client with a urinary catheter.",
+      "scenarioText": "The nurse must maintain specimen integrity and avoid contamination.",
+      "leadInQuestion": "Complete the specimen-collection statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "The specimen should be obtained from the catheter ___ port.",
+            "optionIds": [
+              "SP_A",
+              "SP_B",
+              "SP_C"
+            ],
+            "correctOptionId": "SP_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "The sample should be placed in a properly ___ container.",
+            "optionIds": [
+              "SP_D",
+              "SP_E",
+              "SP_F"
+            ],
+            "correctOptionId": "SP_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "Collecting from the drainage bag increases the risk of ___.",
+            "optionIds": [
+              "SP_G",
+              "SP_H",
+              "SP_I"
+            ],
+            "correctOptionId": "SP_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "SP_A",
+          "label": "A",
+          "text": "sampling"
+        },
+        {
+          "id": "SP_B",
+          "label": "B",
+          "text": "drainage bag"
+        },
+        {
+          "id": "SP_C",
+          "label": "C",
+          "text": "floor tubing"
+        },
+        {
+          "id": "SP_D",
+          "label": "D",
+          "text": "labeled"
+        },
+        {
+          "id": "SP_E",
+          "label": "E",
+          "text": "unmarked"
+        },
+        {
+          "id": "SP_F",
+          "label": "F",
+          "text": "decorative"
+        },
+        {
+          "id": "SP_G",
+          "label": "G",
+          "text": "contamination"
+        },
+        {
+          "id": "SP_H",
+          "label": "H",
+          "text": "perfect sterility"
+        },
+        {
+          "id": "SP_I",
+          "label": "I",
+          "text": "better specificity"
+        }
+      ],
+      "correctAnswerKey": [
+        "SP_A",
+        "SP_D",
+        "SP_G"
+      ],
+      "explanation": "Catheter specimens should be obtained from the sampling port, placed in a labeled container, and not collected from the drainage bag because of contamination risk.",
+      "rationale": "Derived from fixed NCLEX specimen-collection items.",
+      "distractorRationale": {
+        "SP_B": "The drainage bag is not the correct collection source.",
+        "SP_C": "Floor tubing is contaminated.",
+        "SP_E": "Unmarked containers create identification risk.",
+        "SP_F": "Decorative containers are not a specimen standard.",
+        "SP_H": "Drainage bags do not ensure sterility.",
+        "SP_I": "Bag collection does not improve accuracy."
+      },
+      "learningObjectives": [
+        "Collect catheter specimens correctly",
+        "Label specimens safely",
+        "Avoid contamination during culture collection"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "specimen-collection",
+        "urinary-catheter",
+        "infection-prevention"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX specimen collection items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to specimen-integrity themes in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "specimen-collection",
+        "urinary-catheter"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-droplet-023",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A client with influenza is coughing frequently while awaiting transport for imaging.",
+      "scenarioText": "The nurse must maintain appropriate droplet precautions during transport planning.",
+      "leadInQuestion": "Complete the bow tie by choosing the concern, the two priority actions, and the best transport focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 transport focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "DR_A",
+              "DR_B",
+              "DR_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "DR_D",
+              "DR_E",
+              "DR_F",
+              "DR_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Transport Focus",
+            "prompt": "Choose the key transport focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "DR_H",
+              "DR_I",
+              "DR_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "DR_A",
+          "label": "A",
+          "text": "Respiratory droplets can spread infection during close contact"
+        },
+        {
+          "id": "DR_B",
+          "label": "B",
+          "text": "Influenza requires only standard precautions during transport"
+        },
+        {
+          "id": "DR_C",
+          "label": "C",
+          "text": "Coughing reduces transmission risk once in the hallway"
+        },
+        {
+          "id": "DR_D",
+          "label": "D",
+          "text": "Place a mask on the client for transport if tolerated"
+        },
+        {
+          "id": "DR_E",
+          "label": "E",
+          "text": "Notify receiving staff of droplet precautions"
+        },
+        {
+          "id": "DR_F",
+          "label": "F",
+          "text": "Remove all precautions once leaving the unit"
+        },
+        {
+          "id": "DR_G",
+          "label": "G",
+          "text": "Delay communication because the receiving area will figure it out"
+        },
+        {
+          "id": "DR_H",
+          "label": "H",
+          "text": "Maintaining droplet control measures during movement between departments"
+        },
+        {
+          "id": "DR_I",
+          "label": "I",
+          "text": "The color of the transport wheelchair"
+        },
+        {
+          "id": "DR_J",
+          "label": "J",
+          "text": "The music playing in radiology"
+        }
+      ],
+      "correctAnswerKey": [
+        "DR_A",
+        "DR_D",
+        "DR_E",
+        "DR_H"
+      ],
+      "explanation": "Influenza spreads by droplets, so masking the client when possible and notifying receiving staff are key transport steps.",
+      "rationale": "Derived from fixed NCLEX droplet-precautions items.",
+      "distractorRationale": {
+        "DR_B": "Droplet precautions still apply during transport.",
+        "DR_C": "Coughing increases droplet spread risk.",
+        "DR_F": "Transport does not cancel precautions.",
+        "DR_G": "Receiving staff should be informed in advance.",
+        "DR_I": "Wheelchair color is irrelevant.",
+        "DR_J": "Radiology music does not affect infection control."
+      },
+      "learningObjectives": [
+        "Apply droplet precautions during transport",
+        "Communicate respiratory isolation needs",
+        "Recognize droplet transmission risk"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "droplet-precautions",
+        "influenza",
+        "transport"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX droplet precaution items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to respiratory precaution themes represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "droplet-precautions",
+        "influenza"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-airborne-024",
+      "itemType": "bow_tie",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A client is admitted with suspected pulmonary tuberculosis and frequent productive cough.",
+      "scenarioText": "The nurse must begin appropriate isolation and respiratory protection immediately.",
+      "leadInQuestion": "Complete the bow tie by identifying the concern, the two priority actions, and the most important ongoing focus.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 concern, 2 actions, and 1 ongoing focus.",
+        "parts": [
+          {
+            "id": "concern",
+            "label": "Concern",
+            "prompt": "Choose the main concern.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "AR_A",
+              "AR_B",
+              "AR_C"
+            ]
+          },
+          {
+            "id": "actions",
+            "label": "Actions",
+            "prompt": "Choose the two best actions.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": [
+              "AR_D",
+              "AR_E",
+              "AR_F",
+              "AR_G"
+            ]
+          },
+          {
+            "id": "monitor",
+            "label": "Focus",
+            "prompt": "Choose the most important ongoing focus.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": [
+              "AR_H",
+              "AR_I",
+              "AR_J"
+            ]
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "AR_A",
+          "label": "A",
+          "text": "Airborne spread is the priority transmission concern"
+        },
+        {
+          "id": "AR_B",
+          "label": "B",
+          "text": "Contact precautions alone are enough for suspected TB"
+        },
+        {
+          "id": "AR_C",
+          "label": "C",
+          "text": "Respirators are optional if the cough is intermittent"
+        },
+        {
+          "id": "AR_D",
+          "label": "D",
+          "text": "Place the client in airborne isolation"
+        },
+        {
+          "id": "AR_E",
+          "label": "E",
+          "text": "Use a fit-tested N95 or equivalent respirator"
+        },
+        {
+          "id": "AR_F",
+          "label": "F",
+          "text": "Transport without a plan because the hallway is brief"
+        },
+        {
+          "id": "AR_G",
+          "label": "G",
+          "text": "Use a standard procedure mask instead of airborne protection for staff"
+        },
+        {
+          "id": "AR_H",
+          "label": "H",
+          "text": "Consistency of airborne isolation and respiratory protection measures"
+        },
+        {
+          "id": "AR_I",
+          "label": "I",
+          "text": "The client sock color"
+        },
+        {
+          "id": "AR_J",
+          "label": "J",
+          "text": "The shape of the meal tray"
+        }
+      ],
+      "correctAnswerKey": [
+        "AR_A",
+        "AR_D",
+        "AR_E",
+        "AR_H"
+      ],
+      "explanation": "Suspected pulmonary TB requires airborne isolation and fit-tested respiratory protection for staff.",
+      "rationale": "Derived from fixed NCLEX airborne-precautions items.",
+      "distractorRationale": {
+        "AR_B": "Contact precautions alone do not cover airborne TB risk.",
+        "AR_C": "Respiratory protection is not optional when airborne spread is suspected.",
+        "AR_F": "Transport requires control planning.",
+        "AR_G": "A standard mask does not replace staff respiratory protection in airborne isolation.",
+        "AR_I": "Sock color is irrelevant.",
+        "AR_J": "Tray shape does not affect airborne precautions."
+      },
+      "learningObjectives": [
+        "Recognize airborne precaution triggers",
+        "Select appropriate respiratory protection",
+        "Monitor consistency of airborne isolation measures"
+      ],
+      "tags": [
+        "ngn",
+        "bow_tie",
+        "airborne-precautions",
+        "tuberculosis",
+        "ppe"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX airborne precaution items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to airborne isolation themes represented in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 95,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "airborne-precautions",
+        "tuberculosis"
+      ]
+    },
+    {
+      "organizationId": "Waxxi8M4qpTSsoGJ8fJS",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "exam-strategy-ngn",
+      "courseGroupTitle": "Exam Strategy and NGN",
+      "moduleId": "all-about-ngn",
+      "moduleTitle": "all-about-ngn",
+      "parentCaseId": null,
+      "active": true,
+      "workflowStatus": "published",
+      "version": 1,
+      "createdBy": "import-script",
+      "updatedBy": "import-script",
+      "id": "qb-ngn25-mrsa-025",
+      "itemType": "cloze_drop_down",
+      "cognitiveLevel": "apply",
+      "difficulty": "medium",
+      "stem": "A nurse changes the dressing of a draining MRSA wound and prepares to leave the room.",
+      "scenarioText": "The nurse must maintain appropriate contact-precaution practices before caring for the next client.",
+      "leadInQuestion": "Complete the statements with the best options.",
+      "interactionConfig": {
+        "kind": "cloze_drop_down",
+        "instructions": "Choose one option for each blank.",
+        "segments": [
+          {
+            "id": "seg-1",
+            "label": "Blank 1",
+            "placeholder": "MRSA wound drainage commonly requires ___ precautions.",
+            "optionIds": [
+              "MS_A",
+              "MS_B",
+              "MS_C"
+            ],
+            "correctOptionId": "MS_A"
+          },
+          {
+            "id": "seg-2",
+            "label": "Blank 2",
+            "placeholder": "Before leaving the room, the nurse should remove PPE and perform hand ___.",
+            "optionIds": [
+              "MS_D",
+              "MS_E",
+              "MS_F"
+            ],
+            "correctOptionId": "MS_D"
+          },
+          {
+            "id": "seg-3",
+            "label": "Blank 3",
+            "placeholder": "Shared equipment should be cleaned and ___ before reuse.",
+            "optionIds": [
+              "MS_G",
+              "MS_H",
+              "MS_I"
+            ],
+            "correctOptionId": "MS_G"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "MS_A",
+          "label": "A",
+          "text": "contact"
+        },
+        {
+          "id": "MS_B",
+          "label": "B",
+          "text": "airborne only"
+        },
+        {
+          "id": "MS_C",
+          "label": "C",
+          "text": "reverse isolation only"
+        },
+        {
+          "id": "MS_D",
+          "label": "D",
+          "text": "hygiene"
+        },
+        {
+          "id": "MS_E",
+          "label": "E",
+          "text": "makeup"
+        },
+        {
+          "id": "MS_F",
+          "label": "F",
+          "text": "small talk"
+        },
+        {
+          "id": "MS_G",
+          "label": "G",
+          "text": "disinfected"
+        },
+        {
+          "id": "MS_H",
+          "label": "H",
+          "text": "decorated"
+        },
+        {
+          "id": "MS_I",
+          "label": "I",
+          "text": "photographed"
+        }
+      ],
+      "correctAnswerKey": [
+        "MS_A",
+        "MS_D",
+        "MS_G"
+      ],
+      "explanation": "MRSA wound drainage requires contact precautions, proper PPE removal with hand hygiene, and disinfection of shared equipment.",
+      "rationale": "Derived from fixed NCLEX MRSA and contact-precautions items.",
+      "distractorRationale": {
+        "MS_B": "MRSA wound drainage is typically managed with contact precautions, not airborne only.",
+        "MS_C": "Reverse isolation is not the core precaution here.",
+        "MS_E": "Makeup is irrelevant to infection control.",
+        "MS_F": "Conversation is not the required step.",
+        "MS_H": "Decorating equipment does not make it safe.",
+        "MS_I": "Photographing equipment does not disinfect it."
+      },
+      "learningObjectives": [
+        "Apply MRSA contact precautions",
+        "Perform safe exit sequence after wound care",
+        "Disinfect shared equipment before reuse"
+      ],
+      "tags": [
+        "ngn",
+        "cloze",
+        "mrsa",
+        "contact-precautions",
+        "equipment-cleaning"
+      ],
+      "sourceAuthority": "CDC",
+      "sourceReferenceTitle": "Derived from fixed NCLEX MRSA contact precaution items",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": "Aligned to MRSA and contact precaution themes in the fixed source bank.",
+      "points": 1,
+      "estimatedTimeSeconds": 80,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "remediationLessonIds": [],
+      "remediationTags": [
+        "mrsa",
+        "contact-precautions"
+      ]
+    }
+  ]
+}

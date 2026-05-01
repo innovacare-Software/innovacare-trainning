@@ -1,0 +1,51 @@
+<div class="payment-dialog-shell">
+  <div class="payment-dialog-header">
+    <div>
+      <p class="payment-dialog-kicker">Secure checkout</p>
+      <h2>Select your payment method</h2>
+      <p class="payment-dialog-copy">
+        Complete payment for {{ data.programTitle }} using Stripe for cards or CinetPay for local wallets.
+      </p>
+    </div>
+
+    <button type="button" class="payment-dialog-close" (click)="close()" aria-label="Close payment dialog">
+      ×
+    </button>
+  </div>
+
+  <div class="payment-amount-card">
+    <span>Total due</span>
+    <strong>{{ data.amount | currency: data.currency:'symbol':'1.0-0' }}</strong>
+    <small>{{ data.currency }} billed securely from the server</small>
+  </div>
+
+  <div class="payment-feedback payment-feedback--error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+  <div class="payment-option-grid">
+      <article class="payment-option-card">
+        <div>
+          <span class="payment-option-badge">Card</span>
+          <h3>Pay with Stripe</h3>
+          <p>Use Visa, Mastercard, or other international cards through your existing Stripe flow.</p>
+        </div>
+
+        <button type="button" class="payment-btn payment-btn--primary" [disabled]="loadingMethod() !== null" (click)="payWithCard()">
+          {{ loadingMethod() === 'stripe' ? 'Preparing card checkout...' : 'Pay with Card' }}
+        </button>
+      </article>
+
+      <article class="payment-option-card payment-option-card--cinetpay">
+        <div>
+          <span class="payment-option-badge payment-option-badge--cinetpay">CinetPay</span>
+          <h3>Pay with CinetPay</h3>
+          <p>Mobile Money, Orange Money, Wave, MTN, Moov — fast and secure local payment.</p>
+        </div>
+
+        <button type="button" class="payment-btn payment-btn--cinetpay" [disabled]="loadingMethod() !== null" (click)="payWithCinetPay()">
+          {{ loadingMethod() === 'cinetpay' ? 'Redirecting to CinetPay...' : 'Pay with CinetPay' }}
+        </button>
+      </article>
+
+
+    </div>
+

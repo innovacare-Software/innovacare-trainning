@@ -6,6 +6,22 @@
   </header>
 
   <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+    <ng-container *ngIf="mode() === 'create'">
+      <h3>0. Seed Template</h3>
+      <div class="field full seed-picker">
+        <label>Create from seed template</label>
+        <div class="seed-picker__row">
+          <select [value]="selectedSeedSlug()" (change)="selectedSeedSlug.set($any($event.target).value)">
+            <option value="">-- Choose a template --</option>
+            <option *ngFor="let template of seedTemplates" [value]="template.slug">
+              {{ template.title }} · {{ template.category }} · {{ template.moduleCount }} modules
+            </option>
+          </select>
+          <button type="button" class="seed-btn" (click)="applySelectedSeed()" [disabled]="!selectedSeedSlug()">Load Template</button>
+        </div>
+      </div>
+    </ng-container>
+
     <h3>1. Basic Info</h3>
     <div class="field"><label>Title</label><input formControlName="title" placeholder="Nursing Prep Intensive" /></div>
     <div class="field"><label>Slug</label><input formControlName="slug" placeholder="nursing-prep-intensive" /></div>
@@ -30,6 +46,34 @@
     <div class="field full">
       <label>Modules (one title per line)</label>
       <textarea rows="4" formControlName="modules" placeholder="Module 1 - Fundamentals\nModule 2 - Pharmacology"></textarea>
+    </div>
+    <div class="field full">
+      <label>Starter Lessons (optional)</label>
+      <textarea rows="6" formControlName="starterLessons" placeholder="Clinical Foundations :: Safety principles | Welcome walkthrough [video] (12m) -> https://samplelib.com/lib/preview/mp4/sample-5s.mp4 | Documentation basics [document] (15m)\nCore Nursing Skills :: Basic assessments [video] (18m) -> https://samplelib.com/lib/preview/mp4/sample-10s.mp4 | Medication essentials"></textarea>
+      <small class="hint">Format: Module Title :: Lesson 1 | Lesson 2 [video] (12m) -> https://video-url | Lesson 3 [document]</small>
+      <small class="hint">Types supported: <span *ngFor="let type of lessonTypes; let last = last">{{ type }}<span *ngIf="!last">, </span></span></small>
+    </div>
+    <div class="field full" *ngIf="previewStarterLessons().length > 0">
+      <label>Starter Lessons Preview</label>
+      <div class="lesson-preview-list">
+        <article class="lesson-preview-module" *ngFor="let module of previewStarterLessons()">
+          <header>
+            <strong>{{ module.moduleTitle }}</strong>
+            <span>{{ module.lessons.length }} lessons</span>
+          </header>
+          <div class="lesson-preview-item" *ngFor="let lesson of module.lessons">
+            <div>
+              <strong>{{ lesson.title }}</strong>
+              <p>
+                {{ lessonTypeLabel(lesson.type) }}
+                <span *ngIf="lesson.durationMin">· {{ lesson.durationMin }} min</span>
+                <span *ngIf="lesson.videoUrl">· video linked</span>
+              </p>
+            </div>
+            <a *ngIf="lesson.videoUrl" [href]="lesson.videoUrl" target="_blank" rel="noreferrer">Open video</a>
+          </div>
+        </article>
+      </div>
     </div>
     <div class="field full"><label>Linked Course IDs (comma separated)</label><input formControlName="linkedCourseIds" /></div>
 

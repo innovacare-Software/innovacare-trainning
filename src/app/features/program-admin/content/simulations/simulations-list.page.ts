@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, combineLatest, map } from 'rxjs';
+import { combineLatest, map, of } from 'rxjs';
 import { ProgramSimulationsAdminService } from '../services/program-simulations-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import {
@@ -108,25 +108,20 @@ export class SimulationsListPage {
   private readonly simulationsService = inject(ProgramSimulationsAdminService);
   private readonly modulesService = inject(ProgramModulesAdminService);
 
-  readonly programId = toSignal(
-    this.route.params.pipe(switchMap((p) => [p['programId'] as string])),
-    { initialValue: '' }
-  );
+  readonly programId = signal(this.getRequiredProgramId());
 
   readonly vm = toSignal(
-    this.route.params.pipe(
-      switchMap((p) =>
-        combineLatest([
-          this.simulationsService.getSimulations(p['programId']),
-          this.modulesService.getModules(p['programId']),
+    this.programId()
+      ? combineLatest([
+          this.simulationsService.getSimulations(this.programId()),
+          this.modulesService.getModules(this.programId()),
         ]).pipe(
           map(([simulations, modules]) => ({
             simulations,
             moduleMap: modules.reduce<Record<string, string>>((acc, m) => { acc[m.id] = m.title; return acc; }, {}),
           }))
         )
-      )
-    )
+      : of({ simulations: [], moduleMap: {} as Record<string, string> })
   );
 
   protected readonly STATUS_LABELS = CONTENT_STATUS_LABELS;
@@ -136,5 +131,11 @@ export class SimulationsListPage {
   async deleteSimulation(simulationId: string): Promise<void> {
     if (!confirm('Delete this simulation? This cannot be undone.')) return;
     await this.simulationsService.deleteSimulation(this.programId(), simulationId);
+  }
+
+  private getRequiredProgramId(): string {
+    return this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim()) ?? '';
   }
 }

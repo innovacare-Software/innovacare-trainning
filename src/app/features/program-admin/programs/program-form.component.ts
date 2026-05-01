@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -11,6 +11,9 @@ import {
   ProgramStatus,
 } from '../shared/program-admin.models';
 import { ProgramsAdminService } from '../services/programs-admin.service';
+import { DEFAULT_PROGRAMS_SEED } from '../../publics/programs/programs.seed';
+import { ProgramLessonType } from '../../publics/programs/program.models';
+import type { ProgramModuleLessonSeed } from '../../publics/programs/program.models';
 
 @Component({
   selector: 'app-program-form',
@@ -31,8 +34,16 @@ export class ProgramFormComponent {
   readonly levels = Object.values(ProgramLevel);
   readonly deliveryModes = Object.values(ProgramDeliveryMode);
   readonly statuses = Object.values(ProgramStatus);
+  readonly selectedSeedSlug = signal('');
+  readonly seedTemplates = DEFAULT_PROGRAMS_SEED.map((program) => ({
+    slug: program.slug || '',
+    title: program.title,
+    category: program.category,
+    moduleCount: program.modules?.length || 0,
+  }));
 
   private editingProgramId = '';
+  readonly lessonTypes = Object.values(ProgramLessonType);
 
   readonly form = this.fb.group({
     title: this.fb.nonNullable.control('', [Validators.required]),
@@ -53,6 +64,7 @@ export class ProgramFormComponent {
     level: this.fb.nonNullable.control(ProgramLevel.BEGINNER),
 
     modules: this.fb.nonNullable.control(''),
+    starterLessons: this.fb.nonNullable.control(''),
     linkedCourseIds: this.fb.nonNullable.control(''),
 
     requirements: this.fb.nonNullable.control(''),
@@ -99,7 +111,8 @@ export class ProgramFormComponent {
     }
 
     const v = this.form.getRawValue();
-    const modules = this.parseModules(v.modules);
+    const starterLessons = this.parseStarterLessons(v.starterLessons);
+    const modules = this.parseModules(v.modules, starterLessons);
     const seatsValue = v.seats != null ? Number(v.seats) : null;
 
     const payload = {
@@ -144,6 +157,43 @@ export class ProgramFormComponent {
     await this.router.navigate(['/program-admin/programs']);
   }
 
+  applySelectedSeed(): void {
+    const slug = this.selectedSeedSlug();
+    const seed = DEFAULT_PROGRAMS_SEED.find((program) => (program.slug || '') === slug);
+    if (!seed) {
+      return;
+    }
+
+    this.form.patchValue({
+      title: seed.title,
+      slug: seed.slug || '',
+      subtitle: seed.subtitle,
+      description: seed.description,
+      category: seed.category,
+      tags: (seed.tags || []).join(', '),
+      price: seed.price,
+      discountPrice: seed.discountPrice ?? null,
+      currency: seed.currency,
+      durationWeeks: seed.durationWeeks ?? null,
+      durationText: seed.durationText,
+      scheduleText: seed.scheduleText,
+      deliveryMode: seed.deliveryMode,
+      level: seed.level,
+      modules: (seed.modules || []).map((module) => module.title).join('\n'),
+      starterLessons: this.stringifyStarterLessons(seed.modules || []),
+      linkedCourseIds: (seed.linkedCourseIds || []).join(', '),
+      requirements: (seed.requirements || []).join(', '),
+      outcomes: (seed.outcomes || []).join(', '),
+      imageUrl: seed.imageUrl,
+      brochureUrl: seed.brochureUrl || '',
+      isFeatured: !!seed.isFeatured,
+      active: !!seed.active,
+      status: seed.status,
+      seats: seed.seats ?? null,
+      seatsRemaining: seed.seatsRemaining ?? null,
+    });
+  }
+
   private parseCsv(value: string): string[] {
     return value
       .split(',')
@@ -151,7 +201,10 @@ export class ProgramFormComponent {
       .filter(Boolean);
   }
 
-  private parseModules(value: string): NonNullable<Program['modules']> {
+  private parseModules(
+    value: string,
+    starterLessons: Map<string, Array<string | ProgramModuleLessonSeed>>
+  ): NonNullable<Program['modules']> {
     return value
       .split('\n')
       .map((line) => line.trim())
@@ -161,7 +214,69 @@ export class ProgramFormComponent {
         title,
         order: index + 1,
         description: '',
+        lessons: starterLessons.get(title) || [],
       }));
+  }
+
+  private parseStarterLessons(value: string): Map<string, Array<string | ProgramModuleLessonSeed>> {
+    const lessonMap = new Map<string, Array<string | ProgramModuleLessonSeed>>();
+    value
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .forEach((line) => {
+        const [moduleTitle, lessonsRaw] = line.split('::').map((part) => part.trim());
+        if (!moduleTitle || !lessonsRaw) {
+          return;
+        }
+        const lessons = lessonsRaw
+          .split('|')
+          .map((lesson) => this.parseLessonToken(lesson))
+          .filter(Boolean)
+          .map((lesson) => lesson as string | ProgramModuleLessonSeed);
+        if (lessons.length > 0) {
+          lessonMap.set(moduleTitle, lessons);
+        }
+      });
+    return lessonMap;
+  }
+
+  private stringifyStarterLessons(modules: NonNullable<Program['modules']>): string {
+    return modules
+      .filter((module) => Array.isArray(module.lessons) && module.lessons.length > 0)
+      .map((module) => {
+        const lessons = (module.lessons || []).map((lesson) => this.stringifyLessonToken(lesson));
+        return `${module.title} :: ${lessons.join(' | ')}`;
+      })
+      .join('\n');
+  }
+
+  previewStarterLessons(): Array<{ moduleTitle: string; lessons: ProgramModuleLessonSeed[] }> {
+    return Array.from(this.parseStarterLessons(this.form.controls.starterLessons.value).entries()).map(
+      ([moduleTitle, lessons]) => ({
+        moduleTitle,
+        lessons: lessons.map((lesson, index) => this.normalizeLessonSeed(lesson, index)),
+      })
+    );
+  }
+
+  lessonTypeLabel(type?: ProgramLessonType): string {
+    switch (type) {
+      case ProgramLessonType.VIDEO:
+        return 'Video';
+      case ProgramLessonType.DOCUMENT:
+        return 'Document';
+      case ProgramLessonType.MIXED:
+        return 'Mixed';
+      case ProgramLessonType.WEB:
+        return 'Web Page';
+      case ProgramLessonType.INTERACTIVE:
+        return 'Interactive';
+      case ProgramLessonType.LAB:
+        return 'Lab';
+      default:
+        return 'Reading';
+    }
   }
 
   private patchForm(program: Program): void {
@@ -183,6 +298,7 @@ export class ProgramFormComponent {
       level: program.level,
       deliveryMode: program.deliveryMode,
       modules: (program.modules || []).map((m) => m.title).join('\n'),
+      starterLessons: this.stringifyStarterLessons(program.modules || []),
       linkedCourseIds: (program.linkedCourseIds || []).join(', '),
       requirements: (program.requirements || []).join(', '),
       outcomes: (program.outcomes || []).join(', '),
@@ -215,5 +331,99 @@ export class ProgramFormComponent {
     }
 
     return '';
+  }
+
+  private parseLessonToken(rawLesson: string): string | ProgramModuleLessonSeed | null {
+    const lesson = rawLesson.trim();
+    if (!lesson) {
+      return null;
+    }
+
+    const pattern = /^(?<title>[^\[]+?)(?:\s*\[(?<type>video|reading|interactive|lab|document|mixed|web)\])?(?:\s*\((?<duration>\d+)m\))?(?:\s*->\s*(?<url>https?:\/\/\S+))?$/i;
+    const match = lesson.match(pattern);
+    if (!match?.groups) {
+      return lesson;
+    }
+
+    const title = match.groups['title']?.trim();
+    const typeRaw = match.groups['type']?.trim().toLowerCase();
+    const durationRaw = match.groups['duration']?.trim();
+    const url = match.groups['url']?.trim();
+
+    if (!title) {
+      return null;
+    }
+
+    if (!typeRaw && !durationRaw && !url) {
+      return title;
+    }
+
+    return {
+      title,
+      type: this.toProgramLessonType(typeRaw),
+      durationMin: durationRaw ? Number(durationRaw) : undefined,
+      videoUrl: url || undefined,
+    };
+  }
+
+  private stringifyLessonToken(lesson: string | ProgramModuleLessonSeed): string {
+    if (typeof lesson === 'string') {
+      return lesson;
+    }
+
+    const parts = [lesson.title.trim()];
+    if (lesson.type) {
+      parts.push(`[${lesson.type}]`);
+    }
+    if (lesson.durationMin) {
+      parts.push(`(${lesson.durationMin}m)`);
+    }
+    if (lesson.videoUrl) {
+      parts.push(`-> ${lesson.videoUrl}`);
+    }
+
+    return parts.join(' ');
+  }
+
+  private normalizeLessonSeed(
+    lesson: string | ProgramModuleLessonSeed,
+    index: number
+  ): ProgramModuleLessonSeed {
+    if (typeof lesson === 'string') {
+      return {
+        title: lesson,
+        type: ProgramLessonType.READING,
+        durationMin: 15,
+        order: index + 1,
+      };
+    }
+
+    return {
+      ...lesson,
+      type: lesson.type || ProgramLessonType.READING,
+      durationMin: lesson.durationMin || 15,
+      order: lesson.order || index + 1,
+    };
+  }
+
+  private toProgramLessonType(type?: string): ProgramLessonType | undefined {
+    switch (type) {
+      case ProgramLessonType.VIDEO:
+        return ProgramLessonType.VIDEO;
+      case ProgramLessonType.INTERACTIVE:
+        return ProgramLessonType.INTERACTIVE;
+      case ProgramLessonType.LAB:
+        return ProgramLessonType.LAB;
+      case ProgramLessonType.DOCUMENT:
+        return ProgramLessonType.DOCUMENT;
+      case ProgramLessonType.MIXED:
+        return ProgramLessonType.MIXED;
+      case ProgramLessonType.WEB:
+        return ProgramLessonType.WEB;
+      case ProgramLessonType.READING:
+        return ProgramLessonType.READING;
+      default:
+        return undefined;
+    }
   }
 }

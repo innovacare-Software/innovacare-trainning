@@ -1,0 +1,621 @@
+{
+  "items": [
+    {
+      "examTrack": "NCLEX-RN",
+      "qualityScore": null,
+      "discriminationIndex": null,
+      "approvedBy": null,
+      "stem": "A nurse is preparing to enter the room of a patient with suspected Clostridioides difficile infection and active diarrhea.",
+      "points": 1,
+      "confidenceScore": null,
+      "active": true,
+      "workflowStatus": "published",
+      "courseGroupId": "exam-strategy-ngn",
+      "id": "qb-0b549303",
+      "difficulty": "medium",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775760776,
+        "nanoseconds": 835000000
+      },
+      "programId": "nclex-rn-prep",
+      "sourceReferenceTitle": "Guideline for Isolation Precautions / Preventing C. diff",
+      "parentCaseId": null,
+      "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+      "lastReviewedAt": null,
+      "sourceAuthority": "CDC",
+      "version": 1,
+      "itemType": "single_choice",
+      "remediationLessonIds": [
+        "infection-control-basics"
+      ],
+      "cognitiveLevel": "apply",
+      "explanation": "Suspected or confirmed C. difficile requires contact precautions. The nurse should put on gown and gloves before room entry.",
+      "jurisdictionNotes": "US infection prevention guidance aligned to CDC standard and transmission-based precautions.",
+      "rationale": "Standard Precautions apply to all patients, and Transmission-Based Precautions are added when indicated. For C. difficile, gown and gloves are essential, and soap and water is preferred for hand cleansing after contact because of spores.",
+      "moduleId": "all-about-ngn",
+      "leadInQuestion": "Which action is the priority before entering the room?",
+      "learningObjectives": [
+        "Apply contact precautions correctly"
+      ],
+      "correctAnswerKey": [
+        "C"
+      ],
+      "nextReviewAt": null,
+      "sourceReferenceUrl": null,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "moduleTitle": "all-about-ngn",
+      "reviewedBy": null,
+      "remediationTags": [],
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761105,
+        "nanoseconds": 916000000
+      },
+      "updatedBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "choices": [
+        {
+          "id": "A",
+          "text": "Put on a surgical mask",
+          "label": "A",
+          "rationale": null
+        },
+        {
+          "id": "B",
+          "rationale": null,
+          "text": "Perform hand hygiene with alcohol-based hand rub only",
+          "label": "B"
+        },
+        {
+          "id": "C",
+          "rationale": null,
+          "label": "C",
+          "text": "Put on gown and gloves"
+        },
+        {
+          "id": "D",
+          "text": "Ask the patient to wear a mask",
+          "label": "D",
+          "rationale": null
+        }
+      ],
+      "programTitle": "NCLEX-RN Prep",
+      "scenarioText": "The patient has frequent loose stools and requires assistance with hygiene care.",
+      "jurisdiction": "US",
+      "tags": [
+        "infection-control",
+        "contact-precautions",
+        "ppe"
+      ],
+      "distractorRationale": {
+        "A": "A surgical mask alone does not address the main transmission risk for suspected C. difficile, which requires contact precautions.",
+        "D": "Masking the patient is not the priority intervention for active diarrhea and suspected C. difficile.",
+        "B": "Alcohol-based hand rub alone is not the preferred method after likely spore exposure."
+      },
+      "estimatedTimeSeconds": 75,
+      "createdBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "exposureCount": 0,
+      "sourceVersionDate": "2026-03-29",
+      "courseGroupTitle": "Exam Strategy and NGN"
+    },
+    {
+      "examTrack": "NCLEX-RN",
+      "qualityScore": null,
+      "discriminationIndex": null,
+      "approvedBy": null,
+      "stem": "A nurse is caring for a client with neutropenia after chemotherapy.",
+      "points": 1,
+      "confidenceScore": null,
+      "active": true,
+      "workflowStatus": "published",
+      "courseGroupId": "exam-strategy-ngn",
+      "id": "qb-7d31f2a1",
+      "difficulty": "medium",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761200,
+        "nanoseconds": 110000000
+      },
+      "programId": "nclex-rn-prep",
+      "sourceReferenceTitle": "Neutropenic precautions review",
+      "parentCaseId": null,
+      "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+      "lastReviewedAt": null,
+      "sourceAuthority": "ONS",
+      "version": 1,
+      "itemType": "single_choice",
+      "remediationLessonIds": [
+        "neutropenic-precautions"
+      ],
+      "cognitiveLevel": "apply",
+      "explanation": "Fresh flowers and raw produce can increase exposure to organisms for an immunocompromised client.",
+      "jurisdictionNotes": "US oncology nursing infection prevention guidance.",
+      "rationale": "Clients with neutropenia are at high risk for infection, so environmental and dietary precautions reduce preventable exposure to pathogens.",
+      "moduleId": "all-about-ngn",
+      "leadInQuestion": "Which action by the nurse requires correction?",
+      "learningObjectives": [
+        "Apply neutropenic precautions in clinical care"
+      ],
+      "correctAnswerKey": [
+        "B"
+      ],
+      "nextReviewAt": null,
+      "sourceReferenceUrl": null,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "moduleTitle": "all-about-ngn",
+      "reviewedBy": null,
+      "remediationTags": [
+        "neutropenia",
+        "protective-precautions"
+      ],
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761260,
+        "nanoseconds": 210000000
+      },
+      "updatedBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "choices": [
+        {
+          "id": "A",
+          "text": "Performing hand hygiene before contact",
+          "label": "A",
+          "rationale": null
+        },
+        {
+          "id": "B",
+          "text": "Placing fresh flowers in the room",
+          "label": "B",
+          "rationale": null
+        },
+        {
+          "id": "C",
+          "text": "Monitoring temperature closely",
+          "label": "C",
+          "rationale": null
+        },
+        {
+          "id": "D",
+          "text": "Using dedicated equipment when possible",
+          "label": "D",
+          "rationale": null
+        }
+      ],
+      "programTitle": "NCLEX-RN Prep",
+      "scenarioText": "The client has an absolute neutrophil count of 400/mm3 and reports fatigue.",
+      "jurisdiction": "US",
+      "tags": [
+        "infection-control",
+        "neutropenia",
+        "protective-precautions"
+      ],
+      "distractorRationale": {
+        "A": "Hand hygiene is essential to reduce transmission of pathogens to the client.",
+        "C": "Fever may be the first sign of infection in neutropenic clients and should be monitored closely.",
+        "D": "Dedicated equipment helps reduce cross-contamination."
+      },
+      "estimatedTimeSeconds": 80,
+      "createdBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "exposureCount": 0,
+      "sourceVersionDate": "2026-03-29",
+      "courseGroupTitle": "Exam Strategy and NGN"
+    },
+    {
+      "examTrack": "NCLEX-RN",
+      "qualityScore": null,
+      "discriminationIndex": null,
+      "approvedBy": null,
+      "stem": "A nurse is preparing to administer medications through a nasogastric tube.",
+      "points": 1,
+      "confidenceScore": null,
+      "active": true,
+      "workflowStatus": "published",
+      "courseGroupId": "exam-strategy-ngn",
+      "id": "qb-3f8a2c44",
+      "difficulty": "medium",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761320,
+        "nanoseconds": 310000000
+      },
+      "programId": "nclex-rn-prep",
+      "sourceReferenceTitle": "Safe enteral medication administration",
+      "parentCaseId": null,
+      "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+      "lastReviewedAt": null,
+      "sourceAuthority": "ISMP",
+      "version": 1,
+      "itemType": "single_choice",
+      "remediationLessonIds": [
+        "medication-administration-safety"
+      ],
+      "cognitiveLevel": "apply",
+      "explanation": "Verifying tube placement before medication administration reduces the risk of aspiration and improper delivery.",
+      "jurisdictionNotes": "US medication safety guidance for enteral routes.",
+      "rationale": "Medication safety requires confirmation that the medication will enter the gastrointestinal tract rather than the respiratory tract.",
+      "moduleId": "all-about-ngn",
+      "leadInQuestion": "Which action is the priority before giving the medications?",
+      "learningObjectives": [
+        "Prioritize safe medication administration through enteral tubes"
+      ],
+      "correctAnswerKey": [
+        "A"
+      ],
+      "nextReviewAt": null,
+      "sourceReferenceUrl": null,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "moduleTitle": "all-about-ngn",
+      "reviewedBy": null,
+      "remediationTags": [
+        "medication-safety",
+        "enteral-tubes"
+      ],
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761380,
+        "nanoseconds": 410000000
+      },
+      "updatedBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "choices": [
+        {
+          "id": "A",
+          "text": "Verify tube placement according to policy",
+          "label": "A",
+          "rationale": null
+        },
+        {
+          "id": "B",
+          "text": "Mix all medications together to save time",
+          "label": "B",
+          "rationale": null
+        },
+        {
+          "id": "C",
+          "text": "Crush enteric-coated tablets if they are difficult to swallow",
+          "label": "C",
+          "rationale": null
+        },
+        {
+          "id": "D",
+          "text": "Add medications directly to the feeding formula bag",
+          "label": "D",
+          "rationale": null
+        }
+      ],
+      "programTitle": "NCLEX-RN Prep",
+      "scenarioText": "The client receives intermittent tube feedings and has several scheduled morning medications.",
+      "jurisdiction": "US",
+      "tags": [
+        "medication-safety",
+        "enteral-tube",
+        "priority"
+      ],
+      "distractorRationale": {
+        "B": "Mixing medications increases incompatibility and error risk.",
+        "C": "Enteric-coated medications should not be crushed because this changes intended drug release.",
+        "D": "Medications should not be mixed into feeding bags because dosing and tube patency can be compromised."
+      },
+      "estimatedTimeSeconds": 85,
+      "createdBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "exposureCount": 0,
+      "sourceVersionDate": "2026-03-29",
+      "courseGroupTitle": "Exam Strategy and NGN"
+    },
+    {
+      "examTrack": "NCLEX-RN",
+      "qualityScore": null,
+      "discriminationIndex": null,
+      "approvedBy": null,
+      "stem": "A nurse is reviewing delegation assignments with an assistive personnel member caring for a client on seizure precautions.",
+      "points": 1,
+      "confidenceScore": null,
+      "active": true,
+      "workflowStatus": "published",
+      "courseGroupId": "exam-strategy-ngn",
+      "id": "qb-91ae6b72",
+      "difficulty": "medium",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761440,
+        "nanoseconds": 510000000
+      },
+      "programId": "nclex-rn-prep",
+      "sourceReferenceTitle": "Seizure precautions and delegation review",
+      "parentCaseId": null,
+      "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+      "lastReviewedAt": null,
+      "sourceAuthority": "ANA",
+      "version": 1,
+      "itemType": "single_choice",
+      "remediationLessonIds": [
+        "delegation-and-safety"
+      ],
+      "cognitiveLevel": "apply",
+      "explanation": "Padding side rails and maintaining a safe environment are appropriate delegated seizure-precaution tasks.",
+      "jurisdictionNotes": "US nursing delegation principles aligned to standard RN accountability.",
+      "rationale": "The RN retains assessment and teaching responsibilities, while routine safety setup tasks may be delegated appropriately.",
+      "moduleId": "all-about-ngn",
+      "leadInQuestion": "Which task is appropriate for the nurse to delegate?",
+      "learningObjectives": [
+        "Differentiate delegable tasks from RN-only responsibilities"
+      ],
+      "correctAnswerKey": [
+        "C"
+      ],
+      "nextReviewAt": null,
+      "sourceReferenceUrl": null,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "moduleTitle": "all-about-ngn",
+      "reviewedBy": null,
+      "remediationTags": [
+        "delegation",
+        "seizure-precautions"
+      ],
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761500,
+        "nanoseconds": 610000000
+      },
+      "updatedBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "choices": [
+        {
+          "id": "A",
+          "text": "Teaching the client about aura symptoms",
+          "label": "A",
+          "rationale": null
+        },
+        {
+          "id": "B",
+          "text": "Assessing the client after a seizure episode",
+          "label": "B",
+          "rationale": null
+        },
+        {
+          "id": "C",
+          "text": "Padding the side rails and keeping the bed in low position",
+          "label": "C",
+          "rationale": null
+        },
+        {
+          "id": "D",
+          "text": "Deciding whether an as-needed antiseizure medication is needed",
+          "label": "D",
+          "rationale": null
+        }
+      ],
+      "programTitle": "NCLEX-RN Prep",
+      "scenarioText": "The client has a history of tonic-clonic seizures and was admitted for medication adjustment.",
+      "jurisdiction": "US",
+      "tags": [
+        "delegation",
+        "patient-safety",
+        "seizure-precautions"
+      ],
+      "distractorRationale": {
+        "A": "Teaching requires nursing judgment and should be performed by the RN.",
+        "B": "Assessment after a seizure is an RN responsibility.",
+        "D": "Medication decisions require nursing assessment and provider orders."
+      },
+      "estimatedTimeSeconds": 85,
+      "createdBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "exposureCount": 0,
+      "sourceVersionDate": "2026-03-29",
+      "courseGroupTitle": "Exam Strategy and NGN"
+    },
+    {
+      "examTrack": "NCLEX-RN",
+      "qualityScore": null,
+      "discriminationIndex": null,
+      "approvedBy": null,
+      "stem": "A nurse is admitting a client with active pulmonary tuberculosis to the unit.",
+      "points": 1,
+      "confidenceScore": null,
+      "active": true,
+      "workflowStatus": "published",
+      "courseGroupId": "exam-strategy-ngn",
+      "id": "qb-c2851e90",
+      "difficulty": "medium",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761560,
+        "nanoseconds": 710000000
+      },
+      "programId": "nclex-rn-prep",
+      "sourceReferenceTitle": "Airborne precautions for tuberculosis",
+      "parentCaseId": null,
+      "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+      "lastReviewedAt": null,
+      "sourceAuthority": "CDC",
+      "version": 1,
+      "itemType": "single_choice",
+      "remediationLessonIds": [
+        "airborne-precautions"
+      ],
+      "cognitiveLevel": "apply",
+      "explanation": "Pulmonary tuberculosis requires airborne precautions and placement in a negative-pressure room.",
+      "jurisdictionNotes": "US CDC airborne isolation guidance.",
+      "rationale": "Airborne diseases require controls that limit spread of droplet nuclei, including a negative-pressure room and fit-tested respirator use.",
+      "moduleId": "all-about-ngn",
+      "leadInQuestion": "Which action should the nurse take first?",
+      "learningObjectives": [
+        "Apply airborne isolation requirements correctly"
+      ],
+      "correctAnswerKey": [
+        "D"
+      ],
+      "nextReviewAt": null,
+      "sourceReferenceUrl": null,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "moduleTitle": "all-about-ngn",
+      "reviewedBy": null,
+      "remediationTags": [
+        "airborne",
+        "tuberculosis"
+      ],
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761620,
+        "nanoseconds": 810000000
+      },
+      "updatedBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "choices": [
+        {
+          "id": "A",
+          "text": "Place the client in a semi-private room with another respiratory client",
+          "label": "A",
+          "rationale": null
+        },
+        {
+          "id": "B",
+          "text": "Apply contact precautions only",
+          "label": "B",
+          "rationale": null
+        },
+        {
+          "id": "C",
+          "text": "Ask visitors to wear gloves when entering the room",
+          "label": "C",
+          "rationale": null
+        },
+        {
+          "id": "D",
+          "text": "Place the client in a negative-pressure room",
+          "label": "D",
+          "rationale": null
+        }
+      ],
+      "programTitle": "NCLEX-RN Prep",
+      "scenarioText": "The client has a chronic cough, weight loss, and a positive acid-fast bacillus smear.",
+      "jurisdiction": "US",
+      "tags": [
+        "infection-control",
+        "airborne-precautions",
+        "tuberculosis"
+      ],
+      "distractorRationale": {
+        "A": "A client with active tuberculosis should not share a room because airborne transmission risk is high.",
+        "B": "Contact precautions alone do not address airborne spread.",
+        "C": "Gloves are not the key isolation measure for airborne TB exposure."
+      },
+      "estimatedTimeSeconds": 80,
+      "createdBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "exposureCount": 0,
+      "sourceVersionDate": "2026-03-29",
+      "courseGroupTitle": "Exam Strategy and NGN"
+    },
+    {
+      "examTrack": "NCLEX-RN",
+      "qualityScore": null,
+      "discriminationIndex": null,
+      "approvedBy": null,
+      "stem": "A nurse is caring for a postoperative client who suddenly becomes restless, reports chest pain, and has an oxygen saturation of 88% on room air.",
+      "points": 1,
+      "confidenceScore": null,
+      "active": true,
+      "workflowStatus": "published",
+      "courseGroupId": "exam-strategy-ngn",
+      "id": "qb-e4d7a811",
+      "difficulty": "hard",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761680,
+        "nanoseconds": 910000000
+      },
+      "programId": "nclex-rn-prep",
+      "sourceReferenceTitle": "Priority response to acute postoperative deterioration",
+      "parentCaseId": null,
+      "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+      "lastReviewedAt": null,
+      "sourceAuthority": "AACN",
+      "version": 1,
+      "itemType": "single_choice",
+      "remediationLessonIds": [
+        "abc-prioritization"
+      ],
+      "cognitiveLevel": "analyze",
+      "explanation": "Applying oxygen is an immediate action to support oxygenation while the nurse rapidly escalates care and continues assessment.",
+      "jurisdictionNotes": "US acute care prioritization standards using ABCs.",
+      "rationale": "Restlessness, chest pain, and hypoxemia suggest acute cardiopulmonary compromise. The nurse should address breathing and oxygenation first.",
+      "moduleId": "all-about-ngn",
+      "leadInQuestion": "Which action should the nurse implement first?",
+      "learningObjectives": [
+        "Use ABC prioritization during acute deterioration"
+      ],
+      "correctAnswerKey": [
+        "B"
+      ],
+      "nextReviewAt": null,
+      "sourceReferenceUrl": null,
+      "remediationModuleIds": [
+        "safety-and-infection"
+      ],
+      "moduleTitle": "all-about-ngn",
+      "reviewedBy": null,
+      "remediationTags": [
+        "ABC",
+        "postoperative",
+        "oxygenation"
+      ],
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1775761740,
+        "nanoseconds": 120000000
+      },
+      "updatedBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "choices": [
+        {
+          "id": "A",
+          "text": "Document the findings in the electronic record",
+          "label": "A",
+          "rationale": null
+        },
+        {
+          "id": "B",
+          "text": "Apply oxygen via nasal cannula",
+          "label": "B",
+          "rationale": null
+        },
+        {
+          "id": "C",
+          "text": "Assist the client to ambulate in the hallway",
+          "label": "C",
+          "rationale": null
+        },
+        {
+          "id": "D",
+          "text": "Give the scheduled oral pain medication",
+          "label": "D",
+          "rationale": null
+        }
+      ],
+      "programTitle": "NCLEX-RN Prep",
+      "scenarioText": "The client is 12 hours postoperative after abdominal surgery and was stable 30 minutes ago.",
+      "jurisdiction": "US",
+      "tags": [
+        "prioritization",
+        "postoperative-care",
+        "oxygenation"
+      ],
+      "distractorRationale": {
+        "A": "Documentation is important but follows immediate intervention for an unstable client.",
+        "C": "Ambulation is unsafe during acute chest pain and hypoxemia.",
+        "D": "Oral medication does not address the urgent oxygenation problem."
+      },
+      "estimatedTimeSeconds": 90,
+      "createdBy": "YxZZR4GtuLgGJmiFAf6l0cw05k92",
+      "exposureCount": 0,
+      "sourceVersionDate": "2026-03-29",
+      "courseGroupTitle": "Exam Strategy and NGN"
+    }
+  ],
+  "caseStudies": []
+}

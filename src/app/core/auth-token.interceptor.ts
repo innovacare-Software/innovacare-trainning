@@ -37,6 +37,14 @@ export class AuthTokenInterceptor implements HttpInterceptor {
   }
 
   private isCloudFunctionRequest(url: string): boolean {
+    if (url.startsWith('/secure-pdf/')) {
+      return true;
+    }
+
+    if (typeof window !== 'undefined' && url.startsWith(`${window.location.origin}/secure-pdf/`)) {
+      return true;
+    }
+
     const endpoints = [environment.api.checkoutUrl];
 
     return endpoints.some((endpoint) => !!endpoint && url.startsWith(endpoint));

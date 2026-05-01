@@ -2,19 +2,22 @@ import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
-  addDoc,
   collection,
   collectionData,
   doc,
   docData,
-  getDoc,
   orderBy,
   query,
-  serverTimestamp,
-  updateDoc,
   where,
 } from '@angular/fire/firestore';
-import { Observable, firstValueFrom, of, switchMap } from 'rxjs';
+import {
+  addDoc,
+  getDoc,
+  getDocs,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
+import { Observable, catchError, firstValueFrom, of, switchMap } from 'rxjs';
 import {
   CreateProgramEnrollmentPayload,
   PaymentStatus,
@@ -23,11 +26,13 @@ import {
   ProgramEnrollmentStatus,
   ReviewStatus,
 } from './program.models';
+import { AppProfile, AuthService } from '../../../core/auth';
 
 @Injectable({ providedIn: 'root' })
 export class ProgramEnrollmentsService {
   private readonly firestore = inject(Firestore);
   private readonly auth = inject(Auth);
+  private readonly authService = inject(AuthService);
 
   private readonly programsPath = 'programs';
   private readonly enrollmentsPath = 'programEnrollments';
@@ -41,6 +46,36 @@ export class ProgramEnrollmentsService {
 
     if (!programSnap.exists()) {
       throw new Error('Program not found or unavailable.');
+    }
+
+    const existingEnrollmentsSnap = await getDocs(
+      query(
+        collection(this.firestore, this.enrollmentsPath),
+        where('userId', '==', currentUser.uid),
+        where('programId', '==', program.id)
+      )
+    );
+
+    const existingEnrollments = existingEnrollmentsSnap.docs.map((snapshot) => ({
+      ...(snapshot.data() as ProgramEnrollment),
+      id: snapshot.id,
+    }));
+
+    const primaryEnrollment = this.selectPrimaryEnrollment(existingEnrollments, program.id);
+    if (primaryEnrollment && this.canAccessLearnerSpace(primaryEnrollment)) {
+      throw new Error('You already have access to this program.');
+    }
+
+    const reusableEnrollment = existingEnrollments.find((row) => this.canResumeCheckout(row));
+    if (reusableEnrollment?.id) {
+      await updateDoc(doc(this.firestore, `${this.enrollmentsPath}/${reusableEnrollment.id}`), {
+        learnerName: payload.learnerName.trim(),
+        learnerEmail: payload.learnerEmail.trim().toLowerCase(),
+        learnerPhone: payload.learnerPhone.trim(),
+        notes: payload.notes?.trim() || '',
+        updatedAt: serverTimestamp(),
+      });
+      return reusableEnrollment.id;
     }
 
     const enrollment = {
@@ -69,6 +104,78 @@ export class ProgramEnrollmentsService {
     return ref.id;
   }
 
+  getMyEnrollmentForProgram(programId: string): Observable<ProgramEnrollment | undefined> {
+    if (!programId?.trim()) {
+      return of(undefined);
+    }
+
+    return this.getMyEnrollments().pipe(
+      switchMap((enrollments) => of(this.selectPrimaryEnrollment(enrollments, programId)))
+    );
+  }
+
+  selectPrimaryEnrollment(
+    enrollments: ProgramEnrollment[],
+    programId: string
+  ): ProgramEnrollment | undefined {
+    const matches = enrollments.filter((row) => row.programId === programId);
+    if (!matches.length) {
+      return undefined;
+    }
+
+    return matches
+      .slice()
+      .sort((left, right) => this.rankEnrollment(right) - this.rankEnrollment(left))[0];
+  }
+
+  canAccessLearnerSpace(enrollment: ProgramEnrollment | undefined): boolean {
+    if (!enrollment) {
+      return false;
+    }
+
+    return enrollment.paymentStatus === PaymentStatus.PAID && [
+      ProgramEnrollmentStatus.ACTIVE,
+      ProgramEnrollmentStatus.COMPLETED,
+      ProgramEnrollmentStatus.CONFIRMED,
+    ].includes(enrollment.status);
+  }
+
+  canResumeCheckout(enrollment: ProgramEnrollment | undefined): boolean {
+    if (!enrollment) {
+      return false;
+    }
+
+    return !this.canAccessLearnerSpace(enrollment) &&
+      ![ProgramEnrollmentStatus.CANCELLED, ProgramEnrollmentStatus.REJECTED, ProgramEnrollmentStatus.COMPLETED].includes(enrollment.status) &&
+      enrollment.amount > 0 &&
+      enrollment.paymentStatus !== PaymentStatus.PAID;
+  }
+
+  private rankEnrollment(enrollment: ProgramEnrollment): number {
+    const paymentBonus = enrollment.paymentStatus === PaymentStatus.PAID ? 100 : 0;
+    const statusScore = (() => {
+      switch (enrollment.status) {
+        case ProgramEnrollmentStatus.ACTIVE:
+          return 50;
+        case ProgramEnrollmentStatus.COMPLETED:
+          return 45;
+        case ProgramEnrollmentStatus.CONFIRMED:
+          return 40;
+        case ProgramEnrollmentStatus.APPROVED:
+          return 30;
+        case ProgramEnrollmentStatus.PENDING:
+          return 20;
+        case ProgramEnrollmentStatus.CANCELLED:
+          return 10;
+        case ProgramEnrollmentStatus.REJECTED:
+        default:
+          return 0;
+      }
+    })();
+
+    return paymentBonus + statusScore;
+  }
+
   getMyEnrollments(): Observable<ProgramEnrollment[]> {
     return authState(this.auth).pipe(
       switchMap((user) => {
@@ -85,9 +192,24 @@ export class ProgramEnrollmentsService {
   }
 
   getAllEnrollmentsForAdmin(): Observable<ProgramEnrollment[]> {
-    const ref = collection(this.firestore, this.enrollmentsPath);
-    const q = query(ref, orderBy('createdAt', 'desc'));
-    return collectionData(q, { idField: 'id' }) as Observable<ProgramEnrollment[]>;
+    return this.authService.profile$.pipe(
+      switchMap((profile) => {
+        if (!profile?.uid) {
+          return of([] as ProgramEnrollment[]);
+        }
+
+        const scopedOrgId = this.normalizeOrgId(profile.orgId);
+        if (!this.isSuperAdmin(profile) && !scopedOrgId) {
+          return of([] as ProgramEnrollment[]);
+        }
+
+        const ref = collection(this.firestore, this.enrollmentsPath);
+        const q = this.isSuperAdmin(profile)
+          ? query(ref, orderBy('createdAt', 'desc'))
+          : query(ref, where('orgId', '==', scopedOrgId), orderBy('createdAt', 'desc'));
+        return collectionData(q, { idField: 'id' }) as Observable<ProgramEnrollment[]>;
+      })
+    );
   }
 
   getEnrollmentById(enrollmentId: string): Observable<ProgramEnrollment | undefined> {
@@ -96,7 +218,9 @@ export class ProgramEnrollmentsService {
     }
 
     const ref = doc(this.firestore, `${this.enrollmentsPath}/${enrollmentId}`);
-    return docData(ref, { idField: 'id' }) as Observable<ProgramEnrollment | undefined>;
+    return (docData(ref, { idField: 'id' }) as Observable<ProgramEnrollment | undefined>).pipe(
+      catchError(() => of(undefined))
+    );
   }
 
   approveEnrollment(enrollmentId: string): Promise<void> {
@@ -153,6 +277,15 @@ export class ProgramEnrollmentsService {
       ...payload,
       updatedAt: serverTimestamp(),
     });
+  }
+
+  private normalizeOrgId(value: unknown): string | null {
+    const orgId = String(value || '').trim();
+    return orgId ? orgId : null;
+  }
+
+  private isSuperAdmin(profile: AppProfile | null): boolean {
+    return profile?.role === 'super_admin';
   }
 
   private async requireCurrentUser() {

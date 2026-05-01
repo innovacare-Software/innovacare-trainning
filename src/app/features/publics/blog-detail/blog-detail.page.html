@@ -1,0 +1,107 @@
+<main class="arx-article-page">
+  @if (post(); as article) {
+    <section class="arx-article-hero arx-hero-parallax" appHeroParallax [parallaxClamp]="44">
+      <div class="arx-article-hero__media" data-parallax-depth="-0.18">
+        <img [src]="article.heroImageUrl" [alt]="article.title" />
+      </div>
+      <div class="arx-article-hero__shade"></div>
+      <div class="arx-orbit arx-orbit--cyan arx-article-hero__orb arx-article-hero__orb--one" data-parallax-depth="-0.24"></div>
+      <div class="arx-orbit arx-orbit--gold arx-article-hero__orb arx-article-hero__orb--two" data-parallax-depth="-0.12"></div>
+
+      <div class="arx-container arx-article-hero__grid">
+        <div class="arx-article-hero__copy arx-reveal" data-parallax-depth="0.06">
+          <span class="arx-kicker">{{ article.category }}</span>
+          <h1>{{ article.title }}</h1>
+          <p>{{ article.intro }}</p>
+
+          <div class="arx-article-hero__meta">
+            <span>{{ article.author }}</span>
+            <span>{{ article.authorRole }}</span>
+            <span>{{ article.publishedAt }}</span>
+            <span>{{ article.readTime }}</span>
+          </div>
+
+          <div class="arx-chip-row arx-stagger">
+            @for (tag of article.tags; track tag) {
+              <span class="arx-chip">{{ tag }}</span>
+            }
+          </div>
+
+          <div class="arx-article-signals arx-stagger">
+            @for (item of articleSignals(); track item.label) {
+              <article class="arx-article-signal">
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+              </article>
+            }
+          </div>
+        </div>
+
+        <aside class="arx-article-hero__quote arx-reveal arx-reveal--delay-2" data-parallax-depth="0.14">
+          <span class="arx-pill arx-pill--glass">{{ 'BLOG_DETAIL.hero.insight' | transloco }}</span>
+          <blockquote>“{{ article.quote }}”</blockquote>
+          <a [routerLink]="localizedPath('/courses')" class="arx-inline-link">{{ 'BLOG_DETAIL.hero.matching_program' | transloco }}</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="arx-section">
+      <div class="arx-container arx-article-layout">
+        <article class="arx-article-body arx-reveal arx-reveal--delay-1">
+          @for (section of article.sections; track section.title) {
+            <section class="arx-article-section">
+              <h2>{{ section.title }}</h2>
+              @for (paragraph of section.paragraphs; track paragraph) {
+                <p>{{ paragraph }}</p>
+              }
+            </section>
+          }
+
+          <div class="arx-article-cta">
+            <span class="arx-kicker">{{ 'BLOG_DETAIL.cta.kicker' | transloco }}</span>
+            <h2>{{ article.ctaTitle }}</h2>
+            <p>{{ article.ctaBody }}</p>
+            <div class="arx-article-cta__actions">
+              <a [routerLink]="localizedPath('/home')" fragment="quiz" class="arx-btn arx-btn--primary">{{ 'BLOG_DETAIL.cta.quiz' | transloco }}</a>
+              <a [routerLink]="localizedPath('/contact')" class="arx-btn arx-btn--secondary-dark">{{ 'BLOG_DETAIL.cta.team' | transloco }}</a>
+            </div>
+          </div>
+        </article>
+
+        <aside class="arx-article-sidebar arx-stagger">
+          <section class="arx-sidebar-card">
+            <span class="arx-kicker">{{ 'BLOG_DETAIL.sidebar.related' | transloco }}</span>
+            @for (item of recommendations(); track item.slug) {
+              <a class="arx-sidebar-link" [routerLink]="localizedPath('/blog/' + item.slug)">
+                <strong>{{ item.title }}</strong>
+                <small>{{ item.readTime }}</small>
+              </a>
+            }
+          </section>
+
+          <section class="arx-sidebar-card arx-sidebar-card--media">
+            @if (recommendations().length) {
+              <img [src]="recommendations()[0].imageUrl" [alt]="recommendations()[0].title" loading="lazy" />
+            }
+            <div>
+              <strong>{{ 'BLOG_DETAIL.sidebar.continue_title' | transloco }}</strong>
+              <p>{{ 'BLOG_DETAIL.sidebar.continue_body' | transloco }}</p>
+            </div>
+          </section>
+
+          <section class="arx-sidebar-card arx-sidebar-card--soft">
+            <strong>{{ 'BLOG_DETAIL.sidebar.guided_title' | transloco }}</strong>
+            <p>{{ 'BLOG_DETAIL.sidebar.guided_body' | transloco }}</p>
+            <a [routerLink]="localizedPath('/home')" fragment="quiz" class="arx-inline-link">{{ 'BLOG_DETAIL.sidebar.guided_cta' | transloco }}</a>
+          </section>
+        </aside>
+      </div>
+    </section>
+  } @else {
+    <section class="arx-article-empty">
+      <h1>{{ 'BLOG_DETAIL.empty.title' | transloco }}</h1>
+      <p>{{ 'BLOG_DETAIL.empty.body' | transloco }}</p>
+      <a [routerLink]="localizedPath('/blog')" class="arx-btn arx-btn--primary">{{ 'BLOG_DETAIL.empty.back' | transloco }}</a>
+    </section>
+  }
+</main>

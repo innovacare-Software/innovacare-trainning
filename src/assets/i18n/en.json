@@ -6,6 +6,7 @@
     "loading": "Loading...",
     "saving": "Saving...",
     "processing": "Processing...",
+    "dismiss": "Dismiss",
     "yes": "Yes",
     "no": "No",
     "or": "or",
@@ -1508,6 +1509,253 @@
       "noModuleProgress": "No module progress available yet. Complete your first lesson to see analytics.",
       "backToPrograms": "← Back to My Programs",
       "exploreMore": "Explore More Programs"
+    },
+    "learnerSpace": {
+      "shell": {
+        "reviewPlatform": "Review Platform",
+        "defaultLearner": "Learner",
+        "defaultTitle": "Learner dashboard",
+        "defaultProgramTitle": "Your program",
+        "greeting": "Welcome back, {{name}}",
+        "defaultAnnouncement": "Stay focused on the next milestone and keep momentum steady.",
+        "completedAnnouncement": "Your latest pathway is complete. Review your rewards, order history, and next premium steps.",
+        "progressAnnouncement": "{{countdown}} until your current milestone. Keep {{lesson}} moving and protect your study rhythm.",
+        "closeNavigation": "Close navigation",
+        "openNavigation": "Open navigation",
+        "hideNavigation": "Hide navigation",
+        "navigation": "Navigation",
+        "hideSidebar": "Hide sidebar",
+        "showSidebar": "Show sidebar",
+        "menu": "Menu",
+        "account": "Account",
+        "searchPlaceholder": "Search courses, modules...",
+        "openCart": "Open cart",
+        "openProfile": "Open profile",
+        "appPromoTitle": "Now in your hands!",
+        "appPromoSubtitle": "Download the app",
+        "playStore": "Play Store",
+        "appStore": "App Store",
+        "examClock": "Exam clock",
+        "wallet": "Wallet",
+        "orders": "Orders",
+        "nav": {
+          "modules": "Modules",
+          "videoLibrary": "Video Library",
+          "liveSessions": "Live Sessions",
+          "assessments": "Assessments",
+          "documents": "Documents",
+          "examPrep": "Exam Prep",
+          "simulations": "Simulations",
+          "caseStudies": "Case Studies",
+          "studyCalendar": "Study Calendar",
+          "orderHistory": "Order History",
+          "exploreProducts": "Explore Products",
+          "newBadge": "New"
+        }
+      },
+      "dashboard": {
+        "title": "Learner dashboard",
+        "heroHeading": "{{name}}, keep the next move simple.",
+        "examDate": "Exam date",
+        "resumeLearning": "Resume learning",
+        "createCustomTest": "Create custom test",
+        "openAssessments": "Open assessments",
+        "averageQbankScore": "Avg. Q-Bank Score",
+        "dayStreak": "Day Streak",
+        "currentStreak": "Current streak",
+        "days": "days",
+        "modulesCompletedDescription": "Completed milestones in the active pathway.",
+        "studyTimeDescription": "Tracked practice time across study activity.",
+        "simulationScoreDescription": "Average performance in exam-like conditions.",
+        "studyProgressTracker": "Study Progress Tracker",
+        "moduleCompletionSubtitle": "Module completion across all content areas",
+        "viewFullReport": "View full report →",
+        "startFirstModuleTrack": "Start your first module to track progress.",
+        "continueLearningTitle": "Continue learning",
+        "continueLearningDescription": "Resume in {{module}} and stay in the same flow instead of restarting from a broad overview.",
+        "continueLabel": "Continue",
+        "viewModules": "View modules",
+        "performanceFocus": "Performance focus",
+        "performanceFocusTitle": "Where to direct attention now",
+        "accountSnapshot": "Account snapshot",
+        "walletPurchasing": "Wallet and purchasing",
+        "walletPoints": "Wallet points",
+        "ordersTracked": "Orders tracked",
+        "openWallet": "Open wallet",
+        "orderHistory": "Order history",
+        "liveSessionsTitle": "Scheduled coaching and session access",
+        "viewSchedule": "View schedule",
+        "noLiveSessions": "No live sessions are scheduled yet for this learner space.",
+        "moduleAnalytics": "Module analytics",
+        "progressByModule": "Progress by module",
+        "openModules": "Open modules",
+        "startFirstModuleAnalytics": "Start your first module to unlock progression analytics.",
+        "assessmentTrend": "Assessment trend",
+        "scoreEvolution": "Score evolution",
+        "takeAssessment": "Take assessment",
+        "completeAssessmentsTrend": "Complete at least two assessments to display a score trend.",
+        "studyPlans": "Study plans",
+        "chooseRightCadence": "Choose the right cadence",
+        "openPlanner": "Open planner",
+        "noStudyPlans": "No study plans are available yet.",
+        "recommendedProducts": "Recommended products",
+        "premiumAddons": "Premium add-ons aligned with your pathway",
+        "exploreAll": "Explore all",
+        "openProduct": "Open",
+        "noRecommendedProducts": "No recommended products are available right now.",
+        "recentTransactions": "Recent transactions",
+        "purchasesAppear": "No orders yet. Purchases will appear here.",
+        "status": "Status",
+        "amount": "Amount",
+        "type": "Type",
+        "orderedOn": "Ordered on",
+        "pendingDate": "Pending date",
+        "joinNow": "Join now",
+        "reserveSeat": "Reserve seat",
+        "replayAvailable": "Replay available",
+        "enrollmentActive": "Your learning pathway is active. Keep going!",
+        "enrollmentCompleted": "Congratulations — program completed!",
+        "enrollmentPending": "Enrollment pending approval.",
+        "enrollmentContinue": "Continue your learning journey.",
+        "upsellMessage": "You're doing great. Add {{title}} to get deeper drills, premium review tools, and a faster readiness lift."
+      },
+      "experience": {
+        "readyForCategory": "You are {{readiness}}% ready for {{category}}. Keep going!",
+        "readyGeneric": "You are {{readiness}}% ready. Keep going!",
+        "momentumStrong": "Your momentum is strong. A few more high-quality sessions can push you across the line.",
+        "foundationBuilding": "Your foundation is building. Stay consistent this week and your confidence will rise fast.",
+        "startSmall": "Start small, stay steady, and let the platform guide the next best move for you.",
+        "firstLesson": "Start your first lesson",
+        "orientationModule": "Orientation module",
+        "completedReviewAnytime": "Completed, review anytime",
+        "watchedPct": "{{value}}% watched",
+        "defaultInstructor": "Innovacare Faculty",
+        "reviewSchedule": "Review schedule",
+        "openSchedule": "Open schedule",
+        "productRecommended": "Recommended",
+        "productPopular": "Popular",
+        "planTitle": "{{weeks}}-week plan",
+        "planDescriptionSprint": "High-focus sprint with daily priorities.",
+        "planDescriptionBalanced": "Balanced cadence for consistency and review.",
+        "planDescriptionMastery": "Long-horizon mastery path with spaced repetition.",
+        "planHighlightUrgent": "Best for urgent exam prep",
+        "planHighlightMost": "Best for most learners",
+        "planHighlightMastery": "Best for deep mastery",
+        "examPassed": "Passed",
+        "examUpcoming": "Upcoming",
+        "examInProgress": "In Progress",
+        "examCompleted": "Completed",
+        "examTomorrow": "Tomorrow",
+        "examDaysLeft": "{{count}} days left",
+        "examWeeksLeft": "{{count}} weeks left"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "confirmed": "Confirmed",
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "rejected": "Rejected"
+      },
+      "orderStatuses": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "completed": "Completed",
+        "processing": "Processing",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "orderTypes": {
+        "program": "Program",
+        "course": "Course",
+        "bundle": "Bundle",
+        "credits": "Credits",
+        "wallet_credit": "Wallet credit",
+        "wallet_credits": "Wallet credits",
+        "subscription": "Subscription"
+      },
+      "liveSessions": {
+        "title": "Live Sessions",
+        "subtitle": "Educator-led classes, coaching, and Q&A sessions with included, free, and paid access right inside your program.",
+        "upcomingSessions": "upcoming sessions",
+        "required": "Required",
+        "educator": "Educator",
+        "seats": "{{count}} seats",
+        "reservation": "Reservation",
+        "opening": "Opening...",
+        "joinSession": "Join session",
+        "reserving": "Reserving...",
+        "redirecting": "Redirecting...",
+        "payReserve": "Pay & reserve",
+        "sessionEnded": "Session ended",
+        "empty": "No live sessions scheduled yet.",
+        "statusEnded": "Ended",
+        "statusLiveNow": "Live now",
+        "statusUpcoming": "Upcoming",
+        "reserveFreeSeat": "Reserve free seat",
+        "reservationCancelled": "Reservation cancelled",
+        "paymentRequired": "Payment required",
+        "reservationRequired": "Reservation required",
+        "reserveSuccess": "Seat reserved. You can join this educator-led session from here when it opens.",
+        "openingTitle": "Opening {{title}}.",
+        "genericError": "Unable to complete this action.",
+        "bookingStates": {
+          "confirmed": "Confirmed",
+          "attended": "Attended",
+          "cancelled": "Cancelled",
+          "missed": "Missed",
+          "reserved": "Reserved"
+        },
+        "accessModes": {
+          "included": "Included",
+          "free": "Free",
+          "paid": "Paid"
+        },
+        "sessionTypes": {
+          "live_lecture": "Live Lecture",
+          "workshop": "Workshop",
+          "q_a_session": "Q&A Session",
+          "review_session": "Review Session",
+          "office_hours": "Office Hours"
+        }
+      },
+      "videoLibrary": {
+        "eyebrow": "Video library",
+        "title": "Recorded video lessons",
+        "subtitle": "Replay all pre-recorded sessions attached to this program and resume exactly where you left off.",
+        "inProgress": "In progress",
+        "yetToStart": "Yet to start",
+        "completed": "Completed",
+        "notStarted": "Not started",
+        "backToModules": "Back to modules",
+        "searchLabel": "Search videos",
+        "searchPlaceholder": "Search by title, module, or description",
+        "status": "Status",
+        "subject": "Subject",
+        "play": "Play",
+        "featured": "Featured",
+        "preview": "Preview",
+        "watchedPct": "{{value}}% watched",
+        "continueEyebrow": "Continue",
+        "queueEyebrow": "Queue",
+        "doneEyebrow": "Done",
+        "resume": "Resume",
+        "watch": "Watch",
+        "replay": "Replay",
+        "emptyTitle": "No videos match these filters",
+        "emptySubtitle": "Try another keyword or broaden the selected subject/status.",
+        "allSubjects": "All subjects",
+        "programModule": "Program module",
+        "videoCount": "{{count}} video(s)",
+        "filters": {
+          "all": "All videos",
+          "active": "In progress",
+          "idle": "Yet to start",
+          "done": "Completed"
+        }
+      }
     }
   },
   "checkout": {
@@ -1586,4 +1834,841 @@
   "languageSwitcher": {
     "label": "Language"
   }
+  ,
+  "LANG": {
+    "en": "English",
+    "fr": "Français",
+    "switch_to_fr": "Switch to French",
+    "switch_to_en": "Switch to English"
+  },
+  "NAV": {
+     "home": "Home",
+     "menu": "Menu",
+    "dashboard": "Dashboard",
+    "my_courses": "My Courses",
+    "qbank": "Q-Bank Practice",
+    "live_lectures": "Live Lectures",
+    "study_calendar": "Study Calendar",
+    "performance": "Performance",
+    "nursing_school": "Nursing School",
+    "private_tutors": "Private Tutors",
+    "for_educators": "For Educators",
+    "wallet": "Wallet",
+    "ce_certificates": "CE Certificates",
+    "order_history": "Order History",
+    "explore_products": "Explore Products",
+    "sign_in": "Sign In",
+    "sign_out": "Sign Out"
+  },
+  "TOPBAR": {
+    "search_placeholder": "Search courses, modules…",
+    "search_transactions": "Search transactions…",
+    "greeting": "Welcome back",
+    "wallet_subtitle": "Manage your credits and payments",
+    "dashboard_subtitle": "Your learning journey starts here"
+  },
+  "DASHBOARD": {
+    "title": "Dashboard",
+    "page_title": "Achieve Your Goals with Innovacare Review",
+    "page_subtitle": "Your curated NCLEX prep content — built to elevate your learning.",
+    "stats": {
+      "avg_score": "Avg. Q-Bank Score",
+      "questions_answered": "Questions Answered",
+      "streak": "Day Streak",
+      "days_to_exam": "Days Until Exam",
+      "keep_it_up": "Keep it up!",
+      "stay_focused": "Stay focused",
+      "today": "today"
+    },
+    "progress": {
+      "title": "Study Progress Tracker",
+      "subtitle": "Your module completion across all content areas",
+      "view_report": "View full report →",
+      "critical_care": "Critical Care",
+      "pharmacology": "Pharmacology",
+      "med_surg": "Med-Surg",
+      "maternal_ob": "Maternal/OB",
+      "pediatrics": "Pediatrics",
+      "psych": "Psych/Mental Health"
+    },
+    "courses": {
+      "title": "Explore Courses",
+      "subtitle": "Purchase a plan and start your learning journey today",
+      "tabs": {
+        "nclex_rn": "NCLEX RN",
+        "nclex_pn": "NCLEX PN",
+        "nursing_school": "Nursing School"
+      }
+    },
+    "recommend": {
+      "title": "Confused about which program suits you?",
+      "subtitle": "Let our AI study advisor analyze your goals and recommend the perfect plan.",
+      "cta": "Get Study Recommendation"
+    }
+  },
+  "NURSING_SCHOOL": {
+    "badge": "For Nursing Students",
+    "hero_title": "Simplify Nursing School",
+    "hero_title_accent": "with Innovacare Review",
+    "hero_desc": "Turn complex lectures into clear explanations you'll actually remember. Learn faster, retain more, and walk into every exam with confidence.",
+    "cta_primary": "Start Learning Smarter",
+    "cta_secondary": "View All Courses",
+    "stats": {
+      "questions": "Challenging Questions",
+      "videos": "High-Yield Videos",
+      "courses": "Courses — Every Class"
+    },
+    "catalogue": {
+      "title": "Course Catalogue",
+      "categories": {
+        "prerequisites": "Prerequisites",
+        "introductory": "Introductory",
+        "core": "Core Nursing",
+        "transition": "Transition to Practice"
+      },
+      "badges": {
+        "prerequisites": "Foundation",
+        "introductory": "Semester 1",
+        "core": "Semester 2-3",
+        "transition": "Final Year"
+      },
+      "videos_label": "Videos",
+      "questions_label": "Ques.",
+      "explore": "Explore",
+      "add_bundle": "Add to Bundle"
+    },
+    "bundle": {
+      "selected": "courses selected",
+      "total": "Bundle Total",
+      "clear": "Clear",
+      "build": "Build My Bundle →",
+      "discount_3": "10% off applied",
+      "discount_5": "20% off applied"
+    },
+    "why": {
+      "title": "Why Innovacare Works for Nursing Students",
+      "subtitle": "Short, visual lessons and plain-language explanations — designed for how nurses actually learn.",
+      "card_1_title": "Learn Complex Topics the Easy Way",
+      "card_1_desc": "Simple explanations that finally make sense",
+      "card_2_title": "Study Efficiently, Even When Busy",
+      "card_2_desc": "Bite-sized lessons that fit your schedule",
+      "card_3_title": "Build Confidence for Exams & Clinicals",
+      "card_3_desc": "Every lesson bridges theory to practice",
+      "card_4_title": "Never Wonder What to Study Next",
+      "card_4_desc": "Guided paths remove the guesswork",
+      "card_5_title": "Retain More With Visual Learning",
+      "card_5_desc": "Illustrations that make hard topics stick",
+      "card_6_title": "Know Exactly Where You Stand",
+      "card_6_desc": "Track progress with pass prediction"
+    }
+  },
+  "FOR_EDUCATORS": {
+    "badge": "For Educators & Institutions",
+    "hero_title": "Boost Your Students' Success",
+    "hero_title_accent": "with Innovacare Review",
+    "hero_desc": "Monitor performance, remediate gaps, and achieve industry-leading NCLEX pass rates across your entire program.",
+    "cta_demo": "Schedule a Demo",
+    "cta_pricing": "Request Pricing",
+    "included_title": "What's Included",
+    "features": {
+      "qbank": "Q-Bank with 3,000+ NGN Questions",
+      "videos": "OnDemand Video Library (190+ hrs)",
+      "live": "3-Day Virtual Live Rapid Review",
+      "dashboard": "Educator Dashboard — FREE",
+      "monitoring": "Student Performance Monitoring",
+      "benchmarking": "Benchmarking vs Global Data",
+      "cheatsheets": "Digital Cheat Sheets & Worksheets",
+      "case_studies": "Live Case Studies"
+    },
+    "dashboard_features": {
+      "title": "Educator Dashboard Features",
+      "monitor": "Monitor Student Performance",
+      "monitor_desc": "View individual and cohort trends in real time",
+      "assign": "Create & Assign Assessments",
+      "assign_desc": "Build custom CAT exams and readiness checks",
+      "standardize": "Standardize Your Program",
+      "standardize_desc": "Align content delivery across all instructors",
+      "assessments": "Formative & Summative Assessments",
+      "assessments_desc": "Track progress from enrollment to graduation",
+      "benchmark": "Benchmark Against Class & Global Data",
+      "benchmark_desc": "Compare your cohort to thousands nationwide",
+      "readiness": "Know When Students Are Ready",
+      "readiness_desc": "Readiness score system with actionable thresholds"
+    },
+    "pricing": {
+      "title": "Purchase Training Spaces for Your Students",
+      "subtitle": "All plans include the Educator Dashboard at no extra cost",
+      "starter": "STARTER",
+      "starter_period": "per student / year · up to 50 seats",
+      "professional": "PROFESSIONAL",
+      "professional_period": "per student / year · 51–200 seats",
+      "enterprise": "ENTERPRISE",
+      "enterprise_price": "Custom",
+      "enterprise_period": "pricing · 200+ seats",
+      "popular_badge": "MOST POPULAR",
+      "get_started": "Get Started",
+      "request_pricing": "Request Pricing",
+      "contact_sales": "Contact Sales",
+      "volume_discount": "Volume discounts available"
+    },
+    "demo_form": {
+      "title": "Schedule a Demo",
+      "institution_name": "Institution Name",
+      "your_name": "Your Name",
+      "email": "Email Address",
+      "phone": "Phone Number (optional)",
+      "student_count": "Number of Students",
+      "program_type": "Program Type",
+      "message": "Message (optional)",
+      "submit": "Submit Request",
+      "submitting": "Submitting…",
+      "success": "Demo request submitted! We'll contact you within 24 hours.",
+      "options": {
+        "students_50": "Less than 50",
+        "students_200": "51 to 200",
+        "students_more": "More than 200",
+        "adn": "ADN",
+        "bsn": "BSN",
+        "lpn": "LPN",
+        "msn": "MSN",
+        "other": "Other"
+      }
+    }
+  },
+  "TUTORS": {
+    "badge": "Expert Nursing Tutors",
+    "hero_title": "Personalized Nursing School Tutoring",
+    "hero_desc": "Our tutors are active nurses with bedside and classroom experience. They've supported thousands of nursing students.",
+    "cta_primary": "Find Your Tutor",
+    "trust": {
+      "rating": "4.9 avg rating",
+      "verified": "50+ verified tutors",
+      "availability": "Flexible weekly availability"
+    },
+    "how_it_works": {
+      "title": "How It Works",
+      "subtitle": "From search to session in minutes.",
+      "step_1_title": "Browse Tutors",
+      "step_1_desc": "Filter by subject, specialty, or price. Read credentials and reviews.",
+      "step_2_title": "Book a Session",
+      "step_2_desc": "Pick a date and time that works for you — sessions start at 60 min.",
+      "step_3_title": "Learn & Succeed",
+      "step_3_desc": "Get personalized instruction from a verified nursing professional."
+    },
+    "meet_title": "Meet Our Tutors",
+    "meet_subtitle": "All tutors are actively licensed, credentialed nursing professionals.",
+    "filters": {
+      "label": "Filter tutors by subject",
+      "all": "All Subjects"
+    },
+    "specialties": "Specialties",
+    "book_session": "Book Session",
+    "become_tutor": "Become a Tutor",
+    "bookings": {
+      "duration": "Session Length",
+      "type": "Session Type",
+      "individual": "Individual (1-on-1)",
+      "group": "Group (small cohort)",
+      "notes": "Notes for your tutor (optional)",
+      "summary": "Session price summary",
+      "rate": "Rate"
+    },
+    "cta_book": "Book Now",
+    "cta_how": "How It Works",
+    "filter_all": "All",
+    "next_slot": "Next slot",
+    "verified": "Verified Tutor",
+    "rating": "Rating",
+    "book_now": "Book Now",
+    "no_slots": "No available slots today",
+    "calendar": {
+      "title": "Book Your Session",
+      "one_to_one": "One to One Tutoring",
+      "session_summary": "Session Summary",
+      "sessions_selected": "Sessions Selected",
+      "subject": "Subject",
+      "tutor": "Tutor",
+      "duration": "Duration",
+      "price_per_session": "Price per session",
+      "discount": "Discount",
+      "total": "TOTAL",
+      "proceed": "Proceed to Payment →",
+      "min_per_session": "min / session",
+      "discount_3": "5% off (3+ sessions)",
+      "discount_5": "10% off (5+ sessions)"
+    }
+  },
+  "WALLET": {
+    "title": "Wallet",
+    "summary": "Credits available for course purchases on Innovacare Review",
+    "balance": "Current Balance",
+    "amount_placeholder": "Enter wallet amount",
+    "actions": {
+      "add_credits": "Add Credits"
+    },
+    "payment": {
+      "method": "Payment Method",
+      "card": "Pay with Credit / Debit Card",
+      "paypal": "Pay with PayPal",
+      "mobile_money": "Pay with Mobile Money",
+      "mobile_sub": "MTN, Orange, Moov or Airtel wallet collection",
+      "phone": "Phone number",
+      "provider": "Provider",
+      "waiting_confirmation": "Waiting for mobile confirmation. Approve the payment request on your phone.",
+      "wallet_paid": "Wallet credited successfully. Your balance has been updated.",
+      "mobile_failed": "Mobile Money payment failed or expired. Please try again.",
+      "processing_fee": "Processing fee",
+      "no_fee": "No processing fees — 100% goes to your wallet",
+      "secure_checkout": "Secure checkout"
+    },
+    "history": {
+      "title": "Recent Transactions",
+      "empty": "No wallet transactions yet",
+      "topup": "Wallet Top-up"
+    },
+    "page_title": "Add Wallet Credits",
+    "breadcrumb_wallet": "Wallet",
+    "breadcrumb_add": "Add Credits",
+    "balance_label": "Current Balance",
+    "balance_currency": "USD",
+    "balance_desc": "Credits available for course purchases on Innovacare Review",
+    "history_btn": "Transaction History",
+    "wallet_title": "Wallet Credits",
+    "wallet_desc": "Your credits for seamless purchases within Innovacare Review. Credits never expire.",
+    "input_placeholder": "Enter wallet amount",
+    "chips": {
+      "label": "Quick amounts"
+    },
+    "payment_method": "Payment Method",
+    "credit_card": "Credit / Debit Card",
+    "credit_card_sub": "Visa, Mastercard, Amex",
+    "paypal": "PayPal",
+    "paypal_sub": "Fast & secure checkout",
+    "total_amount": "Total Amount",
+    "subtotal": "Sub total",
+    "processing_fee": "Processing fee",
+    "fee_free": "FREE",
+    "total": "Total",
+    "fee_note": "No processing fees — 100% goes to your wallet",
+    "pay_card": "Pay with Credit / Debit Card",
+    "pay_paypal": "Pay with PayPal",
+    "secure": "Secured by 256-bit SSL encryption",
+    "history_title": "Recent Transactions",
+    "history_empty": "No transactions yet",
+    "error_min": "Please enter a valid amount (minimum $1.00)",
+    "toast_success_title": "Payment Successful!",
+    "toast_success_sub": "added to your wallet via"
+  },
+  "COURSES": {
+    "validity": "Validity",
+    "days": "days",
+    "view_more": "View more",
+    "view_less": "View less",
+    "explore": "Explore",
+    "buy_now": "Buy now",
+    "added_cart": "Added to cart!",
+    "recommended": "Recommended",
+    "features": {
+      "qbank": "3100+ question NGN Q-Bank with standalone & unfolding case studies",
+      "cat": "30+ readiness assessments + CAT exams",
+      "analytics": "Performance analytics & pass prediction"
+    }
+  },
+  "AUTH": {
+    "exam_ready": "Exam Ready",
+    "nclex_candidate": "NCLEX-RN Candidate"
+  },
+  "COMMON": {
+    "loading": "Loading…",
+    "error": "Something went wrong. Please try again.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "clear": "Clear",
+    "yes": "Yes",
+    "no": "No",
+    "learnMore": "Learn More",
+    "empty": "No results yet.",
+    "subject": "Subject",
+    "date": "Date",
+    "time": "Time",
+    "total": "Total",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "minutes",
+    "free": "FREE",
+    "new_badge": "New",
+    "popular": "Popular",
+    "per_year": "per year"
+  },
+  "HOME_MARKETING": {
+    "hero": {
+      "kicker": "NCLEX, nursing and medical review",
+      "title_prefix": "Exam preparation built for",
+      "title_accent": "licensure success.",
+      "lead": "Prepare with question banks, faculty-backed content, performance tracking, and tutor support in one platform.",
+      "chip_qbank": "Qbanks and CAT exams",
+      "chip_dashboard": "Performance dashboards",
+      "chip_faculty": "Faculty-backed review",
+      "cta_primary": "Start Learning",
+      "cta_secondary": "Explore Programs",
+      "proof_pass": "Pass-rate focus",
+      "proof_questions": "Questions answered",
+      "proof_access": "Study access",
+      "stage_title": "Clear paths from enrollment to exam day.",
+      "stage_body": "Built for individual learners, cohorts, and institutional partners.",
+      "motion": "Layered glass depth",
+      "backdrop": "Cloudinary parallax image",
+      "layer_title": "High-impact review experience",
+      "layer_body": "Mentorship, question banks, readiness, and confidence in one flow.",
+      "float_qbank": "Question banks & drills",
+      "float_students": "Students reached",
+      "float_signal": "Premium trust-style hero signal"
+    },
+    "programs": {
+      "title": "Guide learners fast into the right path",
+      "body": "Explore specialized pathways built to match your career stage, exam timeline, and professional goals across nursing and medical tracks.",
+      "nursing_title": "Pre-Nursing, Nursing School, NCLEX and advanced nursing paths",
+      "nursing_body": "Fuel learner confidence with a clean, premium entry point into review plans, tutor support, and adaptive preparation for nursing-related exams.",
+      "explore_nursing": "Explore nursing paths",
+      "medical_title": "Medical boards, clinical review and advanced readiness support",
+      "medical_body": "Strengthen your clinical knowledge and board readiness with focused review, expert-led guidance, and practical study support.",
+      "explore_medical": "Explore medical paths"
+    },
+    "evidence": {
+      "title": "Trusted preparation built around outcomes and confidence",
+      "body": "Learners choose Innovacare Training for structured pathways, clear progress visibility, and study experiences designed to improve confidence before exam day.",
+      "score_body": "Measure readiness with a learning experience focused on progress, accountability, and results.",
+      "badge_body": "Proof-ready positioning for first-time visitors and institutions."
+    },
+    "quiz": {
+      "kicker": "Personalized CTA",
+      "title": "Find the right learning path for your next exam",
+      "body": "Answer a few quick questions to get a recommendation aligned with your exam window, study goals, and target track.",
+      "exam_window": "Exam window",
+      "window_4": "Within 4 weeks",
+      "window_8": "Within 8 weeks",
+      "window_12": "3+ months",
+      "track": "Track",
+      "track_institution": "Institutional",
+      "goal": "Goal",
+      "goal_fast": "Pass fast",
+      "goal_confidence": "Build confidence",
+      "goal_repeat": "Retake support",
+      "goal_institution": "Cohort onboarding",
+      "recommended": "Recommended",
+      "preparing": "Preparing...",
+      "saving": "Saving...",
+      "email_recommendation": "Email my recommendation",
+      "primary_default": "Open my learning path",
+      "primary_institution": "Request my cohort plan",
+      "recommendation_institution_title": "Institutional cohort bundle",
+      "recommendation_institution_body": "Best for schools and educators who need analytics, onboarding workflows, and cohort visibility.",
+      "recommendation_pn_title": "PN Success Pathway",
+      "recommendation_pn_body": "A structured remediation path with rationales, confidence rebuilding, and milestone coaching.",
+      "recommendation_rn_title": "NCLEX-RN Accelerator",
+      "recommendation_rn_body": "A sprint-based review system for learners targeting a near-term exam date.",
+      "recommendation_clinical_title": "Clinical Readiness Review",
+      "recommendation_clinical_body": "A balanced path combining analytics, coaching, and adaptive practice for steady readiness.",
+      "email_required": "Enter your email to save this recommendation.",
+      "saved": "Recommendation saved. A follow-up path can now be personalized from this lead."
+    },
+    "stories": {
+      "title": "Stories from learners building momentum and confidence",
+      "body": "See how learners use our programs, coaching, and study tools to stay consistent and exam-ready.",
+      "feature_title": "Real learner experiences that support confident decisions",
+      "feature_body": "Discover how focused preparation, clear structure, and ongoing support help learners stay on track.",
+      "feature_cta": "View programs"
+    },
+    "mobile": {
+      "title": "Take readiness with you on every device",
+      "body": "Study anywhere with mobile-friendly access to lessons, practice sessions, progress tracking, and daily learning momentum.",
+      "overlay_title": "Adaptive study dashboard",
+      "overlay_body": "Usage, streaks, readiness and progress cues in one view."
+    },
+    "blog": {
+      "title": "Insights, guidance, and study support from the field",
+      "body": "Explore articles that help you prepare smarter, stay informed, and move forward with confidence.",
+      "cta": "View all articles"
+    }
+  },
+  "TESTIMONIALS_PAGE": {
+    "hero": {
+      "kicker": "Success Stories",
+      "cta_primary": "Explore reviews",
+      "cta_secondary": "Submit testimonial",
+      "featured": "Featured success",
+      "featured_title": "Trusted before checkout. Loved after onboarding."
+    },
+    "archive": {
+      "kicker": "See what learners are saying",
+      "title": "Social proof structured like a premium conversion page",
+      "body": "Borrowing the rhythm of leading exam-prep testimonial hubs: a clear headline, visible statistics, trust markers, and a dense but readable wall of authentic learner outcomes.",
+      "heading": "Testimonials Archive",
+      "page": "Page {{current}} of {{total}}",
+      "verified": "Verified learner-style story"
+    },
+    "share": {
+      "kicker": "Share Your Success Story",
+      "title": "Inspire the next learner with your journey",
+      "body": "Tell how Innovacare supported your preparation, your confidence and your final outcome. This keeps the page feeling alive and continuously trustworthy.",
+      "alt": "Success story and learner growth illustration"
+    },
+    "cta": {
+      "kicker": "Use the momentum",
+      "title": "Turn success stories into the next enrollment step",
+      "body": "Pair this page with a quiz CTA, contact CTA, or direct catalogue entry so trust immediately becomes action.",
+      "button": "Take the quiz"
+    }
+  },
+  "MARKETING_NAV": {
+    "medical": "Medical",
+    "programs": "Programs",
+    "social_learning": "Social Learning",
+    "testimonials": "Testimonials",
+    "blogs": "Blogs",
+    "contact_us": "Contact Us",
+    "toggle_menu": "Toggle menu",
+    "promo": {
+      "discover_title": "Discover the Perfect Course for You",
+      "discover_cta": "Get Study Recommendations",
+      "foreign_title": "NCLEX Processing for Foreign Graduates",
+      "apply_now": "Apply Now",
+      "refer_body": "You earn 5% credit, they save 5%",
+      "share_earn": "Share & Earn"
+    },
+    "nursing": {
+      "pre_nursing": "Pre-Nursing",
+      "pre_nursing_desc": "TEAS 7 and HESI A2 Success Toolkit",
+      "nclex_rn_desc": "NCLEX RN Success Tools",
+      "np": "Nurse Practitioner",
+      "np_desc": "Expert NP Exam Resources",
+      "nursing_school": "Nursing School",
+      "nursing_school_desc": "Your Nursing School Companion",
+      "nclex_pn_desc": "Effective NCLEX PN Prep",
+      "ccrn_desc": "Essential CCRN Success Resources",
+      "private_tutors": "Private Tutors",
+      "private_tutors_desc": "1-on-1 expert tutoring sessions"
+    },
+    "medical_items": {
+      "usmle": "Prep for USMLE Board Exam",
+      "comlex": "Prep for COMLEX-USA",
+      "pance": "Physician Assistant Exam Prep"
+    },
+    "educators": {
+      "overview": "Institution Overview",
+      "overview_desc": "Platform demo & pricing",
+      "for_nclex": "For NCLEX",
+      "for_nclex_desc": "Teaching tools & insights",
+      "for_school": "For Nursing School",
+      "for_school_desc": "Curriculum & resources",
+      "demo": "Request a Demo",
+      "demo_desc": "Personalized 30-min walkthrough"
+    },
+    "account": {
+      "open_account": "Open account menu",
+      "open_login": "Open login menu",
+      "title": "Account",
+      "subtitle_guest": "Dashboard, wallet and orders",
+      "quick_access": "Quick access",
+      "jump_back": "Jump back into your space",
+      "preview": "Preview your account menu",
+      "hero_auth": "Open the dashboard, rewards flow, order history, or referral entry point in one hover.",
+      "hero_guest": "Use the same compact menu pattern users expect from premium prep platforms.",
+      "session_control": "Session control",
+      "premium_access": "Premium learner access",
+      "best_fit": "Find the best-fit path",
+      "order_history": "Order History",
+      "refer": "Refer your friends",
+      "refer_desc": "Send referrals into the public social-learning funnel.",
+      "dashboard_guest": "Open your guest workspace, courses and bookings.",
+      "dashboard_learner": "Return to your learner dashboard and active courses.",
+      "dashboard_program_learner": "Open your program learner space and current modules.",
+      "dashboard_super_admin": "Jump into platform-wide health, tenants and oversight.",
+      "dashboard_program_admin": "Open the program ops dashboard and active catalogue.",
+      "dashboard_default": "Return to your main working dashboard.",
+      "wallet_guest": "Review checkout activity and your commerce trail.",
+      "wallet_learner": "See rewards, points and certificate-driven value.",
+      "wallet_program_learner": "Open your learner space wallet from the program hub.",
+      "wallet_default": "Open the closest account value and perks surface.",
+      "orders_guest": "Check recent purchases, bookings and payment history.",
+      "orders_learner": "Review your learning record and completion trail.",
+      "orders_program_learner": "Open purchases and premium add-ons from learner space.",
+      "orders_default": "Open your recent account activity and history."
+    }
+  },
+  "BLOG_PAGE": {
+    "hero": {
+      "kicker": "Blog",
+      "title": "Insights for nursing education, licensure, and learner performance",
+      "body": "Read practical articles on NCLEX preparation, student support, faculty strategy, and program outcomes across nursing education.",
+      "chip_nclex": "NCLEX strategy",
+      "chip_faculty": "Faculty leadership",
+      "chip_students": "Student success",
+      "chip_ops": "Program operations"
+    },
+    "stats": {
+      "total_articles": "Total articles",
+      "categories": "Editorial categories",
+      "current_filter": "Current filter"
+    },
+    "featured": {
+      "badge": "Featured article",
+      "read": "Read featured article"
+    },
+    "filters": {
+      "label": "Editorial filter",
+      "count_suffix": "article(s)",
+      "all": "All"
+    },
+    "categories": {
+      "nclex": "NCLEX",
+      "study_skills": "Study Skills",
+      "career": "Career",
+      "educators": "Educators"
+    },
+    "sections": {
+      "articles": "Articles",
+      "all_title": "Browse expert articles across exam prep, learning strategy, and educational growth",
+      "category_title": "Browse articles in"
+    },
+    "cards": {
+      "read": "Read article"
+    },
+    "empty": {
+      "only_featured_badge": "Only featured article",
+      "only_featured_title": "No additional posts in this category yet.",
+      "only_featured_body": "The featured article above is currently the main published piece for this filter.",
+      "show_all": "Show all categories",
+      "none_badge": "No articles",
+      "none_title": "No blog posts are available yet.",
+      "none_body": "Publish articles from your content system to populate this page."
+    },
+    "cta": {
+      "kicker": "Authority building",
+      "title": "Use editorial content to support conversion, trust, and long-term growth",
+      "body": "A stronger blog page helps search visibility, brand credibility, and buyer confidence across student and institutional audiences.",
+      "button": "Talk to the team"
+    }
+  },
+  "BLOG_DETAIL": {
+    "hero": {
+      "insight": "Editorial insight",
+      "matching_program": "Explore a matching program"
+    },
+    "stats": {
+      "sections": "Deep-dive sections",
+      "tags": "Strategic tags",
+      "read_time": "Reading time"
+    },
+    "cta": {
+      "kicker": "Next step",
+      "quiz": "Take the quiz",
+      "team": "Talk to the team"
+    },
+    "sidebar": {
+      "related": "Related reads",
+      "continue_title": "Continue the reading path",
+      "continue_body": "Move from insight to action with the next recommended article and convert curiosity into a concrete next step.",
+      "guided_title": "Want a guided path?",
+      "guided_body": "Use the quiz to convert this article into the most relevant study or program recommendation.",
+      "guided_cta": "Get my recommendation"
+    },
+    "empty": {
+      "title": "Article unavailable",
+      "body": "This article could not be found. Browse the full library instead.",
+      "back": "Back to blog"
+    }
+  },
+  "MARKETING_FOOTER": {
+    "logo_alt": "Innovacare logo",
+    "eyebrow": "Innovacare",
+    "brand_title": "Modern exam prep that converts trust into action.",
+    "brand_body": "Built for NCLEX review today, architected for multi-domain education brands tomorrow.",
+    "explore_title": "Explore",
+    "programs_title": "Programs",
+    "institutional_sales": "Institutional Sales",
+    "legal_title": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "accessibility": "Accessibility",
+    "support": "Support",
+    "bottom_copy": "Trusted by future nurses, academic teams, and healthcare learning operators.",
+    "linkedin": "LinkedIn",
+    "instagram": "Instagram",
+    "facebook": "Facebook"
+  },
+  "MARKETING_POPUPS": {
+    "exit": {
+      "tag": "Exit intent",
+      "title": "Wait! Get 20% off your NCLEX prep",
+      "body": "Stay with us and unlock a conversion-ready offer before you leave the page.",
+      "email_label": "Email address",
+      "email_placeholder": "you@example.com",
+      "loading": "Preparing...",
+      "cta": "Claim My Discount",
+      "skip": "Skip to catalog",
+      "email_required": "Enter your email to unlock the discount.",
+      "success": "Discount unlocked. Explore the nursing catalogue with your offer."
+    },
+    "engagement": {
+      "tag": "Recommended",
+      "title": "Start your global nursing journey today",
+      "body": "Access our complete licensing roadmap for USA, Canada, and UAE. Build your future internationally with confidence.",
+      "cta": "Get Started"
+    },
+    "recommendation": {
+      "tag": "Recommendation",
+      "title": "Based on your interest, we suggest this program",
+      "body": "The NCLEX-RN Accelerator is the best-fit path for learners preparing in the next 8 to 12 weeks.",
+      "cta": "See Program"
+    },
+    "engagementGlobal": {
+      "tag": "Community",
+      "title": "Join 300,000+ students",
+      "body": "Enter a premium review experience with quizzes, social accountability, and mobile study support.",
+      "cta": "Take the Quiz"
+    }
+  },
+  "CONTACT_PAGE": {
+    "hero": {
+      "kicker": "Contact",
+      "title": "Talk to the team behind Innovacare",
+      "body": "Contact Innovacare for student support, institutional pricing, partnership discussions, or platform assistance. Our team routes every request to the right specialist.",
+      "chip_support": "Student support",
+      "chip_sales": "Institutional sales",
+      "chip_partnerships": "Partnerships",
+      "chip_platform": "Platform help",
+      "visual_alt": "Innovacare contact visual",
+      "visual_kicker": "Direct access",
+      "visual_title": "Reach sales, support, or partnerships without delay",
+      "visual_body": "Clear routing for students, schools, and enterprise accounts.",
+      "float_response_value": "1 business day",
+      "float_response_label": "Typical response target",
+      "float_enterprise_value": "Enterprise-ready",
+      "float_enterprise_label": "Cohorts, institutions, partnerships"
+    },
+    "cards": {
+      "email": {
+        "title": "Email",
+        "note": "Student guidance, support triage, and general inquiries."
+      },
+      "address": {
+        "title": "Address",
+        "note": "Remote-first education operations with digital-first onboarding."
+      },
+      "institutional": {
+        "title": "Institutional sales",
+        "value": "Cohort licensing & onboarding",
+        "note": "Enterprise bundles, school partnerships, and group deployment."
+      }
+    },
+    "support": {
+      "kicker": "How we can help",
+      "title": "Route your inquiry to the right team faster",
+      "point_1": "Student guidance and enrollment questions",
+      "point_2": "Institutional pricing and cohort setup",
+      "point_3": "Platform support and access issues",
+      "point_4": "Partnership, reseller, and strategic inquiries",
+      "institutions_title": "Best for institutions",
+      "institutions_body": "Use this form for school onboarding, program bundles, cohort pricing, deployment planning, and enterprise partnership discussions."
+    },
+    "form": {
+      "kicker": "Send a message",
+      "title": "Let’s start the conversation",
+      "body": "Tell us what you need and we’ll route your inquiry appropriately.",
+      "name": "Name",
+      "email": "Email",
+      "organization": "Organization",
+      "interest": "Interest",
+      "message": "Message",
+      "name_error": "Name is required.",
+      "email_error": "Enter a valid email address.",
+      "message_error": "Message is required and should be at least 20 characters.",
+      "sending": "Sending...",
+      "submit": "Send Message",
+      "note": "By submitting, you’re requesting follow-up regarding support, enrollment, partnership, or institutional inquiry.",
+      "success": "Thanks. Your inquiry has been submitted successfully."
+    },
+    "interests": {
+      "institutional_sales": "Institutional Sales",
+      "partnership_request": "Partnership Request",
+      "support": "Support"
+    }
+  },
+  "FOOTER": {
+    "copyright": "innovacarereview.com · NCLEX Prep · Nursing School · Private Tutors · For Educators"
+  },
+  "ERRORS": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Network error. Check your connection and try again.",
+    "validation": "Please check the form for errors and try again."
+  },
+  "NOT_FOUND": {
+    "title": "Page Not Found",
+    "message": "The page you are looking for does not exist. Please check the URL or return to the homepage.",
+    "cta": "Go to Homepage"
+  },
+  "ACCESSIBILITY": {
+    "title": "Accessibility Statement",
+    "intro": "Innovacare Review is committed to ensuring digital accessibility for all users, including those with disabilities. We strive to provide an inclusive experience for everyone.",
+    "standards": "We follow the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA standards to ensure our platform is accessible.",
+    "features": {
+      "keyboard_navigation": "Keyboard navigation support",
+      "screen_reader": "Screen reader compatibility",
+      "alt_text": "Descriptive alt text for images",
+      "color_contrast": "Sufficient color contrast",
+      "resizable_text": "Resizable text without loss of content"
+    },
+    "feedback": {
+      "title": "Feedback and Contact Information",
+      "body": "If you encounter any accessibility issues or have suggestions for improvement, please contact us at accessibility@innovacare.com."
+    }
+  
+  },
+  "REFERRAL": {
+    "title": "Refer a Friend",
+    "description": "Share the gift of exam success and earn rewards when your friends enroll.",
+    "referral_code": "Your Referral Code",
+    "copy_code": "Copy Code",
+    "copied": "Referral code copied!",
+    "share_link": "Share Your Referral Link",
+    "share_facebook": "Share on Facebook",
+    "share_twitter": "Share on Twitter",
+    "share_email": "Share via Email",
+    "terms_title": "Referral Terms & Conditions",
+    "terms_body": "You earn 5% credit for each friend who enrolls using your referral code, and they save 5% on their purchase. Credits are applied to your account within 24 hours of your friend's enrollment. There is no limit to how many friends you can refer or how much credit you can earn. Referral credits cannot be redeemed for cash and must be used within 12 months of being awarded."
+  },
+  "FOR_NURSING_STUDENTS": {
+    "badge": "For Nursing Students",
+    "hero_title": "NCLEX Review That Actually Works",
+    "hero_title_accent": "for Nursing Students",
+    "hero_desc": "Short, visual lessons and plain-language explanations — designed for how nurses actually learn.",
+    "cta_demo": "Start Learning",
+    "cta_pricing": "Explore Programs",
+    "features": {
+      "title": "Why Innovacare Review for Nursing Students?",
+      "body": "A review experience built around how nurses learn best, with a focus on confidence-building, practical application, and clear progress toward exam day."
+    },
+    "cards": {
+      "card_1_title": "Learn Complex Topics the Easy Way",
+      "card_1_desc": "Simple explanations that finally make sense",
+      "card_2_title": "Study Efficiently, Even When Busy",
+      "card_2_desc": "Bite-sized lessons that fit your schedule",
+      "card_3_title": "Build Confidence for Exams & Clinicals",
+      "card_3_desc": "Every lesson bridges theory to practice",
+      "card_4_title": "Never Wonder What to Study Next",
+      "card_4_desc": "Guided paths remove the guesswork",
+      "card_5_title": "Retain More With Visual Learning",
+      "card_5_desc": "Illustrations that make hard topics stick",
+      "card_6_title": "Know Exactly Where You Stand",
+      "card_6_desc": "Track progress with pass prediction"
+    }
+  }
+  
 }
+  

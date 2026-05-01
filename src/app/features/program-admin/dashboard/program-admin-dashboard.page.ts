@@ -17,6 +17,10 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
           <p class="eyebrow">Program Platform &middot; Admin Intelligence</p>
           <h1>Program Admin Dashboard</h1>
           <p class="hero-desc">BI cockpit for public programs, enrollments, learner analytics, and operational insights — fully separated from organization.</p>
+          <div class="diag-banner" *ngIf="diagnostics().length">
+            <strong>Firestore access fallback active.</strong>
+            <span>Denied source(s): {{ diagnostics().join(', ') }}</span>
+          </div>
         </div>
         <div class="quick-actions">
           <a routerLink="/program-admin/programs/new" class="btn-action primary">+ New Program</a>
@@ -117,6 +121,12 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
     .eyebrow { margin: 0; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.12em; font-weight: 800; color: #4f7097; }
     h1 { margin: 0.3rem 0 0.2rem; font-size: 1.45rem; }
     .hero-desc { margin: 0; color: #5f7a96; line-height: 1.55; max-width: 56ch; }
+    .diag-banner {
+      margin-top: 0.8rem; display: grid; gap: 0.2rem; padding: 0.7rem 0.85rem;
+      border: 1px solid #f7d08a; border-radius: 0.8rem; background: #fff8e8; color: #8a4c00;
+      font-size: 0.84rem;
+    }
+    .diag-banner strong { color: #7a3f00; }
     .quick-actions { display: flex; gap: 0.45rem; align-items: flex-start; flex-wrap: wrap; }
     .btn-action {
       text-decoration: none; border-radius: 0.7rem; padding: 0.5rem 0.8rem;
@@ -211,6 +221,7 @@ export class ProgramAdminDashboardPage {
   readonly recentEnrollments = toSignal(this.analytics.getRecentEnrollments(), { initialValue: [] });
   readonly categoryBreakdown = toSignal(this.analytics.getCategoryBreakdown(), { initialValue: [] });
   readonly statusBreakdown = toSignal(this.analytics.getEnrollmentStatusBreakdown(), { initialValue: [] });
+  readonly diagnostics = this.analytics.deniedScopes;
 
   protected readonly PROGRAM_CATEGORY_LABELS = PROGRAM_CATEGORY_LABELS;
   protected readonly PROGRAM_ENROLLMENT_STATUS_LABELS = PROGRAM_ENROLLMENT_STATUS_LABELS;

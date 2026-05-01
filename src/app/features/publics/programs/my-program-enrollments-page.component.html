@@ -1,47 +1,116 @@
-<section class="my-enrollments-shell">
-  <header class="head">
-    <p class="eyebrow">My Programs</p>
-    <h1>My Program Enrollments</h1>
-    <p>Track enrollment lifecycle, payment state, and jump back into your learning dashboards.</p>
+<section class="arx-enrollments-page enterprise-premium">
+  <header class="arx-enrollments-hero premium-gradient">
+    <div class="arx-enrollments-hero__copy">
+      <p class="arx-eyebrow premium-eyebrow">Learning Management</p>
+      <h1 class="premium-title">My Programs</h1>
+      <p class="premium-subtitle">Track your professional development journey</p>
+
+      <div class="arx-hero-stats premium-stats">
+        <article class="arx-stat-card premium-stat-card">
+          <div class="stat-icon">📊</div>
+          <strong class="stat-value">{{ enrollments().length }}</strong>
+          <span class="stat-label">Total Enrollments</span>
+        </article>
+
+        <article class="arx-stat-card premium-stat-card">
+          <div class="stat-icon">✓</div>
+          <strong class="stat-value active-color">{{ activeCount() }}</strong>
+          <span class="stat-label">Active Programs</span>
+        </article>
+
+        <article class="arx-stat-card premium-stat-card">
+          <div class="stat-icon">⏱</div>
+          <strong class="stat-value pending-color">{{ pendingCount() }}</strong>
+          <span class="stat-label">Pending Access</span>
+        </article>
+      </div>
+    </div>
+
+    <div class="arx-enrollments-hero__actions">
+      <a routerLink="/programs" class="arx-btn arx-btn--secondary premium-btn-outline">← Browse Catalog</a>
+    </div>
   </header>
 
-  <section *ngIf="hasData(); else emptyState" class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Program</th>
-          <th>Status</th>
-          <th>Review</th>
-          <th>Payment</th>
-          <th>Amount</th>
-          <th>Learning</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of enrollments(); trackBy: trackById">
-          <td>
-            <strong>{{ item.programTitle }}</strong>
-            <p>{{ item.learnerEmail }}</p>
-          </td>
-          <td><span class="chip">{{ statusLabel[item.status] }}</span></td>
-          <td><span class="chip soft">{{ reviewLabel[item.reviewStatus] }}</span></td>
-          <td><span class="chip soft">{{ paymentLabel[item.paymentStatus] }}</span></td>
-          <td>{{ item.amount | currency: item.currency:'symbol':'1.0-0' }}</td>
-          <td>
-            <a [routerLink]="['/my-programs', item.programId]" class="btn-link">
-              Continue Learning
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <section *ngIf="hasData(); else emptyState" class="arx-enrollments-table-wrap premium-table-wrap">
+    <div class="table-controls premium-controls">
+      <h2 class="premium-section-title">Your Enrollment Portfolio</h2>
+    </div>
+    
+    <div class="arx-table-shell premium-table-shell">
+      <table class="arx-table premium-table">
+        <thead>
+          <tr>
+            <th class="col-program">Program</th>
+            <th class="col-status">Status</th>
+            <th class="col-review">Review</th>
+            <th class="col-payment">Payment</th>
+            <th class="col-amount">Amount</th>
+            <th class="col-action">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of enrollments(); trackBy: trackById" class="premium-row">
+            <td class="col-program">
+              <div class="arx-program-cell premium-program-cell">
+                <div class="program-badge">{{ item.programTitle.charAt(0).toUpperCase() }}</div>
+                <div class="program-info">
+                  <strong class="program-title">{{ item.programTitle }}</strong>
+                  <p class="program-email">{{ item.learnerEmail }}</p>
+                </div>
+              </div>
+            </td>
+
+            <td class="col-status">
+              <span class="arx-chip premium-chip" [ngClass]="'status-' + item.status">
+                {{ statusLabel[item.status] }}
+              </span>
+            </td>
+
+            <td class="col-review">
+              <span class="arx-chip arx-chip--soft premium-chip-soft" [ngClass]="'review-' + item.reviewStatus">
+                {{ reviewLabel[item.reviewStatus] }}
+              </span>
+            </td>
+
+            <td class="col-payment">
+              <span class="arx-chip arx-chip--soft premium-chip-soft" [ngClass]="'payment-' + item.paymentStatus">
+                {{ paymentLabel[item.paymentStatus] }}
+              </span>
+            </td>
+
+            <td class="col-amount">
+              <span class="amount-badge">{{ item.amount | currency: item.currency:'symbol':'1.0-0' }}</span>
+            </td>
+
+            <td class="col-action">
+              <div class="action-buttons">
+                <a *ngIf="canContinueLearning(item)" [routerLink]="['/my-programs', item.programId]" class="arx-btn-link premium-btn-link premium-btn-primary">
+                  Continue Learning →
+                </a>
+                <a *ngIf="!canContinueLearning(item) && canResumePayment(item)" [routerLink]="['/programs', item.programId, 'enroll']" [queryParams]="{ paymentRequired: '1' }" class="arx-btn-link premium-btn-link premium-btn-secondary">
+                  Resume Payment
+                </a>
+                <span *ngIf="!canContinueLearning(item) && !canResumePayment(item)" class="arx-btn-link premium-btn-link premium-btn-muted">
+                  Awaiting Access
+                </span>
+                <a [routerLink]="['/programs', item.programId]" class="arx-btn-link premium-btn-link premium-btn-tertiary" title="View program details">
+                  View Program ↗
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <ng-template #emptyState>
-    <section class="empty">
-      <h2>No enrollments yet</h2>
-      <p>Explore premium programs and submit your first enrollment request.</p>
-      <a routerLink="/programs" class="btn">Browse Programs</a>
+    <section class="arx-empty-state premium-empty-state">
+      <div class="premium-empty-icon">📚</div>
+      <h2 class="empty-title">No Active Enrollments</h2>
+      <p class="empty-description">Start your learning journey by exploring our program catalog</p>
+      <a routerLink="/programs" class="arx-btn arx-btn--primary premium-btn-cta">Explore Programs</a>
     </section>
   </ng-template>
 </section>

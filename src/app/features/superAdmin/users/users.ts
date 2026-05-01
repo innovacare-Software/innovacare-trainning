@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { RouterModule } from '@angular/router';
 import { UserRole } from '../models/super-admin.models';
 import { SuperAdminUsersService } from '../services/super-admin-users';
 
@@ -11,7 +12,7 @@ import { SuperAdminUsersService } from '../services/super-admin-users';
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './users.html',
   styleUrls: ['./users.css']
 })
@@ -39,8 +40,9 @@ export class Users {
   }
 
   isUserRole(value: string): value is UserRole {
-  return ['super_admin', 'admin', 'manager', 'learner', 'guest'].includes(value);
-}
+    return ['super_admin', 'admin', 'manager', 'learner', 'guest', 'programAdmin', 'programStaff', 'programLearner'].includes(value);
+  }
+
  async changeRole(uid: string, role: string) {
   try {
     await this.usersSvc.setRole(uid, role as UserRole);
@@ -68,6 +70,26 @@ export class Users {
       this.refresh();
     } catch (e: any) {
       this.notice.set(e?.message || 'Failed to update Program Staff access.');
+    }
+  }
+
+  async normalizeUser(uid: string) {
+    try {
+      const role = await this.usersSvc.normalizeProgramAccessRole(uid);
+      this.notice.set(`Program access normalized. Current explicit role: ${role}.`);
+      this.refresh();
+    } catch (e: any) {
+      this.notice.set(e?.message || 'Failed to normalize program access role.');
+    }
+  }
+
+  async normalizeAllUsers() {
+    try {
+      const result = await this.usersSvc.normalizeProgramAccessRoles();
+      this.notice.set(result.updated ? `${result.updated} user profiles normalized.` : 'No legacy program-access profiles needed normalization.');
+      this.refresh();
+    } catch (e: any) {
+      this.notice.set(e?.message || 'Failed to normalize legacy program-access roles.');
     }
   }
 

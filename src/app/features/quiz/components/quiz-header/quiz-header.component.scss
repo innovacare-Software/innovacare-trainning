@@ -1,0 +1,68 @@
+@use '../../quiz.scss' as quiz;
+
+:host {
+  display: block;
+}
+
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 10px 20px;
+  background: var(--header-bg);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background: var(--gold);
+  color: var(--header-bg-dk);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  opacity: 0.95;
+}
+
+.header-meta span {
+  white-space: nowrap;
+}
+
+.timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .top-header {
+    flex-wrap: wrap;
+    padding: 8px 12px;
+  }
+
+  .header-meta {
+    gap: 12px;
+    font-size: 11px;
+  }
+}

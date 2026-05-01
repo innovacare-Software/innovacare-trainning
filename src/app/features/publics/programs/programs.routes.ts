@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authenticatedGuard } from '../../../core/auth-guard';
+import { programLearnerGuard } from '../../../core/program-learner.guard';
 
 export const PROGRAMS_ROUTES: Routes = [
   {
@@ -24,7 +25,7 @@ export const PROGRAMS_ROUTES: Routes = [
   },
   {
     path: ':programId/dashboard',
-    canActivate: [authenticatedGuard],
+    canActivate: [authenticatedGuard, programLearnerGuard],
     loadComponent: () =>
       import('./user-program-dashboard.page').then(
         (m) => m.UserProgramDashboardPage

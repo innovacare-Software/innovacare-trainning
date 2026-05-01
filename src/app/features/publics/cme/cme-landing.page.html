@@ -1,0 +1,491 @@
+<main class="cme-page">
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <section class="cme-hero">
+    <div class="cme-hero__aurora cme-hero__aurora--one"></div>
+    <div class="cme-hero__aurora cme-hero__aurora--two"></div>
+
+    <div class="cme-container cme-hero__grid">
+      <div class="cme-hero__copy">
+        <span class="cme-kicker">Continuing Medical Education</span>
+
+        <h1>
+          Earn CME Credits with
+          <span>Innovacare</span>
+        </h1>
+
+        <p class="cme-hero__lead">
+          ACCME-accredited, evidence-based continuing medical education across 40+ specialties.
+          Meet your renewal requirements and advance your clinical practice — on your schedule.
+        </p>
+
+        <div class="cme-chip-row">
+          <span class="cme-chip">AMA PRA Category 1™</span>
+          <span class="cme-chip">ANCC Approved</span>
+          <span class="cme-chip">MOC Compliant</span>
+        </div>
+
+        <div class="cme-actions">
+          <a routerLink="/courses" class="cme-btn cme-btn--primary">Browse CME Courses</a>
+          <a routerLink="/pricing" class="cme-btn cme-btn--ghost">View Packages</a>
+        </div>
+
+        <div class="cme-hero__stats">
+          @for (stat of heroStats; track stat.label) {
+            <article class="cme-stat-tile">
+              <strong>{{ stat.value }}</strong>
+              <span>{{ stat.label }}</span>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="cme-hero__visual" aria-hidden="true">
+        <div class="cme-hero__card cme-hero__card--main">
+          <img
+            src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/3AB0EC16-DEE3-4198-AD16-3F74FF0DCEAB_j85tzf.png"
+            alt="Medical professional"
+            class="cme-hero__photo"
+          />
+
+          <div class="cme-hero__badge cme-hero__badge--credits">
+            <span class="cme-badge-icon">🏅</span>
+            <div>
+              <strong>1,500+ Credits</strong>
+              <small>Available now</small>
+            </div>
+          </div>
+
+          <div class="cme-hero__badge cme-hero__badge--cert">
+            <span class="cme-badge-icon">✅</span>
+            <div>
+              <strong>Instant Certificate</strong>
+              <small>Upon completion</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ ACCREDITATION STRIP ═══════════════════ -->
+  <section class="cme-accred-strip">
+    <div class="cme-container cme-accred-strip__inner">
+      <span class="cme-accred-strip__label">Accreditation &amp; Recognition</span>
+      <div class="cme-accred-strip__logos">
+        @for (cert of certifications; track cert) {
+          <span class="cme-accred-badge">{{ cert }}</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CE CREDITS BANNER ═══════════════════ -->
+  <section class="cme-section cme-credits-banner">
+    <div class="cme-container cme-credits-banner__inner">
+      <div class="cme-credits-banner__illustration" aria-hidden="true">
+        <img
+          src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775001208/ChatGPT_Image_31_mars_2026_19_53_03_ng7bsw.png"
+          alt=""
+        />
+      </div>
+
+      <div class="cme-credits-banner__copy">
+        <span class="cme-kicker cme-kicker--dark">Why CME with Innovacare?</span>
+        <h2>Earn CE Credits and Certificates That Count</h2>
+        <p>
+          Innovacare Continuing Education courses are designed to satisfy state licensure renewal,
+          board recertification, and Maintenance of Certification (MOC) requirements.
+          Every course includes post-test, attestation, and a downloadable certificate accepted by major licensing boards.
+        </p>
+        <ul class="cme-check-list">
+          <li>State board accepted in all 50 states</li>
+          <li>AMA PRA Category 1™ and ANCC contact hours available</li>
+          <li>ABIM, ABFM, and AOA-compliant MOC documentation</li>
+          <li>No expiration on earned certificates</li>
+        </ul>
+        <a routerLink="/courses" class="cme-btn cme-btn--primary">Start Earning Credits</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ UPCOMING WEBINARS ═══════════════════ -->
+  <section class="cme-section cme-webinars">
+    <div class="cme-container">
+      <div class="cme-section__head cme-section__head--row">
+        <div>
+          <span class="cme-kicker cme-kicker--dark">Live Learning</span>
+          <h2>Upcoming Webinars</h2>
+          <p>
+            Join accredited live sessions led by board-certified specialists. Each webinar includes
+            1.0 AMA PRA Category 1™ Credit and a live Q&amp;A with the faculty.
+          </p>
+        </div>
+        <a routerLink="/courses" class="cme-link-all">View all webinars →</a>
+      </div>
+
+      <div class="cme-webinar-scroll">
+        @for (w of webinars; track w.title) {
+          <article class="cme-webinar-card">
+            <div class="cme-webinar-card__top">
+              <span class="cme-webinar-tag cme-webinar-tag--{{ w.tag.toLowerCase() }}">{{ w.tag }}</span>
+            </div>
+
+            <h3>{{ w.title }}</h3>
+
+            <div class="cme-webinar-meta">
+              <span class="cme-webinar-date">📅 {{ w.date }}</span>
+              <span class="cme-webinar-host">👩‍⚕️ {{ w.host }}</span>
+            </div>
+
+            <div class="cme-webinar-footer">
+              <span class="cme-seats">{{ w.seats }}</span>
+              <button class="cme-btn cme-btn--sm" type="button">Register Now</button>
+            </div>
+          </article>
+        }
+
+        <article class="cme-webinar-card cme-webinar-card--more">
+          <div class="cme-more-icon">+</div>
+          <p>More webinars are on the way</p>
+          <a routerLink="/courses" class="cme-btn cme-btn--ghost cme-btn--sm">View Schedule</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CME FEATURES ═══════════════════ -->
+  <section class="cme-section cme-features">
+    <div class="cme-container">
+      <div class="cme-section__head cme-section__head--center">
+        <span class="cme-kicker cme-kicker--dark">Platform Features</span>
+        <h2>CME Features Built for Busy Clinicians</h2>
+        <p>
+          Everything you need to complete, track, and document your continuing education —
+          seamlessly integrated into a single, mobile-ready platform.
+        </p>
+      </div>
+
+      <div class="cme-features-grid">
+        @for (f of features; track f.title) {
+          <article class="cme-feature-card">
+            <div class="cme-feature-card__icon">{{ f.icon }}</div>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.description }}</p>
+          </article>
+        }
+      </div>
+
+      <div class="cme-features__cta">
+        <a routerLink="/courses" class="cme-btn cme-btn--primary">Buy Now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ COURSE OUTLINE ═══════════════════ -->
+  <section class="cme-section cme-outline">
+    <div class="cme-container cme-outline__grid">
+      <div class="cme-outline__visual" aria-hidden="true">
+        <div class="cme-outline__stat-card">
+          <strong>1,000+</strong>
+          <span>Questions &amp; Modules</span>
+        </div>
+        <img
+          src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png"
+          alt="Course outline visual"
+          class="cme-outline__img"
+        />
+      </div>
+
+      <div class="cme-outline__copy">
+        <span class="cme-kicker cme-kicker--dark">Course Outline</span>
+        <h2>40+ Medical Specialties Covered</h2>
+        <p>
+          Explore our full range of CME topics aligned with current clinical guidelines.
+          From primary care to subspecialties — build a path that fits your practice.
+        </p>
+
+        <div class="cme-topic-grid">
+          @for (topic of topics; track topic) {
+            <span class="cme-topic-chip">{{ topic }}</span>
+          }
+        </div>
+
+        <a routerLink="/courses" class="cme-btn cme-btn--primary">Explore All Courses</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ TEACHING APPROACH ═══════════════════ -->
+  <section class="cme-section cme-approach">
+    <div class="cme-container">
+      <div class="cme-approach__video">
+        <div class="cme-approach__thumb">
+          <img
+            src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png"
+            alt="Teaching approach preview"
+          />
+          <button class="cme-play-btn" type="button" aria-label="Play intro video">
+            <span class="cme-play-icon">▶</span>
+          </button>
+          <div class="cme-approach__vid-badge">FREE</div>
+        </div>
+      </div>
+
+      <div class="cme-approach__copy">
+        <span class="cme-kicker cme-kicker--dark">Our Teaching Approach</span>
+        <h2>Experience Our Evidence-Based CME Methodology</h2>
+        <p>
+          We partner with board-certified specialists to deliver engaging, peer-reviewed content
+          designed for real-world clinical application. Each module follows a structured
+          <strong>Engage → Learn → Apply → Certify</strong> flow.
+        </p>
+
+        <ul class="cme-approach__list">
+          <li>Short-form micro-modules for on-the-go learning</li>
+          <li>Case-based scenarios to reinforce clinical reasoning</li>
+          <li>Adaptive post-tests aligned with ACCME outcomes</li>
+          <li>Immediate attestation and certificate issuance</li>
+        </ul>
+
+        <a routerLink="/courses" class="cme-btn cme-btn--primary">Start Learning Free</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ DISCLOSURES + LEARNING OBJECTIVES ═══════════════════ -->
+  <section class="cme-section cme-disclosure">
+    <div class="cme-container cme-disclosure__grid">
+      <article class="cme-disclosure__col">
+        <div class="cme-col-icon">📋</div>
+        <h3>Disclosures</h3>
+        <ul>
+          @for (d of disclosures; track d) {
+            <li>{{ d }}</li>
+          }
+        </ul>
+      </article>
+
+      <article class="cme-disclosure__col">
+        <div class="cme-col-icon">🎓</div>
+        <h3>Learning Objectives</h3>
+        <p>After completing this activity, participants will be able to:</p>
+        <ul>
+          @for (obj of learningObjectives; track obj) {
+            <li>{{ obj }}</li>
+          }
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CME PACKAGES ═══════════════════ -->
+  <section class="cme-section cme-packages" id="packages">
+    <div class="cme-container">
+      <div class="cme-section__head cme-section__head--center">
+        <span class="cme-kicker cme-kicker--dark">Pricing</span>
+        <h2>CME<sup>®</sup> Packages</h2>
+        <p>Choose the plan that fits your renewal timeline. All packages include instant certificates and accredited credits.</p>
+      </div>
+
+      <div class="cme-packages__list">
+        @for (pkg of packages; track pkg.name) {
+          <article class="cme-pkg-card" [class.cme-pkg-card--popular]="pkg.popular">
+            @if (pkg.popular) {
+              <div class="cme-pkg-popular-badge">Most Popular</div>
+            }
+
+            <div class="cme-pkg-card__info">
+              <h3>{{ pkg.name }}</h3>
+              <p class="cme-pkg-subtitle">{{ pkg.subtitle }}</p>
+            </div>
+
+            <div class="cme-pkg-card__pricing">
+              <div class="cme-pkg-price">
+                @if (pkg.popular) {
+                  <button class="cme-btn cme-btn--buy" type="button">Buy Now / Enroll</button>
+                }
+                @if (!pkg.popular) {
+                  <span class="cme-price-val">${{ pkg.price }}</span>
+                  @if (pkg.originalPrice) {
+                    <span class="cme-price-original">${{ pkg.originalPrice }}</span>
+                  }
+                }
+              </div>
+            </div>
+
+            @if (pkg.popular) {
+              <div class="cme-pkg-card__popular-detail">
+                <div class="cme-pkg-price-row">
+                  <span class="cme-price-val">${{ pkg.price }}</span>
+                  @if (pkg.originalPrice) {
+                    <span class="cme-price-original">${{ pkg.originalPrice }}</span>
+                  }
+                </div>
+                <ul class="cme-pkg-features">
+                  @for (f of pkg.features; track f) {
+                    <li>
+                      <span class="cme-check">✓</span>
+                      {{ f }}
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (!pkg.popular) {
+              <ul class="cme-pkg-features cme-pkg-features--compact">
+                @for (f of pkg.features; track f) {
+                  <li>
+                    <span class="cme-check">✓</span>
+                    {{ f }}
+                  </li>
+                }
+              </ul>
+              <a [routerLink]="pkg.ctaLink" class="cme-btn cme-btn--outline">{{ pkg.cta }}</a>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ INSTRUCTOR ═══════════════════ -->
+  <section class="cme-section cme-instructor">
+    <div class="cme-container">
+      <div class="cme-section__head cme-section__head--center">
+        <span class="cme-kicker cme-kicker--dark">Faculty</span>
+        <h2>Meet Our Dedicated <span class="cme-accent">CME</span> Faculty</h2>
+        <p>
+          Our faculty is a team of board-certified specialists and clinicians committed to building
+          high-quality, accredited medical education.
+        </p>
+      </div>
+
+      <div class="cme-instructor__card">
+        <div class="cme-instructor__photo">
+          <img
+            src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png"
+            alt="Dr. Rebecca Sandler"
+          />
+          <div class="cme-instructor__online">●&nbsp;Active</div>
+        </div>
+
+        <div class="cme-instructor__info">
+          <h3>Dr. Rebecca Sandler, MD, FACP</h3>
+          <p class="cme-instructor__title">CME Program Director &amp; Faculty Lead</p>
+          <p class="cme-instructor__credentials">
+            Board-Certified Internal Medicine &bull; 18 Years Clinical Experience
+          </p>
+          <p class="cme-instructor__bio">
+            Dr. Sandler leads Innovacare's CME faculty team, specializing in building accredited,
+            evidence-based medical education that advances clinical skills and meets professional
+            renewal requirements. Her approach blends peer-reviewed research with real-world
+            clinical scenarios.
+          </p>
+          <div class="cme-instructor__rating">
+            <span class="cme-stars">★★★★★</span>
+            <strong>4.9</strong>
+            <small>(3,241 reviews)</small>
+          </div>
+          <a routerLink="/courses" class="cme-btn cme-btn--outline">Read More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ TESTIMONIALS ═══════════════════ -->
+  <section class="cme-section cme-testimonials">
+    <div class="cme-container">
+      <div class="cme-section__head cme-section__head--center">
+        <span class="cme-kicker cme-kicker--dark">Learner Reviews</span>
+        <h2>See what other clinicians are saying</h2>
+        <p>More than 50,000 healthcare professionals trust Innovacare CME for their renewal needs.</p>
+      </div>
+
+      <div class="cme-testimonials__grid">
+        @for (t of testimonials; track t.author) {
+          <article class="cme-testimonial-card">
+            <p class="cme-testimonial-quote">"{{ t.quote }}"</p>
+            <div class="cme-testimonial-author">
+              <img [src]="t.photoUrl" [alt]="t.author" class="cme-testimonial-avatar" />
+              <div>
+                <strong>{{ t.author }}</strong>
+                <small>{{ t.role }}</small>
+              </div>
+            </div>
+            <div class="cme-testimonial-stars">★★★★★</div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FAQ ═══════════════════ -->
+  <section class="cme-section cme-faq">
+    <div class="cme-container">
+      <div class="cme-section__head cme-section__head--center">
+        <span class="cme-kicker cme-kicker--dark">Support</span>
+        <h2>Frequently Asked Questions</h2>
+        <p>
+          Have questions about our CME programs?
+          <a routerLink="/contact">Contact our team</a> or
+          <a routerLink="/contact">Read more</a> for more details.
+        </p>
+      </div>
+
+      <div class="cme-faq__list">
+        @for (faq of faqs; track faq.question; let i = $index) {
+          <article class="cme-faq-item" [class.cme-faq-item--open]="openFaq() === i">
+            <button
+              type="button"
+              class="cme-faq-trigger"
+              (click)="toggleFaq(i)"
+              [attr.aria-expanded]="openFaq() === i"
+            >
+              <span>{{ faq.question }}</span>
+              <span class="cme-faq-chevron">{{ openFaq() === i ? '−' : '+' }}</span>
+            </button>
+
+            @if (openFaq() === i) {
+              <div class="cme-faq-answer">
+                <p>{{ faq.answer }}</p>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ MOBILE APP CTA ═══════════════════ -->
+  <section class="cme-section cme-mobile">
+    <div class="cme-container cme-mobile__inner">
+      <div class="cme-mobile__visual" aria-hidden="true">
+        <img
+          src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/71EA67DD-9BAC-401A-A907-855E2E2297F7_ozf7vw.png"
+          alt="Innovacare mobile app"
+        />
+      </div>
+
+      <div class="cme-mobile__copy">
+        <span class="cme-kicker">CME on Mobile</span>
+        <h2>Earn CME Credits Anywhere</h2>
+        <p>
+          Download the Innovacare app to complete modules on-the-go, access certificates offline,
+          and track your renewal progress from any device.
+        </p>
+
+        <div class="cme-store-buttons">
+          <a href="#" class="cme-store-btn" aria-label="Download on the App Store">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" />
+          </a>
+          <a href="#" class="cme-store-btn" aria-label="Get it on Google Play">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>

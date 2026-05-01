@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
@@ -16,12 +16,19 @@ import { AppUserProfile } from '../data/app-user.model';
 export class ProfileService {
   private auth = inject(Auth);
   private afs = inject(Firestore);
+  private injector = inject(Injector);
+
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   profile$(): Observable<AppUserProfile | null> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid) return of(null);
-        return docData(doc(this.afs, `users/${user.uid}`)) as Observable<AppUserProfile>;
+        return this.inContext(
+          () => docData(doc(this.afs, `users/${user.uid}`)) as Observable<AppUserProfile>
+        );
       })
     );
   }
@@ -43,6 +50,7 @@ export class ProfileService {
         displayName: params.displayName ?? '',
         photoURL: params.photoURL ?? null,
 
+        role: 'guest',
         primaryRole: 'guest',
         access: [
           {
@@ -53,6 +61,15 @@ export class ProfileService {
 
         isActive: true,
         emailVerified: !!params.emailVerified,
+
+        onboarding: {
+          version: 'v1',
+          completedStepIds: [],
+          minimized: false,
+          dismissedAt: null,
+          completedAt: null,
+          updatedAt: serverTimestamp(),
+        },
 
         guestMeta: {
           onboardingCompleted: false,
@@ -81,7 +98,9 @@ export class ProfileService {
   }
 
   getProfileData(uid: string): Observable<AppUserProfile | null> {
-    return docData(doc(this.afs, `users/${uid}`)) as Observable<AppUserProfile>;
+    return this.inContext(
+      () => docData(doc(this.afs, `users/${uid}`)) as Observable<AppUserProfile>
+    );
   }
 
   async updateProfileData(uid: string, data: Partial<AppUserProfile>): Promise<void> {
@@ -90,6 +109,21 @@ export class ProfileService {
       ref,
       {
         ...data,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+
+  async updateOnboardingData(uid: string, onboarding: AppUserProfile['onboarding']): Promise<void> {
+    const ref = doc(this.afs, `users/${uid}`);
+    await setDoc(
+      ref,
+      {
+        onboarding: {
+          ...(onboarding ?? {}),
+          updatedAt: serverTimestamp(),
+        },
         updatedAt: serverTimestamp(),
       },
       { merge: true }

@@ -1,0 +1,13 @@
+<aside class="pane right">
+  <h3>Explanation</h3>
+  <p [innerHTML]="question().rationale"></p>
+  <p [innerHTML]="question().distractors"></p>
+
+  <section class="additional-info">
+    <div class="additional-info-header">
+      <span class="additional-info-icon">i</span>
+      <span>Additional Info</span>
+    </div>
+    <p [innerHTML]="question().additional"></p>
+  </section>
+</aside>

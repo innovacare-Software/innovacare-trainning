@@ -1,0 +1,158 @@
+<main class="arx-blog-page">
+  <section class="arx-blog-hero arx-hero-parallax" appHeroParallax [parallaxClamp]="48">
+    <div class="arx-blog-hero__overlay"></div>
+    <div class="arx-orbit arx-orbit--cyan arx-blog-hero__orb arx-blog-hero__orb--one" data-parallax-depth="-0.2"></div>
+    <div class="arx-orbit arx-orbit--gold arx-blog-hero__orb arx-blog-hero__orb--two" data-parallax-depth="-0.1"></div>
+
+    <div class="arx-container arx-blog-hero__grid">
+      <div class="arx-blog-hero__copy arx-reveal" data-parallax-depth="0.06">
+        <span class="arx-kicker">{{ 'BLOG_PAGE.hero.kicker' | transloco }}</span>
+        <h1>{{ 'BLOG_PAGE.hero.title' | transloco }}</h1>
+        <p>
+          {{ 'BLOG_PAGE.hero.body' | transloco }}
+        </p>
+
+        <div class="arx-chip-row arx-stagger">
+          <span class="arx-chip">{{ 'BLOG_PAGE.hero.chip_nclex' | transloco }}</span>
+          <span class="arx-chip">{{ 'BLOG_PAGE.hero.chip_faculty' | transloco }}</span>
+          <span class="arx-chip">{{ 'BLOG_PAGE.hero.chip_students' | transloco }}</span>
+          <span class="arx-chip">{{ 'BLOG_PAGE.hero.chip_ops' | transloco }}</span>
+        </div>
+
+        <div class="arx-hero-stats arx-stagger">
+          <article class="arx-stat">
+            <strong>{{ posts().length }}</strong>
+            <span>{{ 'BLOG_PAGE.stats.total_articles' | transloco }}</span>
+          </article>
+
+          <article class="arx-stat">
+            <strong>{{ categories.length - 1 }}</strong>
+            <span>{{ 'BLOG_PAGE.stats.categories' | transloco }}</span>
+          </article>
+
+          <article class="arx-stat">
+            <strong>{{ categoryLabel(activeCategory()) }}</strong>
+            <span>{{ 'BLOG_PAGE.stats.current_filter' | transloco }}</span>
+          </article>
+        </div>
+      </div>
+
+      @if (featuredPost(); as post) {
+        <article class="arx-featured-article arx-reveal arx-reveal--delay-2" data-parallax-depth="0.14">
+          <div class="arx-featured-article__media">
+            <img [src]="getPostImage(post)" [alt]="post.title" />
+            <div class="arx-featured-article__shade"></div>
+            <span class="arx-pill arx-pill--glass">{{ 'BLOG_PAGE.featured.badge' | transloco }}</span>
+          </div>
+
+          <div class="arx-featured-article__body">
+            <span class="arx-tag">{{ categoryLabel(post.category) }}</span>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.excerpt }}</p>
+
+            <footer>
+              <span>{{ post.publishedAt }}</span>
+              <span>{{ post.readTime }}</span>
+            </footer>
+
+            <a class="arx-inline-link" [routerLink]="localizedBlogLink(post.slug)">{{ 'BLOG_PAGE.featured.read' | transloco }}</a>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="arx-sticky-filter">
+    <div class="arx-container arx-sticky-filter__inner">
+      <div class="arx-filter-summary">
+        <span class="arx-filter-summary__label">{{ 'BLOG_PAGE.filters.label' | transloco }}</span>
+        <strong>{{ filteredPosts().length }} {{ 'BLOG_PAGE.filters.count_suffix' | transloco }}</strong>
+      </div>
+
+      <div class="arx-filter-row">
+        @for (category of categories; track category) {
+          <button
+            type="button"
+            class="arx-filter-chip"
+            [class.active]="activeCategory() === category"
+            (click)="selectCategory(category)"
+          >
+            {{ categoryLabel(category) }}
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--blog-grid">
+    <div class="arx-container">
+      <div class="arx-section__head">
+        <span class="arx-kicker">{{ 'BLOG_PAGE.sections.articles' | transloco }}</span>
+        <h2>
+          {{
+            activeCategory() === 'All'
+              ? ('BLOG_PAGE.sections.all_title' | transloco)
+              : (('BLOG_PAGE.sections.category_title' | transloco) + ' ' + categoryLabel(activeCategory()))
+          }}
+        </h2>
+      </div>
+
+      @if (displayPosts().length) {
+        <div class="arx-blog-grid arx-stagger">
+          @for (post of displayPosts(); track post.slug) {
+            <article class="arx-blog-card">
+              <div class="arx-blog-card__thumb">
+                <img [src]="getPostImage(post)" [alt]="post.title" />
+                <div class="arx-blog-card__thumb-shade"></div>
+                <span class="arx-pill arx-pill--glass">{{ categoryLabel(post.category) }}</span>
+              </div>
+
+              <div class="arx-blog-card__body">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.excerpt }}</p>
+
+                <footer>
+                  <span>{{ post.publishedAt }}</span>
+                  <span>{{ post.readTime }}</span>
+                </footer>
+
+                <a class="arx-inline-link" [routerLink]="localizedBlogLink(post.slug)">{{ 'BLOG_PAGE.cards.read' | transloco }}</a>
+              </div>
+            </article>
+          }
+        </div>
+      } @else if (featuredPost()) {
+        <article class="arx-empty-state">
+          <span class="arx-pill">{{ 'BLOG_PAGE.empty.only_featured_badge' | transloco }}</span>
+          <h3>{{ 'BLOG_PAGE.empty.only_featured_title' | transloco }}</h3>
+          <p>{{ 'BLOG_PAGE.empty.only_featured_body' | transloco }}</p>
+          <button type="button" class="arx-btn arx-btn--secondary-dark" (click)="selectCategory('All')">
+            {{ 'BLOG_PAGE.empty.show_all' | transloco }}
+          </button>
+        </article>
+      } @else {
+        <article class="arx-empty-state">
+          <span class="arx-pill">{{ 'BLOG_PAGE.empty.none_badge' | transloco }}</span>
+          <h3>{{ 'BLOG_PAGE.empty.none_title' | transloco }}</h3>
+          <p>{{ 'BLOG_PAGE.empty.none_body' | transloco }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--cta">
+    <div class="arx-container">
+      <article class="arx-blog-cta">
+        <div class="arx-blog-cta__copy">
+            <span class="arx-kicker">{{ 'BLOG_PAGE.cta.kicker' | transloco }}</span>
+            <h2>{{ 'BLOG_PAGE.cta.title' | transloco }}</h2>
+          <p>
+              {{ 'BLOG_PAGE.cta.body' | transloco }}
+          </p>
+        </div>
+
+        <a [routerLink]="lang.currentLang() === 'fr' ? '/fr/contact' : '/contact'" class="arx-btn arx-btn--primary">{{ 'BLOG_PAGE.cta.button' | transloco }}</a>
+      </article>
+    </div>
+  </section>
+</main>

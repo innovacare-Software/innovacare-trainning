@@ -1,0 +1,30 @@
+@use '../../quiz.scss' as quiz;
+
+:host {
+  display: block;
+  min-height: 0;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: calc(100vh - 44px - 36px - 48px);
+  background: var(--paper);
+}
+
+.main.unanswered {
+  grid-template-columns: 1fr;
+}
+
+.main.is-paused {
+  opacity: 0.15;
+}
+
+@media (max-width: 900px) {
+  .main,
+  .main.unanswered {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}

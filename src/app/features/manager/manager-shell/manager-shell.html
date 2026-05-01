@@ -4,7 +4,9 @@
     <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Open menu">☰</button>
     <div class="brand"><strong>{{ t('shells.manager.brand') }}</strong></div>
     <div class="top-actions">
-      <span class="role">{{ t('roles.manager') }}</span>
+      <span class="role">Operations Admin</span>
+      <app-global-search-trigger></app-global-search-trigger>
+      <app-onboarding-trigger></app-onboarding-trigger>
       <div class="avatar" title="Profile"></div>
       <app-notification-bell-plain></app-notification-bell-plain>
       <app-language-switcher></app-language-switcher>

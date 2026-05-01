@@ -1,0 +1,45 @@
+{
+  "title": "Respiratory Deterioration Simulation",
+  "description": "Timed simulation focused on identifying and escalating worsening respiratory status.",
+  "simulationType": "TIMED_SIMULATION",
+  "durationMin": 45,
+  "passingScore": 75,
+  "difficulty": "MEDIUM",
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "Which findings require immediate follow-up? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "B", "C"],
+      "choices": [
+        { "id": "A", "text": "SpO2 88% on room air", "correct": true },
+        { "id": "B", "text": "Respiratory rate 30/min", "correct": true },
+        { "id": "C", "text": "Crackles at both bases", "correct": true },
+        { "id": "D", "text": "Client requests a warm blanket", "correct": false }
+      ],
+      "explanation": "SpO2 of 88% indicates hypoxemia requiring immediate intervention. A respiratory rate of 30/min reflects significant respiratory distress and compensatory work of breathing. Bilateral basilar crackles suggest fluid accumulation (pulmonary edema) or atelectasis and are clinically significant. A request for a warm blanket is a comfort need and not a clinical emergency.",
+      "rationale": "Rapid recognition of deteriorating respiratory status is a high-stakes nursing competency. The combination of low SpO2, tachypnea, and abnormal lung sounds forms a pattern consistent with acute respiratory compromise requiring immediate assessment and provider notification.",
+      "distractorRationale": {
+        "D": "A request for a warm blanket is a routine comfort need. While nurses should address it, it does not represent a clinical finding requiring urgent follow-up compared to the objective signs of respiratory compromise described in the other options."
+      }
+    },
+    {
+      "prompt": "What is the priority nursing action?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Raise the head of the bed and apply oxygen per protocol.", "correct": true },
+        { "id": "B", "text": "Delay action until the provider rounds.", "correct": false },
+        { "id": "C", "text": "Encourage oral fluids first.", "correct": false },
+        { "id": "D", "text": "Document findings and reassess in one hour.", "correct": false }
+      ],
+      "explanation": "Elevating the head of the bed to high-Fowler's position reduces the work of breathing by allowing the diaphragm to descend and improves ventilation-perfusion matching. Applying supplemental oxygen directly addresses hypoxemia. These are the two immediate nurse-initiated actions before provider notification for a client in respiratory distress.",
+      "rationale": "Positioning and oxygenation are within nursing scope and should not be delayed. This question tests the learner's ability to prioritize nurse-initiated actions that improve oxygenation immediately versus delegating decision-making to the provider or deferring care.",
+      "distractorRationale": {
+        "B": "Delaying action in a client with SpO2 of 88%, RR of 30, and crackles is unsafe. Nurses have the authority and obligation to initiate evidence-based interventions and notify the provider urgently without waiting for rounds.",
+        "C": "Encouraging oral fluids is inappropriate when the client has bilateral crackles suggesting pulmonary fluid accumulation; increasing oral intake could worsen the respiratory status.",
+        "D": "Documenting without acting is never appropriate for an acute deterioration. Documentation follows intervention, not the reverse."
+      }
+    }
+  ]
+}

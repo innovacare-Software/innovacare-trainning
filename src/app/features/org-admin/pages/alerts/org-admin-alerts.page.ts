@@ -1,10 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationAlertsService } from '../../../../core/organization/services/organization-alerts.service';
 import { OrganizationFollowUpService } from '../../../../core/organization/services/organization-follow-up.service';
+import { of, switchMap } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -118,7 +119,8 @@ export class OrgAdminAlertsPage {
   });
 
   readonly orgId = computed(() => this.context().orgId || '');
-  readonly rows = toSignal(this.alerts.list(this.orgId()), { initialValue: [] as any[] });
+  private readonly orgId$ = toObservable(this.orgId);
+  readonly rows = toSignal(this.orgId$.pipe(switchMap((orgId) => (orgId ? this.alerts.list(orgId) : of([] as any[])))), { initialValue: [] as any[] });
 
   readonly filtered = computed(() => {
     const term = this.search.trim().toLowerCase();

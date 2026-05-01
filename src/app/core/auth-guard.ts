@@ -7,24 +7,8 @@ import {
 } from '@angular/router';
 import { combineLatest, filter, map, take } from 'rxjs';
 import { AuthService } from './auth';
-
-export type AppRole = 'super_admin' | 'manager' | 'admin' | 'learner' | 'guest';
-
-function defaultRouteForRole(role: AppRole): string {
-  switch (role) {
-    case 'super_admin':
-      return '/super-admin/dashboard';
-    case 'admin':
-    case 'manager':
-      return '/manager/dashboard';
-    case 'learner':
-      return '/learner';
-    case 'guest':
-      return '/guest/dashboard';
-    default:
-      return '/login';
-  }
-}
+import type { AppRole } from './auth';
+import { resolveDefaultRoute } from './auth-redirect.util';
 
 function checkRoleAccess(roles: AppRole[]) {
   const auth = inject(AuthService);
@@ -44,7 +28,7 @@ function checkRoleAccess(roles: AppRole[]) {
         return true;
       }
 
-      return router.createUrlTree([defaultRouteForRole(role)]);
+      return router.createUrlTree([resolveDefaultRoute(profile)]);
     })
   );
 }

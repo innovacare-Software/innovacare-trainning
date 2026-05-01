@@ -8,7 +8,7 @@ import {
 import { combineLatest, filter, map, take } from 'rxjs';
 import { AccessCapabilitiesService } from './access-capabilities.service';
 import { AuthService, AppRole } from './auth';
-import { defaultRouteForRole } from './auth-redirect.service';
+import { resolveDefaultRoute } from './auth-redirect.service';
 
 function checkRoleAccess(roles: AppRole[]) {
   const auth = inject(AuthService);
@@ -23,13 +23,11 @@ function checkRoleAccess(roles: AppRole[]) {
         return router.createUrlTree(['/login']);
       }
 
-      const role = profile.role as AppRole;
-
       if (capabilities.hasRole(profile, roles)) {
         return true;
       }
 
-      return router.createUrlTree([defaultRouteForRole(role)]);
+      return router.createUrlTree([resolveDefaultRoute(profile)]);
     })
   );
 }

@@ -1,0 +1,182 @@
+<main class="arx-contact-page">
+  <section class="arx-contact-hero arx-hero-parallax arx-hero--enterprise" appHeroParallax [parallaxClamp]="50">
+    <div class="arx-contact-hero__overlay arx-overlay--gradient-dark"></div>
+
+    <div class="arx-container arx-contact-hero__grid arx-grid--enterprise">
+      <div class="arx-contact-hero__copy arx-reveal" data-parallax-depth="0.06">
+        <div class="arx-hero-badge arx-hero-badge--enterprise">
+          <span class="arx-kicker arx-kicker--enterprise">{{ t('CONTACT_PAGE.hero.kicker') }}</span>
+          <div class="arx-badge-accent arx-badge-accent--premium"></div>
+        </div>
+
+        <h1 class="arx-hero-title--enterprise">{{ t('CONTACT_PAGE.hero.title') }}</h1>
+        <p class="arx-hero-description--enterprise">{{ t('CONTACT_PAGE.hero.body') }}</p>
+
+        <div class="arx-chip-row arx-stagger arx-chip-row--enterprise">
+          <span class="arx-chip arx-chip--enterprise">{{ t('CONTACT_PAGE.hero.chip_support') }}</span>
+          <span class="arx-chip arx-chip--enterprise">{{ t('CONTACT_PAGE.hero.chip_sales') }}</span>
+          <span class="arx-chip arx-chip--enterprise">{{ t('CONTACT_PAGE.hero.chip_partnerships') }}</span>
+          <span class="arx-chip arx-chip--enterprise">{{ t('CONTACT_PAGE.hero.chip_platform') }}</span>
+        </div>
+
+        <div class="arx-contact-cards arx-stagger arx-contact-cards--enterprise">
+          @for (item of contactCards(); track item.title) {
+            <article class="arx-contact-card arx-contact-card--enterprise">
+              <div class="arx-card-icon arx-card-icon--enterprise"></div>
+              <strong class="arx-card-title--enterprise">{{ item.title }}</strong>
+              <span class="arx-card-value--highlight arx-card-value--enterprise">{{ item.value }}</span>
+              <small class="arx-card-note--enterprise">{{ item.note }}</small>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="arx-contact-hero__visual arx-visual--enterprise" aria-hidden="true">
+        <div class="arx-brand-glow arx-glow--enterprise" data-parallax-depth="-0.12"></div>
+
+        <article class="arx-hero-visual-card arx-hero-visual-card--back arx-reveal arx-reveal--delay-1 arx-card--enterprise" data-parallax-depth="0.08">
+          <img [src]="visuals.secondary" alt="" class="arx-image--enterprise" />
+        </article>
+
+        <article class="arx-hero-visual-card arx-hero-visual-card--front arx-reveal arx-reveal--delay-2 arx-card--enterprise arx-card--elevated" data-parallax-depth="0.14">
+          <img [src]="visuals.primary" [alt]="t('CONTACT_PAGE.hero.visual_alt')" class="arx-image--enterprise" />
+          <div class="arx-hero-visual-card__shade arx-shade--enterprise"></div>
+
+          <div class="arx-hero-visual-card__content arx-content--enterprise">
+            <span class="arx-visual-kicker arx-visual-kicker--enterprise">{{ t('CONTACT_PAGE.hero.visual_kicker') }}</span>
+            <strong class="arx-visual-title--enterprise">{{ t('CONTACT_PAGE.hero.visual_title') }}</strong>
+            <small class="arx-visual-body--enterprise">{{ t('CONTACT_PAGE.hero.visual_body') }}</small>
+          </div>
+        </article>
+
+        <div class="arx-float-card arx-float-card--top arx-reveal arx-reveal--delay-2 arx-float--enterprise" data-parallax-depth="0.16">
+          <div class="arx-float-accent arx-float-accent--enterprise"></div>
+          <strong class="arx-float-value--enterprise">{{ t('CONTACT_PAGE.hero.float_response_value') }}</strong>
+          <span class="arx-float-label--enterprise">{{ t('CONTACT_PAGE.hero.float_response_label') }}</span>
+        </div>
+
+        <div class="arx-float-card arx-float-card--bottom arx-reveal arx-reveal--delay-3 arx-float--enterprise" data-parallax-depth="0.12">
+          <div class="arx-float-accent arx-float-accent--enterprise"></div>
+          <strong class="arx-float-value--enterprise">{{ t('CONTACT_PAGE.hero.float_enterprise_value') }}</strong>
+          <span class="arx-float-label--enterprise">{{ t('CONTACT_PAGE.hero.float_enterprise_label') }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--contact">
+    <div class="arx-container arx-contact-main">
+      <aside class="arx-contact-sidebar">
+        <article class="arx-sidebar-card">
+          <span class="arx-kicker">{{ t('CONTACT_PAGE.support.kicker') }}</span>
+          <h2>{{ t('CONTACT_PAGE.support.title') }}</h2>
+          
+
+          <ul class="arx-bullet-list">
+            @for (item of supportPoints(); track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </article>
+
+        <article class="arx-sidebar-card arx-sidebar-card--soft">
+          <strong>{{ t('CONTACT_PAGE.support.institutions_title') }}</strong>
+          <p>{{ t('CONTACT_PAGE.support.institutions_body') }}</p>
+        </article>
+
+        <article class="arx-sidebar-card arx-sidebar-card--compliance">
+          <span class="arx-kicker">Compliance</span>
+          <strong>Enterprise-ready trust signals</strong>
+          <p>Review the legal and privacy surfaces tied to the new registration flow.</p>
+          <div class="arx-link-stack">
+            @for (item of complianceLinks(); track item.path) {
+              <a [routerLink]="item.path">{{ item.label }}</a>
+            }
+          </div>
+        </article>
+
+        <article class="arx-sidebar-card">
+          <span class="arx-kicker">Email</span>
+          <strong>Contact Us</strong>
+          <p>
+            <a href="mailto:contac@innovacarereview.com">contac@innovacarereview.com</a>
+          </p>
+        </article>
+      </aside>
+
+      <form class="arx-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="arx-form-head">
+          <span class="arx-kicker">{{ t('CONTACT_PAGE.form.kicker') }}</span>
+          <h2>{{ t('CONTACT_PAGE.form.title') }}</h2>
+          <p>{{ t('CONTACT_PAGE.form.body') }}</p>
+        </div>
+
+        <div class="arx-form-grid">
+          <label>
+            <span>{{ t('CONTACT_PAGE.form.name') }}</span>
+            <input
+              type="text"
+              formControlName="name"
+              [class.invalid]="form.controls.name.touched && form.controls.name.invalid"
+            />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <small class="arx-error">{{ t('CONTACT_PAGE.form.name_error') }}</small>
+            }
+          </label>
+
+          <label>
+            <span>{{ t('CONTACT_PAGE.form.email') }}</span>
+            <input
+              type="email"
+              formControlName="email"
+              [class.invalid]="form.controls.email.touched && form.controls.email.invalid"
+            />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <small class="arx-error">{{ t('CONTACT_PAGE.form.email_error') }}</small>
+            }
+          </label>
+
+          <label>
+            <span>{{ t('CONTACT_PAGE.form.organization') }}</span>
+            <input type="text" formControlName="organization" />
+          </label>
+
+          <label>
+            <span>{{ t('CONTACT_PAGE.form.interest') }}</span>
+            <select formControlName="interest">
+              @for (option of interestOptions(); track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="full">
+            <span>{{ t('CONTACT_PAGE.form.message') }}</span>
+            <textarea
+              rows="6"
+              formControlName="message"
+              [class.invalid]="form.controls.message.touched && form.controls.message.invalid"
+            ></textarea>
+            @if (form.controls.message.touched && form.controls.message.invalid) {
+              <small class="arx-error">{{ t('CONTACT_PAGE.form.message_error') }}</small>
+            }
+          </label>
+        </div>
+
+        <div class="arx-form-actions">
+          <button type="submit" class="arx-btn arx-btn--primary" [disabled]="submitting">
+            {{ submitting ? t('CONTACT_PAGE.form.sending') : t('CONTACT_PAGE.form.submit') }}
+          </button>
+
+          <p class="arx-form-note">{{ t('CONTACT_PAGE.form.note') }}</p>
+
+          <div class="arx-form-legal-links">
+            @for (item of complianceLinks(); track item.path) {
+              <a [routerLink]="item.path">{{ item.label }}</a>
+            }
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>

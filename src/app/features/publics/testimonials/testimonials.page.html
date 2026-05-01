@@ -1,0 +1,126 @@
+<main class="arx-testimonials-page">
+  <section class="arx-testimonials-hero arx-hero-parallax" appHeroParallax [parallaxClamp]="44">
+    <div class="arx-orbit arx-orbit--cyan arx-testimonials-hero__orb arx-testimonials-hero__orb--one" data-parallax-depth="-0.2"></div>
+    <div class="arx-orbit arx-orbit--gold arx-testimonials-hero__orb arx-testimonials-hero__orb--two" data-parallax-depth="-0.1"></div>
+    <div class="arx-container" style="text-align: center; padding: 4rem 2rem;">
+      <div class="arx-reveal" data-parallax-depth="0.06">
+        <h1 style="font-size: 3rem; margin-bottom: 3rem;">{{ 'TESTIMONIALS_PAGE.hero.kicker' | transloco }}</h1>
+        <div class="arx-testimonials-hero__stats arx-stagger" style="display: flex; justify-content: center; gap: 4rem; margin: 3rem 0; flex-wrap: wrap;">
+          @for (item of heroStats; track item.label) {
+            <article class="arx-hero-stat">
+              <strong style="font-size: 3rem; display: block; color: #007bff;">{{ item.value }}</strong>
+              <span style="font-size: 1rem; color: #666;">{{ item.label | localizedField }}</span>
+            </article>
+          }
+        </div>
+        <div class="arx-testimonials-hero__actions" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+          <a routerLink="/home" fragment="quiz" class="arx-btn arx-btn--primary">{{ 'TESTIMONIALS_PAGE.hero.cta_primary' | transloco }}</a>
+          <a routerLink="/contact" class="arx-btn arx-btn--ghost-light">{{ 'TESTIMONIALS_PAGE.hero.cta_secondary' | transloco }}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--trust">
+    <div class="arx-container">
+      <div class="arx-trust-bar arx-stagger">
+        @for (logo of trustLogos; track logo) {
+          <span class="arx-trust-chip">{{ logo | localizedField }}</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--stories">
+    <div class="arx-container arx-stories-layout">
+      <aside class="arx-stories-copy arx-reveal">
+        <span class="arx-kicker">{{ 'TESTIMONIALS_PAGE.archive.kicker' | transloco }}</span>
+        <h2>{{ 'TESTIMONIALS_PAGE.archive.title' | transloco }}</h2>
+        <p>{{ 'TESTIMONIALS_PAGE.archive.body' | transloco }}</p>
+
+        <div class="arx-stories-gallery arx-stagger">
+          @for (item of gallery; track item.title) {
+            <figure class="arx-stories-gallery__card">
+              <img [src]="item.imageUrl" [alt]="item.imageAlt | localizedField" loading="lazy" />
+              <figcaption>{{ item.title | localizedField }}</figcaption>
+            </figure>
+          }
+        </div>
+      </aside>
+
+      <div>
+        <div class="arx-testimonials-archive-head arx-reveal arx-reveal--delay-1">
+          <div>
+            <span class="arx-kicker">{{ 'TESTIMONIALS_PAGE.archive.heading' | transloco }}</span>
+            <strong>{{ 'TESTIMONIALS_PAGE.archive.page' | transloco:{ current: currentPage(), total: totalPages() } }}</strong>
+          </div>
+
+          <nav class="arx-pagination" [attr.aria-label]="'TESTIMONIALS_PAGE.archive.heading' | transloco">
+            <button type="button" class="arx-page-button" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)">{{ 'COMMON.back' | transloco }}</button>
+            @for (page of pageNumbers(); track page) {
+              <button type="button" class="arx-page-button" [class.active]="currentPage() === page" (click)="setPage(page)">{{ page }}</button>
+            }
+            <button type="button" class="arx-page-button" [disabled]="currentPage() === totalPages()" (click)="setPage(currentPage() + 1)">{{ 'COMMON.next' | transloco }}</button>
+          </nav>
+        </div>
+
+        <div class="arx-testimonials-grid arx-stagger">
+        @for (item of visibleTestimonials(); track item.author) {
+          <article class="arx-testimonial-card">
+            <header class="arx-testimonial-card__head">
+              <img class="arx-avatar-photo" [src]="item.photoUrl" [alt]="item.author" loading="lazy" />
+              <div>
+                <strong>{{ item.author }}</strong>
+                <span>{{ item.role | localizedField }}</span>
+              </div>
+            </header>
+
+            <span class="arx-pill">{{ item.date | localizedField }}</span>
+            <p>“{{ item.quote | localizedField }}”</p>
+
+            <footer>
+              <span class="arx-rating-row">★★★★★</span>
+              <small>{{ 'TESTIMONIALS_PAGE.archive.verified' | transloco }}</small>
+            </footer>
+          </article>
+        }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--share-story">
+    <div class="arx-container">
+      <article class="arx-share-story arx-reveal arx-reveal--soft">
+        <div class="arx-share-story__copy">
+          <span class="arx-kicker">{{ 'TESTIMONIALS_PAGE.share.kicker' | transloco }}</span>
+          <h2>{{ 'TESTIMONIALS_PAGE.share.title' | transloco }}</h2>
+          <p>{{ 'TESTIMONIALS_PAGE.share.body' | transloco }}</p>
+
+          <ul class="arx-share-story__list arx-stagger">
+            @for (item of shareStoryPoints; track item) {
+              <li>{{ item | localizedField }}</li>
+            }
+          </ul>
+        </div>
+
+        <div class="arx-share-story__media">
+          <img src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775621955/ChatGPT_Image_8_avr._2026_00_15_15_zj9cjr.png" [alt]="'TESTIMONIALS_PAGE.share.alt' | transloco" loading="lazy" />
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--cta">
+    <div class="arx-container">
+      <article class="arx-testimonials-cta arx-reveal arx-reveal--soft">
+        <div>
+          <span class="arx-kicker">{{ 'TESTIMONIALS_PAGE.cta.kicker' | transloco }}</span>
+          <h2>{{ 'TESTIMONIALS_PAGE.cta.title' | transloco }}</h2>
+          <p>{{ 'TESTIMONIALS_PAGE.cta.body' | transloco }}</p>
+        </div>
+        <a routerLink="/home" fragment="quiz" class="arx-btn arx-btn--primary">{{ 'TESTIMONIALS_PAGE.cta.button' | transloco }}</a>
+      </article>
+    </div>
+  </section>
+</main>

@@ -1,94 +1,205 @@
 <section class="program-detail-shell" *ngIf="program() as currentProgram; else notFound">
-  <header class="hero">
-    <img [src]="currentProgram.imageUrl" [alt]="currentProgram.title" class="hero-image" />
+  <!-- Premium Hero Section -->
+  <header class="hero-premium">
+    <div class="hero-overlay"></div>
+    <img [src]="currentProgram.imageUrl" [alt]="currentProgram.title" class="hero-image-premium" />
+    
+    <div class="hero-content-wrapper">
+      <nav class="breadcrumb-nav">
+        <a routerLink="/programs" class="breadcrumb-link">Programs</a>
+        <span class="breadcrumb-divider">/</span>
+        <span class="breadcrumb-current">{{ categoryLabel(currentProgram.category) }}</span>
+      </nav>
 
-    <div class="hero-copy">
-      <p class="eyebrow">{{ categoryLabel(currentProgram.category) }}</p>
-      <h1>{{ currentProgram.title }}</h1>
-      <p class="subtitle">{{ currentProgram.subtitle }}</p>
+      <div class="hero-copy-premium">
+        <span class="program-badge">{{ categoryLabel(currentProgram.category) }}</span>
+        <h1 class="hero-title-premium">{{ currentProgram.title }}</h1>
+        <p class="hero-subtitle-premium">{{ currentProgram.subtitle }}</p>
 
-      <div class="hero-badges">
-        <a class="btn-outline" routerLink="/home">Return to Home</a>
-        <span>{{ modeLabel(currentProgram) }}</span>
-        <span>{{ levelLabel(currentProgram) }}</span>
-        <span>{{ currentProgram.durationText }}</span>
+        <div class="hero-meta-premium">
+          <div class="meta-item">
+            <span class="meta-icon">📚</span>
+            <span>{{ modeLabel(currentProgram) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📊</span>
+            <span>{{ levelLabel(currentProgram) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">⏱️</span>
+            <span>{{ currentProgram.durationText }}</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a class="btn-primary-premium" [routerLink]="bookLink()">Enroll Now</a>
+          <a class="btn-secondary-premium" routerLink="/programs">View All Programs</a>
+        </div>
       </div>
     </div>
   </header>
 
-  <div class="content-grid">
-    <main class="content-main">
-      <section class="panel">
-        <h2>Program Overview</h2>
-        <p>{{ currentProgram.description }}</p>
-      </section>
-
-      <section class="panel">
-        <h2>Requirements</h2>
-        <ul>
-          <li *ngFor="let requirement of currentProgram.requirements">{{ requirement }}</li>
-        </ul>
-      </section>
-
-      <section class="panel">
-        <h2>Learning Outcomes</h2>
-        <ul>
-          <li *ngFor="let outcome of currentProgram.outcomes">{{ outcome }}</li>
-        </ul>
-      </section>
-
-      <section class="panel">
-        <h2>Curriculum Modules</h2>
-        <div class="curriculum" *ngFor="let module of currentProgram.modules; let index = index">
-          <div class="module-index">{{ index + 1 }}</div>
-          <div>
-            <h3>{{ module.title }}</h3>
-            <p>{{ module.summary }}</p>
-            <small>{{ module.durationText || 'Flexible pacing' }}</small>
-            <ul>
-              <li *ngFor="let lesson of module.lessons">{{ lesson }}</li>
-            </ul>
+  <div class="content-wrapper-premium">
+    <div class="content-grid-premium">
+      <main class="content-main-premium">
+        <!-- Program Overview -->
+        <section class="panel-premium">
+          <div class="panel-header">
+            <h2>Program Overview</h2>
+            <div class="header-divider"></div>
           </div>
-        </div>
-      </section>
-    </main>
+          <p class="panel-description">{{ currentProgram.description }}</p>
+        </section>
 
-    <aside class="sidebar">
-      <section class="summary-card">
-        <p class="summary-title">Program Summary</p>
-        <p class="price">{{ priceLabel(currentProgram) }}</p>
-        <p class="seats">{{ seatsLabel(currentProgram) }}</p>
+        <!-- Learning Outcomes -->
+        <section class="panel-premium">
+          <div class="panel-header">
+            <h2>Learning Outcomes</h2>
+            <div class="header-divider"></div>
+          </div>
+          <ul class="outcomes-list">
+            <li *ngFor="let outcome of currentProgram.outcomes" class="outcome-item">
+              <span class="outcome-icon">✓</span>
+              <span>{{ outcome }}</span>
+            </li>
+          </ul>
+        </section>
 
-        <dl>
-          <div>
-            <dt>Schedule</dt>
-            <dd>{{ currentProgram.scheduleText }}</dd>
+        <!-- Requirements -->
+        <section class="panel-premium">
+          <div class="panel-header">
+            <h2>Prerequisites & Requirements</h2>
+            <div class="header-divider"></div>
           </div>
-          <div>
-            <dt>Duration</dt>
-            <dd>{{ currentProgram.durationText }}</dd>
-          </div>
-          <div>
-            <dt>Delivery</dt>
-            <dd>{{ modeLabel(currentProgram) }}</dd>
-          </div>
-          <div>
-            <dt>Level</dt>
-            <dd>{{ levelLabel(currentProgram) }}</dd>
-          </div>
-        </dl>
+          <ul class="requirements-list">
+            <li *ngFor="let requirement of currentProgram.requirements" class="requirement-item">
+              <span class="requirement-icon">•</span>
+              <span>{{ requirement }}</span>
+            </li>
+          </ul>
+        </section>
 
-        <a class="btn-primary" [routerLink]="bookLink()">Enroll in Program</a>
-        <a class="btn-outline" routerLink="/programs">Back to catalog</a>
-      </section>
+        <!-- Curriculum Modules -->
+        <section class="panel-premium curriculum-section">
+          <div class="panel-header">
+            <h2>Curriculum & Modules</h2>
+            <div class="header-divider"></div>
+          </div>
+          <div class="modules-container">
+            <div class="module-card" *ngFor="let module of currentProgram.modules; let index = index">
+              <div class="module-header">
+                <div class="module-number">{{ index + 1 }}</div>
+                <div class="module-title-wrapper">
+                  <h3>{{ module.title }}</h3>
+                  <p class="module-duration">{{ module.durationText || 'Flexible pacing' }}</p>
+                </div>
+              </div>
+              <p class="module-summary">{{ module.summary }}</p>
+              <ul class="lessons-list">
+                <li *ngFor="let lesson of module.lessons" class="lesson-item">
+                  <span class="lesson-icon">→</span>
+                  <span>{{ lesson }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-      <section class="panel tags-panel">
-        <h3>Program Tags</h3>
-        <div class="tags">
-          <span *ngFor="let tag of currentProgram.tags">{{ tag }}</span>
-        </div>
-      </section>
-    </aside>
+        <!-- Why This Program Works -->
+        <section class="panel-premium value-section">
+          <div class="panel-header">
+            <h2>Why This Program Stands Out</h2>
+            <div class="header-divider"></div>
+          </div>
+          <div class="value-grid-premium">
+            <div class="value-card-premium">
+              <div class="value-icon">🎯</div>
+              <h3>Step-by-step Licensing Roadmap</h3>
+              <p>Clear pathways to professional licensing with guided milestones</p>
+            </div>
+            <div class="value-card-premium">
+              <div class="value-icon">💼</div>
+              <h3>Real-world Nurse Experience</h3>
+              <p>Learn from industry experts with decades of clinical practice</p>
+            </div>
+            <div class="value-card-premium">
+              <div class="value-icon">🌍</div>
+              <h3>Multi-country Strategy</h3>
+              <p>Global certifications accepted in USA, UAE, Canada, and beyond</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Premium Sidebar -->
+      <aside class="sidebar-premium">
+        <section class="summary-card-premium">
+          <div class="summary-header">
+            <h3>Program Details</h3>
+          </div>
+
+          <div class="summary-pricing">
+            <p class="price-label">Investment</p>
+            <p class="price-value">{{ priceLabel(currentProgram) }}</p>
+          </div>
+
+          <div class="summary-seats">
+            <p class="seats-label">{{ seatsLabel(currentProgram) }}</p>
+          </div>
+
+          <dl class="details-list">
+            <div class="detail-item">
+              <dt>
+                <span class="detail-icon">📅</span>
+                Schedule
+              </dt>
+              <dd>{{ currentProgram.scheduleText }}</dd>
+            </div>
+            <div class="detail-item">
+              <dt>
+                <span class="detail-icon">⏳</span>
+                Duration
+              </dt>
+              <dd>{{ currentProgram.durationText }}</dd>
+            </div>
+            <div class="detail-item">
+              <dt>
+                <span class="detail-icon">🖥️</span>
+                Delivery Mode
+              </dt>
+              <dd>{{ modeLabel(currentProgram) }}</dd>
+            </div>
+            <div class="detail-item">
+              <dt>
+                <span class="detail-icon">📈</span>
+                Level
+              </dt>
+              <dd>{{ levelLabel(currentProgram) }}</dd>
+            </div>
+          </dl>
+
+          <div class="action-buttons">
+            <a class="btn-primary-premium" [routerLink]="bookLink()">Enroll in Program</a>
+            <a class="btn-secondary-premium" routerLink="/programs">Browse Catalog</a>
+          </div>
+        </section>
+
+        <!-- Tags Panel -->
+        <section class="panel-premium tags-panel-premium">
+          <h3>Program Focus Areas</h3>
+          <div class="tags-container">
+            <span class="tag-premium" *ngFor="let tag of currentProgram.tags">{{ tag }}</span>
+          </div>
+        </section>
+
+        <!-- CTA Card -->
+        <section class="cta-card-premium">
+          <h4>Ready to Transform Your Career?</h4>
+          <p>Join hundreds of healthcare professionals advancing their credentials</p>
+          <a class="btn-primary-premium btn-full" [routerLink]="bookLink()">Get Started Today</a>
+        </section>
+      </aside>
+    </div>
   </div>
 </section>
 

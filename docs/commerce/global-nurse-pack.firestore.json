@@ -1,0 +1,20 @@
+{
+  "id": "global-nurse-pack",
+  "name": "Global Nurse Licensing Starter Pack",
+  "title": "Global Nurse Licensing Starter Pack",
+  "active": true,
+  "stripeProductId": "prod_UOA9kAh3CiiZKj",
+  "stripePriceId": "price_1TPNpJHDtwxMCPk0ijAHIqn8",
+  "currency": "usd",
+  "amount": 14900,
+  "price": 149,
+  "type": "program",
+  "metadata": {
+    "category": "nurse_global",
+    "region": "multi"
+  },
+  "description": "Premium digital roadmap for international nurse licensing, documents, timelines, and relocation readiness.",
+  "imageUrl": "https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922255/ChatGPT_Image_Apr_22_2026_08_49_40_PM_mymund.png",
+  "createdAt": "__SERVER_TIMESTAMP__",
+  "updatedAt": "__SERVER_TIMESTAMP__"
+}

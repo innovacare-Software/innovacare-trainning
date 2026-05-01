@@ -1,0 +1,44 @@
+{
+  "title": "Medication Safety Fundamentals",
+  "description": "Foundational quiz on safe administration, verification, and patient monitoring.",
+  "assessmentType": "QUIZ",
+  "passingScore": 80,
+  "durationMin": 20,
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "Which action should the nurse take first before administering digoxin to an adult client?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Check the apical pulse for one full minute.", "correct": true },
+        { "id": "B", "text": "Offer the medication with a potassium supplement.", "correct": false },
+        { "id": "C", "text": "Encourage the client to ambulate after the dose.", "correct": false },
+        { "id": "D", "text": "Administer the medication with an antacid.", "correct": false }
+      ],
+      "explanation": "Digoxin slows the heart rate via vagal stimulation and direct SA/AV node effects. The nurse must assess the apical pulse for a full 60 seconds before administration and withhold the drug if the adult rate falls below 60 bpm, notifying the provider.",
+      "rationale": "Digoxin has a narrow therapeutic index; bradycardia is both a side effect and a sign of toxicity. Pulse assessment before each dose is a fundamental nursing responsibility and directly supports safe medication administration practice.",
+      "distractorRationale": {
+        "B": "Potassium supplements may be appropriate in hypokalemic clients taking digoxin (hypokalemia increases toxicity risk), but they are not the pre-administration safety check — pulse assessment must occur first.",
+        "C": "Ambulation is not related to pre-administration safety assessment for a cardiac glycoside.",
+        "D": "Antacids are not routinely paired with digoxin; this reflects a common misconception about cardiac medications and is not a standard nursing action before administration."
+      }
+    },
+    {
+      "prompt": "Which statements reflect the rights of medication administration? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "B", "C"],
+      "choices": [
+        { "id": "A", "text": "Right patient", "correct": true },
+        { "id": "B", "text": "Right dose", "correct": true },
+        { "id": "C", "text": "Right route", "correct": true },
+        { "id": "D", "text": "Right roommate", "correct": false }
+      ],
+      "explanation": "The traditional rights of medication administration include: right patient, right medication, right dose, right route, right time, and right documentation. 'Right roommate' is not a recognized right and is a deliberate distractor.",
+      "rationale": "The six rights of medication administration form a systematic safety checklist to prevent medication errors, which are among the most common preventable adverse events in acute care settings and a priority NCLEX content area.",
+      "distractorRationale": {
+        "D": "'Right roommate' is a nonsensical distractor designed to test whether learners can distinguish genuine patient-safety rights from fabricated options."
+      }
+    }
+  ]
+}

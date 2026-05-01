@@ -2,5 +2,11 @@
   "IDX.agenticWorkspace": true,
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": false
+  "typescript.enablePromptUseWorkspaceTsdk": false,
+  "chat.tools.terminal.autoApprove": {
+    "/^firebase deploy --only \"hosting\" --project innovacare-stripe$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
 }

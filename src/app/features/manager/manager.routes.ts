@@ -23,7 +23,16 @@ const routes: Routes = [
       { path: 'learners',  component: Learners },
       { path: 'reports',  component: Reports },
       { path: 'policy-report', component: PolicyAckReportPage },
-
+      {
+        path: 'language/listening-results',
+        loadComponent: () =>
+          import('../language-tests/instructor/listening-results-table.page').then(m => m.InstructorListeningResultsTablePage),
+      },
+      {
+        path: 'language/listening-results/:resultId',
+        loadComponent: () =>
+          import('../language-tests/instructor/listening-result-detail.page').then(m => m.InstructorListeningResultDetailPage),
+      },
     ]
   }
 ];

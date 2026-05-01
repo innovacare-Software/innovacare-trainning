@@ -1,0 +1,149 @@
+<div class="edu-page">
+
+  <!-- ── HERO ─────────────────────────────────────────────── -->
+  <section class="edu-hero">
+    <div class="edu-hero__glow" aria-hidden="true"></div>
+    <div class="edu-container edu-hero__inner">
+      <div class="edu-hero__copy">
+        <span class="edu-badge">{{ 'FOR_EDUCATORS.badge' | transloco }}</span>
+        <h1>{{ 'FOR_EDUCATORS.hero_title' | transloco }} {{ 'FOR_EDUCATORS.hero_title_accent' | transloco }}</h1>
+        <p class="edu-hero__sub">
+          {{ 'FOR_EDUCATORS.hero_desc' | transloco }}
+        </p>
+        <div class="edu-hero__actions">
+          <a routerLink="/for-educators/request-demo" class="edu-btn edu-btn--primary" [attr.aria-label]="'FOR_EDUCATORS.cta_demo' | transloco">
+            {{ 'FOR_EDUCATORS.cta_demo' | transloco }}
+          </a>
+          <a routerLink="/for-educators/request-demo" class="edu-btn edu-btn--outline" [attr.aria-label]="'FOR_EDUCATORS.cta_pricing' | transloco">
+            {{ 'FOR_EDUCATORS.cta_pricing' | transloco }}
+          </a>
+        </div>
+      </div>
+      <div class="edu-hero__mockup" aria-hidden="true">
+        <div class="edu-dash-card">
+          <div class="edu-dash-card__header">
+            <span class="edu-dash-dot edu-dash-dot--red"></span>
+            <span class="edu-dash-dot edu-dash-dot--yellow"></span>
+            <span class="edu-dash-dot edu-dash-dot--green"></span>
+            <span class="edu-dash-title">Educator Dashboard</span>
+          </div>
+          <div class="edu-dash-card__stats">
+            <div class="edu-dash-stat"><strong>247</strong><small>Active Students</small></div>
+            <div class="edu-dash-stat edu-dash-stat--teal"><strong>84%</strong><small>Avg Readiness</small></div>
+            <div class="edu-dash-stat"><strong>1,892</strong><small>Exams Completed</small></div>
+          </div>
+          <div class="edu-dash-bar">
+            <div class="edu-dash-bar__fill" style="width: 84%"></div>
+          </div>
+          <p class="edu-dash-card__label">Class readiness trend ↑ 12% this month</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NCLEX BUNDLE FEATURES ─────────────────────────────── -->
+  <section class="edu-section edu-section--white">
+    <div class="edu-container">
+      <div class="edu-section-head">
+        <h2>{{ 'FOR_EDUCATORS.included_title' | transloco }}</h2>
+        <p>{{ 'FOR_EDUCATORS.hero_desc' | transloco }}</p>
+      </div>
+      <div class="edu-features-layout">
+        <ul class="edu-feature-list">
+          @for (feat of features; track $index) {
+            <li class="edu-feature-item">
+              <span class="edu-feature-item__icon">{{ feat.icon }}</span>
+              <div>
+                <strong>{{ feat.titleKey | transloco }}</strong>
+                <p>{{ feat.desc }}</p>
+              </div>
+            </li>
+          }
+        </ul>
+        <div class="edu-features-visual">
+          <div class="edu-visual-card">
+            <div class="edu-visual-card__bar" style="--w: 94%">
+              <span>NCLEX Pass Rate</span><strong>94%</strong>
+            </div>
+            <div class="edu-visual-card__bar" style="--w: 88%">
+              <span>Avg Readiness Score</span><strong>88%</strong>
+            </div>
+            <div class="edu-visual-card__bar edu-visual-card__bar--green" style="--w: 97%">
+              <span>Student Satisfaction</span><strong>97%</strong>
+            </div>
+            <p class="edu-visual-card__note">Based on 2024–2025 institutional cohort data</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EDUCATOR DASHBOARD FEATURES ──────────────────────── -->
+  <section class="edu-section edu-section--light">
+    <div class="edu-container">
+      <div class="edu-section-head">
+        <h2>{{ 'FOR_EDUCATORS.dashboard_features.title' | transloco }}</h2>
+        <p>{{ 'FOR_EDUCATORS.pricing.subtitle' | transloco }}</p>
+      </div>
+      <div class="edu-dash-grid">
+        @for (feat of dashboardFeatures; track $index) {
+          <div class="edu-dash-feature">
+            <span class="edu-dash-feature__icon" aria-hidden="true">{{ feat.icon }}</span>
+            <h3>{{ feat.titleKey | transloco }}</h3>
+            <p>{{ feat.descKey | transloco }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PRICING ───────────────────────────────────────────── -->
+  <section class="edu-section edu-section--white" id="pricing">
+    <div class="edu-container">
+      <div class="edu-section-head">
+        <h2>{{ 'FOR_EDUCATORS.pricing.title' | transloco }}</h2>
+        <p>{{ 'FOR_EDUCATORS.pricing.subtitle' | transloco }}</p>
+      </div>
+      <div class="edu-pricing-grid">
+        @for (tier of pricingTiers; track $index) {
+          <div class="edu-pricing-card" [class.edu-pricing-card--popular]="tier.popular">
+            @if (tier.popular) {
+              <span class="edu-pricing-badge" [attr.aria-label]="'FOR_EDUCATORS.pricing.popular_badge' | transloco">{{ 'COMMON.popular' | transloco }}</span>
+            }
+            <h3 class="edu-pricing-card__name">{{ tier.nameKey | transloco }}</h3>
+            <p class="edu-pricing-card__subtitle">{{ tier.subtitleKey | transloco }}</p>
+            <p class="edu-pricing-card__price">{{ tier.priceKey ? (tier.priceKey | transloco) : tier.price }}</p>
+            <ul class="edu-pricing-card__features">
+              @for (feat of tier.features; track $index) {
+                <li>✓ {{ feat }}</li>
+              }
+            </ul>
+            <a
+              [routerLink]="tier.ctaLink"
+              class="edu-btn"
+              [class.edu-btn--primary]="tier.popular"
+              [class.edu-btn--secondary]="!tier.popular"
+              [attr.aria-label]="(tier.ctaKey | transloco) + ' ' + (tier.nameKey | transloco)"
+            >
+              {{ tier.ctaKey | transloco }}
+            </a>
+          </div>
+        }
+      </div>
+      <p class="edu-pricing-note">{{ 'FOR_EDUCATORS.pricing.subtitle' | transloco }}</p>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────────── -->
+  <section class="edu-cta">
+    <div class="edu-container edu-cta__inner">
+      <div>
+        <h2>{{ 'FOR_EDUCATORS.hero_title' | transloco }}</h2>
+        <p>{{ 'FOR_EDUCATORS.hero_desc' | transloco }}</p>
+      </div>
+      <a routerLink="/for-educators/request-demo" class="edu-btn edu-btn--primary" [attr.aria-label]="'FOR_EDUCATORS.cta_demo' | transloco">
+        {{ 'FOR_EDUCATORS.cta_demo' | transloco }} →
+      </a>
+    </div>
+  </section>
+</div>

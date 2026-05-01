@@ -1,0 +1,430 @@
+<main class="arx-home">
+  <section class="arx-hero arx-hero-parallax" appHeroParallax [parallaxClamp]="104">
+    <div class="arx-hero__backdrop" data-parallax-depth="-0.26" [style.background-image]="'url(' + visuals.heroBackdrop + ')'" aria-hidden="true"></div>
+    <div class="arx-hero__noise"></div>
+    <div class="arx-hero__aurora arx-hero__aurora--one" data-parallax-depth="-0.3"></div>
+    <div class="arx-hero__aurora arx-hero__aurora--two" data-parallax-depth="-0.2"></div>
+
+    <div class="arx-container arx-hero__grid">
+      <div class="arx-hero__copy">
+        <span class="arx-kicker">{{ 'HOME_MARKETING.hero.kicker' | transloco }}</span>
+
+        <h1>
+          {{ 'HOME_MARKETING.hero.title_prefix' | transloco }}
+          <span>{{ 'HOME_MARKETING.hero.title_accent' | transloco }}</span>
+        </h1>
+
+        <p class="arx-lead">
+          {{ 'HOME_MARKETING.hero.lead' | transloco }}
+        </p>
+
+        <div class="arx-chip-row">
+          <span class="arx-chip">{{ 'HOME_MARKETING.hero.chip_qbank' | transloco }}</span>
+          <span class="arx-chip">{{ 'HOME_MARKETING.hero.chip_dashboard' | transloco }}</span>
+          <span class="arx-chip">{{ 'HOME_MARKETING.hero.chip_faculty' | transloco }}</span>
+        </div>
+
+        <div class="arx-actions">
+          <a routerLink="/courses" class="arx-btn arx-btn--primary">{{ 'HOME_MARKETING.hero.cta_primary' | transloco }}</a>
+          <a routerLink="/courses" fragment="nursing" class="arx-btn arx-btn--secondary">{{ 'HOME_MARKETING.hero.cta_secondary' | transloco }}</a>
+        </div>
+
+        <div class="arx-hero__proof">
+          <article class="arx-proof-tile">
+            <strong>98%</strong>
+            <span>{{ 'HOME_MARKETING.hero.proof_pass' | transloco }}</span>
+          </article>
+
+          <article class="arx-proof-tile">
+            <strong>300k+</strong>
+            <span>{{ 'HOME_MARKETING.hero.proof_questions' | transloco }}</span>
+          </article>
+
+          <article class="arx-proof-tile">
+            <strong>24/7</strong>
+            <span>{{ 'HOME_MARKETING.hero.proof_access' | transloco }}</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="arx-hero__visual" aria-hidden="true">
+        <div class="arx-hero__halo" data-parallax-depth="-0.22"></div>
+        <img class="arx-brand-mark" data-parallax-depth="-0.14" src="https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/3AB0EC16-DEE3-4198-AD16-3F74FF0DCEAB_j85tzf.png" alt="" />
+
+        <article class="arx-feature-stage" data-parallax-depth="0.14">
+          <div class="arx-feature-stage__image" [style.background-image]="'url(' + visuals.heroBackdrop + ')'">
+            <div class="arx-feature-stage__shade"></div>
+            <div class="arx-feature-stage__content">
+              <span>Platform overview</span>
+              <strong>{{ 'HOME_MARKETING.hero.stage_title' | transloco }}</strong>
+              <small>{{ 'HOME_MARKETING.hero.stage_body' | transloco }}</small>
+            </div>
+          </div>
+
+          <div class="arx-feature-stage__rail">
+            <article>
+              <span>Hero motion</span>
+              <strong>{{ 'HOME_MARKETING.hero.motion' | transloco }}</strong>
+            </article>
+            <article>
+              <span>Backdrop</span>
+              <strong>{{ 'HOME_MARKETING.hero.backdrop' | transloco }}</strong>
+            </article>
+          </div>
+        </article>
+
+        <article class="arx-layer arx-layer--back" data-parallax-depth="0.2">
+          <img [src]="visuals.heroSecondary" alt="" />
+        </article>
+
+        <article class="arx-layer arx-layer--mid" data-parallax-depth="0.28">
+          <img [src]="visuals.heroTertiary" alt="" />
+        </article>
+
+        <article class="arx-layer arx-layer--front" data-parallax-depth="0.36">
+          <img [src]="visuals.heroPrimary" alt="Premium exam prep visual" />
+          <div class="arx-layer__shade"></div>
+
+          <div class="arx-layer__content">
+            <span class="arx-layer__eyebrow">Clinical + exam success</span>
+            <strong>{{ 'HOME_MARKETING.hero.layer_title' | transloco }}</strong>
+            <small>{{ 'HOME_MARKETING.hero.layer_body' | transloco }}</small>
+          </div>
+        </article>
+
+        <div class="arx-float arx-float--left" data-parallax-depth="0.3">
+          <strong>4,600+</strong>
+          <span>{{ 'HOME_MARKETING.hero.float_qbank' | transloco }}</span>
+        </div>
+
+        <div class="arx-float arx-float--right" data-parallax-depth="0.38">
+          <strong>300,000+</strong>
+          <span>{{ 'HOME_MARKETING.hero.float_students' | transloco }}</span>
+        </div>
+
+        <div class="arx-float arx-float--bottom" data-parallax-depth="0.24">
+          <strong>98.98%</strong>
+          <span>{{ 'HOME_MARKETING.hero.float_signal' | transloco }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-proof-strip">
+    <div class="arx-container arx-proof-strip__grid">
+      @for (item of valueProps; track item.title) {
+        <article class="arx-mini-card">
+          <h3>{{ item.title | localizedField }}</h3>
+          <p>{{ item.description | localizedField }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--programs" id="nursing">
+    <div class="arx-container">
+      <div class="arx-section__head">
+        <span class="arx-kicker">Programs</span>
+        <h2>{{ 'HOME_MARKETING.programs.title' | transloco }}</h2>
+        <p>
+          {{ 'HOME_MARKETING.programs.body' | transloco }}
+        </p>
+      </div>
+
+      <div class="arx-program-grid">
+        <article class="arx-program-card arx-program-card--nursing">
+          <div class="arx-program-card__copy">
+            <span class="arx-pill">Nursing</span>
+            <h3>{{ 'HOME_MARKETING.programs.nursing_title' | transloco }}</h3>
+            <p>
+              {{ 'HOME_MARKETING.programs.nursing_body' | transloco }}
+            </p>
+
+            <div class="arx-track-list">
+              @for (track of nursingTracks; track track.title) {
+                <a routerLink="/courses" fragment="nursing" class="arx-track-chip">
+                  {{ track.title | localizedField }}
+                </a>
+              }
+            </div>
+
+            <a routerLink="/courses" fragment="nursing" class="arx-inline-link">{{ 'HOME_MARKETING.programs.explore_nursing' | transloco }}</a>
+          </div>
+
+          <div class="arx-program-card__image">
+            <img [src]="visuals.nursingSpotlight" alt="Nursing pathway visual" />
+          </div>
+        </article>
+
+        <article class="arx-program-card arx-program-card--medical" id="medical">
+          <div class="arx-program-card__copy">
+            <span class="arx-pill arx-pill--teal">Medical</span>
+            <h3>{{ 'HOME_MARKETING.programs.medical_title' | transloco }}</h3>
+            <p>
+              {{ 'HOME_MARKETING.programs.medical_body' | transloco }}
+            </p>
+
+            <div class="arx-track-list">
+              @for (track of medicalTracks; track track.title) {
+                <a routerLink="/courses" fragment="medical" class="arx-track-chip">
+                  {{ track.title | localizedField }}
+                </a>
+              }
+            </div>
+
+            <a routerLink="/courses" fragment="medical" class="arx-inline-link">{{ 'HOME_MARKETING.programs.explore_medical' | transloco }}</a>
+          </div>
+
+          <div class="arx-program-card__image">
+            <img [src]="visuals.medicalSpotlight" alt="Medical pathway visual" />
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--evidence">
+    <div class="arx-container arx-evidence">
+      <article class="arx-evidence__story">
+        <span class="arx-kicker">Why choose us</span>
+        <h2>{{ 'HOME_MARKETING.evidence.title' | transloco }}</h2>
+        <p>
+          {{ 'HOME_MARKETING.evidence.body' | transloco }}
+        </p>
+
+        <ul class="arx-bullets">
+          @for (item of whyChooseUs; track item) {
+            <li>{{ item | localizedField }}</li>
+          }
+        </ul>
+      </article>
+
+      <div class="arx-evidence__stack">
+        <article class="arx-score-card">
+          <div class="arx-score-card__top">
+            <span>Exam readiness</span>
+            <strong>98.98%</strong>
+          </div>
+          <p>{{ 'HOME_MARKETING.evidence.score_body' | transloco }}</p>
+        </article>
+
+        <div class="arx-award-grid">
+          @for (badge of primaryBadges(); track badge) {
+            <article class="arx-award-card">
+              <strong>{{ badge | localizedField }}</strong>
+              <span>{{ 'HOME_MARKETING.evidence.badge_body' | transloco }}</span>
+            </article>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--quiz" id="quiz">
+    <div class="arx-container">
+      <article class="arx-quiz-card">
+        <div class="arx-quiz-card__copy">
+          <span class="arx-kicker">{{ 'HOME_MARKETING.quiz.kicker' | transloco }}</span>
+          <h2>{{ 'HOME_MARKETING.quiz.title' | transloco }}</h2>
+          <p>
+            {{ 'HOME_MARKETING.quiz.body' | transloco }}
+          </p>
+
+          <div class="arx-quiz-grid">
+            <label>
+              <span>{{ 'HOME_MARKETING.quiz.exam_window' | transloco }}</span>
+              <select [(ngModel)]="examWindow" name="examWindow">
+                <option value="4-weeks">{{ 'HOME_MARKETING.quiz.window_4' | transloco }}</option>
+                <option value="8-weeks">{{ 'HOME_MARKETING.quiz.window_8' | transloco }}</option>
+                <option value="12-weeks">{{ 'HOME_MARKETING.quiz.window_12' | transloco }}</option>
+              </select>
+            </label>
+
+            <label>
+              <span>{{ 'HOME_MARKETING.quiz.track' | transloco }}</span>
+              <select [(ngModel)]="targetTrack" name="targetTrack">
+                <option value="nclex-rn">NCLEX-RN</option>
+                <option value="nclex-pn">NCLEX-PN</option>
+                <option value="fnp">FNP</option>
+                <option value="institution">{{ 'HOME_MARKETING.quiz.track_institution' | transloco }}</option>
+              </select>
+            </label>
+
+            <label>
+              <span>{{ 'HOME_MARKETING.quiz.goal' | transloco }}</span>
+              <select [(ngModel)]="studyStyle" name="studyStyle">
+                <option value="fast-pass">{{ 'HOME_MARKETING.quiz.goal_fast' | transloco }}</option>
+                <option value="confidence">{{ 'HOME_MARKETING.quiz.goal_confidence' | transloco }}</option>
+                <option value="repeat">{{ 'HOME_MARKETING.quiz.goal_repeat' | transloco }}</option>
+                <option value="institution">{{ 'HOME_MARKETING.quiz.goal_institution' | transloco }}</option>
+              </select>
+            </label>
+
+            <label>
+              <span>{{ 'FOR_EDUCATORS.demo_form.email' | transloco }}</span>
+              <input
+                [(ngModel)]="quizLeadEmail"
+                name="quizLeadEmail"
+                type="email"
+                placeholder="you@example.com"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="arx-quiz-card__result">
+          <span class="arx-pill arx-pill--light">{{ 'HOME_MARKETING.quiz.recommended' | transloco }}</span>
+          <h3>{{ quizRecommendation().title }}</h3>
+          <p>{{ quizRecommendation().body }}</p>
+
+          <div class="arx-actions">
+            <button
+              type="button"
+              class="arx-btn arx-btn--primary"
+              [disabled]="quizSubmitting"
+              (click)="openQuizRecommendation()"
+            >
+              {{ quizSubmitting ? ('HOME_MARKETING.quiz.preparing' | transloco) : quizPrimaryLabel() }}
+            </button>
+
+            <button
+              type="button"
+              class="arx-btn arx-btn--secondary"
+              [disabled]="!canSaveQuizRecommendation()"
+              (click)="submitQuizLead()"
+            >
+              {{ quizSubmitting ? ('HOME_MARKETING.quiz.saving' | transloco) : ('HOME_MARKETING.quiz.email_recommendation' | transloco) }}
+            </button>
+          </div>
+
+          <div class="arx-quiz-card__thumb">
+            <img [src]="visuals.storiesSpotlight" alt="Student success visual" />
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--stories" id="testimonials">
+    <div class="arx-container">
+      <div class="arx-section__head arx-section__head--center">
+        <span class="arx-kicker">Testimonials</span>
+        <h2>{{ 'HOME_MARKETING.stories.title' | transloco }}</h2>
+        <p>
+          {{ 'HOME_MARKETING.stories.body' | transloco }}
+        </p>
+      </div>
+
+      <div class="arx-stories">
+        <article class="arx-stories__feature">
+          <div class="arx-stories__image">
+            <img [src]="visuals.storiesSpotlight" alt="Student success spotlight" />
+          </div>
+
+          <div class="arx-stories__copy">
+            <span class="arx-pill">Success stories</span>
+            <h3>{{ 'HOME_MARKETING.stories.feature_title' | transloco }}</h3>
+            <p>
+              {{ 'HOME_MARKETING.stories.feature_body' | transloco }}
+            </p>
+
+            <a routerLink="/courses" class="arx-inline-link">{{ 'HOME_MARKETING.stories.feature_cta' | transloco }}</a>
+          </div>
+        </article>
+
+        <div class="arx-testimonial-grid">
+          @for (item of featuredTestimonials(); track item.author) {
+            <article class="arx-testimonial-card">
+              <div class="arx-testimonial-card__meta">
+                <strong>{{ item.author }}</strong>
+                <span>{{ item.date | localizedField }}</span>
+              </div>
+
+              <p>“{{ item.quote | localizedField }}”</p>
+
+              <footer>{{ item.role | localizedField }}</footer>
+            </article>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--apps" id="social-learning">
+    <div class="arx-container arx-apps">
+      <div class="arx-apps__copy">
+        <span class="arx-kicker">Mobile learning</span>
+        <h2>{{ 'HOME_MARKETING.mobile.title' | transloco }}</h2>
+        <p>
+          {{ 'HOME_MARKETING.mobile.body' | transloco }}
+        </p>
+
+        <div class="arx-store-row">
+          <a href="https://www.apple.com/app-store/" target="_blank" rel="noreferrer" class="arx-store-btn">
+            App Store
+          </a>
+          <a href="https://play.google.com/store" target="_blank" rel="noreferrer" class="arx-store-btn">
+            Google Play
+          </a>
+        </div>
+      </div>
+
+      <div class="arx-apps__layout">
+        <div class="arx-app-tiles">
+          @for (program of appPrograms.slice(0, 3); track program.title) {
+            <article class="arx-app-tile">
+              <strong>{{ program.title | localizedField }}</strong>
+              <span>{{ program.subtitle | localizedField }}</span>
+            </article>
+          }
+        </div>
+
+        <article class="arx-app-phone">
+          <img [src]="visuals.heroSecondary" alt="Mobile app showcase" />
+          <div class="arx-app-phone__overlay">
+            <strong>{{ 'HOME_MARKETING.mobile.overlay_title' | transloco }}</strong>
+            <span>{{ 'HOME_MARKETING.mobile.overlay_body' | transloco }}</span>
+          </div>
+        </article>
+
+        <div class="arx-app-tiles">
+          @for (program of appPrograms.slice(3, 6); track program.title) {
+            <article class="arx-app-tile">
+              <strong>{{ program.title | localizedField }}</strong>
+              <span>{{ program.subtitle | localizedField }}</span>
+            </article>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--blog" id="blogs">
+    <div class="arx-container">
+      <div class="arx-section__head arx-section__head--row">
+        <div>
+          <span class="arx-kicker">Blog system</span>
+          <h2>{{ 'HOME_MARKETING.blog.title' | transloco }}</h2>
+          <p>{{ 'HOME_MARKETING.blog.body' | transloco }}</p>
+        </div>
+
+        <a routerLink="/blog" class="arx-btn arx-btn--secondary">{{ 'HOME_MARKETING.blog.cta' | transloco }}</a>
+      </div>
+
+      <div class="arx-blog-grid">
+        @for (post of blogHighlights(); track post.slug) {
+          <article class="arx-blog-card">
+            <span class="arx-pill arx-pill--soft">{{ post.category }}</span>
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.excerpt }}</p>
+
+            <footer>
+              <span>{{ post.publishedAt }}</span>
+              <span>{{ post.readTime }}</span>
+            </footer>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+</main>

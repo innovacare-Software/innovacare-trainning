@@ -1,0 +1,70 @@
+{
+  "id": "asm-all-about-ngn-core-01",
+  "organizationId": "Xyvahzjk5qLWqlTkLEWO",
+  "assessmentFamily": "module_assessment",
+  "assessmentMode": "module_final",
+  "title": "All About NGN Core Assessment",
+  "slug": "all-about-ngn-core-assessment",
+  "description": "Fixed six-item assessment covering infection control, delegation, medication safety, airborne precautions, and acute prioritization for NGN review.",
+  "instructions": "Answer each item using the safest and most clinically appropriate nursing judgment. Complete all questions before submitting.",
+  "programId": "nclex-rn-prep",
+  "jurisdiction": "US",
+  "examTrack": "NCLEX-RN",
+  "courseGroupId": "exam-strategy-ngn",
+  "moduleId": "all-about-ngn",
+  "sourceMode": "fixed_static",
+  "blueprintMode": "manual",
+  "fixedQuestionIds": [
+    "qb-0b549303",
+    "qb-7d31f2a1",
+    "qb-3f8a2c44",
+    "qb-91ae6b72",
+    "qb-c2851e90",
+    "qb-e4d7a811"
+  ],
+  "blueprintId": null,
+  "randomizeQuestionOrder": true,
+  "randomizeChoiceOrder": false,
+  "drawCount": 6,
+  "caseStudyCount": 0,
+  "durationMinutes": 12,
+  "passingScorePercent": 75,
+  "maxAttempts": 3,
+  "allowRetake": true,
+  "requireAllQuestionsAnswered": true,
+  "autoSubmitOnTimeout": true,
+  "showScoreImmediately": true,
+  "showCorrectAnswersAfterSubmit": false,
+  "showRationalesAfterSubmit": true,
+  "showCategoryBreakdown": true,
+  "reviewMode": "show_rationales",
+  "active": true,
+  "publishStatus": "published",
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "All About NGN core set",
+      "description": "Core NGN safety and clinical judgment items.",
+      "questionCount": 6,
+      "caseStudyCount": 0,
+      "allowedDifficulties": [
+        "medium",
+        "hard"
+      ],
+      "requiredTags": [
+        "infection-control",
+        "prioritization",
+        "patient-safety"
+      ],
+      "navigationLocked": false,
+      "reviewLocked": false
+    }
+  ],
+  "strictNavigation": false,
+  "allowQuestionFlagging": true,
+  "allowBackNavigation": true,
+  "createdAt": "2026-04-09T00:00:00.000Z",
+  "updatedAt": "2026-04-09T00:00:00.000Z",
+  "createdBy": "seed",
+  "updatedBy": "seed"
+}

@@ -1,0 +1,166 @@
+<main class="arx-it-page">
+  <section class="arx-it-hero mk-hero-parallax" appHeroParallax [parallaxClamp]="42">
+    <div class="mk-orbit mk-orbit--cyan arx-it-hero__orb arx-it-hero__orb--one" data-parallax-depth="-0.18"></div>
+    <div class="mk-orbit mk-orbit--gold arx-it-hero__orb arx-it-hero__orb--two" data-parallax-depth="-0.1"></div>
+    <div class="arx-container arx-it-hero__grid">
+      <div class="arx-it-hero__copy arx-reveal" data-parallax-depth="0.06">
+        <span class="arx-kicker">Enterprise IT Academy</span>
+        <h1>Build technical teams that deliver faster and safer at scale.</h1>
+        <p>
+          Premium upskilling tracks for cloud, security and platform teams with cohort delivery,
+          leadership reporting and conversion-ready learning journeys.
+        </p>
+
+        <div class="arx-it-hero__trust-row arx-stagger">
+          <span class="arx-it-hero__trust-chip">Cohort-based</span>
+          <span class="arx-it-hero__trust-chip">Enterprise reporting</span>
+          <span class="arx-it-hero__trust-chip">Job-role pathways</span>
+        </div>
+
+        <div class="it-hero-actions">
+          <a routerLink="/contact" class="it-btn it-btn--primary">Request Enterprise Demo</a>
+          <a href="#programme" class="it-btn it-btn--ghost">Explore Program</a>
+        </div>
+      </div>
+
+      <article class="arx-it-hero__panel arx-reveal arx-reveal--delay-2" data-parallax-depth="0.14">
+        <span class="arx-pill">Operational Impact</span>
+        <div class="arx-it-hero__media-strip">
+          @for (media of heroMedia; track media.title) {
+            <figure class="arx-it-hero__media-card">
+              <img [src]="media.imageUrl" [alt]="media.imageAlt" loading="lazy" />
+              <figcaption>{{ media.title }}</figcaption>
+            </figure>
+          }
+        </div>
+        <ul>
+          @for (item of outcomes; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="arx-section it-metrics">
+    <div class="arx-container it-metrics__grid">
+      @for (metric of metrics; track metric.label) {
+        <article class="it-metric-card">
+          <strong>{{ metric.value }}</strong>
+          <span>{{ metric.label }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section id="programme" class="arx-section">
+    <div class="arx-container">
+      <div class="it-section-head">
+        <span class="arx-kicker">Program Tracks</span>
+        <h2>Role-specific paths built for modern engineering organizations.</h2>
+      </div>
+
+      <div class="arx-it-grid arx-stagger">
+        @for (track of tracks; track track.title) {
+          <article class="arx-it-card">
+            <div class="arx-it-card__media">
+              <img [src]="track.imageUrl" [alt]="track.imageAlt" loading="lazy" />
+              <span class="arx-it-card__badge">{{ track.badge }}</span>
+            </div>
+            <span class="arx-kicker">Track</span>
+            <h3>{{ track.title }}</h3>
+            <p>{{ track.body }}</p>
+
+            <ul class="it-skill-list">
+              @for (skill of track.skills; track skill) {
+                <li>{{ skill }}</li>
+              }
+            </ul>
+
+            <a routerLink="/contact" class="arx-inline-link">Get this track for your team</a>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="delivery" class="arx-section it-delivery">
+    <div class="arx-container">
+      <div class="it-section-head">
+        <span class="arx-kicker">Delivery Model</span>
+        <h2>From assessment to outcomes in one managed system.</h2>
+      </div>
+
+      <div class="it-delivery-grid">
+        @for (step of deliveryModel; track step.title) {
+          <article class="it-delivery-card">
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.desc }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="arx-section it-pricing">
+    <div class="arx-container">
+      <div class="it-section-head">
+        <span class="arx-kicker">Pricing</span>
+        <h2>Premium plans for individuals, cohorts and enterprise teams.</h2>
+      </div>
+
+      <div class="it-pricing-grid">
+        @for (plan of plans; track plan.name) {
+          <article class="it-price-card" [class.it-price-card--featured]="plan.featured">
+            @if (plan.featured) {
+              <span class="it-price-badge">Most Popular</span>
+            }
+            <h3>{{ plan.name }}</h3>
+            <p class="it-price">{{ plan.price }}</p>
+            <p class="it-price-sub">{{ plan.subtitle }}</p>
+            <ul>
+              @for (feature of plan.features; track feature) {
+                <li>{{ feature }}</li>
+              }
+            </ul>
+            <a routerLink="/contact" class="it-btn it-btn--primary it-btn--block">{{ plan.cta }}</a>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="arx-section it-faq">
+    <div class="arx-container">
+      <div class="it-section-head">
+        <span class="arx-kicker">FAQ</span>
+        <h2>Everything needed for a confident enterprise rollout.</h2>
+      </div>
+
+      <div class="it-faq-list">
+        @for (item of faq; track item.id) {
+          <article class="it-faq-item" [class.open]="isFaqOpen(item.id)">
+            <button type="button" (click)="toggleFaq(item.id)">
+              <span>{{ item.question }}</span>
+              <strong>{{ isFaqOpen(item.id) ? '−' : '+' }}</strong>
+            </button>
+            @if (isFaqOpen(item.id)) {
+              <p>{{ item.answer }}</p>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section it-final-cta">
+    <div class="arx-container it-final-cta__inner">
+      <h2>Ready to turn IT training into a strategic growth engine?</h2>
+      <p>Launch your premium IT academy with enterprise support, clear KPIs and fast onboarding.</p>
+      <div class="it-hero-actions">
+        <a routerLink="/contact" class="it-btn it-btn--primary">Talk to Sales</a>
+        <a routerLink="/programs" class="it-btn it-btn--ghost">View Programs</a>
+      </div>
+    </div>
+  </section>
+</main>

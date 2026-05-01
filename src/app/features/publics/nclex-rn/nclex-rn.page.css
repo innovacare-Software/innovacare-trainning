@@ -1,0 +1,542 @@
+/* NCLEX-RN Page Styles */
+
+.ep-page.ep-nclex-rn {
+  width: 100%;
+}
+
+/* Hero Section */
+.ep-hero {
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #fff;
+}
+
+.ep-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.ep-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.ep-hero__header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ep-kicker {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #0ea5e9;
+}
+
+.ep-hero__header h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 800px;
+}
+
+.ep-hero__main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.ep-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ep-hero__lead {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+.ep-hero__highlights {
+  display: grid;
+  gap: 16px;
+}
+
+.ep-hero__highlight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-left: 3px solid #0ea5e9;
+  padding-left: 16px;
+}
+
+.ep-hero__highlight-item strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0ea5e9;
+}
+
+.ep-hero__highlight-item span {
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.ep-hero__actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.ep-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.ep-btn--primary {
+  background-color: #0ea5e9;
+  color: #fff;
+}
+
+.ep-btn--primary:hover {
+  background-color: #0284c7;
+}
+
+.ep-btn--secondary {
+  background-color: transparent;
+  color: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+.ep-btn--secondary:hover {
+  background-color: rgba(14, 165, 233, 0.1);
+}
+
+.ep-btn--ghost {
+  background-color: transparent;
+  color: #fff;
+  border-color: #fff;
+}
+
+.ep-btn--ghost:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ep-hero__visual {
+  display: flex;
+  justify-content: center;
+}
+
+.ep-hero__image {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Sections */
+.ep-section {
+  padding: 80px 20px;
+}
+
+.ep-section--light {
+  background-color: #f1f5f9;
+}
+
+.ep-section--white {
+  background-color: #fff;
+}
+
+.ep-section--dark {
+  background-color: #1e293b;
+  color: #fff;
+}
+
+.ep-section-head {
+  text-align: center;
+  margin-bottom: 60px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ep-section-head--left {
+  text-align: left;
+  margin-left: 0;
+}
+
+.ep-section-head h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.3;
+  color: #0f172a;
+}
+
+.ep-section--dark .ep-section-head h2 {
+  color: #fff;
+}
+
+.ep-section-head p {
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.ep-section--dark .ep-section-head p {
+  color: #cbd5e1;
+}
+
+/* Features Grid */
+.ep-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.ep-feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.ep-section--light .ep-feature-card {
+  background-color: #fff;
+}
+
+.ep-feature-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.ep-feature-card__icon {
+  font-size: 32px;
+}
+
+.ep-feature-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ep-feature-card p {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* Journey Cards */
+.ep-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.ep-journey-card {
+  padding: 32px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.ep-journey-card:hover {
+  border-color: #0ea5e9;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+}
+
+.ep-journey-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.ep-journey-card p {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* Packages Grid */
+.ep-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.ep-pkg {
+  padding: 32px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.ep-pkg--popular {
+  border-color: #0ea5e9;
+  background-color: #f0f9ff;
+  transform: scale(1.05);
+}
+
+.ep-pkg__badge {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background-color: #0ea5e9;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ep-pkg__name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ep-pkg__price {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0ea5e9;
+}
+
+.ep-pkg__price span {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.ep-pkg__desc {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.ep-pkg__features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ep-pkg__features li {
+  font-size: 14px;
+  color: #475569;
+  padding-left: 20px;
+  position: relative;
+}
+
+.ep-pkg__features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #0ea5e9;
+  font-weight: bold;
+}
+
+.ep-pkg__cta {
+  margin-top: 16px;
+}
+
+/* Organization Section */
+.ep-org-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.ep-org-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ep-org-list li {
+  font-size: 16px;
+  color: #cbd5e1;
+  padding-left: 32px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.ep-org-list li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #0ea5e9;
+  font-size: 20px;
+}
+
+.ep-org-panel {
+  background-color: #0f172a;
+  padding: 32px;
+  border-radius: 12px;
+  border-left: 4px solid #0ea5e9;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ep-org-panel__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #0ea5e9;
+}
+
+.ep-org-panel h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.ep-org-panel p {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+/* CTA Banner */
+.ep-cta-banner {
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.ep-cta-banner h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.ep-cta-banner p {
+  font-size: 16px;
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ep-hero {
+    padding: 40px 20px;
+  }
+
+  .ep-hero__header h1 {
+    font-size: 32px;
+  }
+
+  .ep-hero__main {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .ep-hero__actions {
+    flex-direction: column;
+  }
+
+  .ep-section {
+    padding: 40px 20px;
+  }
+
+  .ep-section-head h2 {
+    font-size: 28px;
+  }
+
+  .ep-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ep-journey-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ep-packages-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ep-pkg--popular {
+    transform: scale(1);
+  }
+
+  .ep-org-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .ep-cta-banner h2 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ep-hero__header h1 {
+    font-size: 24px;
+  }
+
+  .ep-kicker {
+    font-size: 11px;
+  }
+
+  .ep-hero__lead {
+    font-size: 16px;
+  }
+
+  .ep-btn {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  .ep-section-head h2 {
+    font-size: 24px;
+  }
+
+  .ep-feature-card {
+    padding: 20px;
+  }
+
+  .ep-section-head p {
+    font-size: 14px;
+  }
+
+  .ep-cta-banner h2 {
+    font-size: 22px;
+  }
+
+  .ep-cta-banner p {
+    font-size: 14px;
+  }
+}

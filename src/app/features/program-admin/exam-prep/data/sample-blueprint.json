@@ -1,0 +1,42 @@
+{
+  "id": "bp-sample-readiness",
+  "organizationId": "demo-org",
+  "title": "NCLEX RN Cardiovascular Readiness",
+  "slug": "nclex-rn-cardiovascular-readiness",
+  "description": "Sample readiness blueprint for cardiovascular med-surg coverage.",
+  "assessmentFamily": "module_assessment",
+  "programId": "nclex-rn-prep",
+  "jurisdiction": "US",
+  "examTrack": "NCLEX-RN",
+  "totalQuestionCount": 25,
+  "caseStudyBundleQuota": 2,
+  "clinicalJudgmentQuota": 5,
+  "timeBudgetMinutes": 45,
+  "noDuplicateRules": true,
+  "exposureBalancing": true,
+  "sequencingRules": ["Start medium", "End with higher-acuity clinical judgment items"],
+  "courseGroupDistributions": [
+    { "key": "adult-health-med-surg", "label": "Adult Health / Med-Surg", "targetCount": 25 }
+  ],
+  "moduleDistributions": [
+    { "key": "cardiovascular", "label": "Cardiovascular", "targetCount": 25 }
+  ],
+  "tagDistributions": [
+    { "key": "prioritization", "label": "Prioritization", "minCount": 5 }
+  ],
+  "itemTypeDistributions": [
+    { "key": "single_choice", "label": "Single Choice", "targetCount": 15 },
+    { "key": "select_all_that_apply", "label": "SATA", "targetCount": 5 }
+  ],
+  "difficultyDistributions": [
+    { "key": "easy", "label": "Easy", "targetCount": 5 },
+    { "key": "medium", "label": "Medium", "targetCount": 14 },
+    { "key": "hard", "label": "Hard", "targetCount": 6 }
+  ],
+  "progressiveSections": [],
+  "active": true,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "createdBy": "seed",
+  "updatedBy": "seed"
+}

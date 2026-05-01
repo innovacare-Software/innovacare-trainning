@@ -6,6 +6,7 @@
     "loading": "Chargement...",
     "saving": "Enregistrement...",
     "processing": "Traitement...",
+    "dismiss": "Fermer",
     "yes": "Oui",
     "no": "Non",
     "or": "ou",
@@ -1508,6 +1509,253 @@
       "noModuleProgress": "Aucune progression de module disponible. Complétez votre première leçon pour voir les analytiques.",
       "backToPrograms": "← Retour à mes programmes",
       "exploreMore": "Explorer plus de programmes"
+    },
+    "learnerSpace": {
+      "shell": {
+        "reviewPlatform": "Plateforme de révision",
+        "defaultLearner": "Apprenant",
+        "defaultTitle": "Tableau de bord apprenant",
+        "defaultProgramTitle": "Votre programme",
+        "greeting": "Bon retour, {{name}}",
+        "defaultAnnouncement": "Restez concentré sur le prochain jalon et gardez votre rythme.",
+        "completedAnnouncement": "Votre dernier parcours est terminé. Consultez vos récompenses, vos commandes et les prochaines options premium.",
+        "progressAnnouncement": "{{countdown}} avant votre jalon actuel. Gardez {{lesson}} en mouvement et protégez votre rythme d'étude.",
+        "closeNavigation": "Fermer la navigation",
+        "openNavigation": "Ouvrir la navigation",
+        "hideNavigation": "Masquer la navigation",
+        "navigation": "Navigation",
+        "hideSidebar": "Masquer la barre latérale",
+        "showSidebar": "Afficher la barre latérale",
+        "menu": "Menu",
+        "account": "Compte",
+        "searchPlaceholder": "Rechercher des cours, modules...",
+        "openCart": "Ouvrir le panier",
+        "openProfile": "Ouvrir le profil",
+        "appPromoTitle": "Toujours à portée de main!",
+        "appPromoSubtitle": "Télécharger l'application",
+        "playStore": "Play Store",
+        "appStore": "App Store",
+        "examClock": "Compte à rebours examen",
+        "wallet": "Portefeuille",
+        "orders": "Commandes",
+        "nav": {
+          "modules": "Modules",
+          "videoLibrary": "Bibliothèque vidéo",
+          "liveSessions": "Sessions en direct",
+          "assessments": "Évaluations",
+          "documents": "Documents",
+          "examPrep": "Préparation examen",
+          "simulations": "Simulations",
+          "caseStudies": "Études de cas",
+          "studyCalendar": "Calendrier d'étude",
+          "orderHistory": "Historique des commandes",
+          "exploreProducts": "Explorer les produits",
+          "newBadge": "Nouveau"
+        }
+      },
+      "dashboard": {
+        "title": "Tableau de bord apprenant",
+        "heroHeading": "{{name}}, gardez la prochaine étape simple.",
+        "examDate": "Date d'examen",
+        "resumeLearning": "Reprendre l'apprentissage",
+        "createCustomTest": "Créer un test personnalisé",
+        "openAssessments": "Ouvrir les évaluations",
+        "averageQbankScore": "Note moyenne banque de questions",
+        "dayStreak": "Série de jours",
+        "currentStreak": "Série actuelle",
+        "days": "jours",
+        "modulesCompletedDescription": "Étapes complétées dans le parcours actif.",
+        "studyTimeDescription": "Temps de pratique suivi sur l'ensemble de l'activité d'étude.",
+        "simulationScoreDescription": "Performance moyenne dans des conditions proches de l'examen.",
+        "studyProgressTracker": "Suivi de progression d'étude",
+        "moduleCompletionSubtitle": "Complétion des modules sur tous les contenus",
+        "viewFullReport": "Voir le rapport complet →",
+        "startFirstModuleTrack": "Commencez votre premier module pour suivre votre progression.",
+        "continueLearningTitle": "Continuer l'apprentissage",
+        "continueLearningDescription": "Reprenez dans {{module}} et gardez le même flux au lieu de repartir d'un aperçu général.",
+        "continueLabel": "Continuer",
+        "viewModules": "Voir les modules",
+        "performanceFocus": "Focus performance",
+        "performanceFocusTitle": "Où diriger l'attention maintenant",
+        "accountSnapshot": "Vue compte",
+        "walletPurchasing": "Portefeuille et achats",
+        "walletPoints": "Points portefeuille",
+        "ordersTracked": "Commandes suivies",
+        "openWallet": "Ouvrir le portefeuille",
+        "orderHistory": "Historique des commandes",
+        "liveSessionsTitle": "Coaching planifié et accès aux sessions",
+        "viewSchedule": "Voir le planning",
+        "noLiveSessions": "Aucune session en direct n'est encore planifiée pour cet espace apprenant.",
+        "moduleAnalytics": "Analytiques modules",
+        "progressByModule": "Progression par module",
+        "openModules": "Ouvrir les modules",
+        "startFirstModuleAnalytics": "Commencez votre premier module pour débloquer les analytiques de progression.",
+        "assessmentTrend": "Tendance des évaluations",
+        "scoreEvolution": "Évolution des résultats",
+        "takeAssessment": "Passer une évaluation",
+        "completeAssessmentsTrend": "Complétez au moins deux évaluations pour afficher une tendance de score.",
+        "studyPlans": "Plans d'étude",
+        "chooseRightCadence": "Choisir le bon rythme",
+        "openPlanner": "Ouvrir le planificateur",
+        "noStudyPlans": "Aucun plan d'étude n'est disponible pour le moment.",
+        "recommendedProducts": "Produits recommandés",
+        "premiumAddons": "Modules premium alignés sur votre parcours",
+        "exploreAll": "Tout explorer",
+        "openProduct": "Ouvrir",
+        "noRecommendedProducts": "Aucun produit recommandé n'est disponible pour le moment.",
+        "recentTransactions": "Transactions récentes",
+        "purchasesAppear": "Aucune commande pour le moment. Vos achats apparaîtront ici.",
+        "status": "Statut",
+        "amount": "Montant",
+        "type": "Type",
+        "orderedOn": "Commandé le",
+        "pendingDate": "Date en attente",
+        "joinNow": "Rejoindre maintenant",
+        "reserveSeat": "Réserver une place",
+        "replayAvailable": "Replay disponible",
+        "enrollmentActive": "Votre parcours d'apprentissage est actif. Continuez!",
+        "enrollmentCompleted": "Félicitations — programme terminé!",
+        "enrollmentPending": "Inscription en attente d'approbation.",
+        "enrollmentContinue": "Poursuivez votre parcours d'apprentissage.",
+        "upsellMessage": "Vous avancez bien. Ajoutez {{title}} pour obtenir des exercices plus poussés, des outils premium de révision et un gain de préparation plus rapide."
+      },
+      "experience": {
+        "readyForCategory": "Vous êtes prêt à {{readiness}} % pour {{category}}. Continuez!",
+        "readyGeneric": "Vous êtes prêt à {{readiness}} %. Continuez!",
+        "momentumStrong": "Votre élan est fort. Quelques sessions de qualité en plus peuvent vous faire franchir la ligne.",
+        "foundationBuilding": "Vos bases se construisent. Restez constant cette semaine et votre confiance progressera vite.",
+        "startSmall": "Commencez petit, restez régulier et laissez la plateforme vous guider vers la meilleure prochaine étape.",
+        "firstLesson": "Commencez votre première leçon",
+        "orientationModule": "Module d'orientation",
+        "completedReviewAnytime": "Terminé, révisez quand vous voulez",
+        "watchedPct": "{{value}} % visionné",
+        "defaultInstructor": "Équipe Innovacare",
+        "reviewSchedule": "Revoir le planning",
+        "openSchedule": "Ouvrir le planning",
+        "productRecommended": "Recommandé",
+        "productPopular": "Populaire",
+        "planTitle": "Plan de {{weeks}} semaines",
+        "planDescriptionSprint": "Sprint intensif avec priorités quotidiennes.",
+        "planDescriptionBalanced": "Rythme équilibré pour la constance et la révision.",
+        "planDescriptionMastery": "Parcours de maîtrise long terme avec répétition espacée.",
+        "planHighlightUrgent": "Idéal pour une préparation urgente",
+        "planHighlightMost": "Idéal pour la plupart des apprenants",
+        "planHighlightMastery": "Idéal pour une maîtrise approfondie",
+        "examPassed": "Réussi",
+        "examUpcoming": "Bientôt",
+        "examInProgress": "En cours",
+        "examCompleted": "Terminé",
+        "examTomorrow": "Demain",
+        "examDaysLeft": "{{count}} jours restants",
+        "examWeeksLeft": "{{count}} semaines restantes"
+      },
+      "statuses": {
+        "pending": "En attente",
+        "approved": "Approuvé",
+        "confirmed": "Confirmé",
+        "active": "Actif",
+        "completed": "Terminé",
+        "cancelled": "Annulé",
+        "rejected": "Refusé"
+      },
+      "orderStatuses": {
+        "pending": "En attente",
+        "paid": "Payé",
+        "completed": "Terminé",
+        "processing": "En traitement",
+        "failed": "Échoué",
+        "cancelled": "Annulé",
+        "refunded": "Remboursé"
+      },
+      "orderTypes": {
+        "program": "Programme",
+        "course": "Cours",
+        "bundle": "Forfait",
+        "credits": "Crédits",
+        "wallet_credit": "Crédit portefeuille",
+        "wallet_credits": "Crédits portefeuille",
+        "subscription": "Abonnement"
+      },
+      "liveSessions": {
+        "title": "Sessions en direct",
+        "subtitle": "Cours animés par des formateurs, coaching et sessions de questions-réponses avec accès inclus, gratuit ou payant directement dans votre programme.",
+        "upcomingSessions": "sessions à venir",
+        "required": "Obligatoire",
+        "educator": "Formateur",
+        "seats": "{{count}} places",
+        "reservation": "Réservation",
+        "opening": "Ouverture...",
+        "joinSession": "Rejoindre la session",
+        "reserving": "Réservation...",
+        "redirecting": "Redirection...",
+        "payReserve": "Payer et réserver",
+        "sessionEnded": "Session terminée",
+        "empty": "Aucune session en direct programmée pour le moment.",
+        "statusEnded": "Terminée",
+        "statusLiveNow": "En direct",
+        "statusUpcoming": "À venir",
+        "reserveFreeSeat": "Réserver une place gratuite",
+        "reservationCancelled": "Réservation annulée",
+        "paymentRequired": "Paiement requis",
+        "reservationRequired": "Réservation requise",
+        "reserveSuccess": "Place réservée. Vous pourrez rejoindre cette session animée par le formateur depuis ici lorsqu'elle s'ouvrira.",
+        "openingTitle": "Ouverture de {{title}}.",
+        "genericError": "Impossible d'exécuter cette action.",
+        "bookingStates": {
+          "confirmed": "Confirmée",
+          "attended": "Présence confirmée",
+          "cancelled": "Annulée",
+          "missed": "Manquée",
+          "reserved": "Réservée"
+        },
+        "accessModes": {
+          "included": "Inclus",
+          "free": "Gratuit",
+          "paid": "Payant"
+        },
+        "sessionTypes": {
+          "live_lecture": "Cours en direct",
+          "workshop": "Atelier",
+          "q_a_session": "Session questions-réponses",
+          "review_session": "Session de révision",
+          "office_hours": "Heures de permanence"
+        }
+      },
+      "videoLibrary": {
+        "eyebrow": "Bibliothèque vidéo",
+        "title": "Leçons vidéo enregistrées",
+        "subtitle": "Revoyez toutes les sessions préenregistrées rattachées à ce programme et reprenez exactement là où vous vous êtes arrêté.",
+        "inProgress": "En cours",
+        "yetToStart": "Pas encore commencé",
+        "completed": "Terminé",
+        "notStarted": "Non commencé",
+        "backToModules": "Retour aux modules",
+        "searchLabel": "Rechercher des vidéos",
+        "searchPlaceholder": "Rechercher par titre, module ou description",
+        "status": "Statut",
+        "subject": "Sujet",
+        "play": "Lire",
+        "featured": "En vedette",
+        "preview": "Aperçu",
+        "watchedPct": "{{value}} % visionné",
+        "continueEyebrow": "Continuer",
+        "queueEyebrow": "File d'attente",
+        "doneEyebrow": "Terminées",
+        "resume": "Reprendre",
+        "watch": "Regarder",
+        "replay": "Revoir",
+        "emptyTitle": "Aucune vidéo ne correspond à ces filtres",
+        "emptySubtitle": "Essayez un autre mot-clé ou élargissez le sujet/statut sélectionné.",
+        "allSubjects": "Tous les sujets",
+        "programModule": "Module du programme",
+        "videoCount": "{{count}} vidéo(s)",
+        "filters": {
+          "all": "Toutes les vidéos",
+          "active": "En cours",
+          "idle": "Pas encore commencé",
+          "done": "Terminées"
+        }
+      }
     }
   },
   "checkout": {
@@ -1585,5 +1833,886 @@
   },
   "languageSwitcher": {
     "label": "Langue"
+  }
+  ,
+  "LANG": {
+    "en": "English",
+    "fr": "Français",
+    "switch_to_fr": "Passer en français",
+    "switch_to_en": "Switch to English"
+  },
+  "NAV": {
+     "home": "Accueil",
+     "menu": "Menu",
+    "dashboard": "Tableau de bord",
+    "my_courses": "Mes cours",
+    "qbank": "Banque de questions",
+    "live_lectures": "Cours en direct",
+    "study_calendar": "Calendrier d'études",
+    "performance": "Performance",
+    "nursing_school": "École d'infirmières",
+    "private_tutors": "Tuteurs privés",
+    "for_educators": "Pour les éducateurs",
+    "wallet": "Portefeuille",
+    "ce_certificates": "Certificats CE",
+    "order_history": "Historique des commandes",
+    "explore_products": "Explorer les produits",
+    "sign_in": "Connexion",
+    "sign_out": "Déconnexion"
+  },
+  "TOPBAR": {
+    "search_placeholder": "Chercher des cours, modules…",
+    "search_transactions": "Rechercher des transactions…",
+    "greeting": "Bon retour",
+    "wallet_subtitle": "Gérez vos crédits et paiements",
+    "dashboard_subtitle": "Votre parcours d'apprentissage commence ici"
+  },
+  "DASHBOARD": {
+    "title": "Tableau de bord",
+    "page_title": "Atteignez vos objectifs avec Innovacare Review",
+    "page_subtitle": "Votre contenu NCLEX personnalisé — conçu pour booster votre apprentissage.",
+    "stats": {
+      "avg_score": "Score moyen Q-Bank",
+      "questions_answered": "Questions répondues",
+      "streak": "Jours consécutifs",
+      "days_to_exam": "Jours avant l'examen",
+      "keep_it_up": "Continuez !",
+      "stay_focused": "Restez concentré",
+      "today": "aujourd'hui"
+    },
+    "progress": {
+      "title": "Suivi de progression",
+      "subtitle": "Votre avancement dans tous les domaines de contenu",
+      "view_report": "Voir le rapport complet →",
+      "critical_care": "Soins intensifs",
+      "pharmacology": "Pharmacologie",
+      "med_surg": "Méd-Chir",
+      "maternal_ob": "Maternité/OB",
+      "pediatrics": "Pédiatrie",
+      "psych": "Psychiatrie"
+    },
+    "courses": {
+      "title": "Explorer les cours",
+      "subtitle": "Achetez un plan et commencez votre parcours d'apprentissage dès aujourd'hui",
+      "tabs": {
+        "nclex_rn": "NCLEX RN",
+        "nclex_pn": "NCLEX PN",
+        "nursing_school": "École d'infirmières"
+      }
+    },
+    "recommend": {
+      "title": "Vous ne savez pas quel programme vous convient ?",
+      "subtitle": "Laissez notre conseiller IA analyser vos objectifs et recommander le plan parfait.",
+      "cta": "Obtenir une recommandation"
+    }
+  },
+  "NURSING_SCHOOL": {
+    "badge": "Pour les étudiants en soins infirmiers",
+    "hero_title": "Simplifiez vos études d'infirmière",
+    "hero_title_accent": "avec Innovacare Review",
+    "hero_desc": "Transformez des cours complexes en explications claires que vous retiendrez vraiment. Apprenez plus vite, retenez davantage, et abordez chaque examen avec confiance.",
+    "cta_primary": "Commencer à apprendre",
+    "cta_secondary": "Voir tous les cours",
+    "stats": {
+      "questions": "Questions pratiques",
+      "videos": "Vidéos haute valeur",
+      "courses": "Cours — Toutes les matières"
+    },
+    "catalogue": {
+      "title": "Catalogue des cours",
+      "categories": {
+        "prerequisites": "Prérequis",
+        "introductory": "Cours d'introduction",
+        "core": "Cours fondamentaux",
+        "transition": "Transition vers la pratique"
+      },
+      "badges": {
+        "prerequisites": "Fondation",
+        "introductory": "Semestre 1",
+        "core": "Semestres 2-3",
+        "transition": "Dernière année"
+      },
+      "videos_label": "Vidéos",
+      "questions_label": "Questions",
+      "explore": "Explorer",
+      "add_bundle": "Ajouter au bundle"
+    },
+    "bundle": {
+      "selected": "cours sélectionnés",
+      "total": "Total du bundle",
+      "clear": "Effacer",
+      "build": "Créer mon bundle →",
+      "discount_3": "10% de réduction appliquée",
+      "discount_5": "20% de réduction appliquée"
+    },
+    "why": {
+      "title": "Pourquoi Innovacare fonctionne",
+      "subtitle": "Des leçons courtes et visuelles — conçues pour la façon dont les infirmières apprennent.",
+      "card_1_title": "Apprenez les sujets complexes facilement",
+      "card_1_desc": "Des explications simples qui font enfin sens",
+      "card_2_title": "Étudiez efficacement, même occupé",
+      "card_2_desc": "Des leçons courtes adaptées à votre emploi du temps",
+      "card_3_title": "Gagnez en confiance pour les examens",
+      "card_3_desc": "Chaque leçon relie la théorie à la pratique",
+      "card_4_title": "Sachez toujours quoi étudier",
+      "card_4_desc": "Des parcours guidés sans stress",
+      "card_5_title": "Retenez plus grâce au visuel",
+      "card_5_desc": "Des illustrations qui ancrent les sujets difficiles",
+      "card_6_title": "Suivez exactement votre progression",
+      "card_6_desc": "Suivi de progression et prédiction de réussite"
+    }
+  },
+  "FOR_EDUCATORS": {
+    "badge": "Pour les éducateurs et institutions",
+    "hero_title": "Boostez la réussite de vos étudiants",
+    "hero_title_accent": "avec Innovacare Review",
+    "hero_desc": "Surveillez les performances, remédiez aux lacunes et atteignez des taux de réussite NCLEX de premier plan.",
+    "cta_demo": "Planifier une démo",
+    "cta_pricing": "Demander les tarifs",
+    "included_title": "Ce qui est inclus",
+    "features": {
+      "qbank": "Banque de questions 3 000+ NGN",
+      "videos": "Bibliothèque vidéo à la demande (190+ h)",
+      "live": "Révision intensive 3 jours en direct",
+      "dashboard": "Tableau de bord éducateur — GRATUIT",
+      "monitoring": "Suivi des performances des étudiants",
+      "benchmarking": "Comparaison avec les données mondiales",
+      "cheatsheets": "Fiches et feuilles de travail numériques",
+      "case_studies": "Études de cas en direct"
+    },
+    "dashboard_features": {
+      "title": "Fonctionnalités du tableau de bord",
+      "monitor": "Surveiller les performances",
+      "monitor_desc": "Visualisez les tendances individuelles et de cohorte",
+      "assign": "Créer et assigner des évaluations",
+      "assign_desc": "Créez des examens CAT et des contrôles de préparation",
+      "standardize": "Standardiser votre programme",
+      "standardize_desc": "Alignez la diffusion du contenu entre instructeurs",
+      "assessments": "Évaluations formatives et sommatives",
+      "assessments_desc": "Suivez les progrès de l'inscription à la diplomation",
+      "benchmark": "Comparer avec les données mondiales",
+      "benchmark_desc": "Comparez votre cohorte à des milliers d'étudiants",
+      "readiness": "Savoir quand les étudiants sont prêts",
+      "readiness_desc": "Système de score de préparation avec seuils"
+    },
+    "pricing": {
+      "title": "Achetez des espaces de formation pour vos élèves",
+      "subtitle": "Tous les plans incluent le tableau de bord éducateur sans frais supplémentaires",
+      "starter": "DÉBUTANT",
+      "starter_period": "par étudiant / an · jusqu'à 50 places",
+      "professional": "PROFESSIONNEL",
+      "professional_period": "par étudiant / an · 51–200 places",
+      "enterprise": "ENTREPRISE",
+      "enterprise_price": "Sur mesure",
+      "enterprise_period": "tarification · 200+ places",
+      "popular_badge": "PLUS POPULAIRE",
+      "get_started": "Commencer",
+      "request_pricing": "Demander les tarifs",
+      "contact_sales": "Contacter les ventes",
+      "volume_discount": "Remises sur volume disponibles"
+    },
+    "demo_form": {
+      "title": "Planifier une démonstration",
+      "institution_name": "Nom de l'institution",
+      "your_name": "Votre nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone (optionnel)",
+      "student_count": "Nombre d'étudiants",
+      "program_type": "Type de programme",
+      "message": "Message (optionnel)",
+      "submit": "Envoyer la demande",
+      "submitting": "Envoi en cours…",
+      "success": "Demande envoyée ! Nous vous contacterons sous 24 heures.",
+      "options": {
+        "students_50": "Moins de 50",
+        "students_200": "51 à 200",
+        "students_more": "Plus de 200",
+        "adn": "ADN",
+        "bsn": "BSN",
+        "lpn": "LPN",
+        "msn": "MSN",
+        "other": "Autre"
+      }
+    }
+  },
+  "TUTORS": {
+    "badge": "Tuteurs experts en soins infirmiers",
+    "hero_title": "Cours particuliers personnalisés en soins infirmiers",
+    "hero_desc": "Nos tuteurs sont des infirmières actives avec une expérience clinique et en salle de classe. Ils ont accompagné des milliers d'étudiants.",
+    "cta_primary": "Trouver un tuteur",
+    "trust": {
+      "rating": "note moyenne de 4,9",
+      "verified": "50+ tuteurs vérifiés",
+      "availability": "Disponibilités flexibles chaque semaine"
+    },
+    "how_it_works": {
+      "title": "Comment ça marche",
+      "subtitle": "De la recherche à la séance en quelques minutes.",
+      "step_1_title": "Parcourir les tuteurs",
+      "step_1_desc": "Filtrez par matière, spécialité ou prix. Consultez les références et les avis.",
+      "step_2_title": "Réserver une séance",
+      "step_2_desc": "Choisissez une date et une heure qui vous conviennent.",
+      "step_3_title": "Apprendre et réussir",
+      "step_3_desc": "Recevez un accompagnement personnalisé avec un professionnel infirmier vérifié."
+    },
+    "meet_title": "Découvrez nos tuteurs",
+    "meet_subtitle": "Tous les tuteurs sont des professionnels infirmiers accrédités et en exercice.",
+    "filters": {
+      "label": "Filtrer les tuteurs par matière",
+      "all": "Toutes les matières"
+    },
+    "specialties": "Spécialités",
+    "book_session": "Réserver une séance",
+    "become_tutor": "Devenir tuteur",
+    "bookings": {
+      "duration": "Durée de la séance",
+      "type": "Type de séance",
+      "individual": "Individuelle (1 à 1)",
+      "group": "Groupe (petite cohorte)",
+      "notes": "Notes pour votre tuteur (optionnel)",
+      "summary": "Résumé du prix de la séance",
+      "rate": "Tarif"
+    },
+    "cta_book": "Réserver",
+    "cta_how": "Comment ça marche",
+    "filter_all": "Tous",
+    "next_slot": "Prochain créneau",
+    "verified": "Tuteur vérifié",
+    "rating": "Note",
+    "book_now": "Réserver",
+    "no_slots": "Aucun créneau disponible aujourd'hui",
+    "calendar": {
+      "title": "Réserver votre séance",
+      "one_to_one": "Cours particulier",
+      "session_summary": "Résumé de la séance",
+      "sessions_selected": "Séances sélectionnées",
+      "subject": "Matière",
+      "tutor": "Tuteur",
+      "duration": "Durée",
+      "price_per_session": "Prix par séance",
+      "discount": "Réduction",
+      "total": "TOTAL",
+      "proceed": "Procéder au paiement →",
+      "min_per_session": "min / séance",
+      "discount_3": "5% de réduction (3+ séances)",
+      "discount_5": "10% de réduction (5+ séances)"
+    }
+  },
+  "WALLET": {
+    "title": "Portefeuille",
+    "summary": "Crédits disponibles pour vos achats de cours sur Innovacare Review",
+    "balance": "Solde actuel",
+    "amount_placeholder": "Entrez le montant à ajouter",
+    "actions": {
+      "add_credits": "Ajouter des crédits"
+    },
+    "payment": {
+      "method": "Mode de paiement",
+      "card": "Payer par carte de crédit / débit",
+      "paypal": "Payer avec PayPal",
+      "mobile_money": "Payer par Mobile Money",
+      "mobile_sub": "Encaissement MTN, Orange, Moov ou Airtel",
+      "phone": "Numéro de téléphone",
+      "provider": "Opérateur",
+      "waiting_confirmation": "En attente de confirmation mobile. Validez la demande de paiement sur votre téléphone.",
+      "wallet_paid": "Portefeuille crédité avec succès. Votre solde a été mis à jour.",
+      "mobile_failed": "Le paiement Mobile Money a échoué ou a expiré. Veuillez réessayer.",
+      "processing_fee": "Frais de traitement",
+      "no_fee": "Aucun frais de traitement — 100 % vont dans votre portefeuille",
+      "secure_checkout": "Paiement sécurisé"
+    },
+    "history": {
+      "title": "Transactions récentes",
+      "empty": "Aucune transaction de portefeuille pour le moment",
+      "topup": "Recharge portefeuille"
+    },
+    "page_title": "Ajouter des crédits",
+    "breadcrumb_wallet": "Portefeuille",
+    "breadcrumb_add": "Ajouter des crédits",
+    "balance_label": "Solde actuel",
+    "balance_currency": "USD",
+    "balance_desc": "Crédits disponibles pour vos achats sur Innovacare Review",
+    "history_btn": "Historique des transactions",
+    "wallet_title": "Crédits portefeuille",
+    "wallet_desc": "Vos crédits pour des achats fluides sur Innovacare Review. Les crédits n'expirent jamais.",
+    "input_placeholder": "Entrez le montant",
+    "chips": {
+      "label": "Montants rapides"
+    },
+    "payment_method": "Mode de paiement",
+    "credit_card": "Carte de crédit / débit",
+    "credit_card_sub": "Visa, Mastercard, Amex",
+    "paypal": "PayPal",
+    "paypal_sub": "Paiement rapide et sécurisé",
+    "total_amount": "Montant total",
+    "subtotal": "Sous-total",
+    "processing_fee": "Frais de traitement",
+    "fee_free": "GRATUIT",
+    "total": "Total",
+    "fee_note": "Aucun frais de traitement — 100% va sur votre portefeuille",
+    "pay_card": "Payer par carte de crédit / débit",
+    "pay_paypal": "Payer avec PayPal",
+    "secure": "Sécurisé par chiffrement SSL 256 bits",
+    "history_title": "Transactions récentes",
+    "history_empty": "Aucune transaction pour le moment",
+    "error_min": "Veuillez saisir un montant valide (minimum 1,00 $)",
+    "toast_success_title": "Paiement réussi !",
+    "toast_success_sub": "ajouté à votre portefeuille via"
+  },
+  "COURSES": {
+    "validity": "Validité",
+    "days": "jours",
+    "view_more": "Voir plus",
+    "view_less": "Voir moins",
+    "explore": "Explorer",
+    "buy_now": "Acheter",
+    "added_cart": "Ajouté au panier !",
+    "recommended": "Recommandé",
+    "features": {
+      "qbank": "Plus de 3100 questions NGN avec des études de cas autonomes et évolutives",
+      "cat": "Plus de 30 évaluations de préparation + examens CAT",
+      "analytics": "Analyses de performance et prédiction de réussite"
+    }
+  },
+  "AUTH": {
+    "exam_ready": "Prêt pour l'examen",
+    "nclex_candidate": "Candidat NCLEX-RN"
+  },
+  "COMMON": {
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "yes": "Oui",
+    "no": "Non",
+    "learnMore": "En savoir plus",
+    "empty": "Aucun résultat pour le moment.",
+    "subject": "Matière",
+    "date": "Date",
+    "time": "Heure",
+    "total": "Total",
+    "days": "jours",
+    "hours": "heures",
+    "minutes": "minutes",
+    "free": "GRATUIT",
+    "new_badge": "Nouveau",
+    "popular": "Populaire",
+    "per_year": "par an"
+  },
+  "HOME_MARKETING": {
+    "hero": {
+      "kicker": "NCLEX, préparation infirmière et médicale",
+      "title_prefix": "Une préparation d’examen conçue pour",
+      "title_accent": "la réussite à l’autorisation.",
+      "lead": "Préparez-vous avec des banques de questions, du contenu validé par des formateurs, le suivi de performance et un accompagnement tutoré sur une seule plateforme.",
+      "chip_qbank": "Qbanks et examens CAT",
+      "chip_dashboard": "Tableaux de bord de performance",
+      "chip_faculty": "Révision validée par des formateurs",
+      "cta_primary": "Commencer à apprendre",
+      "cta_secondary": "Explorer les programmes",
+      "proof_pass": "Orientation réussite",
+      "proof_questions": "Questions répondues",
+      "proof_access": "Accès aux études",
+      "stage_title": "Des parcours clairs de l’inscription au jour d’examen.",
+      "stage_body": "Conçu pour les apprenants individuels, les cohortes et les partenaires institutionnels.",
+      "motion": "Profondeur en verre superposé",
+      "backdrop": "Image parallaxe Cloudinary",
+      "layer_title": "Expérience de révision à fort impact",
+      "layer_body": "Mentorat, banques de questions, préparation et confiance dans un seul flux.",
+      "float_qbank": "Banques de questions et exercices",
+      "float_students": "Étudiants touchés",
+      "float_signal": "Signal premium de confiance dans le hero"
+    },
+    "programs": {
+      "title": "Orienter rapidement les apprenants vers le bon parcours",
+      "body": "Explorez des parcours spécialisés adaptés à votre étape de carrière, votre échéance d’examen et vos objectifs professionnels en filières infirmières et médicales.",
+      "nursing_title": "Pré-infirmier, école d’infirmières, NCLEX et parcours infirmiers avancés",
+      "nursing_body": "Renforcez la confiance des apprenants avec une entrée premium vers les plans de révision, le tutorat et la préparation adaptative aux examens infirmiers.",
+      "explore_nursing": "Explorer les parcours infirmiers",
+      "medical_title": "Boards médicaux, révision clinique et accompagnement avancé à la préparation",
+      "medical_body": "Renforcez vos connaissances cliniques et votre préparation aux boards avec une révision ciblée, un encadrement expert et un soutien pratique.",
+      "explore_medical": "Explorer les parcours médicaux"
+    },
+    "evidence": {
+      "title": "Une préparation fiable construite autour des résultats et de la confiance",
+      "body": "Les apprenants choisissent Innovacare Training pour ses parcours structurés, sa visibilité claire sur la progression et des expériences d’étude pensées pour renforcer la confiance avant l’examen.",
+      "score_body": "Mesurez la préparation avec une expérience d’apprentissage axée sur la progression, la responsabilisation et les résultats.",
+      "badge_body": "Un positionnement prêt à convaincre les nouveaux visiteurs comme les institutions."
+    },
+    "quiz": {
+      "kicker": "CTA personnalisé",
+      "title": "Trouvez le bon parcours d’apprentissage pour votre prochain examen",
+      "body": "Répondez à quelques questions rapides pour obtenir une recommandation alignée sur votre fenêtre d’examen, vos objectifs d’étude et votre filière cible.",
+      "exam_window": "Fenêtre d’examen",
+      "window_4": "Dans les 4 semaines",
+      "window_8": "Dans les 8 semaines",
+      "window_12": "3 mois et plus",
+      "track": "Filière",
+      "track_institution": "Institutionnel",
+      "goal": "Objectif",
+      "goal_fast": "Réussir vite",
+      "goal_confidence": "Gagner en confiance",
+      "goal_repeat": "Soutien en reprise",
+      "goal_institution": "Onboarding de cohorte",
+      "recommended": "Recommandé",
+      "preparing": "Préparation...",
+      "saving": "Enregistrement...",
+      "email_recommendation": "Recevoir ma recommandation par e-mail",
+      "primary_default": "Ouvrir mon parcours d’apprentissage",
+      "primary_institution": "Demander mon plan de cohorte",
+      "recommendation_institution_title": "Pack cohorte institutionnelle",
+      "recommendation_institution_body": "Idéal pour les écoles et éducateurs qui ont besoin d’analytique, de workflows d’onboarding et de visibilité sur les cohortes.",
+      "recommendation_pn_title": "Parcours de réussite PN",
+      "recommendation_pn_body": "Un parcours structuré de remédiation avec rationales, reconstruction de confiance et coaching par étapes.",
+      "recommendation_rn_title": "Accélérateur NCLEX-RN",
+      "recommendation_rn_body": "Un système de révision intensif pour les apprenants visant une date d’examen proche.",
+      "recommendation_clinical_title": "Révision de préparation clinique",
+      "recommendation_clinical_body": "Un parcours équilibré combinant analytique, coaching et pratique adaptative pour une progression régulière.",
+      "email_required": "Entrez votre e-mail pour enregistrer cette recommandation.",
+      "saved": "Recommandation enregistrée. Un suivi personnalisé peut désormais être construit à partir de ce lead."
+    },
+    "stories": {
+      "title": "Des histoires d’apprenants qui prennent de l’élan et gagnent en confiance",
+      "body": "Découvrez comment les apprenants utilisent nos programmes, notre coaching et nos outils d’étude pour rester constants et prêts pour l’examen.",
+      "feature_title": "Des expériences réelles qui facilitent des décisions confiantes",
+      "feature_body": "Découvrez comment une préparation ciblée, une structure claire et un accompagnement continu aident les apprenants à garder le cap.",
+      "feature_cta": "Voir les programmes"
+    },
+    "mobile": {
+      "title": "Emportez votre préparation sur tous vos appareils",
+      "body": "Étudiez partout avec un accès mobile aux leçons, aux séances pratiques, au suivi de progression et à la dynamique quotidienne d’apprentissage.",
+      "overlay_title": "Tableau de bord adaptatif",
+      "overlay_body": "Usage, séries, préparation et repères de progression en une seule vue."
+    },
+    "blog": {
+      "title": "Analyses, conseils et soutien d’étude issus du terrain",
+      "body": "Explorez des articles qui vous aident à mieux vous préparer, à rester informé et à avancer avec confiance.",
+      "cta": "Voir tous les articles"
+    }
+  },
+  "TESTIMONIALS_PAGE": {
+    "hero": {
+      "kicker": "Histoires de réussite",
+      "cta_primary": "Explorer les avis",
+      "cta_secondary": "Soumettre un témoignage",
+      "featured": "Succès mis en avant",
+      "featured_title": "Fiable avant paiement. Adopté après onboarding."
+    },
+    "archive": {
+      "kicker": "Ce que disent les apprenants",
+      "title": "Une preuve sociale structurée comme une page premium de conversion",
+      "body": "En reprenant le rythme des meilleurs hubs de témoignages en préparation d’examen : un titre clair, des statistiques visibles, des marqueurs de confiance et un mur dense mais lisible de résultats authentiques.",
+      "heading": "Archive des témoignages",
+      "page": "Page {{current}} sur {{total}}",
+      "verified": "Témoignage de type apprenant vérifié"
+    },
+    "share": {
+      "kicker": "Partagez votre réussite",
+      "title": "Inspirez le prochain apprenant avec votre parcours",
+      "body": "Expliquez comment Innovacare a soutenu votre préparation, votre confiance et votre résultat final. Cela maintient la page vivante et durablement crédible.",
+      "alt": "Illustration d’histoire de réussite et de progression apprenante"
+    },
+    "cta": {
+      "kicker": "Capitaliser sur l’élan",
+      "title": "Transformez les témoignages en prochaine étape d’inscription",
+      "body": "Associez cette page à un quiz, un CTA contact ou une entrée directe vers le catalogue pour que la confiance devienne immédiatement action.",
+      "button": "Faire le quiz"
+    }
+  },
+  "MARKETING_NAV": {
+    "medical": "Médical",
+    "programs": "Programmes",
+    "social_learning": "Apprentissage social",
+    "testimonials": "Témoignages",
+    "blogs": "Blog",
+    "contact_us": "Nous contacter",
+    "toggle_menu": "Ouvrir le menu",
+    "promo": {
+      "discover_title": "Découvrez le cours idéal pour vous",
+      "discover_cta": "Obtenir des recommandations",
+      "foreign_title": "Traitement NCLEX pour diplômés étrangers",
+      "apply_now": "Postuler maintenant",
+      "refer_body": "Vous gagnez 5 % de crédit, ils économisent 5 %",
+      "share_earn": "Partager et gagner"
+    },
+    "nursing": {
+      "pre_nursing": "Pré-infirmier",
+      "pre_nursing_desc": "Kit de réussite TEAS 7 et HESI A2",
+      "nclex_rn_desc": "Outils de réussite NCLEX RN",
+      "np": "Infirmier praticien",
+      "np_desc": "Ressources expertes pour examens NP",
+      "nursing_school": "École d’infirmières",
+      "nursing_school_desc": "Votre compagnon d’études infirmières",
+      "nclex_pn_desc": "Préparation efficace au NCLEX PN",
+      "ccrn_desc": "Ressources essentielles pour réussir le CCRN",
+      "private_tutors": "Tuteurs privés",
+      "private_tutors_desc": "Séances de tutorat individuel avec experts"
+    },
+    "medical_items": {
+      "usmle": "Préparation aux examens USMLE",
+      "comlex": "Préparation au COMLEX-USA",
+      "pance": "Préparation à l’examen d’assistant médical"
+    },
+    "educators": {
+      "overview": "Vue institutionnelle",
+      "overview_desc": "Démo plateforme et tarification",
+      "for_nclex": "Pour le NCLEX",
+      "for_nclex_desc": "Outils pédagogiques et analyses",
+      "for_school": "Pour les écoles d’infirmières",
+      "for_school_desc": "Curriculum et ressources",
+      "demo": "Demander une démo",
+      "demo_desc": "Présentation personnalisée de 30 min"
+    },
+    "account": {
+      "open_account": "Ouvrir le menu compte",
+      "open_login": "Ouvrir le menu connexion",
+      "title": "Compte",
+      "subtitle_guest": "Tableau de bord, portefeuille et commandes",
+      "quick_access": "Accès rapide",
+      "jump_back": "Retournez dans votre espace",
+      "preview": "Aperçu du menu compte",
+      "hero_auth": "Accédez au tableau de bord, aux récompenses, à l’historique de commandes ou au partage en un survol.",
+      "hero_guest": "Utilisez le même modèle de menu compact attendu sur une plateforme premium de préparation.",
+      "session_control": "Contrôle de session",
+      "premium_access": "Accès apprenant premium",
+      "best_fit": "Trouver le meilleur parcours",
+      "order_history": "Historique des commandes",
+      "refer": "Parrainez vos amis",
+      "refer_desc": "Envoyez des referrals vers le tunnel public d’apprentissage social.",
+      "dashboard_guest": "Ouvrez votre espace invité, vos cours et vos réservations.",
+      "dashboard_learner": "Retournez à votre tableau de bord apprenant et à vos cours actifs.",
+      "dashboard_program_learner": "Ouvrez votre espace apprenant programme et vos modules en cours.",
+      "dashboard_super_admin": "Accédez à la santé de la plateforme, aux tenants et à la supervision.",
+      "dashboard_program_admin": "Ouvrez le tableau de bord des opérations programme et le catalogue actif.",
+      "dashboard_default": "Retournez à votre tableau de bord principal.",
+      "wallet_guest": "Consultez votre activité d’achat et votre historique commerce.",
+      "wallet_learner": "Consultez récompenses, points et valeur liée aux certificats.",
+      "wallet_program_learner": "Ouvrez le portefeuille apprenant depuis le hub programme.",
+      "wallet_default": "Ouvrez l’espace de valeur et avantages le plus pertinent.",
+      "orders_guest": "Consultez achats récents, réservations et historique de paiement.",
+      "orders_learner": "Consultez votre historique d’apprentissage et de complétion.",
+      "orders_program_learner": "Ouvrez achats et extensions premium depuis l’espace apprenant.",
+      "orders_default": "Ouvrez votre activité récente et votre historique compte."
+    }
+  },
+  "BLOG_PAGE": {
+    "hero": {
+      "kicker": "Blog",
+      "title": "Analyses sur la formation infirmière, l’autorisation et la performance apprenante",
+      "body": "Lisez des articles pratiques sur la préparation NCLEX, le soutien étudiant, la stratégie facultaire et les résultats de programme dans la formation infirmière.",
+      "chip_nclex": "Stratégie NCLEX",
+      "chip_faculty": "Leadership facultaire",
+      "chip_students": "Réussite étudiante",
+      "chip_ops": "Opérations programme"
+    },
+    "stats": {
+      "total_articles": "Articles au total",
+      "categories": "Catégories éditoriales",
+      "current_filter": "Filtre actuel"
+    },
+    "featured": {
+      "badge": "Article mis en avant",
+      "read": "Lire l’article vedette"
+    },
+    "filters": {
+      "label": "Filtre éditorial",
+      "count_suffix": "article(s)",
+      "all": "Tous"
+    },
+    "categories": {
+      "nclex": "NCLEX",
+      "study_skills": "Méthodologie",
+      "career": "Carrière",
+      "educators": "Éducation"
+    },
+    "sections": {
+      "articles": "Articles",
+      "all_title": "Parcourez des articles experts sur la préparation aux examens, la stratégie d’apprentissage et la croissance éducative",
+      "category_title": "Parcourir les articles dans"
+    },
+    "cards": {
+      "read": "Lire l’article"
+    },
+    "empty": {
+      "only_featured_badge": "Article vedette uniquement",
+      "only_featured_title": "Aucun article supplémentaire dans cette catégorie pour le moment.",
+      "only_featured_body": "L’article vedette ci-dessus est actuellement la principale publication de ce filtre.",
+      "show_all": "Afficher toutes les catégories",
+      "none_badge": "Aucun article",
+      "none_title": "Aucun article de blog n’est disponible pour le moment.",
+      "none_body": "Publiez des articles depuis votre système de contenu pour alimenter cette page."
+    },
+    "cta": {
+      "kicker": "Construction d’autorité",
+      "title": "Utilisez le contenu éditorial pour soutenir conversion, confiance et croissance durable",
+      "body": "Une page blog plus forte améliore la visibilité de recherche, la crédibilité de marque et la confiance d’achat auprès des étudiants comme des institutions.",
+      "button": "Parler à l’équipe"
+    }
+  },
+  "BLOG_DETAIL": {
+    "hero": {
+      "insight": "Point de vue éditorial",
+      "matching_program": "Explorer un programme associé"
+    },
+    "stats": {
+      "sections": "Sections approfondies",
+      "tags": "Tags stratégiques",
+      "read_time": "Temps de lecture"
+    },
+    "cta": {
+      "kicker": "Prochaine étape",
+      "quiz": "Faire le quiz",
+      "team": "Parler à l’équipe"
+    },
+    "sidebar": {
+      "related": "Lectures liées",
+      "continue_title": "Poursuivre le parcours de lecture",
+      "continue_body": "Passez de l’insight à l’action avec l’article recommandé suivant et transformez la curiosité en prochaine étape concrète.",
+      "guided_title": "Besoin d’un parcours guidé ?",
+      "guided_body": "Utilisez le quiz pour transformer cet article en recommandation d’étude ou de programme pertinente.",
+      "guided_cta": "Obtenir ma recommandation"
+    },
+    "empty": {
+      "title": "Article indisponible",
+      "body": "Cet article est introuvable. Parcourez plutôt la bibliothèque complète.",
+      "back": "Retour au blog"
+    }
+  },
+  "MARKETING_FOOTER": {
+    "logo_alt": "Logo Innovacare",
+    "eyebrow": "Innovacare",
+    "brand_title": "Une préparation moderne aux examens qui transforme la confiance en action.",
+    "brand_body": "Pensé pour la préparation NCLEX aujourd’hui, conçu pour des marques éducatives multi-domaines demain.",
+    "explore_title": "Explorer",
+    "programs_title": "Programmes",
+    "institutional_sales": "Ventes institutionnelles",
+    "legal_title": "Mentions",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "accessibility": "Accessibilité",
+    "support": "Support",
+    "bottom_copy": "Adopté par les futurs infirmiers, les équipes académiques et les opérateurs de formation santé.",
+    "linkedin": "LinkedIn",
+    "instagram": "Instagram",
+    "facebook": "Facebook"
+  },
+  "MARKETING_POPUPS": {
+    "exit": {
+      "tag": "Intention de sortie",
+      "title": "Attendez ! Obtenez 20 % de réduction sur votre préparation NCLEX",
+      "body": "Restez avec nous et débloquez une offre pensée pour convertir avant de quitter la page.",
+      "email_label": "Adresse courriel",
+      "email_placeholder": "vous@exemple.com",
+      "loading": "Préparation...",
+      "cta": "Obtenir ma réduction",
+      "skip": "Aller au catalogue",
+      "email_required": "Entrez votre courriel pour débloquer la réduction.",
+      "success": "Réduction débloquée. Explorez le catalogue infirmier avec votre offre."
+    },
+    "recommendation": {
+      "tag": "Recommandation",
+      "title": "Selon votre intérêt, nous vous suggérons ce programme",
+      "body": "Le NCLEX-RN Accelerator est le meilleur parcours pour les apprenants qui préparent l’examen dans les 8 à 12 prochaines semaines.",
+      "cta": "Voir le programme"
+    },
+    "engagement": {
+      "tag": "Communauté",
+      "title": "Rejoignez 300 000+ étudiants",
+      "body": "Entrez dans une expérience premium de révision avec quiz, responsabilité sociale et support d’étude mobile.",
+      "cta": "Faire le quiz"
+    },
+    "engagementGlobal": {
+      "tag": "Communauté",
+      "title": "Commencez votre parcours infirmier international aujourd’hui",
+      "body": "Accédez à notre feuille de route complète de licence pour les USA, le Canada et les Émirats arabes unis. Construisez votre avenir à l’international avec confiance.",
+      "cta": "Commencer"
+    }
+  },
+  "CONTACT_PAGE": {
+    "hero": {
+      "kicker": "Contact",
+      "title": "Parlez à l’équipe derrière Innovacare",
+      "body": "Contactez Innovacare pour le support étudiant, la tarification institutionnelle, les partenariats ou l’assistance plateforme. Notre équipe oriente chaque demande vers le bon spécialiste.",
+      "chip_support": "Support étudiant",
+      "chip_sales": "Ventes institutionnelles",
+      "chip_partnerships": "Partenariats",
+      "chip_platform": "Aide plateforme",
+      "visual_alt": "Visuel de contact Innovacare",
+      "visual_kicker": "Accès direct",
+      "visual_title": "Joignez ventes, support ou partenariats sans délai",
+      "visual_body": "Routage clair pour étudiants, écoles et comptes entreprise.",
+      "float_response_value": "1 jour ouvrable",
+      "float_response_label": "Objectif de réponse habituel",
+      "float_enterprise_value": "Prêt pour l’entreprise",
+      "float_enterprise_label": "Cohortes, institutions, partenariats"
+    },
+    "cards": {
+      "email": {
+        "title": "Courriel",
+        "note": "Orientation étudiante, triage support et demandes générales."
+      },
+      "address": {
+        "title": "Adresse",
+        "note": "Opérations éducatives remote-first avec onboarding digital en priorité."
+      },
+      "institutional": {
+        "title": "Ventes institutionnelles",
+        "value": "Licences cohortes et onboarding",
+        "note": "Bundles entreprise, partenariats écoles et déploiement de groupes."
+      }
+    },
+    "support": {
+      "kicker": "Comment nous aiderons",
+      "title": "Dirigez votre demande vers la bonne équipe plus vite",
+      "point_1": "Orientation étudiante et questions d’inscription",
+      "point_2": "Tarification institutionnelle et mise en place des cohortes",
+      "point_3": "Support plateforme et problèmes d’accès",
+      "point_4": "Partenariats, revendeurs et demandes stratégiques",
+      "institutions_title": "Idéal pour les institutions",
+      "institutions_body": "Utilisez ce formulaire pour l’onboarding écoles, les bundles programmes, la tarification cohortes, la planification de déploiement et les discussions de partenariat entreprise."
+    },
+    "form": {
+      "kicker": "Envoyer un message",
+      "title": "Commençons la conversation",
+      "body": "Dites-nous ce dont vous avez besoin et nous orienterons votre demande correctement.",
+      "name": "Nom",
+      "email": "Courriel",
+      "organization": "Organisation",
+      "interest": "Intérêt",
+      "message": "Message",
+      "name_error": "Le nom est requis.",
+      "email_error": "Entrez une adresse courriel valide.",
+      "message_error": "Le message est requis et doit contenir au moins 20 caractères.",
+      "sending": "Envoi...",
+      "submit": "Envoyer le message",
+      "note": "En soumettant, vous demandez un suivi concernant le support, l’inscription, le partenariat ou une demande institutionnelle.",
+      "success": "Merci. Votre demande a bien été envoyée."
+    },
+    "interests": {
+      "institutional_sales": "Ventes institutionnelles",
+      "partnership_request": "Demande de partenariat",
+      "support": "Support"
+    }
+  },
+  "FOR_NURSING_STUDENTS": {
+    "badge": "Pour les étudiants en soins infirmiers",
+    "hero_title": "Révision NCLEX qui fonctionne vraiment",
+    "hero_title_accent": "pour les étudiants en soins infirmiers",
+    "hero_desc": "Leçons courtes et visuelles avec des explications claires — conçues pour la façon dont les infirmiers apprennent réellement.",
+    "cta_demo": "Commencer à apprendre",
+    "cta_pricing": "Explorer les programmes",
+    "features": {
+      "title": "Pourquoi Innovacare Review pour les étudiants en soins infirmiers ?",
+      "body": "Une expérience de révision construite autour de la manière dont les infirmiers apprennent le mieux, avec un accent sur le renforcement de la confiance, l'application pratique et un progrès clair vers le jour de l'examen."
+    },
+    "cards": {
+      "card_1_title": "Apprenez des sujets complexes facilement",
+      "card_1_desc": "Des explications simples qui ont enfin du sens",
+      "card_2_title": "Étudiez efficacement, même lorsque vous êtes occupé",
+      "card_2_desc": "Des leçons en petits morceaux qui s'adaptent à votre emploi du temps",
+      "card_3_title": "Renforcez votre confiance pour les examens et les stages",
+      "card_3_desc": "Chaque leçon relie la théorie à la pratique",
+      "card_4_title": "Ne vous demandez jamais quoi étudier ensuite",
+      "card_4_desc": "Des parcours guidés éliminent les conjectures",
+      "card_5_title": "Retenez davantage grâce à l'apprentissage visuel",
+      "card_5_desc": "Des illustrations qui rendent les sujets difficiles mémorables",
+      "card_6_title": "Sachez exactement où vous en êtes",
+      "card_6_desc": "Suivez vos progrès avec la prédiction de réussite"
+    }
+  },
+
+
+  "FOOTER": {
+    "copyright": "innovacarereview.com · Préparation NCLEX · École d'infirmières · Tuteurs privés · Pour les éducateurs"
+  },
+  "NOT_FOUND": {
+    "title": "Page non trouvée",
+    "message": "Désolé, la page que vous recherchez n'existe pas.",
+    "cta": "Retour à l'accueil"
+  },
+  "ERROR": {
+    "title": "Oups, une erreur est survenue",
+    "message": "Désolé, quelque chose a mal tourné. Veuillez réessayer plus tard.",
+    "cta": "Retour à l'accueil"
+  },
+    "EDUCATORS": {
+      "badge": "Pour les éducateurs",
+      "hero_title": "Soutenez vos étudiants avec une plateforme de préparation NCLEX conçue pour les éducateurs",
+      "hero_desc": "Offrez à vos étudiants une expérience de révision premium avec des outils d'analyse, des ressources validées par des formateurs et un soutien à la réussite du NCLEX.",
+      "cta_demo": "Demander une démo",
+      "cta_pricing": "Explorer les tarifs",
+      "features": {
+        "title": "Pourquoi choisir Innovacare Review pour votre institution ?",
+        "body": "Une plateforme de préparation NCLEX construite pour les éducateurs, offrant des outils d'analyse puissants, des ressources validées par des formateurs et un soutien dédié pour aider vos étudiants à réussir."
+      },
+      "cards": {
+        "card_1_title": "Des ressources validées par des formateurs",
+        "card_1_desc": "Contenu de révision créé et revu par des infirmières expérimentées.",
+        "card_2_title": "Analyses de performance approfondies",
+        "card_2_desc": "Suivez les progrès de vos étudiants et identifiez les domaines à renforcer.",
+        "card_3_title": "Soutien dédié aux éducateurs",
+        "card_3_desc": "Accès à une équipe de support prête à vous aider à chaque étape."
+      },
+      "testimonials": {
+        "title": "Ce que les éducateurs disent de nous",
+        "testimonial_1": {
+          "quote": "Innovacare Review a transformé la façon dont mes étudiants se préparent au NCLEX. Les ressources validées par des formateurs et les analyses de performance m'ont permis de mieux soutenir mes étudiants.",
+          "author": "Dr. Smith, Professeur d'infirmier"
+        },
+        "testimonial_2": {
+          "quote": "La plateforme est facile à utiliser et offre un soutien incroyable. Mes étudiants ont vu une amélioration significative de leurs scores grâce à Innovacare Review.",
+          "author": "Mme Johnson, Directrice du programme d'infirmier"
+        }
+      },
+      "cta": {
+        "kicker": "Prêt à soutenir vos étudiants ?",
+        "title": "Découvrez comment Innovacare Review peut aider votre institution à réussir",
+        "body": "Contactez notre équipe pour une démo personnalisée et voyez comment notre plateforme de préparation NCLEX peut faire la différence pour vos étudiants.",
+        "button": "Demander une démo"
+      }
+},
+  "PRIVATE_TUTORS": {
+    "badge": "Tuteurs privés",
+    "hero_title": "Séances de tutorat individuel avec des professionnels infirmiers vérifiés",
+    "hero_desc": "Obtenez un soutien personnalisé pour votre préparation NCLEX avec des tuteurs infirmiers expérimentés, disponibles pour des séances individuelles adaptées à vos besoins.",
+    "cta_browse": "Parcourir les tuteurs",
+    "cta_how": "Comment ça marche",
+    "features": {
+      "title": "Pourquoi choisir nos tuteurs privés ?",
+      "body": "Nos tuteurs sont des professionnels infirmiers vérifiés qui offrent un soutien personnalisé pour vous aider à réussir le NCLEX. Avec des séances individuelles, vous pouvez aborder vos points faibles, poser des questions spécifiques et recevoir des conseils adaptés à votre style d'apprentissage."
+    },
+    "how_it_works": {
+      "title": "Comment ça marche ?",
+      "desc": "Trouver le bon tuteur et réserver une séance est facile. Suivez ces étapes simples pour commencer votre parcours de tutorat personnalisé et renforcer votre confiance avant l'examen.",
+      "step_0_title": "Choisissez votre matière",
+      "step_0_desc": "Sélectionnez la matière ou la spécialité sur laquelle vous souhaitez vous concentrer pour votre préparation NCLEX. Vous pouvez affiner votre recherche en fonction de vos besoins spécifiques.",
+      "step_1_title": "Sélectionnez votre tuteur",
+      "step_1_desc": "Parcourez les profils de nos tuteurs vérifiés, lisez les avis des étudiants précédents et choisissez celui qui correspond le mieux à vos besoins d'apprentissage.",
+      "step_2_title": "Réservez votre séance",
+      "step_2_desc": "Choisissez une date et une heure qui vous conviennent pour votre séance de tutorat individuel. Vous recevrez une confirmation et un lien pour rejoindre la session en ligne."
+    },
+    "testimonials": {
+      "title": "Ce que les étudiants disent de nos tuteurs privés",
+      "testimonial_1": {
+        "quote": "Mon tuteur m'a vraiment aidé à comprendre les concepts difficiles du NCLEX. Les séances étaient personnalisées et adaptées à mes besoins, ce qui a fait une énorme différence dans ma préparation.",
+        "author": "Emily, Étudiante en soins infirmiers"
+      },
+      "testimonial_2": {
+        "quote": "Le tutorat individuel m'a permis de poser des questions spécifiques et d'obtenir des réponses claires. Mon tuteur était patient et compétent, ce qui m'a donné la confiance nécessaire pour réussir le NCLEX.",
+        "author": "Michael, Candidat au NCLEX"
+      }
+    },
+    "cta": {
+      "kicker": "Prêt pour un soutien personnalisé ?",
+      "title": "Découvrez comment nos tuteurs privés peuvent vous aider à réussir le NCLEX",
+      "body": "Contactez notre équipe pour en savoir plus sur nos tuteurs vérifiés et réservez votre première séance de tutorat individuel dès aujourd'hui.",
+      "button": "Parler à un tuteur"
+    }
   }
 }

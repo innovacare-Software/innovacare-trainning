@@ -32,8 +32,20 @@
     <article class="booking-form-wrap card">
       <header>
         <h2>Join this program</h2>
-        <p>Complete your enrollment and proceed to secure payment.</p>
+        <p>Complete your enrollment, then choose Card via Stripe or Mobile Money for local payment.</p>
       </header>
+
+      <div class="payment-method-strip" *ngIf="(currentProgram.discountPrice ?? currentProgram.price) > 0">
+        <span>Available methods</span>
+        <div>
+          <strong>Card</strong>
+          <strong>Mobile Money</strong>
+        </div>
+      </div>
+
+      <div class="feedback info" *ngIf="paymentRequired()">
+        Your previous checkout was not completed. Submit this form to resume secure payment access for this program.
+      </div>
 
       <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()" novalidate>
         <div class="form-grid">
@@ -79,7 +91,7 @@
         <div class="feedback error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
 
         <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
-          {{ isSubmitting() ? 'Processing...' : (currentProgram.discountPrice ?? currentProgram.price) > 0 ? 'Enroll &amp; Pay' : 'Enroll for Free' }}
+          {{ isSubmitting() ? 'Processing...' : (currentProgram.discountPrice ?? currentProgram.price) > 0 ? 'Enroll &amp; Choose Payment Method' : 'Enroll for Free' }}
         </button>
       </form>
     </article>

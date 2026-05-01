@@ -1,0 +1,268 @@
+/* Global Nurse Pack - Production Ready CSS */
+
+/* Base Setup */
+main.global-pack-page {
+  overflow-x: hidden;
+}
+
+/* Hero Section */
+.global-pack-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.global-pack-hero__feature-image {
+  aspect-ratio: 1 / 1.2;
+  transition: transform 0.3s ease;
+}
+
+.global-pack-hero__feature-image:hover {
+  transform: translateY(-8px);
+}
+
+.global-pack-hero__thumb {
+  aspect-ratio: 1;
+  transition: transform 0.3s ease;
+}
+
+.global-pack-hero__thumb:hover {
+  transform: scale(1.02);
+}
+
+/* Mobile Responsive Typography */
+@media (max-width: 576px) {
+  .display-3 {
+    font-size: 1.75rem !important;
+    line-height: 1.2;
+  }
+
+  .display-5 {
+    font-size: 1.5rem !important;
+  }
+
+  .display-6 {
+    font-size: 1.35rem !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .global-pack-hero {
+    min-height: auto;
+    padding: 3rem 0;
+  }
+
+  .global-pack-hero__feature-image {
+    aspect-ratio: 4 / 3;
+  }
+
+  .global-pack-hero__thumb {
+    min-height: 200px;
+  }
+}
+
+/* Pricing Section */
+.global-pack-pricing {
+  position: relative;
+}
+
+.global-pack-pricing .card {
+  transition: all 0.3s ease;
+}
+
+.global-pack-pricing .card:hover {
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* CTA Section */
+.global-pack-cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.global-pack-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Cards & Shadows */
+.card {
+  transition: all 0.3s ease;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.card.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* Badge Styling */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Button Responsiveness */
+@media (max-width: 576px) {
+  .btn {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .d-grid gap-3 d-sm-flex {
+    flex-direction: column;
+  }
+}
+
+/* Sticky Navbar Mobile */
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.1rem !important;
+  }
+
+  .btn-outline-primary {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Text Optimization */
+p {
+  line-height: 1.6;
+}
+
+.lh-lg {
+  line-height: 1.75;
+}
+
+.lh-sm {
+  line-height: 1.2;
+}
+
+/* Spacing Utilities Mobile */
+@media (max-width: 576px) {
+  .py-5 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .py-lg-7 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .gap-4 {
+    gap: 1.5rem !important;
+  }
+
+  .mb-4 {
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* List Styling */
+.list-group-item {
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive Grid */
+@media (max-width: 992px) {
+  .row-cols-lg-2 {
+    --bs-columns: 1;
+  }
+
+  .row-cols-lg-4 {
+    --bs-columns: 2;
+  }
+}
+
+@media (max-width: 576px) {
+  .row-cols-sm-row-cols-2 {
+    --bs-columns: 1;
+  }
+
+  .row-cols-md-2 {
+    --bs-columns: 1;
+  }
+
+  .row-cols-md-4 {
+    --bs-columns: 2;
+  }
+}
+
+/* Focus & Accessibility */
+.btn:focus,
+.btn-outline-primary:focus,
+a:focus {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+/* Performance - Transform over Opacity */
+@media (prefers-reduced-motion: no-preference) {
+  .card,
+  .global-pack-hero__feature-image,
+  .global-pack-hero__thumb {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .bg-white {
+    background-color: #f8f9fa !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .navbar,
+  .btn,
+  .sticky-top {
+    display: none;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+}
+
+/* Extra Large Desktop Optimization */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+
+  .display-5 {
+    font-size: 3.5rem;
+  }
+}

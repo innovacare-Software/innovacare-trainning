@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { of } from 'rxjs';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { CONTENT_STATUS_LABELS } from '../models/content-builder.models';
 
@@ -19,6 +19,7 @@ import { CONTENT_STATUS_LABELS } from '../models/content-builder.models';
           <p class="subtitle">Manage program modules and their structure.</p>
         </div>
         <a [routerLink]="['/program-admin/programs', programId(), 'modules', 'new']" class="btn-primary">+ Add Module</a>
+        <a [routerLink]="['/program-admin/programs', programId(), 'modules', 'import']" class="btn-secondary">Import JSON</a>
       </header>
 
       <div class="table-wrap">
@@ -102,6 +103,21 @@ import { CONTENT_STATUS_LABELS } from '../models/content-builder.models';
       font-weight: 600;
       white-space: nowrap;
     }
+
+    .btn-secondary {
+      display: inline-block;
+      padding: 0.5rem 0.9rem;
+      background: #fff;
+      border: 1px solid #c8dff7;
+      color: #1a74c8;
+      border-radius: 0.65rem;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
 
     .table-wrap {
       background: #fff;
@@ -198,12 +214,10 @@ export class ModulesListPage {
   private readonly router = inject(Router);
   private readonly modulesService = inject(ProgramModulesAdminService);
 
-  readonly programId = toSignal(this.route.params.pipe(switchMap((p) => [p['programId'] as string])), {
-    initialValue: '',
-  });
+  readonly programId = signal(this.getRequiredProgramId());
 
   readonly modules = toSignal(
-    this.route.params.pipe(switchMap((p) => this.modulesService.getModules(p['programId']))),
+    this.programId() ? this.modulesService.getModules(this.programId()) : of([]),
     { initialValue: [] }
   );
 
@@ -212,5 +226,11 @@ export class ModulesListPage {
   async deleteModule(moduleId: string): Promise<void> {
     if (!confirm('Delete this module? This cannot be undone.')) return;
     await this.modulesService.deleteModule(this.programId(), moduleId);
+  }
+
+  private getRequiredProgramId(): string {
+    return this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim()) ?? '';
   }
 }

@@ -1,0 +1,56 @@
+@use '../../quiz.scss' as quiz;
+
+:host {
+  display: block;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 36px;
+  padding: 8px 20px;
+  background: var(--bar-bg);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.icon-btn {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 3px;
+  padding: 5px 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.icon-btn.is-marked {
+  color: var(--gold);
+  border-color: rgba(255, 215, 0, 0.55);
+}
+
+.icon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spacer {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .action-bar {
+    flex-wrap: wrap;
+    padding: 6px 12px;
+  }
+}

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection } from '@angular/fire/firestore';
-import { getCountFromServer, query, where } from 'firebase/firestore';
-import { SuperAdminDashboardStats } from '../models/super-admin.models';
+import { getCountFromServer, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import { SuperAdminDashboardStats, SuperAdminRegistration } from '../models/super-admin.models';
 
 
 @Injectable({ providedIn: 'root' })
@@ -38,5 +38,17 @@ export class SuperAdminDashboardService {
       billingActive: billingActiveSnap.data().count,
       criticalLogs: criticalLogsSnap.data().count,
     };
+  }
+
+  async getRecentRegistrations(maxRows = 8): Promise<SuperAdminRegistration[]> {
+    const registerRef = collection(this.afs, 'register');
+    const snapshot = await getDocs(
+      query(registerRef, orderBy('createdAt', 'desc'), limit(maxRows))
+    );
+
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<SuperAdminRegistration, 'id'>),
+    }));
   }
 }

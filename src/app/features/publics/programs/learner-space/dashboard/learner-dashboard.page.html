@@ -1,0 +1,431 @@
+@if (vm(); as data) {
+  <section class="ld-shell">
+    <!-- Stats strip (outside experience block so we use data.stats directly) -->
+    <div class="ld-stats-strip">
+      <div class="ld-stat-card" style="--bar-color: var(--ls-teal)">
+        <div class="ld-stat-icon" style="background:#E0F7FA">🎯</div>
+        <div class="ld-stat-info">
+          <div class="ld-stat-value">{{ data.stats.averageScore }}%</div>
+          <div class="ld-stat-label">{{ t('programs.learnerSpace.dashboard.averageQbankScore') }}</div>
+        </div>
+      </div>
+      <div class="ld-stat-card" style="--bar-color: var(--ls-green)">
+        <div class="ld-stat-icon" style="background:#D1FAE5">✅</div>
+        <div class="ld-stat-info">
+          <div class="ld-stat-value">{{ data.stats.modulesCompleted }}</div>
+          <div class="ld-stat-label">{{ t('programs.dashboard.modulesCompleted') }}</div>
+        </div>
+      </div>
+      <div class="ld-stat-card" style="--bar-color: var(--ls-amber)">
+        <div class="ld-stat-icon" style="background:#FEF3C7">🔥</div>
+        <div class="ld-stat-info">
+          <div class="ld-stat-value">{{ data.stats.currentStreak }}</div>
+          <div class="ld-stat-label">{{ t('programs.learnerSpace.dashboard.dayStreak') }}</div>
+        </div>
+      </div>
+      <div class="ld-stat-card" style="--bar-color: #6366F1">
+        <div class="ld-stat-icon" style="background:#EEF2FF">📅</div>
+        <div class="ld-stat-info">
+          <div class="ld-stat-value">{{ data.stats.overallProgressPct }}%</div>
+          <div class="ld-stat-label">{{ t('programs.dashboard.overallProgress') }}</div>
+        </div>
+      </div>
+    </div>
+
+    @if (experience(); as experience) {
+      <header class="ld-hero">
+        <div class="ld-hero__main">
+          <span class="ld-label">{{ t('programs.learnerSpace.dashboard.title') }}</span>
+          <h1>{{ t('programs.learnerSpace.dashboard.heroHeading', { name: experience.userName }) }}</h1>
+          <p class="ld-hero__lead">{{ experience.heroMessage }}</p>
+          <p class="ld-hero__sub">{{ experience.motivationMessage }}</p>
+
+          <div class="ld-chip-row">
+            <span class="ld-chip ld-chip--accent">{{ translateExamStatus(experience.exam.status) }}</span>
+            <span class="ld-chip">{{ t('programs.learnerSpace.dashboard.examDate') }}: {{ experience.exam.dateLabel }}</span>
+            <span class="ld-chip">{{ experience.exam.countdownLabel }}</span>
+            <span class="ld-chip">{{ enrollmentStatusText() }}</span>
+          </div>
+
+          <div class="ld-action-row">
+            <a class="ld-btn ld-btn--primary" [routerLink]="experience.continueLearning.ctaLink">{{ t('programs.learnerSpace.dashboard.resumeLearning') }}</a>
+            <button type="button" class="ld-btn ld-btn--ghost" (click)="openCustomTestBuilder()">{{ t('programs.learnerSpace.dashboard.createCustomTest') }}</button>
+            <a class="ld-btn ld-btn--ghost" routerLink="../assessments">{{ t('programs.learnerSpace.dashboard.openAssessments') }}</a>
+          </div>
+        </div>
+
+        <aside class="ld-hero__panel">
+          <div class="ld-readiness-card">
+            <div class="ld-readiness-card__head">
+              <span class="ld-label">{{ t('programs.dashboard.readiness') }}</span>
+              <strong>{{ data.stats.readinessScore }}%</strong>
+            </div>
+
+            <div class="ld-readiness-card__body">
+              <div class="ld-readiness-ring">
+                <svg viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(20, 33, 50, 0.08)" stroke-width="9"></circle>
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    stroke="url(#ringGrad)"
+                    stroke-width="9"
+                    stroke-linecap="round"
+                    [attr.stroke-dasharray]="ringDash()"
+                    transform="rotate(-90 60 60)"
+                  ></circle>
+                  <defs>
+                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#0f3d62"></stop>
+                      <stop offset="100%" stop-color="#1f7a73"></stop>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="ld-ring-center">
+                  <span class="ld-ring-pct">{{ data.stats.readinessScore }}%</span>
+                  <span class="ld-ring-label">{{ t('programs.dashboard.readiness') }}</span>
+                </div>
+              </div>
+
+              <div class="ld-readiness-list">
+                <div>
+                  <span>{{ t('programs.learnerSpace.shell.examClock') }}</span>
+                  <strong>{{ experience.exam.countdownLabel }}</strong>
+                </div>
+                <div>
+                  <span>{{ t('programs.dashboard.averageScore') }}</span>
+                  <strong>{{ data.stats.averageScore }}%</strong>
+                </div>
+                <div>
+                  <span>{{ t('programs.learnerSpace.dashboard.currentStreak') }}</span>
+                  <strong>{{ data.stats.currentStreak }} {{ t('programs.learnerSpace.dashboard.days') }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </header>
+
+      <section class="ld-metric-grid">
+        <article class="ld-metric-card">
+          <span class="ld-label">{{ t('programs.dashboard.overallProgress') }}</span>
+          <strong>{{ data.stats.overallProgressPct }}%</strong>
+          <p>{{ experience.continueLearning.progressLabel }}</p>
+        </article>
+
+        <article class="ld-metric-card">
+          <span class="ld-label">{{ t('programs.dashboard.modulesCompleted') }}</span>
+          <strong>{{ data.stats.modulesCompleted }}</strong>
+          <p>{{ t('programs.learnerSpace.dashboard.modulesCompletedDescription') }}</p>
+        </article>
+
+        <article class="ld-metric-card">
+          <span class="ld-label">{{ t('programs.dashboard.studyTime') }}</span>
+          <strong>{{ data.stats.totalStudyMinutes }} min</strong>
+          <p>{{ t('programs.learnerSpace.dashboard.studyTimeDescription') }}</p>
+        </article>
+
+        <article class="ld-metric-card">
+          <span class="ld-label">{{ t('programs.dashboard.avgSimScore') }}</span>
+          <strong>{{ data.stats.averageSimulationScore }}%</strong>
+          <p>{{ t('programs.learnerSpace.dashboard.simulationScoreDescription') }}</p>
+        </article>
+      </section>
+
+      <!-- Progress tracker -->
+      <div class="ld-progress-card">
+        <div class="ld-section-head">
+          <div>
+            <div class="ld-section-title">{{ t('programs.learnerSpace.dashboard.studyProgressTracker') }}</div>
+            <div class="ld-section-sub">{{ t('programs.learnerSpace.dashboard.moduleCompletionSubtitle') }}</div>
+          </div>
+          <a class="ld-btn ld-btn--ghost" routerLink="../modules">{{ t('programs.learnerSpace.dashboard.viewFullReport') }}</a>
+        </div>
+        <div class="ld-progress-row">
+          @for (bar of moduleBars(); track bar.label) {
+            <div class="ld-progress-item">
+              <div class="ld-progress-label">
+                <span class="ld-progress-name">{{ formatModuleLabel(bar.label) }}</span>
+                <span class="ld-progress-pct">{{ bar.value }}%</span>
+              </div>
+              <div class="ld-progress-bar">
+                <div class="ld-progress-fill" [style.width.%]="bar.value"></div>
+              </div>
+            </div>
+          } @empty {
+            <p class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.startFirstModuleTrack') }}</p>
+          }
+        </div>
+      </div>
+
+      <section class="ld-priority-grid">
+        <article class="ld-card ld-card--feature">
+          <div class="ld-card__head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.continueLearningTitle') }}</span>
+              <h2>{{ experience.continueLearning.title }}</h2>
+            </div>
+            <span class="ld-badge">{{ experience.continueLearning.progressLabel }}</span>
+          </div>
+          <p>{{ t('programs.learnerSpace.dashboard.continueLearningDescription', { module: experience.continueLearning.moduleTitle }) }}</p>
+          <div class="ld-card__actions">
+            <a class="ld-btn ld-btn--primary" [routerLink]="experience.continueLearning.ctaLink">{{ t('programs.learnerSpace.dashboard.continueLabel') }}</a>
+            <a class="ld-btn ld-btn--ghost" routerLink="../modules">{{ t('programs.learnerSpace.dashboard.viewModules') }}</a>
+          </div>
+        </article>
+
+        <article class="ld-card">
+          <div class="ld-card__head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.performanceFocus') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.performanceFocusTitle') }}</h2>
+            </div>
+          </div>
+
+          <div class="ld-focus-list">
+            <div class="ld-focus-row">
+              <span>{{ t('programs.dashboard.recommendedNext') }}</span>
+              <strong>{{ data.stats.recommendedNextModule }}</strong>
+            </div>
+            <div class="ld-focus-row">
+              <span>{{ t('programs.dashboard.strongestArea') }}</span>
+              <strong>{{ data.stats.strongestArea }}</strong>
+            </div>
+            <div class="ld-focus-row ld-focus-row--warning">
+              <span>{{ t('programs.dashboard.weakestArea') }}</span>
+              <strong>{{ data.stats.weakestArea }}</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="ld-card">
+          <div class="ld-card__head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.accountSnapshot') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.walletPurchasing') }}</h2>
+            </div>
+          </div>
+
+          <div class="ld-account-grid">
+            <div>
+              <span>{{ t('programs.learnerSpace.dashboard.walletPoints') }}</span>
+              <strong>{{ experience.walletPoints }}</strong>
+            </div>
+            <div>
+              <span>{{ t('programs.learnerSpace.dashboard.ordersTracked') }}</span>
+              <strong>{{ experience.orders.length }}</strong>
+            </div>
+          </div>
+
+          <div class="ld-card__actions">
+            <a class="ld-btn ld-btn--ghost" routerLink="../wallet">{{ t('programs.learnerSpace.dashboard.openWallet') }}</a>
+            <a class="ld-btn ld-btn--ghost" routerLink="../order-history">{{ t('programs.learnerSpace.dashboard.orderHistory') }}</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="ld-card ld-section-card">
+        <div class="ld-section-head">
+          <div>
+            <span class="ld-label">{{ t('programs.learnerSpace.shell.nav.liveSessions') }}</span>
+            <h2>{{ t('programs.learnerSpace.dashboard.liveSessionsTitle') }}</h2>
+          </div>
+          <a class="ld-btn ld-btn--ghost" routerLink="../live-sessions">{{ t('programs.learnerSpace.dashboard.viewSchedule') }}</a>
+        </div>
+
+        <div class="ld-session-grid">
+          @for (session of experience.liveSessions.slice(0, 3); track session.id) {
+            <article class="ld-session-card" [attr.data-status]="session.status">
+              <div class="ld-session-card__top">
+                <span class="ld-avatar">{{ session.avatar }}</span>
+                <div>
+                  <span class="ld-label">{{ session.type }}</span>
+                  <h3>{{ session.title }}</h3>
+                </div>
+              </div>
+              <p>{{ session.instructor }} · {{ session.startsAtLabel }}</p>
+              <span class="ld-badge">{{ sessionBadge(session) }}</span>
+              @if (session.actionLink) {
+                <a class="ld-btn ld-btn--primary" [href]="session.actionLink" target="_blank" rel="noopener">{{ session.actionLabel }}</a>
+              } @else {
+                <a class="ld-btn ld-btn--primary" routerLink="../live-sessions">{{ session.actionLabel }}</a>
+              }
+            </article>
+          } @empty {
+            <div class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.noLiveSessions') }}</div>
+          }
+        </div>
+      </section>
+
+      <section class="ld-analytics-grid">
+        <article class="ld-card ld-section-card">
+          <div class="ld-section-head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.moduleAnalytics') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.progressByModule') }}</h2>
+            </div>
+            <a class="ld-btn ld-btn--ghost" routerLink="../modules">{{ t('programs.learnerSpace.dashboard.openModules') }}</a>
+          </div>
+
+          @if (moduleBars().length > 0) {
+            <div class="ld-bars">
+              @for (bar of moduleBars().slice(0, 6); track bar.label) {
+                <div class="ld-bar-row">
+                  <span class="ld-bar-label">{{ formatModuleLabel(bar.label) }}</span>
+                  <div class="ld-bar-track">
+                    <div class="ld-bar-fill" [style.width.%]="bar.value"></div>
+                  </div>
+                  <span class="ld-bar-pct">{{ bar.value }}%</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.startFirstModuleAnalytics') }}</div>
+          }
+        </article>
+
+        <article class="ld-card ld-section-card">
+          <div class="ld-section-head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.assessmentTrend') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.scoreEvolution') }}</h2>
+            </div>
+            <a class="ld-btn ld-btn--ghost" routerLink="../assessments">{{ t('programs.learnerSpace.dashboard.takeAssessment') }}</a>
+          </div>
+
+          @if (scoreTrend().points.length > 1) {
+            <div class="ld-chart-wrap">
+              <svg class="ld-chart" viewBox="0 0 400 160" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0f3d62" stop-opacity="0.22"></stop>
+                    <stop offset="100%" stop-color="#0f3d62" stop-opacity="0"></stop>
+                  </linearGradient>
+                </defs>
+                <polygon [attr.points]="scoreTrend().area" fill="url(#trendFill)"></polygon>
+                <polyline [attr.points]="scoreTrend().line" fill="none" stroke="#1f7a73" stroke-width="3" stroke-linejoin="round"></polyline>
+                @for (pt of scoreTrend().points; track $index) {
+                  <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.2" fill="#0f3d62" stroke="#ffffff" stroke-width="2"></circle>
+                }
+              </svg>
+            </div>
+          } @else {
+            <div class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.completeAssessmentsTrend') }}</div>
+          }
+        </article>
+      </section>
+
+      <section class="ld-secondary-grid">
+        <article class="ld-card ld-section-card">
+          <div class="ld-section-head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.studyPlans') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.chooseRightCadence') }}</h2>
+            </div>
+            <a class="ld-btn ld-btn--ghost" routerLink="../study-calendar">{{ t('programs.learnerSpace.dashboard.openPlanner') }}</a>
+          </div>
+
+          <div class="ld-list-stack">
+            @for (plan of experience.studyPlans; track plan.id) {
+              <a class="ld-list-row" [routerLink]="plan.ctaLink">
+                <div>
+                  <span class="ld-badge">{{ plan.recommended ? t('programs.learnerSpace.experience.productRecommended') : plan.highlight }}</span>
+                  <strong>{{ plan.title }}</strong>
+                  <p>{{ plan.description }}</p>
+                </div>
+              </a>
+            } @empty {
+              <div class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.noStudyPlans') }}</div>
+            }
+          </div>
+        </article>
+
+        <article class="ld-card ld-section-card">
+          <div class="ld-section-head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.recommendedProducts') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.premiumAddons') }}</h2>
+            </div>
+            <a class="ld-btn ld-btn--ghost" routerLink="../explore-products">{{ t('programs.learnerSpace.dashboard.exploreAll') }}</a>
+          </div>
+
+          <div class="ld-list-stack">
+            @for (product of experience.products.slice(0, 2); track product.id) {
+              <article class="ld-product-row">
+                <div>
+                  @if (product.badge) {
+                    <span class="ld-badge">{{ product.badge }}</span>
+                  }
+                  <strong>{{ product.title }}</strong>
+                  <p>{{ product.subtitle }}</p>
+                </div>
+                <div class="ld-product-row__meta">
+                  <strong>{{ product.priceLabel }}</strong>
+                  <a class="ld-btn ld-btn--primary" [routerLink]="product.ctaLink">{{ t('programs.learnerSpace.dashboard.openProduct') }}</a>
+                </div>
+              </article>
+            } @empty {
+              <div class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.noRecommendedProducts') }}</div>
+            }
+          </div>
+        </article>
+
+        <article class="ld-card ld-section-card">
+          <div class="ld-section-head">
+            <div>
+              <span class="ld-label">{{ t('programs.learnerSpace.dashboard.orderHistory') }}</span>
+              <h2>{{ t('programs.learnerSpace.dashboard.recentTransactions') }}</h2>
+            </div>
+            <div class="ld-badge">{{ t('programs.learnerSpace.shell.wallet') }}: {{ experience.walletPoints }} pts</div>
+          </div>
+
+          <div class="ld-list-stack">
+            @for (order of experience.orders.slice(0, 3); track order.id) {
+              <button type="button" class="ld-order-row" [class.is-active]="selectedOrder()?.id === order.id" (click)="selectOrder(order.id)">
+                <div>
+                  <strong>{{ order.title }}</strong>
+                  <span>{{ formatOrderDate(order.createdAt) }} · {{ orderStatusLabel(order.status) }}</span>
+                </div>
+                <b>{{ formatOrderAmount(order.amount, order.currency) }}</b>
+              </button>
+            } @empty {
+              <div class="ld-empty-state">{{ t('programs.learnerSpace.dashboard.purchasesAppear') }}</div>
+            }
+          </div>
+
+          @if (selectedOrder(); as order) {
+            <div class="ld-order-detail">
+              <div class="ld-order-detail__grid">
+                <div>
+                  <span>{{ t('programs.learnerSpace.dashboard.status') }}</span>
+                  <strong>{{ orderStatusLabel(order.status) }}</strong>
+                </div>
+                <div>
+                  <span>{{ t('programs.learnerSpace.dashboard.amount') }}</span>
+                  <strong>{{ formatOrderAmount(order.amount, order.currency) }}</strong>
+                </div>
+                <div>
+                  <span>{{ t('programs.learnerSpace.dashboard.type') }}</span>
+                  <strong>{{ orderItemTypeLabel(order.itemType) }}</strong>
+                </div>
+                <div>
+                  <span>{{ t('programs.learnerSpace.dashboard.orderedOn') }}</span>
+                  <strong>{{ formatOrderDate(order.createdAt) }}</strong>
+                </div>
+              </div>
+            </div>
+          }
+        </article>
+      </section>
+    } @else {
+      <div class="ld-skeleton-grid">
+        <div class="ld-skeleton ld-skeleton--hero"></div>
+        <div class="ld-skeleton"></div>
+        <div class="ld-skeleton"></div>
+        <div class="ld-skeleton"></div>
+      </div>
+    }
+  </section>
+}

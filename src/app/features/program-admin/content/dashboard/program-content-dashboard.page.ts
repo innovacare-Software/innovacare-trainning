@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { of } from 'rxjs';
 import { ProgramContentDashboardService } from '../services/program-content-dashboard.service';
 import { ProgramsAdminService } from '../../services/programs-admin.service';
 
@@ -325,23 +325,23 @@ export class ProgramContentDashboardPage {
   private readonly dashboardService = inject(ProgramContentDashboardService);
   private readonly programsService = inject(ProgramsAdminService);
 
-  readonly programId = toSignal(this.route.params.pipe(switchMap((p) => [p['programId']])), {
-    initialValue: '',
-  });
+  readonly programId = signal(this.getRequiredProgramId());
 
   readonly program = toSignal(
-    this.route.params.pipe(switchMap((p) => this.programsService.getProgramById(p['programId'])))
+    this.programId() ? this.programsService.getProgramById(this.programId()) : of(null)
   );
 
   readonly stats = toSignal(
-    this.route.params.pipe(
-      switchMap((p) => this.dashboardService.getProgramContentStats(p['programId']))
-    )
+    this.programId() ? this.dashboardService.getProgramContentStats(this.programId()) : of(undefined)
   );
 
   readonly readiness = toSignal(
-    this.route.params.pipe(
-      switchMap((p) => this.dashboardService.getProgramContentReadiness(p['programId']))
-    )
+    this.programId() ? this.dashboardService.getProgramContentReadiness(this.programId()) : of(undefined)
   );
+
+  private getRequiredProgramId(): string {
+    return this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim()) ?? '';
+  }
 }

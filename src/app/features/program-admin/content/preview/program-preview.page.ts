@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, combineLatest, map } from 'rxjs';
+import { switchMap, combineLatest, map, distinctUntilChanged, startWith } from 'rxjs';
 import { ProgramsAdminService } from '../../services/programs-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { ProgramLessonsAdminService } from '../services/program-lessons-admin.service';
@@ -18,11 +18,12 @@ import {
   LessonType,
   ProgramContentLesson,
 } from '../models/content-builder.models';
+import { LessonPresentationComponent } from '../../../../shared/components/lesson-presentation/lesson-presentation.component';
 
 @Component({
   selector: 'app-program-preview-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LessonPresentationComponent],
   template: `
     <section class="preview-page">
       <header class="preview-header">
@@ -63,14 +64,32 @@ import {
 
               <!-- Lessons for this module -->
               <ul class="lessons-list" *ngIf="getLessonsForModule(v.lessons, mod.id).length > 0">
-                <li *ngFor="let lesson of getLessonsForModule(v.lessons, mod.id)" class="lesson-item">
-                  <span class="lesson-type-icon">{{ getLessonIcon(lesson.lessonType) }}</span>
-                  <div class="lesson-info">
-                    <strong>{{ lesson.title }}</strong>
-                    <span class="lesson-meta">{{ LESSON_LABELS[lesson.lessonType] }} · {{ lesson.durationMin }}min</span>
-                  </div>
-                  <span class="preview-tag" *ngIf="lesson.isPreview">Free Preview</span>
-                </li>
+                <ng-container *ngFor="let lesson of getLessonsForModule(v.lessons, mod.id)">
+                  <li class="lesson-item">
+                    <span class="lesson-type-icon">{{ getLessonIcon(lesson.lessonType) }}</span>
+                    <div class="lesson-info">
+                      <strong>{{ lesson.title }}</strong>
+                      <span class="lesson-meta">{{ LESSON_LABELS[lesson.lessonType] }} · {{ lesson.durationMin }}min</span>
+                    </div>
+                    <span class="preview-tag" *ngIf="lesson.isPreview">Free Preview</span>
+                    <button type="button" class="lesson-preview-toggle" (click)="toggleLessonPreview(lesson.id)">
+                      {{ isLessonPreviewOpen(lesson.id) ? 'Hide preview' : 'Preview lesson' }}
+                    </button>
+                  </li>
+                  <li class="lesson-preview-row" *ngIf="isLessonPreviewOpen(lesson.id)">
+                    <div class="lesson-preview-panel">
+                      <app-lesson-presentation
+                        [title]="lesson.title"
+                        [description]="lesson.description"
+                        [lessonType]="lesson.lessonType"
+                        [contentHtml]="lesson.contentHtml"
+                        [videoUrl]="lesson.videoUrl"
+                        [durationMin]="lesson.durationMin"
+                        [isPreview]="lesson.isPreview"
+                      />
+                    </div>
+                  </li>
+                </ng-container>
               </ul>
               <p class="no-lessons" *ngIf="getLessonsForModule(v.lessons, mod.id).length === 0">No lessons added yet.</p>
             </div>
@@ -252,6 +271,7 @@ import {
       gap: 0.75rem;
       padding: 0.55rem 1rem;
       border-top: 1px solid #f0f5fb;
+      flex-wrap: wrap;
     }
 
     .lesson-type-icon { font-size: 1rem; }
@@ -269,6 +289,28 @@ import {
       color: #027a48;
       border-radius: 999px;
       font-weight: 700;
+    }
+
+    .lesson-preview-toggle {
+      margin-left: auto;
+      min-height: 34px;
+      padding: 0 0.8rem;
+      border: 1px solid #bfdbfe;
+      border-radius: 0.65rem;
+      background: #eff6ff;
+      color: #1a74c8;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .lesson-preview-row {
+      border-top: 1px solid #f0f5fb;
+      background: #fbfdff;
+    }
+
+    .lesson-preview-panel {
+      padding: 1rem;
     }
 
     .no-lessons { margin: 0; padding: 0.6rem 1rem; color: #9fb5c8; font-size: 0.85rem; border-top: 1px solid #f0f5fb; }
@@ -329,22 +371,50 @@ export class ProgramPreviewPage {
   private readonly simulationsService = inject(ProgramSimulationsAdminService);
   private readonly caseStudiesService = inject(ProgramCaseStudiesAdminService);
 
+  private readonly programId$ = combineLatest(
+    this.route.pathFromRoot.map((routeSegment) =>
+      routeSegment.paramMap.pipe(startWith(routeSegment.snapshot.paramMap))
+    )
+  ).pipe(
+    map((paramMaps) => {
+      for (let index = paramMaps.length - 1; index >= 0; index -= 1) {
+        const value = paramMaps[index].get('programId') || paramMaps[index].get('id') || '';
+        if (value.trim()) {
+          return value.trim();
+        }
+      }
+      return '';
+    }),
+    distinctUntilChanged()
+  );
+
   readonly programId = toSignal(
-    this.route.params.pipe(switchMap((p) => [p['programId'] as string])),
+    this.programId$,
     { initialValue: '' }
   );
 
   readonly vm = toSignal(
-    this.route.params.pipe(
-      switchMap((p) =>
+    this.programId$.pipe(
+      switchMap((programId) =>
+        !programId
+          ? [{
+              program: null,
+              modules: [],
+              lessons: [],
+              liveSessions: [],
+              assessments: [],
+              simulations: [],
+              caseStudies: [],
+            }]
+          :
         combineLatest([
-          this.programsService.getProgramById(p['programId']),
-          this.modulesService.getModules(p['programId']),
-          this.lessonsService.getLessons(p['programId']),
-          this.liveSessionsService.getLiveSessions(p['programId']),
-          this.assessmentsService.getAssessments(p['programId']),
-          this.simulationsService.getSimulations(p['programId']),
-          this.caseStudiesService.getCaseStudies(p['programId']),
+          this.programsService.getProgramById(programId),
+          this.modulesService.getModules(programId),
+          this.lessonsService.getLessons(programId),
+          this.liveSessionsService.getLiveSessions(programId),
+          this.assessmentsService.getAssessments(programId),
+          this.simulationsService.getSimulations(programId),
+          this.caseStudiesService.getCaseStudies(programId),
         ]).pipe(
           map(([program, modules, lessons, liveSessions, assessments, simulations, caseStudies]) => ({
             program,
@@ -364,9 +434,18 @@ export class ProgramPreviewPage {
   protected readonly SESSION_LABELS = LIVE_SESSION_TYPE_LABELS;
   protected readonly ASSESSMENT_LABELS = ASSESSMENT_TYPE_LABELS;
   protected readonly SIM_LABELS = SIMULATION_TYPE_LABELS;
+  protected expandedLessonId: string | null = null;
 
   getLessonsForModule(lessons: ProgramContentLesson[], moduleId: string): ProgramContentLesson[] {
     return lessons.filter((l) => l.moduleId === moduleId);
+  }
+
+  toggleLessonPreview(lessonId: string): void {
+    this.expandedLessonId = this.expandedLessonId === lessonId ? null : lessonId;
+  }
+
+  isLessonPreviewOpen(lessonId: string): boolean {
+    return this.expandedLessonId === lessonId;
   }
 
   getLessonIcon(lessonType: LessonType): string {
@@ -375,6 +454,7 @@ export class ProgramPreviewPage {
       TEXT: '📖',
       DOCUMENT: '📄',
       MIXED: '🎯',
+      WEB: '🖥️',
     };
     return icons[lessonType] ?? '📖';
   }

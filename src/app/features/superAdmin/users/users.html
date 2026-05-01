@@ -14,8 +14,12 @@
         <option value="manager">Manager</option>
         <option value="learner">Learner</option>
         <option value="guest">Guest</option>
+        <option value="programAdmin">Program Admin</option>
+        <option value="programStaff">Program Staff</option>
+        <option value="programLearner">Program Learner</option>
       </select>
       <button class="btn" (click)="refresh()">Apply</button>
+      <button class="btn" (click)="normalizeAllUsers()">Normalize legacy program roles</button>
     </div>
 
     <p class="notice" *ngIf="notice()">{{ notice() }}</p>
@@ -48,6 +52,9 @@
               <option value="manager">Manager</option>
               <option value="learner">Learner</option>
               <option value="guest">Guest</option>
+              <option value="programAdmin">Program Admin</option>
+              <option value="programStaff">Program Staff</option>
+              <option value="programLearner">Program Learner</option>
             </select>
             <button class="btn" (click)="changeRole(u.uid, roleSel.value)">Save role</button>
             <button class="btn" (click)="toggleProgramAdmin(u.uid, !!u.isProgramAdmin)">
@@ -59,6 +66,8 @@
             <button class="btn" (click)="toggleActive(u.uid, !!u.active)">
               {{ u.active ? 'Disable' : 'Enable' }}
             </button>
+            <button class="btn" (click)="normalizeUser(u.uid)">Normalize</button>
+            <a class="btn" [routerLink]="['/super-admin/users', u.uid, 'program-access']">Diagnose access</a>
           </div>
         </div>
       </div>

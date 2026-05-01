@@ -18,6 +18,15 @@ export interface UserAccessContext {
   active: boolean;
 }
 
+export interface UserOnboardingState {
+  version?: string;
+  completedStepIds?: string[];
+  minimized?: boolean;
+  dismissedAt?: any;
+  completedAt?: any;
+  updatedAt?: any;
+}
+
 export interface AppUserProfile {
   uid: string;
   email: string;
@@ -37,6 +46,8 @@ export interface AppUserProfile {
 
   createdAt?: any;
   updatedAt?: any;
+
+  onboarding?: UserOnboardingState;
 
   guestMeta?: {
     onboardingCompleted?: boolean;

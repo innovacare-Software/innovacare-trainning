@@ -1,0 +1,41 @@
+<main class="mk-page">
+  <section class="mk-section mk-courses-hero mk-pricing-hero mk-hero-parallax" appHeroParallax [parallaxClamp]="38">
+    <div class="mk-orbit mk-orbit--cyan mk-pricing-hero__orb mk-pricing-hero__orb--one" data-parallax-depth="-0.18"></div>
+    <div class="mk-orbit mk-orbit--gold mk-pricing-hero__orb mk-pricing-hero__orb--two" data-parallax-depth="-0.1"></div>
+    <div class="mk-container mk-pricing-hero__grid">
+      <div class="mk-pricing-hero__copy mk-reveal" data-parallax-depth="0.06">
+        <span class="mk-kicker">Pricing</span>
+        <h1>Straightforward pricing for learners, cohorts, and institutions</h1>
+        <p>Choose the right offer for individual study, short-cycle exam preparation, or academic deployment at scale.</p>
+      </div>
+
+      <article class="mk-pricing-hero__panel mk-reveal mk-reveal--delay-2" data-parallax-depth="0.14">
+        <span class="mk-tag">Offer clarity</span>
+        <h2>One catalogue, three buying motions</h2>
+        <ul class="mk-bullets">
+          @for (highlight of highlights; track highlight) {
+            <li>{{ highlight }}</li>
+          }
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="mk-section">
+    <div class="mk-container mk-pricing-grid mk-stagger">
+      @for (tier of tiers; track tier.name) {
+        <article class="mk-pricing-card" [class.featured]="tier.featured">
+          <span class="mk-tag">{{ tier.name }}</span>
+          <h2>{{ tier.price }}</h2>
+          <p>{{ tier.tagline }}</p>
+          <ul class="mk-bullets">
+            @for (feature of tier.features; track feature) {
+              <li>{{ feature }}</li>
+            }
+          </ul>
+          <a routerLink="/contact" class="mk-btn" [class.mk-btn--primary]="tier.featured" [class.mk-btn--secondary]="!tier.featured">{{ tier.cta }}</a>
+        </article>
+      }
+    </div>
+  </section>
+</main>

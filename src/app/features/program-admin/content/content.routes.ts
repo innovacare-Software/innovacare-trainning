@@ -22,6 +22,11 @@ export const CONTENT_ROUTES: Routes = [
           import('./modules/module-form.page').then((m) => m.ModuleFormPage),
       },
       {
+        path: 'modules/import',
+        loadComponent: () =>
+          import('./modules/module-import.page').then((m) => m.ModuleImportPage),
+      },
+      {
         path: 'modules/:moduleId/edit',
         loadComponent: () =>
           import('./modules/module-form.page').then((m) => m.ModuleFormPage),

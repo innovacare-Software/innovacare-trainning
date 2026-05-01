@@ -1,0 +1,49 @@
+/* Google Fonts loaded via index.html */
+
+:host,
+:root {
+  --header-bg: #2c5f7e;
+  --header-bg-dk: #1f4660;
+  --bar-bg: #4a8ab0;
+  --primary: #990011;
+  --primary-dk: #5c0007;
+  --gold: #ffd700;
+  --bg: #f4f6f8;
+  --paper: #ffffff;
+  --paper-2: #f7f9fb;
+  --ink: #1a1a1a;
+  --ink-2: #333333;
+  --muted: #666666;
+  --rule: #e1e5ea;
+  --rule-soft: #eef1f4;
+  --correct: #2e7d32;
+  --correct-bg: #e8f5e9;
+  --incorrect: #c62828;
+  --incorrect-bg: #ffebee;
+  --info-bg: #e3f2fd;
+  --info-border: #1976d2;
+  --warning: #b85042;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: 'Source Sans 3', Georgia, serif;
+}
+
+@mixin quiz-shell-card {
+  background: var(--paper);
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+}
+
+@mixin quiz-button-reset {
+  font: inherit;
+  border: none;
+  background: transparent;
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 3px solid rgba(25, 118, 210, 0.35);
+    outline-offset: 2px;
+  }
+}

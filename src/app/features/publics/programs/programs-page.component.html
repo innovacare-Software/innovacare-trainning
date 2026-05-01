@@ -1,148 +1,198 @@
-<section class="programs-shell">
-  <header class="hero-panel">
-    <div class="hero-copy">
-      <p class="eyebrow">Premium Training Programs</p>
-      <h1>Advance your career with structured certification pathways</h1>
-      <p>
-        Explore international-standard programs for healthcare and technical tracks,
-        designed with practical learning milestones and booking-ready schedules.
-      </p>
-      <div class="hero-meta">
-        <span>{{ filteredPrograms().length }} active programs</span>
-        <span>{{ totalSeatsOpen() }} seats available</span>
-        <span>Starting from {{ lowestPrice() | currency: 'USD':'symbol':'1.0-0' }}</span>
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom border-light-subtle sticky-top" style="backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.95) !important;">
+    <div class="container">
+      <span class="navbar-brand fw-bold text-primary" style="font-size: 1.3rem;">{{ content.nav.brand.en }}</span>
+      <div class="ms-auto">
+        <a routerLink="/contact" class="btn btn-sm btn-outline-primary">{{ content.nav.cta.en }}</a>
       </div>
     </div>
+  </nav><section class="arx-programs-page">
 
-    <aside class="hero-card">
-      <h2>Find the right pathway</h2>
-      <p>Filter by category and search by keywords to compare options faster.</p>
-      <div class="quick-tags">
-        <span class="chip" *ngFor="let item of categoryOptions">{{ item.label }}</span>
+  <!-- ===== PREMIUM HERO SECTION ===== -->
+  <header class="arx-hero-premium">
+    <div class="arx-hero-bg-overlay"></div>
+    
+    <div class="arx-hero-container">
+      <div class="arx-hero-content">
+        <p class="arx-eyebrow-premium">Enterprise Professional Development</p>
+
+        <h1 class="arx-hero-title">
+          Elevate Your Career with Industry-Leading Certification Programs
+        </h1>
+
+        <p class="arx-hero-subtitle">
+          Accelerate your professional trajectory through our meticulously crafted certification pathways. 
+          Trusted by healthcare leaders and technology innovators worldwide to deliver measurable career outcomes.
+        </p>
+
+        <!-- KEY METRICS -->
+        <div class="arx-hero-metrics">
+          <div class="arx-metric-card">
+            <div class="arx-metric-value">{{ filteredPrograms().length }}</div>
+            <div class="arx-metric-label">Premium Programs</div>
+          </div>
+          <div class="arx-metric-card">
+            <div class="arx-metric-value">{{ totalSeatsOpen() }}</div>
+            <div class="arx-metric-label">Cohort Seats</div>
+          </div>
+          <div class="arx-metric-card">
+            <div class="arx-metric-value">{{ lowestPrice() | currency:'USD':'symbol':'1.0-0' }}</div>
+            <div class="arx-metric-label">Investment Starting</div>
+          </div>
+          <div class="arx-metric-card">
+            <div class="arx-metric-value">98%</div>
+            <div class="arx-metric-label">Placement Rate</div>
+          </div>
+        </div>
+
+        <div class="arx-cta-group-premium">
+          <button class="arx-btn arx-btn--primary-premium" routerLink="/global-nurse-pack">
+            Explore Premium Pathways
+          </button>
+
+          <button class="arx-btn arx-btn--secondary-premium" routerLink="/contact">
+            Schedule Consultation
+          </button>
+        </div>
       </div>
-    </aside>
+
+      <!-- FEATURED HIGHLIGHT CARD -->
+      <aside class="arx-hero-spotlight">
+        <div class="arx-spotlight-header">
+          <span class="arx-badge-premium">Most Popular</span>
+          <span class="arx-badge-secondary">Enterprise Preferred</span>
+        </div>
+
+        <h2>Global Nurse Executive Pathway</h2>
+
+        <p class="arx-spotlight-description">
+          Comprehensive international certification program with mentorship from industry leaders. 
+          USA, Canada & UAE licensing pathways included.
+        </p>
+
+        <div class="arx-spotlight-features">
+          <div class="arx-feature-item">
+            <span class="arx-check-icon">✓</span>
+            <span>Personalized Career Coaching</span>
+          </div>
+          <div class="arx-feature-item">
+            <span class="arx-check-icon">✓</span>
+            <span>Job Placement Guarantee</span>
+          </div>
+          <div class="arx-feature-item">
+            <span class="arx-check-icon">✓</span>
+            <span>24/7 Expert Support</span>
+          </div>
+        </div>
+
+        <button class="arx-btn arx-btn--primary-premium arx-btn--full" routerLink="/global-nurse-pack">
+          Start Your Journey
+        </button>
+
+        <small class="arx-spotlight-footer">Secure enrollment · Money-back guarantee</small>
+      </aside>
+    </div>
   </header>
 
-  <section class="featured-strip">
-    <div class="featured-list">
-      <a class="featured-item" routerLink="/home">
-        <strong>Return to Home</strong>
-        <span>Go back to landing page</span>
-      </a>
-      <a class="featured-item" routerLink="/my-programs">
-        <strong>My Program Enrollments</strong>
-        <span>Track your enrollments and status</span>
-      </a>
-    </div>
-  </section>
 
-  <section class="filters-panel">
-    <div class="filter-field">
-      <label for="program-search">Search programs</label>
-      <input
-        id="program-search"
-        type="text"
-        placeholder="Search DevOps, NCLEX, DHA..."
-        [formControl]="searchControl"
-      />
-    </div>
+  <!-- ===== FILTER BAR (UPGRADED UX) ===== -->
+  <section class="arx-filter-bar">
+    <input
+      type="text"
+      placeholder="Search NCLEX, DevOps, DHA..."
+      [formControl]="searchControl"
+    />
 
-    <div class="filter-field">
-      <label for="program-category">Category</label>
-      <select id="program-category" [formControl]="categoryControl">
-        <option value="ALL">All categories</option>
-        <option *ngFor="let option of categoryOptions" [value]="option.value">
-          {{ option.label }}
-        </option>
-      </select>
-    </div>
+    <select [formControl]="categoryControl">
+      <option value="ALL">All categories</option>
+      <option *ngFor="let option of categoryOptions" [value]="option.value">
+        {{ option.label }}
+      </option>
+    </select>
 
-    <button class="reset-btn" type="button" (click)="resetFilters()" [disabled]="!hasActiveFilters()">
-      Reset filters
+    <button (click)="resetFilters()" *ngIf="hasActiveFilters()">
+      Reset
     </button>
   </section>
 
-  <section class="featured-strip" *ngIf="featuredPrograms().length > 0">
-    <p class="eyebrow">Featured now</p>
-    <div class="featured-list">
+
+  <!-- ===== FEATURED (UPSELL) ===== -->
+  <section class="arx-featured-v2" *ngIf="featuredPrograms().length">
+
+    <div class="arx-section-head">
+      <h2>Featured Pathways</h2>
+      <p>High-impact programs designed for immediate career transition</p>
+    </div>
+
+    <div class="arx-featured-grid">
       <a
-        class="featured-item"
-        *ngFor="let program of featuredPrograms(); trackBy: trackByProgram"
+        class="arx-featured-card"
+        *ngFor="let program of featuredPrograms()"
         [routerLink]="['/programs', program.id]"
       >
-        <strong>{{ program.title }}</strong>
-        <span>{{ categoryLabel(program.category) }} · {{ priceLabel(program) }}</span>
+        <h3>{{ program.title }}</h3>
+        <p>{{ program.subtitle }}</p>
+
+        <div class="arx-mini-meta">
+          <span>{{ program.durationText }}</span>
+          <span>{{ priceLabel(program) }}</span>
+        </div>
       </a>
     </div>
   </section>
 
-  <section class="catalog-grid" *ngIf="filteredPrograms().length; else emptyState">
-    <article class="program-card" *ngFor="let program of filteredPrograms(); trackBy: trackByProgram">
-      <img [src]="program.imageUrl" [alt]="program.title" class="program-image" />
 
-      <div class="program-body">
-        <div class="card-topline">
-          <span class="category-badge">{{ categoryLabel(program.category) }}</span>
-          <span class="seats" *ngIf="program.seatsRemaining != null">
-            {{ program.seatsRemaining }} seats left
-          </span>
-        </div>
+  <!-- ===== MAIN PROGRAM GRID ===== -->
+  <section class="arx-programs-grid" *ngIf="filteredPrograms().length; else emptyState">
 
+    <article
+      class="arx-program-card-v2"
+      *ngFor="let program of filteredPrograms()"
+    >
+      <div class="arx-card-header">
+        <img [src]="getProgramImage(program)" />
+        <span class="arx-category">{{ categoryLabel(program.category) }}</span>
+      </div>
+
+      <div class="arx-card-body">
         <h3>{{ program.title }}</h3>
-        <p class="subtitle">{{ program.subtitle }}</p>
+        <p>{{ program.subtitle }}</p>
 
-        <div class="meta-grid">
-          <div>
-            <label>Duration</label>
-            <span>{{ program.durationText }}</span>
-          </div>
-          <div>
-            <label>Mode</label>
-            <span>{{ modeLabel(program.deliveryMode) }}</span>
-          </div>
-          <div>
-            <label>Level</label>
-            <span>{{ levelLabel(program.level) }}</span>
-          </div>
-          <div>
-            <label>Schedule</label>
-            <span>{{ program.scheduleText }}</span>
-          </div>
+        <div class="arx-meta">
+          <span>{{ program.durationText }}</span>
+          <span>{{ levelLabel(program.level) }}</span>
         </div>
 
-        <div class="tags-row">
-          <span class="tag" *ngFor="let tag of program.tags | slice:0:4">{{ tag }}</span>
+        <div class="arx-tags">
+          <span *ngFor="let tag of program.tags | slice:0:3">{{ tag }}</span>
         </div>
       </div>
 
-      <footer class="card-footer">
-        <div class="price-block">
-          <span class="price">{{ priceLabel(program) }}</span>
-          <span
-            class="strike"
-            *ngIf="program.discountPrice && program.discountPrice > 0 && program.discountPrice < program.price"
-          >
-            {{ program.price | currency: program.currency:'symbol':'1.0-0' }}
-          </span>
-        </div>
+      <div class="arx-card-footer">
+        <div class="arx-price">{{ priceLabel(program) }}</div>
 
-        <div class="actions">
-          <a class="btn btn-outline" [routerLink]="['/programs', program.id]">View details</a>
-          <a class="btn btn-primary" [routerLink]="['/programs', program.id, 'enroll']">Enroll now</a>
-        </div>
-      </footer>
+        <button
+          class="arx-btn arx-btn--primary"
+          [routerLink]="['/programs', program.id]"
+        >
+          View Program
+        </button>
+      </div>
     </article>
+
   </section>
 
+
+  <!-- ===== EMPTY ===== -->
   <ng-template #emptyState>
-    <section class="empty-state">
-      <div class="empty-icon">+</div>
-      <h2>No programs match your filters</h2>
-      <p>
-        Try another keyword or category. New cohorts are added regularly across DevOps,
-        NCLEX, DHA, DOH, and custom pathways.
-      </p>
-      <button type="button" class="btn btn-primary" (click)="resetFilters()">Show all programs</button>
+    <section class="arx-empty">
+      <h2>No programs found</h2>
+      <p>Try adjusting filters or explore featured pathways.</p>
+      <button (click)="resetFilters()" class="arx-btn arx-btn--primary">
+        Show All
+      </button>
     </section>
   </ng-template>
+
 </section>

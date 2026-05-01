@@ -1,0 +1,61 @@
+<main class="arx-medical-page">
+  <section class="arx-medical-hero arx-hero-parallax" appHeroParallax [parallaxClamp]="42">
+    <div class="arx-medical-hero__backdrop" data-parallax-depth="-0.16"></div>
+    <div class="arx-container arx-medical-hero__grid">
+      <div class="arx-medical-hero__copy arx-reveal" data-parallax-depth="0.06">
+        <span class="arx-kicker">Medical Program</span>
+        <h1>Clinical review programs for advanced medical study</h1>
+        <p>Support FNP, bridge, and advanced clinical learners with board-focused review, case-based practice, and cohort-ready delivery.</p>
+
+        <div class="arx-medical-hero__metrics arx-stagger">
+          @for (item of heroMetrics; track item.label) {
+            <article class="arx-medical-metric">
+              <strong>{{ item.value }}</strong>
+              <span>{{ item.label }}</span>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="arx-medical-hero__panel arx-stagger" data-parallax-depth="0.14">
+        @for (item of pillars; track item) {
+          <article class="arx-medical-hero__point">
+            <strong>{{ item }}</strong>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="arx-section">
+    <div class="arx-container arx-medical-layout arx-stagger">
+      <article class="arx-medical-card">
+        <span class="arx-kicker">Program structure</span>
+        <h2>A cleaner path from review to exam readiness</h2>
+        <div class="arx-medical-modules">
+          @for (module of modules; track module) {
+            <div class="arx-module-chip">{{ module }}</div>
+          }
+        </div>
+      </article>
+
+      <article class="arx-medical-card arx-medical-card--accent">
+        <span class="arx-kicker">Institutional deployment</span>
+        <h2>Use one program structure for individual learners and cohort contracts</h2>
+        <p>Deploy the same curriculum across direct enrollment, partner schools, and employer-sponsored groups without rebuilding the offer.</p>
+        <a routerLink="/contact" class="arx-btn arx-btn--primary">Request a medical cohort plan</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="arx-section arx-section--medical-gallery">
+    <div class="arx-container arx-medical-gallery">
+      @for (item of gallery; track item.title) {
+        <figure class="arx-medical-gallery__card arx-reveal">
+          <img [src]="item.imageUrl" [alt]="item.imageAlt" loading="lazy" />
+          <figcaption>{{ item.title }}</figcaption>
+        </figure>
+      }
+    </div>
+  </section>
+</main>

@@ -1,0 +1,497 @@
+/* ═══════════════════════════════════════════════════════════
+   FOR EDUCATORS PAGE
+═══════════════════════════════════════════════════════════ */
+.edu-page { background: var(--bg, #EEF2F7); }
+
+.edu-container {
+  width: min(1200px, calc(100% - 2.5rem));
+  margin: 0 auto;
+}
+
+/* ── HERO ───────────────────────────────────────── */
+.edu-hero {
+  background: linear-gradient(150deg, #0B1F3A 0%, #0d2e50 65%);
+  position: relative;
+  overflow: hidden;
+  padding: 5rem 0 3.5rem;
+  color: #fff;
+}
+
+.edu-hero__glow {
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle at center, rgba(10,157,184,0.18), transparent 65%);
+  pointer-events: none;
+}
+
+.edu-hero__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.edu-hero__copy { max-width: 520px; }
+
+.edu-badge {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  background: #0A9DB8;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.edu-hero h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+  margin: 0 0 1rem;
+}
+
+.edu-hero__sub {
+  font-size: clamp(1.06rem, 1.25vw, 1.16rem);
+  line-height: 1.65;
+  color: rgba(255,255,255,0.75);
+  margin: 0 0 2rem;
+}
+
+.edu-hero__actions {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+/* ── DASHBOARD MOCKUP ───────────────────────────── */
+.edu-dash-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+}
+
+.edu-dash-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.edu-dash-dot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+}
+
+.edu-dash-dot--red    { background: #EF4444; }
+.edu-dash-dot--yellow { background: #F59E0B; }
+.edu-dash-dot--green  { background: #10B981; }
+
+.edu-dash-title {
+  margin-left: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+}
+
+.edu-dash-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.edu-dash-stat {
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.9rem 0.75rem;
+  text-align: center;
+}
+
+.edu-dash-stat--teal { background: rgba(10,157,184,0.25); }
+
+.edu-dash-stat strong {
+  display: block;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.edu-dash-stat small {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.3;
+}
+
+.edu-dash-bar {
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.edu-dash-bar__fill {
+  background: linear-gradient(90deg, #0A9DB8, #10B981);
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1.2s ease;
+}
+
+.edu-dash-card__label {
+  font-size: 0.77rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+  text-align: center;
+}
+
+/* ── BUTTONS ────────────────────────────────────── */
+.edu-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.22s;
+  cursor: pointer;
+  border: 0;
+}
+
+.edu-btn--primary {
+  background: linear-gradient(135deg, #0A9DB8, #12B5D0);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(10,157,184,0.3);
+}
+
+.edu-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(10,157,184,0.45);
+}
+
+.edu-btn--outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.4);
+}
+
+.edu-btn--outline:hover {
+  border-color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.08);
+}
+
+.edu-btn--secondary {
+  background: #fff;
+  color: #0A9DB8;
+  border: 2px solid #0A9DB8;
+}
+
+.edu-btn--secondary:hover { background: rgba(10,157,184,0.05); }
+
+/* ── SECTIONS ───────────────────────────────────── */
+.edu-section { padding: 5rem 0; }
+.edu-section--white { background: #fff; }
+.edu-section--light { background: #F4F8FB; }
+
+.edu-section-head {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.edu-section-head h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 800;
+  color: #0B1F3A;
+  margin: 0 0 0.6rem;
+}
+
+.edu-section-head p {
+  color: #4A5E78;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ── FEATURE LIST ───────────────────────────────── */
+.edu-features-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.edu-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.edu-feature-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.edu-feature-item__icon {
+  font-size: 1.1rem;
+  margin-top: 0.05rem;
+  flex-shrink: 0;
+  color: #10B981;
+}
+
+.edu-feature-item strong {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  color: #0B1F3A;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.edu-feature-item p {
+  color: #4A5E78;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── VISUAL CARD ────────────────────────────────── */
+.edu-visual-card {
+  background: #fff;
+  border: 1px solid #E2EBF3;
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: 0 12px 40px rgba(11,31,58,0.08);
+}
+
+.edu-visual-card__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.edu-visual-card__bar span { font-size: 0.85rem; color: #4A5E78; }
+.edu-visual-card__bar strong { font-weight: 800; font-size: 1rem; color: #0B1F3A; }
+
+.edu-visual-card__bar::before {
+  /* Not possible to do the progress bar with pure ::before in this format */
+  content: none;
+}
+
+.edu-visual-card__bar {
+  position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.edu-visual-card__bar span,
+.edu-visual-card__bar strong {
+  position: relative;
+  z-index: 1;
+}
+
+.edu-visual-card__bar::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -0.35rem;
+  width: var(--w, 0%);
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0A9DB8, #12B5D0);
+}
+
+.edu-visual-card__bar--green::after {
+  background: linear-gradient(90deg, #10B981, #34D399);
+}
+
+.edu-visual-card__note {
+  font-size: 0.75rem;
+  color: #8296AD;
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── DASHBOARD GRID ─────────────────────────────── */
+.edu-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.edu-dash-feature {
+  background: #fff;
+  border: 1px solid #E2EBF3;
+  border-radius: 14px;
+  padding: 1.5rem;
+  transition: all 0.22s;
+}
+
+.edu-dash-feature:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(10,157,184,0.12);
+  border-color: rgba(10,157,184,0.3);
+}
+
+.edu-dash-feature__icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.edu-dash-feature h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0B1F3A;
+  margin: 0 0 0.4rem;
+}
+
+.edu-dash-feature p {
+  font-size: 0.83rem;
+  color: #4A5E78;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── PRICING ────────────────────────────────────── */
+.edu-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.edu-pricing-card {
+  background: #fff;
+  border: 2px solid #E2EBF3;
+  border-radius: 18px;
+  padding: 2rem;
+  position: relative;
+  transition: all 0.22s;
+}
+
+.edu-pricing-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(10,157,184,0.12);
+}
+
+.edu-pricing-card--popular {
+  border-color: #0A9DB8;
+  box-shadow: 0 8px 32px rgba(10,157,184,0.2);
+}
+
+.edu-pricing-badge {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0A9DB8;
+  color: #fff;
+  padding: 0.25rem 1rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.edu-pricing-card__name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0B1F3A;
+  margin: 0 0 0.2rem;
+}
+
+.edu-pricing-card__subtitle {
+  font-size: 0.83rem;
+  color: #4A5E78;
+  margin: 0 0 1.25rem;
+}
+
+.edu-pricing-card__price {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0A9DB8;
+  margin: 0 0 1.5rem;
+}
+
+.edu-pricing-card__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.edu-pricing-card__features li {
+  font-size: 0.85rem;
+  color: #4A5E78;
+  padding-left: 0.5rem;
+}
+
+.edu-pricing-note {
+  text-align: center;
+  font-size: 0.84rem;
+  color: #4A5E78;
+  margin-top: 2rem;
+}
+
+/* ── CTA SECTION ────────────────────────────────── */
+.edu-cta {
+  background: linear-gradient(135deg, #0B1F3A 0%, #0d2e50 100%);
+  padding: 4rem 0;
+  color: #fff;
+}
+
+.edu-cta__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.edu-cta h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 0.3rem;
+  color: #fff;
+}
+
+.edu-cta p { color: rgba(255,255,255,0.65); margin: 0; }
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .edu-hero__inner { grid-template-columns: 1fr; }
+  .edu-features-layout { grid-template-columns: 1fr; }
+  .edu-pricing-grid { grid-template-columns: 1fr; }
+  .edu-dash-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .edu-hero { padding: 3.5rem 0 2.5rem; }
+  .edu-dash-grid { grid-template-columns: 1fr; }
+  .edu-cta__inner { flex-direction: column; text-align: center; }
+}

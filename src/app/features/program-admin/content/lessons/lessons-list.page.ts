@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, map, of } from 'rxjs';
 import { ProgramLessonsAdminService } from '../services/program-lessons-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { CONTENT_STATUS_LABELS, LESSON_TYPE_LABELS } from '../models/content-builder.models';
@@ -111,17 +110,13 @@ export class LessonsListPage {
   private readonly lessonsService = inject(ProgramLessonsAdminService);
   private readonly modulesService = inject(ProgramModulesAdminService);
 
-  readonly programId = toSignal(
-    this.route.params.pipe(switchMap((p) => [p['programId'] as string])),
-    { initialValue: '' }
-  );
+  readonly programId = signal(this.getRequiredProgramId());
 
   readonly vm = toSignal(
-    this.route.params.pipe(
-      switchMap((p) =>
-        combineLatest([
-          this.lessonsService.getLessons(p['programId']),
-          this.modulesService.getModules(p['programId']),
+    this.programId()
+      ? combineLatest([
+          this.lessonsService.getLessons(this.programId()),
+          this.modulesService.getModules(this.programId()),
         ]).pipe(
           map(([lessons, modules]) => ({
             lessons,
@@ -131,8 +126,7 @@ export class LessonsListPage {
             }, {}),
           }))
         )
-      )
-    )
+      : of({ lessons: [], moduleMap: {} as Record<string, string> })
   );
 
   protected readonly STATUS_LABELS = CONTENT_STATUS_LABELS;
@@ -141,5 +135,11 @@ export class LessonsListPage {
   async deleteLesson(lessonId: string): Promise<void> {
     if (!confirm('Delete this lesson? This cannot be undone.')) return;
     await this.lessonsService.deleteLesson(this.programId(), lessonId);
+  }
+
+  private getRequiredProgramId(): string {
+    return this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim()) ?? '';
   }
 }

@@ -229,7 +229,7 @@ export class ModuleFormPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.programId = this.route.snapshot.params['programId'];
+    this.programId = this.getRequiredProgramId();
     this.moduleId = this.route.snapshot.params['moduleId'] ?? null;
     this.isEditMode = !!this.moduleId;
 
@@ -289,5 +289,17 @@ export class ModuleFormPage implements OnInit {
     } finally {
       this.saving = false;
     }
+  }
+
+  private getRequiredProgramId(): string {
+    const programId = this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim());
+
+    if (!programId) {
+      throw new Error('Missing programId in route. Open this page from a specific program.');
+    }
+
+    return programId;
   }
 }

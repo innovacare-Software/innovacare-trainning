@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { ProgramDocumentsAdminService } from '../services/program-documents-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { ContentStatus, DocumentFileType, ProgramContentModule } from '../models/content-builder.models';
@@ -48,6 +49,20 @@ import { ContentStatus, DocumentFileType, ProgramContentModule } from '../models
           <div class="field full">
             <label>File URL *</label>
             <input type="text" formControlName="fileUrl" placeholder="https://..." />
+            <div class="field-actions">
+              <label class="upload-btn" [class.is-busy]="uploadingFile">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.gif,.txt"
+                  (change)="onFileSelected($event)"
+                  [disabled]="uploadingFile"
+                />
+                {{ uploadingFile ? 'Uploading…' : 'Upload Document' }}
+              </label>
+              <button type="button" class="btn-clear-file" *ngIf="form.value.fileUrl" (click)="clearFileUrl()">Clear</button>
+            </div>
+            <div class="field-hint" *ngIf="form.value.fileName">Uploaded: {{ form.value.fileName }}</div>
+            <p class="error-msg inline" *ngIf="uploadError">{{ uploadError }}</p>
           </div>
           <div class="field">
             <label>Order</label>
@@ -94,6 +109,19 @@ import { ContentStatus, DocumentFileType, ProgramContentModule } from '../models
     input[type="text"], input[type="number"], textarea, select { padding: 0.55rem 0.75rem; border: 1px solid #c8dff7; border-radius: 0.55rem; font-size: 0.9rem; color: #1e3a5a; outline: none; width: 100%; box-sizing: border-box; }
     input:focus, textarea:focus, select:focus { border-color: #1a74c8; }
     textarea { resize: vertical; }
+    .field-actions { display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap; margin-top: 0.2rem; }
+    .field-hint { color: #6b8aaa; font-size: 0.78rem; }
+    .upload-btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 1rem;
+      border-radius: 0.65rem; background: #eff6ff; color: #1a74c8; font-size: 0.84rem; font-weight: 700; cursor: pointer;
+      border: 1px solid #bfdbfe;
+    }
+    .upload-btn.is-busy { opacity: 0.7; cursor: wait; }
+    .upload-btn input { display: none; }
+    .btn-clear-file {
+      min-height: 38px; padding: 0 1rem; border-radius: 0.65rem; border: 1px solid #d9e5f2;
+      background: #fff; color: #4f7097; font-size: 0.84rem; font-weight: 700; cursor: pointer;
+    }
     .checkboxes { flex-direction: row; align-items: center; gap: 1rem; padding-top: 1.4rem; }
     .checkbox-label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; color: #1e3a5a; cursor: pointer; }
     .form-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e8f0fb; }
@@ -101,12 +129,14 @@ import { ContentStatus, DocumentFileType, ProgramContentModule } from '../models
     .btn-save { padding: 0.55rem 1.4rem; border-radius: 0.65rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 700; background: linear-gradient(135deg, #0f3659, #1a74c8); color: #fff; }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
     .error-msg { color: #b91c1c; font-size: 0.85rem; margin-top: 0.5rem; }
+    .error-msg.inline { margin-top: 0; }
   `],
 })
 export class DocumentFormPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly storage = inject(Storage);
   private readonly documentsService = inject(ProgramDocumentsAdminService);
   private readonly modulesService = inject(ProgramModulesAdminService);
 
@@ -114,7 +144,9 @@ export class DocumentFormPage implements OnInit {
   documentId: string | null = null;
   isEditMode = false;
   saving = false;
+  uploadingFile = false;
   error = '';
+  uploadError = '';
   modules: ProgramContentModule[] = [];
 
   readonly form = this.fb.group({
@@ -122,6 +154,8 @@ export class DocumentFormPage implements OnInit {
     title: ['', Validators.required],
     description: [''],
     fileUrl: ['', Validators.required],
+    filePath: [''],
+    fileName: [''],
     fileType: [DocumentFileType.PDF, Validators.required],
     downloadable: [true],
     order: [0],
@@ -130,7 +164,7 @@ export class DocumentFormPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.programId = this.route.snapshot.params['programId'];
+    this.programId = this.getRequiredProgramId();
     this.documentId = this.route.snapshot.params['documentId'] ?? null;
     this.isEditMode = !!this.documentId;
 
@@ -144,6 +178,8 @@ export class DocumentFormPage implements OnInit {
           title: doc.title,
           description: doc.description,
           fileUrl: doc.fileUrl,
+          filePath: doc.filePath ?? '',
+          fileName: doc.fileName ?? '',
           fileType: doc.fileType,
           downloadable: doc.downloadable,
           order: doc.order,
@@ -166,6 +202,8 @@ export class DocumentFormPage implements OnInit {
         title: raw.title ?? '',
         description: raw.description ?? '',
         fileUrl: raw.fileUrl ?? '',
+        filePath: raw.filePath ?? '',
+        fileName: raw.fileName ?? '',
         fileType: raw.fileType as DocumentFileType,
         downloadable: raw.downloadable ?? true,
         order: raw.order ?? 0,
@@ -183,5 +221,85 @@ export class DocumentFormPage implements OnInit {
     } finally {
       this.saving = false;
     }
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.uploadingFile = true;
+    this.uploadError = '';
+
+    try {
+      const safeName = this.sanitizeFileName(file.name || 'document');
+      const storagePath = `programs/${this.programId}/documents/${Date.now()}-${safeName}`;
+      const storageRef = ref(this.storage, storagePath);
+      await uploadBytes(storageRef, file, {
+        contentType: file.type || 'application/octet-stream',
+      });
+      const downloadUrl = await getDownloadURL(storageRef);
+
+      this.form.patchValue({
+        fileUrl: downloadUrl,
+        filePath: storagePath,
+        fileName: safeName,
+        fileType: this.detectFileType(file.name, file.type),
+      });
+
+      if (!String(this.form.value.title || '').trim()) {
+        this.form.patchValue({ title: safeName.replace(/\.[^.]+$/, '') });
+      }
+    } catch (e: unknown) {
+      this.uploadError = e instanceof Error ? e.message : 'Upload failed. Please try again.';
+    } finally {
+      this.uploadingFile = false;
+      if (input) {
+        input.value = '';
+      }
+    }
+  }
+
+  clearFileUrl(): void {
+    this.form.patchValue({
+      fileUrl: '',
+      filePath: '',
+      fileName: '',
+    });
+  }
+
+  private detectFileType(fileName: string, mimeType: string): DocumentFileType {
+    const lowerName = String(fileName || '').toLowerCase();
+    const lowerMime = String(mimeType || '').toLowerCase();
+
+    if (lowerName.endsWith('.pdf') || lowerMime.includes('pdf')) return DocumentFileType.PDF;
+    if (lowerName.endsWith('.doc') || lowerName.endsWith('.docx') || lowerMime.includes('word')) return DocumentFileType.DOCX;
+    if (lowerName.endsWith('.ppt') || lowerName.endsWith('.pptx') || lowerMime.includes('presentation') || lowerMime.includes('powerpoint')) return DocumentFileType.PPTX;
+    if (lowerName.endsWith('.xls') || lowerName.endsWith('.xlsx') || lowerMime.includes('spreadsheet') || lowerMime.includes('excel')) return DocumentFileType.XLSX;
+    if (lowerMime.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(lowerName)) return DocumentFileType.IMAGE;
+    return DocumentFileType.OTHER;
+  }
+
+  private sanitizeFileName(fileName: string): string {
+    const cleaned = String(fileName || 'document')
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '');
+
+    return cleaned || 'document';
+  }
+
+  private getRequiredProgramId(): string {
+    const programId = this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim());
+
+    if (!programId) {
+      throw new Error('Missing programId in route. Open this page from a specific program.');
+    }
+
+    return programId;
   }
 }

@@ -63,6 +63,11 @@ export const learnerRoutes: Routes = [
         loadComponent: () =>
           import('./courses/course-exam/course-exam').then(m => m.CourseExam),
       },
+      {
+        path: 'courses/:courseId/listening/:assessmentId',
+        loadComponent: () =>
+          import('../language-tests/runner/listening-test-runner.page').then(m => m.ListeningTestRunnerPage),
+      },
     ],
   },
 ];

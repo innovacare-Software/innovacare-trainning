@@ -1,0 +1,12 @@
+<div class="action-bar">
+  <button
+    type="button"
+    class="icon-btn"
+    [class.is-marked]="marked()"
+    [disabled]="disabled()"
+    (click)="toggleMark.emit()"
+  >
+    {{ marked() ? '⚑ MARKED' : '⚑ MARK FOR LATER' }}
+  </button>
+  <span class="spacer"></span>
+</div>

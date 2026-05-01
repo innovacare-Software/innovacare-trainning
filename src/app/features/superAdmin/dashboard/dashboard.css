@@ -145,6 +145,89 @@
   margin-bottom: 1rem;
 }
 
+.registration-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.registration-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.registration-card__head p {
+  margin: 0.45rem 0 0;
+}
+
+.registration-card__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.registration-empty {
+  padding: 1rem;
+  border-radius: 10px;
+  background: #f5f7fa;
+  color: #546e7a;
+}
+
+.registration-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.registration-row {
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.registration-row__main {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 0.7rem;
+}
+
+.registration-row__main strong {
+  color: #1a3a52;
+  font-size: 1rem;
+}
+
+.registration-row__main small {
+  color: #607d8b;
+}
+
+.registration-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+.registration-row__meta span {
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  background: #eef5fb;
+  color: #24516e;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.registration-row__notes {
+  margin: 0;
+  color: #455a64;
+}
+
 /* Action List */
 .action-list {
   list-style: none;
@@ -257,6 +340,12 @@
 .health-item span {
   color: #546e7a;
   font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+  .registration-card__head {
+    flex-direction: column;
+  }
 }
 
 /* Activity Summary */

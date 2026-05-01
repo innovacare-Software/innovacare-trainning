@@ -88,6 +88,10 @@ export class AdminProgramEnrollmentsListPage {
   enrollmentStatusLabel = PROGRAM_ENROLLMENT_STATUS_LABELS;
   paymentLabel = PAYMENT_STATUS_LABELS;
 
+  async markAsPaid(id: string): Promise<void> {
+    await this.service.updatePaymentStatus(id, PaymentStatus.PAID);
+  }
+
   trackById(_: number, row: { id: string }): string {
     return row.id;
   }

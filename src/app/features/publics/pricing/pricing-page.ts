@@ -420,8 +420,10 @@ export class PricingPage {
     this.startTestimonialsAutoplay();
   }
   login(): void {
-    // Redirige vers la page de connexion
-    window.location.href = '/login';
+    const returnUrl = encodeURIComponent(
+      `${window.location.pathname}${window.location.search}${window.location.hash}`
+    );
+    window.location.href = `/register?returnUrl=${returnUrl}`;
   }
 
   readonly tiers: PricingTier[] = [

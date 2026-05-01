@@ -1,0 +1,201 @@
+<div
+  class="ls-shell"
+  [class.sidebar-open]="sidebarOpen()"
+  [class.sidebar-closed]="!sidebarOpen()"
+  [class.sidebar-mobile]="isMobile()"
+>
+  @if (isMobile() && sidebarOpen()) {
+    <button
+      type="button"
+      class="ls-sidebar-backdrop"
+      (click)="closeSidebar()"
+      [attr.aria-label]="t('programs.learnerSpace.shell.closeNavigation')"
+    ></button>
+  }
+
+  <aside class="ls-sidebar">
+    <div class="ls-sidebar-logo">
+      <div class="ls-logo-mark">IC</div>
+      <div class="ls-logo-text">Innovacare<span>{{ t('programs.learnerSpace.shell.reviewPlatform') }}</span></div>
+      <button type="button" class="ls-collapse-btn" (click)="closeSidebar()" [attr.aria-label]="t('programs.learnerSpace.shell.closeNavigation')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="ls-user-card" *ngIf="experience() as experience">
+      <span class="ls-status-spark ls-status-spark--one" aria-hidden="true">✦</span>
+      <span class="ls-status-spark ls-status-spark--two" aria-hidden="true">✦</span>
+      <div class="ls-user-avatar">{{ profileInitials() }}</div>
+      <div class="ls-user-name">{{ profileName() }}</div>
+      <div class="ls-user-sub">{{ experience.exam.dateLabel }}</div>
+      <div class="ls-user-status-badge" [attr.data-status]="experience.exam.status">
+        {{ translateExamStatus(experience.exam.status) }}
+      </div>
+    </div>
+
+    <nav class="ls-nav-section">
+      <div class="ls-nav-section-label">{{ t('programs.learnerSpace.shell.menu') }}</div>
+      @for (item of navItems().slice(0, 9); track item.route) {
+        <a
+          class="ls-nav-item"
+          [routerLink]="[item.route]"
+          (click)="onNavItemActivated()"
+          routerLinkActive="ls-nav-active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+        >
+          <span class="ls-nav-icon"><mat-icon>{{ item.icon }}</mat-icon></span>
+          <span class="ls-nav-label">{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="ls-nav-badge">{{ item.badge }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="ls-sidebar-divider"></div>
+
+    <nav class="ls-nav-section">
+      <div class="ls-nav-section-label">{{ t('programs.learnerSpace.shell.account') }}</div>
+      @for (item of navItems().slice(9); track item.route) {
+        <a
+          class="ls-nav-item"
+          [routerLink]="[item.route]"
+          (click)="onNavItemActivated()"
+          routerLinkActive="ls-nav-active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+        >
+          <span class="ls-nav-icon"><mat-icon>{{ item.icon }}</mat-icon></span>
+          <span class="ls-nav-label">{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="ls-nav-badge" [class.ls-nav-badge--amber]="item.badge === t('programs.learnerSpace.shell.nav.newBadge')">{{ item.badge }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="ls-app-card">
+      <p class="ls-app-card__title">{{ t('programs.learnerSpace.shell.appPromoTitle') }}<span>{{ t('programs.learnerSpace.shell.appPromoSubtitle') }}</span></p>
+      <div class="ls-app-btns">
+        <button type="button" class="ls-app-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M3.18 23.76c.3.17.64.24.99.19l12.85-12.85-3.03-3.03L3.18 23.76zm16.7-12.37l-2.47-1.42-3.37 3.37 3.37 3.37 2.48-1.43c.71-.41.71-1.48-.01-1.89zM3.58.14C3.26.46 3.08.96 3.08 1.62v20.76l10.5-10.5L3.58.14zm8.06 11.24l3.03-3.03L3.17.23C2.82.18 2.47.25 2.18.43l9.46 10.95z"/></svg>
+          {{ t('programs.learnerSpace.shell.playStore') }}
+        </button>
+        <button type="button" class="ls-app-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M11.624 7.222c-.876 0-2.232-.996-3.66-.96-1.884.024-3.612 1.092-4.584 2.784-1.956 3.396-.504 8.412 1.404 11.172.936 1.344 2.04 2.856 3.504 2.808 1.404-.06 1.932-.912 3.636-.912 1.692 0 2.172.912 3.66.876 1.512-.024 2.472-1.368 3.396-2.724 1.068-1.56 1.512-3.072 1.536-3.156-.036-.012-2.94-1.128-2.976-4.488-.024-2.808 2.292-4.152 2.4-4.212-1.32-1.932-3.348-2.148-4.044-2.196-1.848-.144-3.396 1.008-4.272 1.008zm3.12-2.832c.78-.936 1.296-2.244 1.152-3.54-1.116.048-2.46.744-3.264 1.68-.72.828-1.344 2.16-1.176 3.432 1.236.096 2.508-.636 3.288-1.572z"/></svg>
+          {{ t('programs.learnerSpace.shell.appStore') }}
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="ls-content">
+    <header class="ls-topbar" *ngIf="experience() as experience">
+      <div class="ls-topbar__left">
+        <button
+          type="button"
+          class="ls-topbar-toggle"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="sidebarOpen() ? t('programs.learnerSpace.shell.hideNavigation') : t('programs.learnerSpace.shell.openNavigation')"
+          [attr.aria-expanded]="sidebarOpen()"
+        >
+          <mat-icon>{{ sidebarOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+        </button>
+        <div class="ls-topbar__titles">
+          <div class="ls-topbar__title">{{ appbarTitle() }}</div>
+          <div class="ls-topbar__sub">{{ greeting() }}</div>
+        </div>
+      </div>
+
+      @if (!isMobile()) {
+        <div class="ls-topbar__search" aria-hidden="true">
+          <mat-icon>search</mat-icon>
+          <span>{{ t('programs.learnerSpace.shell.searchPlaceholder') }}</span>
+        </div>
+      }
+
+      <div class="ls-topbar__actions">
+        <app-notification-bell-plain></app-notification-bell-plain>
+        <a routerLink="/cart" class="ls-topbar__icon-btn" [attr.aria-label]="t('programs.learnerSpace.shell.openCart')">
+          <mat-icon>shopping_cart</mat-icon>
+        </a>
+        <div class="ls-profile-menu">
+          <a [routerLink]="profileLink()" class="ls-topbar__avatar" [attr.aria-label]="t('programs.learnerSpace.shell.openProfile')">
+            {{ profileInitials() }}
+          </a>
+          <div class="ls-profile-dropdown">
+            <div class="ls-profile-dropdown__header">
+              <span class="ls-profile-dropdown__eyebrow">{{ t('programs.learnerSpace.shell.account') }}</span>
+              <strong>{{ profileName() }}</strong>
+              <small>{{ appbarTitle() }}</small>
+            </div>
+            <div class="ls-profile-dropdown__links">
+              <a [routerLink]="['/my-programs', programId(), 'dashboard']">{{ t('nav.dashboard') }}</a>
+              <a [routerLink]="['/my-programs', programId(), 'wallet']">{{ t('programs.learnerSpace.shell.wallet') }}</a>
+              <a [routerLink]="['/my-programs', programId(), 'order-history']">{{ t('programs.learnerSpace.shell.nav.orderHistory') }}</a>
+            </div>
+          </div>
+        </div>
+        <app-onboarding-trigger></app-onboarding-trigger>
+      </div>
+    </header>
+
+    @if (experience(); as experience) {
+      <div class="ls-content-topbar">
+        <div class="ls-content-topbar-links">
+          <button
+            type="button"
+            class="ls-content-link ls-content-link-secondary ls-content-link-button"
+            (click)="toggleSidebar()"
+            [attr.aria-label]="sidebarOpen() ? t('programs.learnerSpace.shell.hideNavigation') : t('programs.learnerSpace.shell.openNavigation')"
+            [attr.aria-expanded]="sidebarOpen()"
+          >
+            <mat-icon>{{ sidebarOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+            {{ isMobile() ? t('programs.learnerSpace.shell.navigation') : sidebarOpen() ? t('programs.learnerSpace.shell.hideSidebar') : t('programs.learnerSpace.shell.showSidebar') }}
+          </button>
+        </div>
+
+        <div class="ls-content-topbar-copy">
+          <strong>{{ greeting() }}</strong>
+          <p>{{ appbarAnnouncement() }}</p>
+        </div>
+
+        <div class="ls-quick-metrics">
+          <article>
+            <span>{{ t('programs.learnerSpace.shell.examClock') }}</span>
+            <strong>{{ experience.exam.countdownLabel }}</strong>
+          </article>
+          <article>
+            <span>{{ t('programs.learnerSpace.shell.wallet') }}</span>
+            <strong>{{ experience.walletPoints }} pts</strong>
+          </article>
+          <article>
+            <span>{{ t('programs.learnerSpace.shell.orders') }}</span>
+            <strong>{{ experience.orders.length }}</strong>
+          </article>
+        </div>
+      </div>
+    }
+
+    <section class="ls-page-surface">
+      <router-outlet />
+    </section>
+  </main>
+
+  @if (popup.current(); as current) {
+    <div class="ls-popup-backdrop" (click)="popup.dismiss()">
+      <section class="ls-popup-card" (click)="$event.stopPropagation()">
+        <button type="button" class="ls-popup-close" (click)="popup.dismiss()">×</button>
+        <span class="ls-popup-icon">{{ current.icon || '✦' }}</span>
+        <span class="ls-popup-type">{{ current.type }}</span>
+        <h3>{{ current.title }}</h3>
+        <p>{{ current.message }}</p>
+        <div class="ls-popup-actions">
+          <button type="button" class="ls-popup-secondary" (click)="popup.dismiss()">{{ t('common.dismiss') }}</button>
+          @if (current.cta) {
+            <button type="button" class="ls-popup-primary" (click)="executePopupCta()">{{ current.cta.label }}</button>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</div>

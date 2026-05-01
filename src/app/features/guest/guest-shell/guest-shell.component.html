@@ -24,11 +24,24 @@
       <a routerLink="/guest/profile" routerLinkActive="active">{{ t('nav.profile') }}</a>
     </nav>
 
-    <app-language-switcher></app-language-switcher>
-    <button class="logout-btn" (click)="logout()">{{ t('actions.logout') }}</button>
   </aside>
 
   <main class="guest-main">
-    <router-outlet></router-outlet>
+    <header class="guest-topbar">
+      <div class="guest-topbar__copy">
+        <span>Guest dashboard</span>
+        <strong>Quick access to session controls and logout from every guest workspace.</strong>
+      </div>
+
+      <div class="guest-topbar__actions">
+        <a routerLink="/programs" class="guest-topbar__link">Catalog</a>
+        <app-language-switcher></app-language-switcher>
+        <button class="logout-btn logout-btn--topbar" (click)="logout()">{{ t('actions.logout') }}</button>
+      </div>
+    </header>
+
+    <section class="guest-main__body">
+      <router-outlet></router-outlet>
+    </section>
   </main>
 </div>

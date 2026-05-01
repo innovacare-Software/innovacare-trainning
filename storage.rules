@@ -10,9 +10,45 @@ service firebase.storage {
       return signedIn() && request.auth.uid == uid;
     }
 
+    function hasUserDoc() {
+      return signedIn()
+        && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid));
+    }
+
+    function userRole() {
+      return hasUserDoc()
+        ? firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role
+        : '';
+    }
+
+    function hasProgramFlag(flag) {
+      return hasUserDoc()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data[flag] == true;
+    }
+
+    function canManageProgramContent() {
+      return signedIn() && (
+        userRole() in ['super_admin', 'admin', 'manager', 'org_admin', 'org_manager', 'programAdmin', 'programStaff']
+        || hasProgramFlag('isProgramAdmin')
+        || hasProgramFlag('isProgramStaff')
+      );
+    }
+
     // Avatar files: avatars/{uid}/... => only that user can read/write.
     match /avatars/{uid}/{allPaths=**} {
       allow read, write: if isOwner(uid);
+    }
+
+    // Program lesson media: authenticated learners can stream/download, while uploads stay limited to program managers.
+    match /programLessons/{programId}/{moduleId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if canManageProgramContent();
+    }
+
+    // Program documents uploaded from Program Admin form.
+    match /programs/{programId}/documents/{allPaths=**} {
+      allow read: if canManageProgramContent();
+      allow write: if canManageProgramContent();
     }
 
     // Deny everything else by default.

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -28,6 +28,7 @@ import { CartService } from '../../../core/cart.service';
 })
 export class CourseDetailPage {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly courseService = inject(CourseCatalogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cart = inject(CartService);
@@ -116,7 +117,14 @@ export class CourseDetailPage {
       this.snackBar.open(`"${course.title}" ajouté au panier.`, 'Fermer', {
         duration: 4000,
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message === 'AUTH_REQUIRED') {
+        await this.router.navigate(['/register'], {
+          queryParams: { returnUrl: this.router.url },
+        });
+        return;
+      }
+
       console.error('Erreur addToCart detail', error);
       this.snackBar.open('Impossible d’ajouter ce cours au panier.', 'Fermer', {
         duration: 5000,

@@ -1,0 +1,101 @@
+{
+  "id": "tef-canada-comprehension-orale-1",
+  "title": "TEF Canada — Compréhension de l'oral : Échange en milieu de travail",
+  "description": "Exercice de compréhension orale basé sur le format du TEF Canada. Les candidats écoutent un court échange professionnel et répondent à des questions à choix multiples.",
+  "targetTest": "TEF_CANADA",
+  "language": "fr",
+  "mode": "PRACTICE",
+  "status": "PUBLISHED",
+  "durationMin": 20,
+  "passingScore": 60,
+  "audioUrl": "https://storage.googleapis.com/innovacare-stripe.appspot.com/listening/tef-canada-travail.mp3",
+  "audioSettings": {
+    "maxPlays": 2,
+    "allowReplay": true,
+    "disableSeeking": false,
+    "requireHeadphonesConfirmation": true,
+    "showTranscriptAfterSubmit": true,
+    "autoStart": false
+  },
+  "postSubmissionReview": {
+    "showCorrectAnswers": true,
+    "showExplanations": true,
+    "showTranscript": true
+  },
+  "errorLogRequired": true,
+  "errorCategories": [
+    "VOCABULARY", "ACCENT", "SPEED", "DISTRACTOR",
+    "INFERENCE", "PARAPHRASE", "UNKNOWN"
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "mode": "single",
+      "prompt": "Où se déroule la conversation entre Sophie et Marc ?",
+      "points": 1,
+      "choices": [
+        { "id": "A", "text": "Dans un café en dehors du bureau" },
+        { "id": "B", "text": "Dans une salle de réunion" },
+        { "id": "C", "text": "Dans le couloir de l'entreprise" },
+        { "id": "D", "text": "Par téléphone" }
+      ],
+      "correctAnswerKey": ["B"],
+      "explanation": "Marc dit : « On peut se retrouver en salle de réunion à 14h ? »",
+      "rationale": "L'expression 'salle de réunion' peut passer inaperçue si l'auditeur se concentre sur l'heure."
+    },
+    {
+      "id": "q2",
+      "mode": "single",
+      "prompt": "Pourquoi Sophie ne peut-elle pas assister à la réunion à 14h ?",
+      "points": 1,
+      "choices": [
+        { "id": "A", "text": "Elle a un rendez-vous chez le médecin" },
+        { "id": "B", "text": "Elle est en déplacement professionnel" },
+        { "id": "C", "text": "Elle a une présentation avec un client" },
+        { "id": "D", "text": "Elle doit récupérer ses enfants à l'école" }
+      ],
+      "correctAnswerKey": ["C"],
+      "explanation": "Sophie explique : « J'ai une présentation avec un client important cet après-midi. »",
+      "rationale": "Le distracteur A est courant mais aucune mention médicale n'est faite."
+    },
+    {
+      "id": "q3",
+      "mode": "single",
+      "prompt": "À quelle heure ont-ils finalement décidé de se retrouver ?",
+      "points": 1,
+      "choices": [
+        { "id": "A", "text": "À 14h00" },
+        { "id": "B", "text": "À 15h30" },
+        { "id": "C", "text": "À 16h00" },
+        { "id": "D", "text": "Le lendemain matin" }
+      ],
+      "correctAnswerKey": ["C"],
+      "explanation": "Après négociation, Marc dit : « Alors 16h ça te convient ? » et Sophie répond « Parfait. »",
+      "rationale": "Plusieurs heures sont mentionnées ; l'apprenant doit suivre la progression du dialogue."
+    },
+    {
+      "id": "q4",
+      "mode": "true_false",
+      "prompt": "Sophie et Marc travaillent dans le même département.",
+      "points": 1,
+      "choices": [
+        { "id": "VRAI", "text": "VRAI" },
+        { "id": "FAUX", "text": "FAUX" },
+        { "id": "ON_NE_SAIT_PAS", "text": "ON NE SAIT PAS" }
+      ],
+      "correctAnswerKey": ["ON_NE_SAIT_PAS"],
+      "explanation": "L'audio ne précise pas s'ils appartiennent au même département.",
+      "rationale": "Tester la capacité à ne pas inférer des informations non fournies."
+    },
+    {
+      "id": "q5",
+      "mode": "short_text",
+      "prompt": "Quel mot Sophie utilise-t-elle pour qualifier son client ?",
+      "points": 1,
+      "acceptedAnswers": ["important", "très important", "un client important"],
+      "explanation": "Sophie dit littéralement « un client important ».",
+      "rationale": "Compréhension lexicale et mémorisation d'un adjectif clé."
+    }
+  ],
+  "transcript": "Marc : Sophie, tu as une minute ?\nSophie : Oui, bien sûr. Qu'est-ce qu'il y a ?\nMarc : On peut se retrouver en salle de réunion à 14h ? J'ai des points importants à discuter sur le projet Dupont.\nSophie : Ah, 14h ce n'est pas possible pour moi. J'ai une présentation avec un client important cet après-midi.\nMarc : Et 15h30, ça irait ?\nSophie : C'est encore compliqué. Ma présentation risque de se terminer vers 15h45.\nMarc : Alors 16h ça te convient ?\nSophie : Parfait. À tout à l'heure !\nMarc : Super, à 16h alors. N'oublie pas d'apporter le rapport."
+}

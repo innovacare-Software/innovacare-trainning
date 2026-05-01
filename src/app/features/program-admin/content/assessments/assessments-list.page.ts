@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, combineLatest, map } from 'rxjs';
+import { combineLatest, map, of } from 'rxjs';
 import { ProgramAssessmentsAdminService } from '../services/program-assessments-admin.service';
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { CONTENT_STATUS_LABELS, ASSESSMENT_TYPE_LABELS } from '../models/content-builder.models';
@@ -44,7 +44,7 @@ import { CONTENT_STATUS_LABELS, ASSESSMENT_TYPE_LABELS } from '../models/content
               <td><strong>{{ a.title }}</strong></td>
               <td>{{ vm()?.moduleMap?.[a.moduleId] ?? a.moduleId }}</td>
               <td><span class="type-pill">{{ TYPE_LABELS[a.assessmentType] }}</span></td>
-              <td>{{ a.questionCount }}</td>
+              <td>{{ a.questionCount || 0 }}</td>
               <td>{{ a.durationMin }}m</td>
               <td>{{ a.passingScore }}%</td>
               <td><span class="pill" [class.yes]="a.active">{{ a.active ? 'Yes' : 'No' }}</span></td>
@@ -98,25 +98,20 @@ export class AssessmentsListPage {
   private readonly assessmentsService = inject(ProgramAssessmentsAdminService);
   private readonly modulesService = inject(ProgramModulesAdminService);
 
-  readonly programId = toSignal(
-    this.route.params.pipe(switchMap((p) => [p['programId'] as string])),
-    { initialValue: '' }
-  );
+  readonly programId = signal(this.getRequiredProgramId());
 
   readonly vm = toSignal(
-    this.route.params.pipe(
-      switchMap((p) =>
-        combineLatest([
-          this.assessmentsService.getAssessments(p['programId']),
-          this.modulesService.getModules(p['programId']),
+    this.programId()
+      ? combineLatest([
+          this.assessmentsService.getAssessments(this.programId()),
+          this.modulesService.getModules(this.programId()),
         ]).pipe(
           map(([assessments, modules]) => ({
             assessments,
             moduleMap: modules.reduce<Record<string, string>>((acc, m) => { acc[m.id] = m.title; return acc; }, {}),
           }))
         )
-      )
-    )
+      : of({ assessments: [], moduleMap: {} as Record<string, string> })
   );
 
   protected readonly STATUS_LABELS = CONTENT_STATUS_LABELS;
@@ -125,5 +120,11 @@ export class AssessmentsListPage {
   async deleteAssessment(assessmentId: string): Promise<void> {
     if (!confirm('Delete this assessment? This cannot be undone.')) return;
     await this.assessmentsService.deleteAssessment(this.programId(), assessmentId);
+  }
+
+  private getRequiredProgramId(): string {
+    return this.route.snapshot.pathFromRoot
+      .map((routeSnapshot) => routeSnapshot.paramMap.get('programId'))
+      .find((value): value is string => !!value?.trim()) ?? '';
   }
 }

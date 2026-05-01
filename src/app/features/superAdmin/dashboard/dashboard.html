@@ -54,6 +54,8 @@
       <ul class="action-list">
         <li><a href="/super-admin/Organizations" class="btn-primary">+ Create Organization</a></li>
         <li><a href="/super-admin/courses" class="btn-secondary">Assign Courses</a></li>
+        <li><a href="/program-admin/dashboard" class="btn-secondary">Open Program Admin</a></li>
+        <li><a href="/org-admin/dashboard" class="btn-secondary">Open Organization Admin</a></li>
         <li><a href="/super-admin/billing" class="btn-secondary">Review Billing</a></li>
         <li><a href="/super-admin/audit-logs" class="btn-secondary">View Audit Logs</a></li>
       </ul>
@@ -76,6 +78,36 @@
       <p>Monitor global platform health, tenant onboarding, and course distribution.</p>
       <div class="activity-summary">
         <p *ngFor="let activity of recentActivities()" class="activity-item">{{ activity }}</p>
+      </div>
+    </section>
+
+    <section class="card registration-card">
+      <div class="registration-card__head">
+        <div>
+          <h2>Recent Registrations</h2>
+          <p>New public signups written into the register collection for super admin review.</p>
+        </div>
+        <span class="registration-card__count">{{ registrations().length }}</span>
+      </div>
+
+      <div class="registration-empty" *ngIf="!registrations().length">
+        No registration records found yet.
+      </div>
+
+      <div class="registration-list" *ngIf="registrations().length">
+        <article class="registration-row" *ngFor="let registration of registrations()">
+          <div class="registration-row__main">
+            <strong>{{ registration.fullName }}</strong>
+            <small>{{ registration.email }}</small>
+          </div>
+          <div class="registration-row__meta">
+            <span>{{ registration.learnerType || 'General learner' }}</span>
+            <span>{{ registration.examGoal || 'No goal selected' }}</span>
+            <span>{{ registration.country || 'Country not provided' }}</span>
+            <span>{{ formatTimestamp(registration.createdAt) }}</span>
+          </div>
+          <p class="registration-row__notes" *ngIf="registration.goals">{{ registration.goals }}</p>
+        </article>
       </div>
     </section>
 

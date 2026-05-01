@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "id": "qb-bowtie-sepsis-priority-001",
+      "organizationId": "REPLACE_ORG_ID",
+      "programId": "nclex-rn-prep",
+      "programTitle": "NCLEX-RN Prep",
+      "jurisdiction": "US",
+      "examTrack": "NCLEX-RN",
+      "courseGroupId": "adult-health-med-surg",
+      "courseGroupTitle": "Adult Health / Med-Surg",
+      "moduleId": "adult-sepsis-essentials",
+      "moduleTitle": "Sepsis Essentials",
+      "parentCaseId": null,
+      "itemType": "bow_tie",
+      "cognitiveLevel": "clinical_judgment",
+      "difficulty": "medium",
+      "stem": "A client with suspected sepsis becomes acutely hypotensive and increasingly confused.",
+      "scenarioText": "Vital signs: T 39.1 C, HR 126/min, RR 28/min, BP 84/48 mm Hg, SpO2 92% on room air.",
+      "leadInQuestion": "Complete the bow tie by selecting the most likely condition, two priority actions, and the parameter to monitor first.",
+      "interactionConfig": {
+        "kind": "bow_tie",
+        "instructions": "Select 1 condition, 2 priority actions, and 1 parameter to monitor.",
+        "parts": [
+          {
+            "id": "condition",
+            "label": "Likely Condition",
+            "prompt": "Identify the highest-priority clinical condition.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": ["COND_A", "COND_B", "COND_C"]
+          },
+          {
+            "id": "actions",
+            "label": "Priority Actions",
+            "prompt": "Select the two actions the nurse should initiate first.",
+            "selectionMode": "multiple",
+            "minSelections": 2,
+            "maxSelections": 2,
+            "optionIds": ["ACT_A", "ACT_B", "ACT_C", "ACT_D"]
+          },
+          {
+            "id": "monitor",
+            "label": "Parameter To Monitor",
+            "prompt": "Select the parameter that best evaluates the early response.",
+            "selectionMode": "single",
+            "minSelections": 1,
+            "maxSelections": 1,
+            "optionIds": ["MON_A", "MON_B", "MON_C"]
+          }
+        ]
+      },
+      "choices": [
+        { "id": "COND_A", "label": "A", "text": "Septic shock" },
+        { "id": "COND_B", "label": "B", "text": "Pulmonary embolism" },
+        { "id": "COND_C", "label": "C", "text": "Acute ischemic stroke" },
+        { "id": "ACT_A", "label": "D", "text": "Initiate rapid isotonic fluid resuscitation" },
+        { "id": "ACT_B", "label": "E", "text": "Obtain cultures and administer broad-spectrum antibiotics promptly" },
+        { "id": "ACT_C", "label": "F", "text": "Place the client flat and delay all interventions until the provider arrives" },
+        { "id": "ACT_D", "label": "G", "text": "Restrict fluids until urine output improves" },
+        { "id": "MON_A", "label": "H", "text": "Mean arterial pressure" },
+        { "id": "MON_B", "label": "I", "text": "Pupil size" },
+        { "id": "MON_C", "label": "J", "text": "Bowel sounds" }
+      ],
+      "correctAnswerKey": ["COND_A", "ACT_A", "ACT_B", "MON_A"],
+      "explanation": "The client shows distributive shock findings consistent with septic shock; immediate fluids, prompt antibiotics after cultures, and hemodynamic monitoring are priorities.",
+      "rationale": "Bow tie scoring uses the flattened correctAnswerKey plus interactionConfig.parts to define what belongs in each response segment.",
+      "distractorRationale": {
+        "COND_B": "Pulmonary embolism can cause instability, but the fever and sepsis pattern point elsewhere.",
+        "COND_C": "Confusion is present, but the hemodynamic picture is more consistent with shock.",
+        "ACT_C": "Delaying intervention worsens sepsis outcomes.",
+        "ACT_D": "Fluid restriction is inappropriate during initial septic shock resuscitation.",
+        "MON_B": "Pupil size does not measure shock response.",
+        "MON_C": "Bowel sounds are not the earliest useful resuscitation target here."
+      },
+      "learningObjectives": [
+        "Recognize septic shock findings",
+        "Prioritize immediate nursing actions in sepsis",
+        "Monitor the earliest meaningful response to resuscitation"
+      ],
+      "tags": ["ngn", "bow_tie", "sepsis", "shock", "priority"],
+      "sourceAuthority": "Internal SME Board",
+      "sourceReferenceTitle": "Sepsis priority response example",
+      "sourceReferenceUrl": null,
+      "sourceVersionDate": "2026-04-19",
+      "jurisdictionNotes": null,
+      "points": 1,
+      "estimatedTimeSeconds": 90,
+      "active": true,
+      "workflowStatus": "draft",
+      "version": 1,
+      "remediationModuleIds": ["adult-sepsis-essentials"],
+      "remediationLessonIds": [],
+      "remediationTags": ["sepsis", "shock"],
+      "createdBy": "import-script",
+      "updatedBy": "import-script"
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
-import { AuthService, AppProfile } from '../../../core/auth';
-import { AuthRedirectService, defaultRouteForRole } from '../../../core/auth-redirect.service';
+import { AuthService, AppProfile, RegisterWithEmailPayload } from '../../../core/auth';
+import { AuthRedirectService, resolveDefaultRoute } from '../../../core/auth-redirect.service';
 
 type TabType = 'guest' | 'org' | 'register';
 
@@ -29,10 +29,39 @@ type TabType = 'guest' | 'org' | 'register';
   ],
 })
 export class LoginComponent {
+  readonly logoUrl = 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775625663/142F3705-07E3-43F3-BD40-F5556DD88AEC_uemn1w.png';
+
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authRedirect = inject(AuthRedirectService);
+
+  readonly learnerTypes = [
+    'Nursing student',
+    'Licensed nurse',
+    'International graduate',
+    'Healthcare professional',
+    'Educator',
+  ];
+
+  readonly examGoals = [
+    'NCLEX-RN',
+    'NCLEX-PN',
+    'Nursing school success',
+    'Private tutoring',
+    'USMLE / medical boards',
+    'Other exam prep',
+  ];
+
+  readonly referralSources = [
+    'Google search',
+    'Social media',
+    'Friend or colleague',
+    'School or organization',
+    'Email campaign',
+    'Other',
+  ];
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -55,14 +84,30 @@ export class LoginComponent {
   registerForm = this.fb.group({
     fullName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
+    phone: ['', Validators.required],
+    country: ['', Validators.required],
+    learnerType: ['', Validators.required],
+    examGoal: ['', Validators.required],
+    organizationName: [''],
+    referralSource: [''],
+    goals: [''],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', Validators.required],
+    acceptTerms: [false, Validators.requiredTrue],
     rememberMe: [true],
   });
 
   resetForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
   });
+
+  constructor() {
+    this.applyRequestedTab();
+
+    this.route.queryParamMap.subscribe(() => {
+      this.applyRequestedTab();
+    });
+  }
 
   private async waitForFreshProfile(): Promise<AppProfile> {
     return firstValueFrom(
@@ -95,6 +140,25 @@ export class LoginComponent {
     this.currentTab.set(tab);
     this.error.set(null);
     this.success.set(null);
+  }
+
+  private applyRequestedTab(): void {
+    const routePath = String(this.route.snapshot.routeConfig?.path || '').trim().toLowerCase();
+    const requestedTab = String(this.route.snapshot.queryParamMap.get('tab') || '')
+      .trim()
+      .toLowerCase();
+
+    let nextTab: TabType = 'guest';
+
+    if (routePath === 'register' || requestedTab === 'register') {
+      nextTab = 'register';
+    } else if (requestedTab === 'org') {
+      nextTab = 'org';
+    }
+
+    if (nextTab !== this.currentTab()) {
+      this.switchTab(nextTab);
+    }
   }
 
   async submitGuest() {
@@ -167,14 +231,24 @@ export class LoginComponent {
     this.success.set(null);
 
     try {
-      const { email, password, fullName, rememberMe } = this.registerForm.getRawValue();
+      const payload = this.registerForm.getRawValue() as RegisterWithEmailPayload & {
+        confirmPassword: string;
+        acceptTerms: boolean;
+      };
 
-      await this.auth.registerWithEmail(
-        email!,
-        password!,
-        fullName!,
-        !!rememberMe
-      );
+      await this.auth.registerWithEmail({
+        fullName: payload.fullName!,
+        email: payload.email!,
+        password: payload.password!,
+        phone: payload.phone!,
+        country: payload.country!,
+        learnerType: payload.learnerType!,
+        examGoal: payload.examGoal!,
+        organizationName: payload.organizationName || '',
+        referralSource: payload.referralSource || '',
+        goals: payload.goals || '',
+        rememberMe: !!payload.rememberMe,
+      });
 
       const profile = await this.waitForFreshProfile();
       await this.redirectAfterAuth(profile);
@@ -253,8 +327,8 @@ export class LoginComponent {
   async debugRedirectCheck() {
     const profile = await this.waitForFreshProfile();
     console.log('PROFILE AFTER LOGIN', profile);
-    console.log('REDIRECT TO', defaultRouteForRole(profile.role));
-    await this.router.navigateByUrl(defaultRouteForRole(profile.role), {
+    console.log('REDIRECT TO', resolveDefaultRoute(profile));
+    await this.router.navigateByUrl(resolveDefaultRoute(profile), {
       replaceUrl: true,
     });
   }

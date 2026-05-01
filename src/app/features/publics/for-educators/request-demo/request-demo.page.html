@@ -1,0 +1,184 @@
+<div class="demo-page">
+  <div class="demo-container">
+
+    <!-- Back link -->
+    <a routerLink="/for-educators" class="demo-back" [attr.aria-label]="'COMMON.back' | transloco">
+      ← {{ 'COMMON.back' | transloco }}
+    </a>
+
+    @if (!submitted()) {
+      <div class="demo-layout">
+
+        <!-- Left: value prop -->
+        <aside class="demo-value">
+          <h1>{{ 'FOR_EDUCATORS.demo_form.title' | transloco }}</h1>
+          <p class="demo-value__sub">
+            {{ 'FOR_EDUCATORS.hero_desc' | transloco }}
+          </p>
+          <ul class="demo-checklist" [attr.aria-label]="'FOR_EDUCATORS.demo_form.title' | transloco">
+            <li>✓ {{ 'FOR_EDUCATORS.dashboard_features.monitor' | transloco }}</li>
+            <li>✓ {{ 'FOR_EDUCATORS.dashboard_features.assign' | transloco }}</li>
+            <li>✓ {{ 'FOR_EDUCATORS.features.dashboard' | transloco }}</li>
+            <li>✓ {{ 'FOR_EDUCATORS.cta_pricing' | transloco }}</li>
+            <li>✓ {{ 'COMMON.confirm' | transloco }}</li>
+          </ul>
+          <div class="demo-testimonial">
+            <p>"Our NCLEX first-time pass rate went from 78% to 94% in one academic year."</p>
+            <cite>— Program Director, Community College of Nursing</cite>
+          </div>
+        </aside>
+
+        <!-- Right: form -->
+        <div class="demo-form-wrapper">
+          <h2>{{ 'FOR_EDUCATORS.demo_form.title' | transloco }}</h2>
+
+          @if (errorMsg()) {
+            <div class="demo-alert demo-alert--error" role="alert">
+              {{ errorMsg() }}
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="demo-form" aria-label="Request demo form">
+
+            <div class="demo-field">
+              <label for="institutionName">{{ 'FOR_EDUCATORS.demo_form.institution_name' | transloco }} <span class="demo-required" aria-hidden="true">*</span></label>
+              <input
+                id="institutionName"
+                type="text"
+                formControlName="institutionName"
+                [class.demo-input--error]="showError('institutionName')"
+                [placeholder]="'FOR_EDUCATORS.demo_form.institution_name' | transloco"
+                autocomplete="organization"
+                aria-required="true"
+              />
+              @if (showError('institutionName')) {
+                <span class="demo-error-msg" role="alert">{{ 'FOR_EDUCATORS.demo_form.institution_name' | transloco }}</span>
+              }
+            </div>
+
+            <div class="demo-field-row">
+              <div class="demo-field">
+                <label for="contactName">{{ 'FOR_EDUCATORS.demo_form.your_name' | transloco }} <span class="demo-required" aria-hidden="true">*</span></label>
+                <input
+                  id="contactName"
+                  type="text"
+                  formControlName="contactName"
+                  [class.demo-input--error]="showError('contactName')"
+                  [placeholder]="'FOR_EDUCATORS.demo_form.your_name' | transloco"
+                  autocomplete="name"
+                  aria-required="true"
+                />
+                @if (showError('contactName')) {
+                  <span class="demo-error-msg" role="alert">{{ 'FOR_EDUCATORS.demo_form.your_name' | transloco }}</span>
+                }
+              </div>
+
+              <div class="demo-field">
+                <label for="email">{{ 'FOR_EDUCATORS.demo_form.email' | transloco }} <span class="demo-required" aria-hidden="true">*</span></label>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  [class.demo-input--error]="showError('email')"
+                  [placeholder]="'FOR_EDUCATORS.demo_form.email' | transloco"
+                  autocomplete="email"
+                  aria-required="true"
+                />
+                @if (showError('email')) {
+                  <span class="demo-error-msg" role="alert">{{ 'FOR_EDUCATORS.demo_form.email' | transloco }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="demo-field-row">
+              <div class="demo-field">
+                <label for="phone">{{ 'FOR_EDUCATORS.demo_form.phone' | transloco }}</label>
+                <input
+                  id="phone"
+                  type="tel"
+                  formControlName="phone"
+                  placeholder="(555) 000-0000"
+                  autocomplete="tel"
+                />
+              </div>
+
+              <div class="demo-field">
+                <label for="studentCount">{{ 'FOR_EDUCATORS.demo_form.student_count' | transloco }} <span class="demo-required" aria-hidden="true">*</span></label>
+                <select
+                  id="studentCount"
+                  formControlName="studentCount"
+                  [class.demo-input--error]="showError('studentCount')"
+                  aria-required="true"
+                >
+                  <option value="">{{ 'FOR_EDUCATORS.demo_form.student_count' | transloco }}</option>
+                  @for (opt of studentCountOptions; track $index) {
+                    <option [value]="opt.value">{{ opt.labelKey | transloco }}</option>
+                  }
+                </select>
+                @if (showError('studentCount')) {
+                  <span class="demo-error-msg" role="alert">{{ 'FOR_EDUCATORS.demo_form.student_count' | transloco }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="demo-field">
+              <label for="programType">{{ 'FOR_EDUCATORS.demo_form.program_type' | transloco }} <span class="demo-required" aria-hidden="true">*</span></label>
+              <select
+                id="programType"
+                formControlName="programType"
+                [class.demo-input--error]="showError('programType')"
+                aria-required="true"
+              >
+                <option value="">{{ 'FOR_EDUCATORS.demo_form.program_type' | transloco }}</option>
+                @for (type of programTypes; track $index) {
+                  <option [value]="type.value">{{ type.labelKey | transloco }}</option>
+                }
+              </select>
+              @if (showError('programType')) {
+                <span class="demo-error-msg" role="alert">{{ 'FOR_EDUCATORS.demo_form.program_type' | transloco }}</span>
+              }
+            </div>
+
+            <div class="demo-field">
+              <label for="message">{{ 'FOR_EDUCATORS.demo_form.message' | transloco }}</label>
+              <textarea
+                id="message"
+                formControlName="message"
+                rows="4"
+                [placeholder]="'FOR_EDUCATORS.demo_form.message' | transloco"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              class="demo-submit"
+              [disabled]="submitting()"
+              [attr.aria-busy]="submitting()"
+              [attr.aria-label]="'FOR_EDUCATORS.demo_form.submit' | transloco"
+            >
+              @if (submitting()) {
+                <span class="demo-spinner" aria-hidden="true"></span>
+                {{ 'FOR_EDUCATORS.demo_form.submitting' | transloco }}
+              } @else {
+                {{ 'FOR_EDUCATORS.demo_form.submit' | transloco }} →
+              }
+            </button>
+
+            <p class="demo-privacy">
+              {{ 'COMMON.submit' | transloco }}.
+            </p>
+          </form>
+        </div>
+      </div>
+
+    } @else {
+      <!-- Success state -->
+      <div class="demo-success" role="status" aria-live="polite">
+        <span class="demo-success__icon" aria-hidden="true">🎉</span>
+        <h2>{{ 'FOR_EDUCATORS.demo_form.success' | transloco }}</h2>
+        <p>{{ 'FOR_EDUCATORS.demo_form.success' | transloco }}</p>
+        <a routerLink="/" class="demo-back-home">{{ 'actions.returnHome' | transloco }}</a>
+      </div>
+    }
+  </div>
+</div>

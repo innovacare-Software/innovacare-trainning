@@ -1,0 +1,460 @@
+{
+  "title": "Shock Recognition and Management",
+  "description": "NCLEX-style assessment covering the four types of shock, early recognition, and priority nursing interventions.",
+  "assessmentType": "READINESS_TEST",
+  "passingScore": 78,
+  "durationMin": 30,
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "A client who sustained major trauma arrives with BP 80/50 mmHg, HR 128 bpm, RR 26/min, cool and clammy skin, and altered mental status. Which type of shock is most consistent with these findings?",
+      "mode": "single",
+      "correctAnswerKey": ["B"],
+      "choices": [
+        { "id": "A", "text": "Distributive shock", "correct": false },
+        { "id": "B", "text": "Hypovolemic shock", "correct": true },
+        { "id": "C", "text": "Cardiogenic shock", "correct": false },
+        { "id": "D", "text": "Obstructive shock", "correct": false }
+      ],
+      "explanation": "Hypovolemic shock results from a significant loss of circulating blood volume (hemorrhage, third-spacing, or fluid loss). The compensatory response produces tachycardia, tachypnea, and vasoconstriction — causing the cool, clammy skin and hypotension seen here. Trauma with these hemodynamic signs strongly suggests hemorrhagic hypovolemic shock until proven otherwise.",
+      "rationale": "Recognizing the four shock types (hypovolemic, distributive, cardiogenic, obstructive) by their hemodynamic profiles is a core NCLEX-RN and acute-care nursing competency. In hypovolemic shock, vasoconstriction is maximal, producing cool/clammy skin — in contrast to distributive shock (septic/anaphylactic), where vasodilation produces warm, flushed skin early.",
+      "distractorRationale": {
+        "A": "Distributive shock (septic, anaphylactic, neurogenic) involves massive vasodilation. Early septic and anaphylactic shock typically present with warm, flushed skin and a bounding pulse — opposite of the cool, clammy presentation here.",
+        "C": "Cardiogenic shock arises from pump failure (MI, severe HF). While it shares hypotension and tachycardia, it is associated with pulmonary edema, elevated JVP, and S3 gallop. Trauma history makes cardiogenic shock unlikely as the primary cause.",
+        "D": "Obstructive shock (tension pneumothorax, cardiac tamponade, massive PE) impairs venous return or outflow. These require specific mechanical causes (distended neck veins in tamponade/tension PTX, tracheal deviation); findings here fit hemorrhage better."
+      }
+    },
+    {
+      "prompt": "Which early compensatory signs of shock should the nurse recognize? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "B", "D"],
+      "choices": [
+        { "id": "A", "text": "Tachycardia", "correct": true },
+        { "id": "B", "text": "Increased respiratory rate", "correct": true },
+        { "id": "C", "text": "Bradycardia", "correct": false },
+        { "id": "D", "text": "Decreased urine output", "correct": true },
+        { "id": "E", "text": "Hypertension", "correct": false }
+      ],
+      "explanation": "Early (compensated) shock activates the sympathetic nervous system and renin-angiotensin-aldosterone axis. The result is tachycardia (to maintain cardiac output), tachypnea (to compensate for metabolic acidosis), and oliguria (renal hypoperfusion and aldosterone-driven sodium/water retention). Blood pressure may be maintained in early shock — hypotension is a late, decompensated sign.",
+      "rationale": "Early recognition of shock before decompensation is life-saving. Blood pressure is an unreliable early indicator because compensatory vasoconstriction can maintain systolic BP until 30%+ of blood volume is lost. Nurses must recognize subtle pre-hypotensive signs: tachycardia, tachypnea, and oliguria.",
+      "distractorRationale": {
+        "C": "Bradycardia is NOT an early compensatory sign of shock. It may occur in neurogenic shock (loss of sympathetic tone) or as a pre-terminal event in profound hemorrhagic shock. The expected early response is tachycardia.",
+        "E": "Hypertension does not occur in shock. Compensatory mechanisms maintain — but do not elevate — blood pressure early. Hypotension is a late and serious sign indicating failed compensation."
+      }
+    },
+    {
+      "prompt": "A client in septic shock has BP 88/54 mmHg, HR 118 bpm, temperature 39.2°C, and lactate 4.2 mmol/L. Which intervention has the highest priority?",
+      "mode": "single",
+      "correctAnswerKey": ["C"],
+      "choices": [
+        { "id": "A", "text": "Apply cooling blanket to reduce fever.", "correct": false },
+        { "id": "B", "text": "Administer oral antipyretics.", "correct": false },
+        { "id": "C", "text": "Obtain blood cultures and initiate IV broad-spectrum antibiotics within 1 hour.", "correct": true },
+        { "id": "D", "text": "Restrict IV fluids to prevent fluid overload.", "correct": false }
+      ],
+      "explanation": "The Surviving Sepsis Campaign Hour-1 Bundle prioritizes: (1) blood cultures before antibiotics, (2) broad-spectrum IV antibiotics within 1 hour of sepsis/septic shock recognition, (3) 30 mL/kg IV crystalloid bolus for hypotension or lactate ≥4 mmol/L, (4) vasopressors if hypotension persists, and (5) remeasure lactate if initial ≥2 mmol/L. Antibiotics within 1 hour is the single intervention most strongly linked to reduced mortality in septic shock.",
+      "rationale": "Every hour of delay in appropriate antibiotic therapy in septic shock increases mortality by approximately 7%. The 1-hour bundle is a time-sensitive protocol that defines sepsis management. Nurses play a key role in recognizing sepsis criteria (SIRS + suspected infection + organ dysfunction) and activating the bundle rapidly.",
+      "distractorRationale": {
+        "A": "Cooling blankets address comfort and fever, but fever is not the cause of hemodynamic instability in septic shock. Treating the source (infection) is the priority, not the symptom (fever).",
+        "B": "Oral antipyretics are inappropriate in a hemodynamically unstable client who requires IV access, fluid resuscitation, and parenteral antibiotics. The oral route is not suitable in septic shock.",
+        "D": "Fluid restriction is contraindicated in septic shock with hypotension and elevated lactate. The Surviving Sepsis bundle recommends 30 mL/kg IV crystalloid as part of the initial resuscitation, not fluid restriction."
+      }
+    },
+    {
+      "prompt": "A client develops sudden-onset dyspnea, urticaria, angioedema, and hypotension after receiving IV penicillin. Which medication is the priority intervention?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Epinephrine 0.3–0.5 mg IM (anterolateral thigh)", "correct": true },
+        { "id": "B", "text": "Diphenhydramine 50 mg IV", "correct": false },
+        { "id": "C", "text": "Methylprednisolone 125 mg IV", "correct": false },
+        { "id": "D", "text": "Albuterol inhaler two puffs", "correct": false }
+      ],
+      "explanation": "Anaphylactic shock is a life-threatening systemic hypersensitivity reaction. Epinephrine IM (0.3–0.5 mg of 1:1000 in adults) is the ONLY first-line treatment. It reverses vasodilation (alpha-1), bronchospasm (beta-2), and inhibits further mediator release (beta-2 mast cells). No other drug replaces epinephrine in anaphylaxis; delay increases mortality from airway obstruction and cardiovascular collapse.",
+      "rationale": "Anaphylaxis is an NCLEX priority topic requiring rapid nurse action. Antihistamines and corticosteroids are adjunct treatments — they do NOT treat the life-threatening cardiovascular and airway components. Epinephrine must be given first and IM (not subcutaneous) for fastest absorption. The anterolateral thigh is the preferred injection site.",
+      "distractorRationale": {
+        "B": "Diphenhydramine (H1 blocker) reduces histamine-mediated itching and urticaria but does NOT reverse bronchospasm, vasodilation, or cardiovascular collapse. It is an adjunct given AFTER epinephrine, never instead of it.",
+        "C": "Corticosteroids have a delayed onset of action (hours) and are used to prevent biphasic reactions. They have no role in the acute minute-by-minute resuscitation of anaphylaxis.",
+        "D": "Inhaled albuterol may help bronchospasm but does not address the systemic vasodilation, hypotension, or angioedema. It is an adjunct, not a substitute for IM epinephrine."
+      }
+    },
+    {
+      "prompt": "Which hemodynamic finding is characteristic of cardiogenic shock but NOT hypovolemic shock?",
+      "mode": "single",
+      "correctAnswerKey": ["D"],
+      "choices": [
+        { "id": "A", "text": "Hypotension", "correct": false },
+        { "id": "B", "text": "Tachycardia", "correct": false },
+        { "id": "C", "text": "Decreased urine output", "correct": false },
+        { "id": "D", "text": "Pulmonary crackles and elevated jugular venous pressure", "correct": true }
+      ],
+      "explanation": "Cardiogenic shock is caused by pump failure (most often massive MI). The failing ventricle cannot eject blood forward, causing fluid to back up into the pulmonary circulation (crackles, pulmonary edema) and systemic venous system (elevated JVP, S3 gallop). In hypovolemic shock, the problem is low preload from volume loss — lungs are dry and JVP is low/flat. This distinction guides fluid management: hypovolemic shock requires fluids; cardiogenic shock may require diuresis or inotropes.",
+      "rationale": "Differentiating shock types by clinical presentation prevents iatrogenic harm. Giving aggressive IV fluids to a patient in cardiogenic shock worsens pulmonary edema. Recognizing elevated JVP + crackles as signs of fluid overload from pump failure is essential to safe shock management.",
+      "distractorRationale": {
+        "A": "Hypotension is present in ALL types of shock at the decompensated stage and does not differentiate cardiogenic from hypovolemic.",
+        "B": "Tachycardia is a universal compensatory response to shock regardless of the underlying mechanism.",
+        "C": "Decreased urine output reflects renal hypoperfusion, which occurs in all forms of shock due to reduced cardiac output or circulating volume."
+      }
+    },
+    {
+      "prompt": "A client in hemorrhagic shock receives 2 L of IV normal saline with no improvement in blood pressure. Which intervention should the nurse anticipate next?",
+      "mode": "single",
+      "correctAnswerKey": ["B"],
+      "choices": [
+        { "id": "A", "text": "Administer an additional 2 L of normal saline rapidly.", "correct": false },
+        { "id": "B", "text": "Prepare for blood product transfusion (packed red blood cells).", "correct": true },
+        { "id": "C", "text": "Initiate oral fluid replacement.", "correct": false },
+        { "id": "D", "text": "Administer furosemide to prevent fluid overload.", "correct": false }
+      ],
+      "explanation": "In hemorrhagic shock, crystalloid resuscitation (normal saline or lactated Ringer's) replaces volume but not oxygen-carrying capacity. After the initial bolus (typically 1–2 L in adults), if hemodynamics do not improve, blood product transfusion (pRBCs, and in massive hemorrhage: fresh frozen plasma and platelets in a 1:1:1 ratio) is the next intervention. Continued crystalloid without blood products risks dilutional coagulopathy and worsening tissue hypoxia.",
+      "rationale": "Damage control resuscitation (DCR) in trauma emphasizes limiting crystalloid and shifting early to blood products when hemorrhage is the cause of shock. Nurses prepare by ensuring large-bore IV access, activating the massive transfusion protocol (MTP) per facility policy, and monitoring for transfusion reactions.",
+      "distractorRationale": {
+        "A": "Additional large-volume crystalloid in unresponsive hemorrhagic shock worsens outcomes: it causes dilutional coagulopathy, hypothermia, and acidosis (the 'lethal triad') without replacing red blood cells and oxygen-carrying capacity.",
+        "C": "Oral fluid replacement is completely inappropriate in hemodynamically unstable hemorrhagic shock. The client requires IV or intraosseous access for rapid delivery of blood products.",
+        "D": "Furosemide is contraindicated in hypovolemic shock. Diuresis would further deplete circulating volume and worsen hypoperfusion."
+      }
+    },
+    {
+      "prompt": "A client with septic shock remains hypotensive after receiving 30 mL/kg crystalloid. Which medication should the nurse anticipate first?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Norepinephrine infusion", "correct": true },
+        { "id": "B", "text": "Furosemide IV push", "correct": false },
+        { "id": "C", "text": "Morphine IV", "correct": false },
+        { "id": "D", "text": "Oral midodrine", "correct": false }
+      ],
+      "explanation": "Norepinephrine is the first-line vasopressor in septic shock when hypotension persists after adequate fluid resuscitation. It increases vascular tone and helps restore perfusion pressure.",
+      "rationale": "Septic shock includes pathologic vasodilation and capillary leak. After initial fluids, vasopressors are needed to achieve perfusion targets, typically MAP >= 65 mmHg.",
+      "distractorRationale": {
+        "B": "Diuretics reduce intravascular volume and can worsen shock.",
+        "C": "Analgesia may be needed later but does not correct life-threatening hypotension.",
+        "D": "Oral agents are not appropriate for immediate ICU-level septic shock resuscitation."
+      }
+    },
+    {
+      "prompt": "Which MAP target is commonly used in initial adult septic shock resuscitation?",
+      "mode": "single",
+      "correctAnswerKey": ["C"],
+      "choices": [
+        { "id": "A", "text": "MAP >= 50 mmHg", "correct": false },
+        { "id": "B", "text": "MAP >= 55 mmHg", "correct": false },
+        { "id": "C", "text": "MAP >= 65 mmHg", "correct": true },
+        { "id": "D", "text": "MAP >= 80 mmHg", "correct": false }
+      ],
+      "explanation": "Most adult guidelines target an initial MAP of at least 65 mmHg to maintain organ perfusion in septic shock.",
+      "rationale": "MAP targets are individualized, but 65 mmHg is the standard starting threshold used in early goal-directed support and vasopressor titration.",
+      "distractorRationale": {
+        "A": "A MAP of 50 mmHg is generally inadequate for many organs.",
+        "B": "55 mmHg is below the usual default resuscitation threshold.",
+        "D": "80 mmHg may be needed in select patients but is not the usual initial universal target."
+      }
+    },
+    {
+      "prompt": "A client has hypotension, bradycardia, warm dry skin, and spinal cord injury above T6. Which shock type is most likely?",
+      "mode": "single",
+      "correctAnswerKey": ["D"],
+      "choices": [
+        { "id": "A", "text": "Hypovolemic shock", "correct": false },
+        { "id": "B", "text": "Cardiogenic shock", "correct": false },
+        { "id": "C", "text": "Anaphylactic shock", "correct": false },
+        { "id": "D", "text": "Neurogenic shock", "correct": true }
+      ],
+      "explanation": "Neurogenic shock from high spinal cord injury causes loss of sympathetic tone, leading to hypotension with relative bradycardia and warm, dry skin.",
+      "rationale": "Unlike other shock states that usually present with tachycardia and cool skin, neurogenic shock has bradycardia and vasodilation due to autonomic disruption.",
+      "distractorRationale": {
+        "A": "Hypovolemic shock usually presents with tachycardia and cool clammy skin.",
+        "B": "Cardiogenic shock often has signs of congestion and poor pump function rather than spinal injury pattern.",
+        "C": "Anaphylaxis usually includes exposure trigger plus urticaria, wheeze, or angioedema."
+      }
+    },
+    {
+      "prompt": "A trauma client develops hypotension, distended neck veins, unilateral absent breath sounds, and tracheal deviation. What is the priority action?",
+      "mode": "single",
+      "correctAnswerKey": ["B"],
+      "choices": [
+        { "id": "A", "text": "Administer broad-spectrum antibiotics", "correct": false },
+        { "id": "B", "text": "Prepare for immediate needle decompression/chest tube", "correct": true },
+        { "id": "C", "text": "Give oral fluids", "correct": false },
+        { "id": "D", "text": "Obtain stool culture", "correct": false }
+      ],
+      "explanation": "These findings strongly indicate tension pneumothorax causing obstructive shock. Immediate decompression is lifesaving.",
+      "rationale": "Mechanical causes of obstructive shock must be relieved urgently; delays can lead to pulseless arrest.",
+      "distractorRationale": {
+        "A": "Antibiotics do not treat acute intrathoracic pressure compromise.",
+        "C": "Oral intake is unsafe and ineffective in unstable trauma shock.",
+        "D": "This does not address the immediate life threat."
+      }
+    },
+    {
+      "prompt": "Which findings are most consistent with cardiac tamponade? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "C", "E"],
+      "choices": [
+        { "id": "A", "text": "Hypotension", "correct": true },
+        { "id": "B", "text": "Bounding peripheral pulses", "correct": false },
+        { "id": "C", "text": "Jugular venous distension", "correct": true },
+        { "id": "D", "text": "Crackles from left-sided pulmonary edema as primary finding", "correct": false },
+        { "id": "E", "text": "Muffled heart sounds", "correct": true }
+      ],
+      "explanation": "Beck triad for tamponade includes hypotension, JVD, and muffled heart sounds, reflecting impaired ventricular filling.",
+      "rationale": "Tamponade is an obstructive shock emergency requiring rapid recognition and definitive decompression.",
+      "distractorRationale": {
+        "B": "Tamponade reduces stroke volume, so bounding pulses are not expected.",
+        "D": "Pulmonary edema is more typical of cardiogenic pump failure, not classic tamponade triad."
+      }
+    },
+    {
+      "prompt": "A nurse receives a lactate result of 5.1 mmol/L in a septic client. How should this be interpreted?",
+      "mode": "single",
+      "correctAnswerKey": ["C"],
+      "choices": [
+        { "id": "A", "text": "Normal value indicating good tissue perfusion", "correct": false },
+        { "id": "B", "text": "Mild dehydration only", "correct": false },
+        { "id": "C", "text": "Evidence of significant tissue hypoperfusion and higher mortality risk", "correct": true },
+        { "id": "D", "text": "Lab error that should be ignored", "correct": false }
+      ],
+      "explanation": "Elevated lactate in shock suggests anaerobic metabolism from inadequate tissue oxygen delivery and is associated with worse outcomes.",
+      "rationale": "Serial lactate trends help evaluate response to resuscitation and adequacy of perfusion restoration.",
+      "distractorRationale": {
+        "A": "A lactate above normal is not reassuring in shock.",
+        "B": "The value is more concerning than simple mild dehydration in this context.",
+        "D": "Critical values must be acted on and correlated clinically, not dismissed."
+      }
+    },
+    {
+      "prompt": "Which intervention is priority for suspected hypovolemic shock in an adult trauma patient?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Establish two large-bore IV lines and begin isotonic crystalloid while controlling bleeding", "correct": true },
+        { "id": "B", "text": "Delay vascular access until CT is complete", "correct": false },
+        { "id": "C", "text": "Provide oral electrolyte drink", "correct": false },
+        { "id": "D", "text": "Keep patient ambulating to improve perfusion", "correct": false }
+      ],
+      "explanation": "Rapid vascular access, bleeding control, and immediate resuscitation are core early trauma shock priorities.",
+      "rationale": "Delays in perfusion support increase organ ischemia and mortality.",
+      "distractorRationale": {
+        "B": "Imaging should not delay lifesaving ABC resuscitation.",
+        "C": "Oral replacement is inappropriate in unstable trauma shock.",
+        "D": "Ambulation is unsafe in hemodynamically unstable patients."
+      }
+    },
+    {
+      "prompt": "Which assessment finding suggests progression from compensated to decompensated shock?",
+      "mode": "single",
+      "correctAnswerKey": ["D"],
+      "choices": [
+        { "id": "A", "text": "Mild anxiety with normal blood pressure", "correct": false },
+        { "id": "B", "text": "Tachycardia with warm extremities", "correct": false },
+        { "id": "C", "text": "Slightly decreased urine output", "correct": false },
+        { "id": "D", "text": "Persistent hypotension with worsening mental status", "correct": true }
+      ],
+      "explanation": "Persistent hypotension and altered mentation indicate failed compensation and progression to decompensated shock.",
+      "rationale": "Late shock signs signal impending organ failure and require immediate escalation of support.",
+      "distractorRationale": {
+        "A": "This can occur in early compensated phases and is less severe.",
+        "B": "By itself, this does not confirm decompensation.",
+        "C": "Oliguria can begin early and is not as specific as persistent hypotension with neurologic decline."
+      }
+    },
+    {
+      "prompt": "A septic client is hypotensive after fluids and norepinephrine. Which additional action is often considered when shock remains refractory?",
+      "mode": "single",
+      "correctAnswerKey": ["B"],
+      "choices": [
+        { "id": "A", "text": "Stop all vasopressors immediately", "correct": false },
+        { "id": "B", "text": "Add a second vasopressor such as vasopressin per protocol", "correct": true },
+        { "id": "C", "text": "Start oral antihypertensive", "correct": false },
+        { "id": "D", "text": "Withhold source control", "correct": false }
+      ],
+      "explanation": "In refractory septic shock, adding another vasopressor class may be indicated while continuing source control and perfusion monitoring.",
+      "rationale": "Shock care is protocolized and stepwise: fluids, first-line vasopressor, then adjuncts based on response.",
+      "distractorRationale": {
+        "A": "Abruptly stopping vasopressors in active shock can cause collapse.",
+        "C": "Antihypertensives are contraindicated during shock hypotension.",
+        "D": "Source control remains essential in septic shock."
+      }
+    },
+    {
+      "prompt": "Which statements about anaphylactic shock management are correct? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "C", "D"],
+      "choices": [
+        { "id": "A", "text": "IM epinephrine should be given promptly", "correct": true },
+        { "id": "B", "text": "Antihistamines replace epinephrine as first-line treatment", "correct": false },
+        { "id": "C", "text": "Airway support and oxygen are priority adjuncts", "correct": true },
+        { "id": "D", "text": "The triggering agent should be stopped immediately", "correct": true },
+        { "id": "E", "text": "Observation is unnecessary after symptom resolution", "correct": false }
+      ],
+      "explanation": "Anaphylaxis requires immediate IM epinephrine, airway/oxygen support, and stopping exposure; observation is needed due to biphasic risk.",
+      "rationale": "Timely epinephrine saves lives by reversing bronchospasm and vasodilation.",
+      "distractorRationale": {
+        "B": "Antihistamines are adjunctive and do not replace epinephrine.",
+        "E": "Patients need monitoring for recurrence after initial improvement."
+      }
+    },
+    {
+      "prompt": "In cardiogenic shock after acute MI, which intervention is most appropriate to improve perfusion while avoiding fluid overload?",
+      "mode": "single",
+      "correctAnswerKey": ["C"],
+      "choices": [
+        { "id": "A", "text": "Large repeated normal saline boluses", "correct": false },
+        { "id": "B", "text": "Routine fluid restriction with no hemodynamic support", "correct": false },
+        { "id": "C", "text": "Initiate vasoactive/inotropic support as ordered and monitor closely", "correct": true },
+        { "id": "D", "text": "Oral hydration trial", "correct": false }
+      ],
+      "explanation": "Cardiogenic shock is pump failure; treatment focuses on improving contractility/perfusion and minimizing pulmonary congestion.",
+      "rationale": "Fluids can worsen pulmonary edema in cardiogenic shock, so hemodynamic-guided vasoactive support is often required.",
+      "distractorRationale": {
+        "A": "Aggressive fluids may worsen congestion and gas exchange.",
+        "B": "Supportive hemodynamic therapy is usually required, not passive observation.",
+        "D": "Oral hydration is inappropriate in unstable shock."
+      }
+    },
+    {
+      "prompt": "A client with GI bleeding has HR 132, BP 84/48, pale cool skin, and delayed capillary refill. Which pathophysiology best explains these findings?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Acute intravascular volume loss causing reduced preload and cardiac output", "correct": true },
+        { "id": "B", "text": "Primary loss of sympathetic tone from spinal injury", "correct": false },
+        { "id": "C", "text": "Acute left ventricular pump failure from MI", "correct": false },
+        { "id": "D", "text": "Allergic mast-cell degranulation", "correct": false }
+      ],
+      "explanation": "Massive GI blood loss causes hypovolemic shock with reduced venous return, reduced stroke volume, and poor tissue perfusion.",
+      "rationale": "Recognizing hemorrhagic physiology guides rapid bleeding control and blood-based resuscitation.",
+      "distractorRationale": {
+        "B": "No spinal injury pattern is described.",
+        "C": "Cardiogenic signs like pulmonary edema/JVP elevation are not emphasized here.",
+        "D": "There is no allergic trigger or urticaria/airway edema pattern."
+      }
+    },
+    {
+      "prompt": "Which nursing actions are priorities during active shock resuscitation? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "B", "E"],
+      "choices": [
+        { "id": "A", "text": "Frequent vital-sign and mental-status reassessment", "correct": true },
+        { "id": "B", "text": "Strict urine-output monitoring", "correct": true },
+        { "id": "C", "text": "Delay lab draws until blood pressure normalizes", "correct": false },
+        { "id": "D", "text": "Place unstable patient in unsupported ambulation", "correct": false },
+        { "id": "E", "text": "Maintain adequate IV access for rapid therapy", "correct": true }
+      ],
+      "explanation": "Shock management requires continuous reassessment, end-organ perfusion tracking, and reliable vascular access for urgent treatment.",
+      "rationale": "Nursing surveillance is central to detecting deterioration and evaluating treatment response minute by minute.",
+      "distractorRationale": {
+        "C": "Labs are essential early to guide and trend resuscitation.",
+        "D": "Unstable shock patients require safety, not ambulation."
+      }
+    },
+    {
+      "prompt": "A client with septic shock has cool extremities, rising lactate, and oliguria despite treatment. How should this trend be interpreted?",
+      "mode": "single",
+      "correctAnswerKey": ["D"],
+      "choices": [
+        { "id": "A", "text": "Improving perfusion", "correct": false },
+        { "id": "B", "text": "Expected benign treatment effect", "correct": false },
+        { "id": "C", "text": "No need for escalation", "correct": false },
+        { "id": "D", "text": "Worsening shock with inadequate tissue perfusion", "correct": true }
+      ],
+      "explanation": "Rising lactate and oliguria indicate persistent tissue hypoperfusion and worsening shock physiology.",
+      "rationale": "Trend-based interpretation is critical; worsening end-organ markers should trigger immediate reassessment and escalation.",
+      "distractorRationale": {
+        "A": "These findings are opposite of improvement.",
+        "B": "The pattern is pathologic, not benign.",
+        "C": "Escalation is indicated when perfusion markers worsen."
+      }
+    },
+    {
+      "prompt": "Which blood product strategy is most aligned with massive hemorrhage protocols in severe trauma?",
+      "mode": "single",
+      "correctAnswerKey": ["B"],
+      "choices": [
+        { "id": "A", "text": "Crystalloid-only resuscitation", "correct": false },
+        { "id": "B", "text": "Balanced transfusion approach (e.g., pRBC, plasma, platelets) per protocol", "correct": true },
+        { "id": "C", "text": "Platelets only", "correct": false },
+        { "id": "D", "text": "Albumin only", "correct": false }
+      ],
+      "explanation": "Damage-control resuscitation emphasizes early balanced blood component therapy to address oxygen delivery and coagulopathy.",
+      "rationale": "Massive hemorrhage causes both volume and coagulation deficits; balanced products address both.",
+      "distractorRationale": {
+        "A": "Crystalloid alone can worsen dilutional coagulopathy.",
+        "C": "Platelets alone do not restore red-cell oxygen carrying capacity.",
+        "D": "Albumin is not a substitute for blood components in massive bleeding."
+      }
+    },
+    {
+      "prompt": "A patient with suspected PE becomes hypotensive with acute dyspnea and chest pain. This represents which shock category?",
+      "mode": "single",
+      "correctAnswerKey": ["C"],
+      "choices": [
+        { "id": "A", "text": "Cardiogenic shock", "correct": false },
+        { "id": "B", "text": "Hypovolemic shock", "correct": false },
+        { "id": "C", "text": "Obstructive shock", "correct": true },
+        { "id": "D", "text": "Neurogenic shock", "correct": false }
+      ],
+      "explanation": "Massive PE causes obstructive shock by blocking pulmonary circulation and reducing left ventricular preload.",
+      "rationale": "Obstructive shock stems from a mechanical impediment to circulation, not primary volume loss or pump contractility failure.",
+      "distractorRationale": {
+        "A": "Primary myocardial pump failure is not the main mechanism in massive PE.",
+        "B": "There is no primary intravascular volume loss mechanism here.",
+        "D": "Neurogenic shock is related to autonomic disruption, not embolic obstruction."
+      }
+    },
+    {
+      "prompt": "Which finding most supports distributive (early septic) shock rather than hypovolemic shock?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "Warm flushed skin with bounding pulses early in course", "correct": true },
+        { "id": "B", "text": "Flat neck veins and cool clammy skin", "correct": false },
+        { "id": "C", "text": "Rapid blood loss history", "correct": false },
+        { "id": "D", "text": "Marked response to oral hydration", "correct": false }
+      ],
+      "explanation": "Early distributive shock often presents with vasodilation, warm extremities, and bounding pulses before late cold-shock transition.",
+      "rationale": "Bedside skin/perfusion patterns help differentiate shock mechanisms and guide treatment priorities.",
+      "distractorRationale": {
+        "B": "These findings are more consistent with hypovolemic physiology.",
+        "C": "Acute hemorrhage points to hypovolemic shock.",
+        "D": "Oral hydration is not an indicator of distributive-shock diagnosis."
+      }
+    },
+    {
+      "prompt": "In shock states, which urine output trend in an adult generally indicates inadequate renal perfusion?",
+      "mode": "single",
+      "correctAnswerKey": ["D"],
+      "choices": [
+        { "id": "A", "text": ">= 1.5 mL/kg/hr", "correct": false },
+        { "id": "B", "text": "~1.0 mL/kg/hr", "correct": false },
+        { "id": "C", "text": "~0.8 mL/kg/hr", "correct": false },
+        { "id": "D", "text": "< 0.5 mL/kg/hr", "correct": true }
+      ],
+      "explanation": "Urine output below about 0.5 mL/kg/hr in adults suggests poor renal perfusion during shock.",
+      "rationale": "Hourly urine output is a practical bedside marker for end-organ perfusion and response to therapy.",
+      "distractorRationale": {
+        "A": "This typically reflects adequate or high urine output.",
+        "B": "This is usually adequate for many adults.",
+        "C": "This is above the common oliguria threshold used in shock monitoring."
+      }
+    },
+    {
+      "prompt": "A nurse caring for a hemorrhagic shock patient notes hypothermia, coagulopathy, and acidosis. This combination is known as what?",
+      "mode": "single",
+      "correctAnswerKey": ["B"],
+      "choices": [
+        { "id": "A", "text": "Beck triad", "correct": false },
+        { "id": "B", "text": "Lethal triad", "correct": true },
+        { "id": "C", "text": "Cushing triad", "correct": false },
+        { "id": "D", "text": "Virchow triad", "correct": false }
+      ],
+      "explanation": "Hypothermia, acidosis, and coagulopathy form the trauma lethal triad associated with high mortality if not rapidly corrected.",
+      "rationale": "Damage-control resuscitation aims to prevent and reverse this spiral.",
+      "distractorRationale": {
+        "A": "Beck triad refers to cardiac tamponade findings.",
+        "C": "Cushing triad is associated with increased intracranial pressure.",
+        "D": "Virchow triad relates to thrombosis risk factors."
+      }
+    }
+  ]
+}

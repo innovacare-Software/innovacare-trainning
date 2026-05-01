@@ -1,11 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationAssignmentsService } from '../../../../core/organization/services/organization-assignments.service';
 import { OrganizationCoursesVisibilityService } from '../../../../core/organization/services/organization-courses-visibility.service';
 import { OrganizationUsersService } from '../../../../core/organization/services/organization-users.service';
+import { of, switchMap } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -71,9 +72,10 @@ export class OrgAdminAssignmentsPage {
 
   private readonly context = toSignal(this.ctx.context$, { initialValue: { uid: '', orgId: null, role: '', orgRole: null, isSuperAdmin: false, isOrgAdmin: false, isOrgManager: false, isOrgLearner: false } });
   readonly orgId = computed(() => this.context().orgId || '');
-  readonly courses = toSignal(this.coursesService.listVisibleCourses(this.orgId()), { initialValue: [] as any[] });
-  readonly learners = toSignal(this.usersService.listLearners(this.orgId()), { initialValue: [] as any[] });
-  readonly assignments = toSignal(this.assignmentsService.list(this.orgId()), { initialValue: [] as any[] });
+  private readonly orgId$ = toObservable(this.orgId);
+  readonly courses = toSignal(this.orgId$.pipe(switchMap((orgId) => (orgId ? this.coursesService.listVisibleCourses(orgId) : of([] as any[])))), { initialValue: [] as any[] });
+  readonly learners = toSignal(this.orgId$.pipe(switchMap((orgId) => (orgId ? this.usersService.listLearners(orgId) : of([] as any[])))), { initialValue: [] as any[] });
+  readonly assignments = toSignal(this.orgId$.pipe(switchMap((orgId) => (orgId ? this.assignmentsService.list(orgId) : of([] as any[])))), { initialValue: [] as any[] });
 
   readonly filteredAssignments = computed(() => {
     return this.assignments().filter((a) => {

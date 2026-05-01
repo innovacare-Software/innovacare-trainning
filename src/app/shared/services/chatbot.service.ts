@@ -20,6 +20,9 @@ export class ChatbotService {
   private functions = inject(Functions);
   private auth = inject(Auth);
   private router = inject(Router);
+  private isSending = false;
+  private lastSendAt = 0;
+  private readonly minSendIntervalMs = 800;
 
   readonly messages = signal<ChatMessage[]>([]);
   readonly loading = signal(false);
@@ -39,11 +42,24 @@ export class ChatbotService {
 
   async sendMessage(text: string): Promise<void> {
     const trimmed = text.trim();
-    if (!trimmed || this.loading()) return;
+    if (!trimmed || this.loading() || this.isSending) return;
+
+    const now = Date.now();
+    if (now - this.lastSendAt < this.minSendIntervalMs) {
+      const waitMsg: ChatMessage = {
+        role: 'assistant',
+        content: 'Please wait a moment before sending another message.',
+        timestamp: new Date(),
+      };
+      this.messages.update((msgs) => [...msgs, waitMsg]);
+      return;
+    }
 
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: new Date() };
     this.messages.update((msgs) => [...msgs, userMsg]);
     this.loading.set(true);
+    this.isSending = true;
+    this.lastSendAt = now;
 
     try {
       const context = this.buildContext();
@@ -63,15 +79,22 @@ export class ChatbotService {
       };
       this.messages.update((msgs) => [...msgs, assistantMsg]);
     } catch (err: unknown) {
+      const code = String((err as { code?: string })?.code || '');
+      const message =
+        code === 'functions/resource-exhausted'
+          ? 'Too many requests right now. Please wait a few seconds and try again.'
+          : '⚠️ An error occurred. Please try again.';
+
       const errorMsg: ChatMessage = {
         role: 'assistant',
-        content: '⚠️ An error occurred. Please try again.',
+        content: message,
         timestamp: new Date(),
       };
       this.messages.update((msgs) => [...msgs, errorMsg]);
       console.error('[ChatbotService] Error:', err);
     } finally {
       this.loading.set(false);
+      this.isSending = false;
     }
   }
 

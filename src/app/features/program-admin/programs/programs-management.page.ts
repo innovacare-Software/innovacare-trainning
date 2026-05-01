@@ -20,7 +20,10 @@ import { StatusPillComponent } from '../shared/status-pill.component';
     <section class="panel">
       <header class="head">
         <h1>Programs Management</h1>
-        <a routerLink="/program-admin/programs/new" class="btn">Create Program</a>
+        <div class="head-actions">
+          <a routerLink="/program-admin/programs/import" class="btn-secondary">Import JSON</a>
+          <a routerLink="/program-admin/programs/new" class="btn">Create Program</a>
+        </div>
       </header>
 
       <section class="filters">
@@ -78,6 +81,7 @@ import { StatusPillComponent } from '../shared/status-pill.component';
               <td>{{ asDate(row.createdAt) ? (asDate(row.createdAt) | date:'mediumDate') : '-' }}</td>
               <td class="actions">
                 <a [routerLink]="['/program-admin/programs', row.id, 'edit']">Edit</a>
+                <a [routerLink]="['/program-admin/programs', row.id, 'content']">Content</a>
                 <button type="button" (click)="publish(row.id)">Publish</button>
                 <button type="button" (click)="archive(row.id)" class="warn">Archive</button>
                 <button type="button" (click)="activate(row.id)">Activate</button>
@@ -101,7 +105,9 @@ import { StatusPillComponent } from '../shared/status-pill.component';
       .panel { border: 1px solid #d6e3f1; border-radius: 1rem; background: #fff; padding: 1rem; }
       .head { display: flex; justify-content: space-between; align-items: center; gap: 0.7rem; }
       .head h1 { margin: 0; }
+      .head-actions { display: flex; gap: 0.5rem; }
       .btn { text-decoration: none; border-radius: 0.7rem; padding: 0.5rem 0.8rem; color: #fff; background: linear-gradient(135deg, #1a74c8, #0f5ca6); }
+      .btn-secondary { text-decoration: none; border-radius: 0.7rem; padding: 0.5rem 0.8rem; color: #1a74c8; background: #fff; border: 1px solid #c8dff7; font-weight: 600; font-size: 0.88rem; }
       .filters { margin-top: 0.8rem; display: grid; grid-template-columns: 1fr 180px 180px 180px; gap: 0.6rem; }
       .filters input, .filters select { border: 1px solid #c9dbee; border-radius: 0.7rem; height: 2.6rem; padding: 0 0.75rem; }
       .table-wrap { margin-top: 0.8rem; overflow: auto; border: 1px solid #dbe6f3; border-radius: 0.8rem; }

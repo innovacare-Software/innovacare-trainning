@@ -1,0 +1,44 @@
+{
+  "title": "Priority and Delegation Check",
+  "description": "NCLEX-style prioritization and delegation questions for entry-level practice.",
+  "assessmentType": "READINESS_TEST",
+  "passingScore": 78,
+  "durationMin": 25,
+  "status": "DRAFT",
+  "questions": [
+    {
+      "prompt": "Which client should the nurse assess first?",
+      "mode": "single",
+      "correctAnswerKey": ["A"],
+      "choices": [
+        { "id": "A", "text": "A client with COPD whose oxygen saturation dropped from 94% to 88%", "correct": true },
+        { "id": "B", "text": "A client requesting discharge teaching for insulin administration", "correct": false },
+        { "id": "C", "text": "A post-op client reporting incisional pain rated 5/10", "correct": false },
+        { "id": "D", "text": "A client asking for assistance to the bathroom", "correct": false }
+      ],
+      "explanation": "An acute drop in oxygen saturation from 94% to 88% in a client with COPD represents a potentially life-threatening change in respiratory status. Airway, breathing, and circulation (ABCs) take priority over education, moderate pain, or ambulation needs.",
+      "rationale": "NCLEX prioritization questions follow the ABC framework. A six-point drop in SpO2 in a client with underlying lung disease signals acute decompensation that requires immediate nurse assessment and intervention, making this the highest priority.",
+      "distractorRationale": {
+        "B": "Discharge education for insulin is important but is not urgent; it can be deferred while the nurse responds to the acute respiratory change.",
+        "C": "Pain rated 5/10 requires assessment and intervention, but it is not immediately life-threatening compared to hypoxia in a COPD client.",
+        "D": "Assisting to the bathroom is a delegatable task for stable clients and is not a nursing priority over an acute change in cardiorespiratory status."
+      }
+    },
+    {
+      "prompt": "Which tasks are appropriate for the nurse to delegate to an experienced assistive personnel? Select all that apply.",
+      "mode": "multi",
+      "correctAnswerKey": ["A", "B", "D"],
+      "choices": [
+        { "id": "A", "text": "Obtain routine vital signs on a stable client", "correct": true },
+        { "id": "B", "text": "Report intake and output totals", "correct": true },
+        { "id": "C", "text": "Reinforce teaching about a newly prescribed anticoagulant", "correct": false },
+        { "id": "D", "text": "Transport a stable client to diagnostic imaging", "correct": true }
+      ],
+      "explanation": "Assistive personnel (AP) may perform tasks that are routine, non-complex, and require no nursing judgment: vital signs on stable clients, recording I&O, and transporting stable clients. Medication teaching requires nursing licensure and clinical judgment and cannot be delegated to AP.",
+      "rationale": "The five rights of delegation (right task, right circumstance, right person, right direction/communication, right supervision) govern safe delegation. Tasks involving assessment, teaching, or clinical judgment are reserved for licensed nurses.",
+      "distractorRationale": {
+        "C": "Patient education — especially for high-risk medications like anticoagulants — requires clinical judgment, assessment of learning readiness, and licensed nurse accountability. This task cannot be delegated to AP."
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
@@ -21,27 +21,36 @@ import { GuestEnrollment } from '../data/guest-commerce.model';
 export class GuestEnrollmentsService {
   private auth = inject(Auth);
   private afs = inject(Firestore);
+  private injector = inject(Injector);
+
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   listMyEnrollments$(): Observable<GuestEnrollment[]> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid) return of([]);
-        return collectionData(
-          collection(this.afs, `users/${user.uid}/guestEnrollments`),
-          { idField: 'id' }
-        ) as Observable<GuestEnrollment[]>;
+        return this.inContext(
+          () => collectionData(
+            collection(this.afs, `users/${user.uid}/guestEnrollments`),
+            { idField: 'id' }
+          ) as Observable<GuestEnrollment[]>
+        );
       })
     );
   }
 
   myEnrollmentById$(enrollmentId: string): Observable<GuestEnrollment | null> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid || !enrollmentId) return of(null);
-        return docData(
-          doc(this.afs, `users/${user.uid}/guestEnrollments/${enrollmentId}`),
-          { idField: 'id' }
-        ) as Observable<GuestEnrollment>;
+        return this.inContext(
+          () => docData(
+            doc(this.afs, `users/${user.uid}/guestEnrollments/${enrollmentId}`),
+            { idField: 'id' }
+          ) as Observable<GuestEnrollment>
+        );
       })
     );
   }

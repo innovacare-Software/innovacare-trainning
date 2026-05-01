@@ -68,6 +68,7 @@ export enum ProgramLessonType {
   LAB = 'lab',
   DOCUMENT = 'document',
   MIXED = 'mixed',
+  WEB = 'web',
 }
 
 export enum SessionType {
@@ -76,6 +77,12 @@ export enum SessionType {
   Q_AND_A = 'q_and_a',
   REVIEW_SESSION = 'review_session',
   OFFICE_HOURS = 'office_hours',
+}
+
+export enum ProgramLiveSessionAccessMode {
+  INCLUDED = 'included',
+  FREE = 'free',
+  PAID = 'paid',
 }
 
 export enum DocumentFileType {
@@ -105,6 +112,11 @@ export enum ProgramDifficulty {
   HARD = 'hard',
 }
 
+export enum SimulationQuestionMode {
+  SINGLE = 'single',
+  MULTI = 'multi',
+}
+
 export enum CaseStudyScoringMode {
   MANUAL = 'manual',
   AUTO = 'auto',
@@ -115,13 +127,27 @@ export type ProgramCurrency = 'USD' | 'CAD' | 'AED' | 'EUR' | 'GBP';
 
 export type FirestoreDateValue = unknown;
 
+export interface ProgramModuleLessonSeed {
+  title: string;
+  type?: ProgramLessonType;
+  videoUrl?: string;
+  description?: string;
+  contentHtml?: string;
+  durationMin?: number;
+  isPreview?: boolean;
+  downloadable?: boolean;
+  active?: boolean;
+  status?: string;
+  order?: number;
+}
+
 export interface ProgramModule {
   id: string;
   programId?: string;
   title: string;
   description?: string;
   summary?: string;
-  lessons?: string[];
+  lessons?: Array<string | ProgramModuleLessonSeed>;
   order: number;
   estimatedMinutes?: number;
   durationText?: string;
@@ -210,6 +236,9 @@ export interface ProgramLesson {
   type: ProgramLessonType;
   contentHtml: string;
   videoUrl?: string;
+  documentUrl?: string;
+  fileUrl?: string;
+  downloadable?: boolean;
   durationMin: number;
   order: number;
   isPreview: boolean;
@@ -223,6 +252,7 @@ export interface ProgramSimulation {
   title: string;
   description: string;
   type: SimulationType;
+  questions: SimulationQuestion[];
   questionCount: number;
   durationMin: number;
   passingScore: number;
@@ -230,11 +260,59 @@ export interface ProgramSimulation {
   active: boolean;
 }
 
+export interface SimulationChoice {
+  id: string;
+  text: string;
+  correct: boolean;
+}
+
+export interface SimulationQuestion {
+  id: string;
+  prompt: string;
+  mode: SimulationQuestionMode;
+  choices: SimulationChoice[];
+  subject?: string;
+  lesson?: string;
+  clientNeedArea?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  explanation?: string;
+}
+
 export interface CaseStudyQuestion {
   id: string;
   prompt: string;
   expectedKeywords?: string[];
   maxScore?: number;
+  subject?: string;
+  lesson?: string;
+  clientNeedArea?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  explanation?: string;
+}
+
+export type CaseStudyQuestionStatus =
+  | 'unanswered'
+  | 'answered'
+  | 'flagged'
+  | 'flagged_and_answered'
+  | 'visited_unanswered';
+
+export interface AssessmentQuestion {
+  id: string;
+  prompt: string;
+  mode: SimulationQuestionMode;
+  choices: AssessmentChoice[];
+  subject?: string;
+  lesson?: string;
+  clientNeedArea?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  explanation?: string;
+}
+
+export interface AssessmentChoice {
+  id: string;
+  text: string;
+  correct: boolean;
 }
 
 export interface ProgramCaseStudy {
@@ -244,6 +322,7 @@ export interface ProgramCaseStudy {
   title: string;
   description: string;
   scenario: string;
+  prompts?: string[];
   questions: CaseStudyQuestion[];
   scoringMode: CaseStudyScoringMode;
   active: boolean;
@@ -256,6 +335,9 @@ export interface ProgramAssessment {
   title: string;
   description: string;
   type: AssessmentType;
+  assessmentType?: AssessmentType;
+  questions?: AssessmentQuestion[];
+  questionCount?: number;
   passingScore: number;
   durationMin: number;
   active: boolean;
@@ -287,11 +369,37 @@ export interface ProgramLiveSession {
   timezone?: string;
   meetingUrl?: string;
   instructorName?: string;
+  accessMode?: ProgramLiveSessionAccessMode;
+  bookingRequired?: boolean;
+  price?: number;
+  currency?: ProgramCurrency;
   required: boolean;
   capacity?: number;
   active: boolean;
   createdAt?: FirestoreDateValue;
 }
+
+export interface ProgramLiveSessionBooking {
+  id: string;
+  uid: string;
+  programId: string;
+  sessionId: string;
+  status: 'reserved' | 'booked' | 'attended' | 'cancelled' | 'missed';
+  accessMode: ProgramLiveSessionAccessMode;
+  orderId?: string | null;
+  title?: string;
+  instructorName?: string;
+  startAt?: FirestoreDateValue;
+  endAt?: FirestoreDateValue;
+  createdAt?: FirestoreDateValue;
+  updatedAt?: FirestoreDateValue;
+}
+
+export const PROGRAM_LIVE_SESSION_ACCESS_LABELS: Record<ProgramLiveSessionAccessMode, string> = {
+  [ProgramLiveSessionAccessMode.INCLUDED]: 'Included',
+  [ProgramLiveSessionAccessMode.FREE]: 'Free',
+  [ProgramLiveSessionAccessMode.PAID]: 'Paid',
+};
 
 export interface UserLessonProgress {
   id: string;
@@ -301,7 +409,9 @@ export interface UserLessonProgress {
   lessonId: string;
   completed: boolean;
   watchedPct: number;
+  notes?: string;
   lastOpenedAt?: FirestoreDateValue;
+  notesUpdatedAt?: FirestoreDateValue;
   completedAt?: FirestoreDateValue;
 }
 
@@ -314,6 +424,15 @@ export interface UserCaseStudyAttempt {
   score: number;
   passed: boolean;
   answers?: Record<string, string>;
+  flags?: Record<string, boolean>;
+  visitedQuestionIds?: string[];
+  questionStatuses?: Record<string, CaseStudyQuestionStatus>;
+  answeredCount?: number;
+  unansweredCount?: number;
+  flaggedCount?: number;
+  currentQuestionIndex?: number;
+  completionPercent?: number;
+  elapsedSeconds?: number;
   evaluatorNotes?: string;
   completedAt?: FirestoreDateValue;
 }
@@ -336,6 +455,11 @@ export interface ProgramEnrollment {
   amount: number;
   currency: ProgramCurrency;
   paymentStatus: PaymentStatus;
+  pendingPaymentId?: string;
+  paymentId?: string;
+  paymentMethod?: 'stripe' | 'mobile_money';
+  paymentProvider?: string;
+  paymentReference?: string;
   checkoutSessionId?: string;
   reviewStatus: ReviewStatus;
   orgId?: string | null;
@@ -417,6 +541,7 @@ export interface UserAssessmentAttempt {
   score: number;
   passed: boolean;
   timeSpentMin: number;
+  answers?: Record<string, string | string[]>;
   completedAt?: FirestoreDateValue;
 }
 
@@ -449,6 +574,7 @@ export type NursingNclexDomain =
 export interface ProgramDashboardViewModel {
   enrollment?: ProgramEnrollment;
   progress?: UserProgramProgress;
+  modules: ProgramModule[];
   moduleProgress: UserModuleProgress[];
   simulationAttempts: UserSimulationAttempt[];
   assessmentAttempts: UserAssessmentAttempt[];
@@ -512,6 +638,7 @@ export const PROGRAM_LESSON_TYPE_LABELS: Record<ProgramLessonType, string> = {
   [ProgramLessonType.LAB]: 'Lab',
   [ProgramLessonType.DOCUMENT]: 'Document',
   [ProgramLessonType.MIXED]: 'Mixed',
+  [ProgramLessonType.WEB]: 'Web Page',
 };
 
 export const SESSION_TYPE_LABELS: Record<SessionType, string> = {

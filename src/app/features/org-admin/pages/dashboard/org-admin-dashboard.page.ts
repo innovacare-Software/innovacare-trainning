@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { map, of, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { OrganizationAdminDashboardService } from '../../../../core/organization/services/organization-admin-dashboard.service';
 import { OrganizationAlertsService } from '../../../../core/organization/services/organization-alerts.service';
 import { OrganizationAuditService } from '../../../../core/organization/services/organization-audit.service';
@@ -20,6 +20,7 @@ import { OrgContextService } from '../../../../core/organization/org-context.ser
         <div>
           <h2>Organization Admin Cockpit</h2>
           <p>Decision-centric analytics for {{ oid }}</p>
+          <p class="diag" *ngIf="diagnostics().length">Some panels are running in fallback mode. Open the console for the failing collection path.</p>
         </div>
         <div class="quick-actions">
           <a routerLink="/org-admin/assignments">Assign Missing Courses</a>
@@ -37,6 +38,22 @@ import { OrgContextService } from '../../../../core/organization/org-context.ser
         <article><h3>{{ s.overdueCount }}</h3><p>Overdue training</p></article>
         <article><h3>{{ s.activeAlerts }}</h3><p>Active alerts</p></article>
         <article><h3>{{ s.usersAtRisk }}</h3><p>Users at risk</p></article>
+      </section>
+
+      <section class="executive-band" *ngIf="stats() as s">
+        <article class="hero-card">
+          <p class="hero-kicker">Operational health</p>
+          <h3>{{ healthScore() }}/100</h3>
+          <p>{{ healthNarrative() }}</p>
+        </article>
+        <article class="hero-card muted">
+          <p class="hero-kicker">Immediate focus</p>
+          <ul>
+            <li>{{ s.overdueCount }} overdue learners need follow-up</li>
+            <li>{{ s.stalledLearners }} stalled learner records under 25%</li>
+            <li>{{ s.criticalAuditEvents }} critical audit events require review</li>
+          </ul>
+        </article>
       </section>
 
       <section class="story" *ngIf="stats() as s">
@@ -81,6 +98,19 @@ import { OrgContextService } from '../../../../core/organization/org-context.ser
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="focus-grid" *ngIf="stats() as s">
+        <article class="panel focus-card">
+          <h3>Execution Focus</h3>
+          <p>{{ focusHeadline() }}</p>
+          <small>Coverage {{ s.assignmentCoverageRate }}% · follow-up {{ s.followUpCompletionRate }}%</small>
+        </article>
+        <article class="panel focus-card">
+          <h3>Live Signals</h3>
+          <p>{{ recentAlerts().length }} alerts, {{ openFollowUp().length }} open follow-ups, {{ recentAudit().length }} recent audit events.</p>
+          <small>Signals are computed from active org-scoped collections.</small>
+        </article>
       </section>
 
       <section class="architecture-diagrams">
@@ -181,6 +211,7 @@ Enroll -> Assign -> Learn -> Measure
     .head { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
     .head h2 { margin: 0; color: #153b5d; }
     .head p { margin: .35rem 0 0; color: #5a7590; }
+    .diag { color: #9a4d10 !important; font-weight: 700; }
     .quick-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
     .quick-actions a { text-decoration: none; background: #fff; border: 1px solid #c9d9ea; color: #1f486c; border-radius: 9px; padding: .45rem .6rem; font-weight: 700; }
     .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .7rem; margin-top: .8rem; }
@@ -188,9 +219,19 @@ Enroll -> Assign -> Learn -> Measure
     .kpi-grid.skeleton article div { height: 18px; border-radius: 8px; background: #e6edf5; }
     .kpi-grid h3 { margin: 0; color: #102f4f; }
     .kpi-grid p { margin: .28rem 0 0; color: #627f9b; }
+    .executive-band { display: grid; grid-template-columns: 1.15fr .85fr; gap: .7rem; margin-top: .7rem; }
+    .hero-card { border: 1px solid #c9dbed; border-radius: 14px; padding: 1rem; background: linear-gradient(135deg, #103f69 0%, #1d5d93 100%); color: #f3f8ff; }
+    .hero-card.muted { background: linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%); color: #173f62; }
+    .hero-card h3 { margin: .25rem 0 .35rem; font-size: 2rem; }
+    .hero-card ul { margin: .5rem 0 0; padding-left: 1rem; }
+    .hero-card li { color: inherit; }
+    .hero-kicker { margin: 0; text-transform: uppercase; letter-spacing: .1em; font-size: .72rem; font-weight: 800; color: inherit; opacity: .82; }
     .story { display: grid; grid-template-columns: 1.2fr .8fr; gap: .7rem; margin-top: .7rem; }
     .panel { background: #fff; border: 1px solid #d9e4ef; border-radius: 12px; padding: .8rem; }
     .panel h3 { margin: 0 0 .45rem; color: #1b4062; }
+    .focus-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .7rem; margin-top: .7rem; }
+    .focus-card p { margin: 0; color: #294b6d; }
+    .focus-card small { display: block; margin-top: .35rem; color: #68839d; }
     .chart-panel { margin-top: .7rem; border: 1px solid #c8dbed; background: linear-gradient(135deg, #ffffff 0%, #f3f9ff 100%); }
     .chart-list { display: grid; gap: .65rem; }
     .chart-row { display: grid; gap: .35rem; }
@@ -212,7 +253,7 @@ Enroll -> Assign -> Learn -> Measure
     .sev { text-transform: uppercase; font-size: .75rem; font-weight: 700; }
     .sev.critical { color: #a12727; }
     .sev.high { color: #b45b0e; }
-    @media (max-width: 980px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .story, .panels, .architecture-diagrams { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .executive-band, .story, .focus-grid, .panels, .architecture-diagrams { grid-template-columns: 1fr; } }
   `],
 })
 export class OrgAdminDashboardPage {
@@ -239,19 +280,33 @@ export class OrgAdminDashboardPage {
   readonly orgId = computed(() => this.context().orgId || '');
   private readonly orgId$ = toObservable(this.orgId);
 
+  readonly diagnostics = toSignal(this.orgId$.pipe(
+    map(() => [] as string[])
+  ), { initialValue: [] as string[] });
+
   readonly stats = toSignal(
     this.orgId$.pipe(switchMap((id) => (id ? this.dashboard.stats(id) : of(null as any)))),
     { initialValue: null as any }
   );
 
   readonly recentAlerts = toSignal(
-    this.orgId$.pipe(switchMap((id) => (id ? this.alerts.listActive(id) : of([] as any[])))),
+    this.orgId$.pipe(switchMap((id) => (id ? this.alerts.listActive(id).pipe(
+      catchError((error) => {
+        this.logPanelError('organizations/{orgId}/alerts', id, error);
+        return of([] as any[]);
+      })
+    ) : of([] as any[])))),
     { initialValue: [] as any[] }
   );
 
   readonly recentAudit = toSignal(
     this.orgId$.pipe(
-      switchMap((id) => (id ? this.audit.list(id) : of([] as any[]))),
+      switchMap((id) => (id ? this.audit.list(id).pipe(
+        catchError((error) => {
+          this.logPanelError('organizations/{orgId}/auditLogs', id, error);
+          return of([] as any[]);
+        })
+      ) : of([] as any[]))),
       map((rows) => rows.sort((a, b) => {
         const av = (a.createdAt as any)?.seconds || 0;
         const bv = (b.createdAt as any)?.seconds || 0;
@@ -262,12 +317,22 @@ export class OrgAdminDashboardPage {
   );
 
   readonly openFollowUp = toSignal(
-    this.orgId$.pipe(switchMap((id) => (id ? this.followUp.listOpen(id) : of([] as any[])))),
+    this.orgId$.pipe(switchMap((id) => (id ? this.followUp.listOpen(id).pipe(
+      catchError((error) => {
+        this.logPanelError('organizations/{orgId}/followUpActions', id, error);
+        return of([] as any[]);
+      })
+    ) : of([] as any[])))),
     { initialValue: [] as any[] }
   );
 
   readonly recommendations = toSignal(
-    this.orgId$.pipe(switchMap((id) => (id ? this.troubleshooting.recommendations(id) : of([] as string[])))),
+    this.orgId$.pipe(switchMap((id) => (id ? this.troubleshooting.recommendations(id).pipe(
+      catchError((error) => {
+        this.logPanelError('organizations/{orgId}/troubleshooting aggregation', id, error);
+        return of([] as string[]);
+      })
+    ) : of([] as string[])))),
     { initialValue: [] as string[] }
   );
 
@@ -296,4 +361,45 @@ export class OrgAdminDashboardPage {
       { label: 'Follow-up Completion', value: Math.max(0, Math.min(100, Number(s.followUpCompletionRate || 0))), color: 'linear-gradient(90deg, #7a59d1 0%, #5b3fb0 100%)' },
     ];
   });
+
+  readonly healthScore = computed(() => {
+    const s = this.stats();
+    if (!s) return 0;
+    return Math.max(0, Math.min(100,
+      Math.round(
+        (Number(s.completionRate || 0) * 0.35) +
+        (Number(s.averageProgress || 0) * 0.25) +
+        (Number(s.followUpCompletionRate || 0) * 0.2) +
+        ((100 - Math.min(100, s.usersAtRisk * 5)) * 0.2)
+      )
+    ));
+  });
+
+  readonly healthNarrative = computed(() => {
+    const score = this.healthScore();
+    if (score >= 80) return 'The organization is running with strong completion momentum and controlled risk.';
+    if (score >= 60) return 'The organization is stable, but completion and follow-up still need closer orchestration.';
+    return 'The organization needs immediate intervention on risk, overdue work and learner stagnation.';
+  });
+
+  readonly focusHeadline = computed(() => {
+    const s = this.stats();
+    if (!s) return 'Waiting for organization data.';
+    if (s.overdueCount >= s.completedLearners) {
+      return 'Overdue pressure is outpacing completions. Reprioritize remediation and learner follow-up.';
+    }
+    if (s.stalledLearners > 0) {
+      return 'Stalled learners are visible. Target low-progress cohorts before new assignments expand.';
+    }
+    return 'Completion momentum is currently stronger than operational drag. Keep assignment coverage disciplined.';
+  });
+
+  private logPanelError(scope: string, orgId: string, error: unknown): void {
+    console.error('[OrgAdminDashboardPage] Firestore panel fallback', {
+      scope,
+      orgId,
+      error,
+      hint: 'If local firestore.rules already allow this path, deploy them or verify users/{uid}.role and users/{uid}.orgId.',
+    });
+  }
 }

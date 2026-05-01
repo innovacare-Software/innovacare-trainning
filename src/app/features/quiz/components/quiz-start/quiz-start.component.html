@@ -1,0 +1,17 @@
+<section class="start-screen">
+  <div class="kicker">{{ copy().kicker }}</div>
+  <h1>{{ copy().title }}</h1>
+  <p class="subtitle">{{ copy().subtitle }}</p>
+
+  <div class="start-features">
+    @for (feature of copy().featureCards; track feature.label) {
+      <article class="feat">
+        <div class="num">{{ feature.value }}</div>
+        <div class="lbl">{{ feature.label }}</div>
+      </article>
+    }
+  </div>
+
+  <button type="button" class="btn-start" (click)="start.emit()">Start the Quiz</button>
+  <p class="start-meta">{{ copy().footerNote }}</p>
+</section>

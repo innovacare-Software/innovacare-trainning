@@ -1,0 +1,144 @@
+<div class="tut-page">
+
+  <!-- ── HERO ─────────────────────────────────────────────── -->
+  <section class="tut-hero">
+    <div class="tut-hero__glow" aria-hidden="true"></div>
+    <div class="tut-container tut-hero__inner">
+      <div class="tut-hero__copy">
+        <span class="tut-badge">{{ 'TUTORS.badge' | transloco }}</span>
+        <h1>{{ 'TUTORS.hero_title' | transloco }}</h1>
+        <p class="tut-hero__sub">
+          {{ 'TUTORS.hero_desc' | transloco }}
+        </p>
+        <div class="tut-hero__actions">
+          <a href="#tutors" class="tut-btn tut-btn--primary">{{ 'TUTORS.cta_primary' | transloco }}</a>
+          <a routerLink="/contact" class="tut-btn tut-btn--outline">{{ 'COMMON.learnMore' | transloco }}</a>
+        </div>
+        <div class="tut-hero__trust">
+          <span>⭐ {{ 'TUTORS.trust.rating' | transloco }}</span>
+          <span>👩‍⚕️ {{ 'TUTORS.trust.verified' | transloco }}</span>
+          <span>📅 {{ 'TUTORS.trust.availability' | transloco }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+  <section class="tut-section tut-section--white">
+    <div class="tut-container">
+      <div class="tut-section-head">
+        <h2>{{ 'TUTORS.how_it_works.title' | transloco }}</h2>
+        <p>{{ 'TUTORS.how_it_works.subtitle' | transloco }}</p>
+      </div>
+      <div class="tut-steps">
+        @for (step of howItWorks; track $index) {
+          <div class="tut-step">
+            <div class="tut-step__number" aria-hidden="true">{{ step.step }}</div>
+            <span class="tut-step__icon" aria-hidden="true">{{ step.icon }}</span>
+            <h3>{{ step.titleKey | transloco }}</h3>
+            <p>{{ step.descKey | transloco }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TUTORS ────────────────────────────────────────────── -->
+  <section class="tut-section tut-section--light" id="tutors">
+    <div class="tut-container">
+      <div class="tut-section-head">
+        <h2>{{ 'TUTORS.meet_title' | transloco }}</h2>
+        <p>{{ 'TUTORS.meet_subtitle' | transloco }}</p>
+      </div>
+
+      <!-- Subject filter -->
+      <div class="tut-filter" role="group" [attr.aria-label]="'TUTORS.filters.label' | transloco">
+        @for (sub of subjects; track sub.key) {
+          <button
+            type="button"
+            class="tut-filter-btn"
+            [class.tut-filter-btn--active]="activeSubject() === sub.key"
+            (click)="setSubject(sub.key)"
+            [attr.aria-pressed]="activeSubject() === sub.key"
+          >
+            {{ sub.labelKey ? (sub.labelKey | transloco) : sub.label }}
+          </button>
+        }
+      </div>
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="tut-loading" role="status" [attr.aria-label]="'COMMON.loading' | transloco">
+          <div class="tut-spinner"></div>
+          <span>{{ 'COMMON.loading' | transloco }}</span>
+        </div>
+      }
+
+      <!-- Tutor cards -->
+      @if (!loading()) {
+        @if (filteredTutors().length === 0) {
+          <div class="tut-empty">
+            <p>{{ 'COMMON.empty' | transloco }}</p>
+            <button type="button" class="tut-btn tut-btn--ghost" (click)="setSubject('all')">{{ 'TUTORS.filters.all' | transloco }}</button>
+          </div>
+        } @else {
+          <div class="tut-grid">
+            @for (tutor of filteredTutors(); track tutor.id) {
+              <div class="tut-card">
+                @if (tutor.isVerified) {
+                  <span class="tut-card__verified" [attr.aria-label]="'TUTORS.verified' | transloco">✓ {{ 'TUTORS.verified' | transloco }}</span>
+                }
+                <div class="tut-card__avatar" aria-hidden="true">
+                  @if (tutor.profileImageUrl) {
+                    <img [src]="tutor.profileImageUrl" [alt]="tutor.name + ' profile photo'" loading="lazy" />
+                  } @else {
+                    <span class="tut-card__avatar-placeholder">{{ tutor.name[0] }}</span>
+                  }
+                </div>
+                <div class="tut-card__info">
+                  <h3 class="tut-card__name">{{ tutor.name }}</h3>
+                  <p class="tut-card__creds">{{ tutor.credentials }}</p>
+                  <div class="tut-card__stars" [attr.aria-label]="tutor.rating + ' out of 5 stars'">
+                    @for (s of stars(tutor.rating); track s) {
+                      <span [class.tut-star--filled]="s <= tutor.rating" aria-hidden="true">★</span>
+                    }
+                    <span class="tut-card__reviews">({{ tutor.reviewCount }})</span>
+                  </div>
+                  <p class="tut-card__bio">{{ tutor.bio | localizedField }}</p>
+                  <div class="tut-card__tags" role="list" [attr.aria-label]="'TUTORS.specialties' | transloco">
+                    @for (specialty of tutor.specialties.slice(0, 3); track $index) {
+                      <span class="tut-tag" role="listitem">{{ specialty }}</span>
+                    }
+                  </div>
+                  <div class="tut-card__footer">
+                    <span class="tut-card__rate">${{ tutor.hourlyRate }}/hr</span>
+                    <a
+                      [routerLink]="['/private-tutors/book', tutor.id]"
+                      class="tut-btn tut-btn--sm tut-btn--primary"
+                      [attr.aria-label]="'Book a session with ' + tutor.name"
+                    >
+                      {{ 'TUTORS.book_session' | transloco }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────────── -->
+  <section class="tut-cta">
+    <div class="tut-container tut-cta__inner">
+      <div>
+        <h2>{{ 'TUTORS.become_tutor' | transloco }}</h2>
+        <p>{{ 'TUTORS.hero_desc' | transloco }}</p>
+      </div>
+      <a routerLink="/contact" class="tut-btn tut-btn--primary" [attr.aria-label]="'TUTORS.become_tutor' | transloco">
+        {{ 'TUTORS.become_tutor' | transloco }} →
+      </a>
+    </div>
+  </section>
+</div>

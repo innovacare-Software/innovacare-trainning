@@ -72,6 +72,12 @@
   cursor:pointer;
 }
 
+.route-link{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+}
+
 .btn.logout{
   color:#991b1b;
   border-color:rgba(185,28,28,.22);
@@ -186,5 +192,10 @@
     inset:0;
     z-index:45;
     background:rgba(2,6,23,.38);
+  }
+
+  .top-actions{
+    flex-wrap:wrap;
+    justify-content:flex-end;
   }
 }

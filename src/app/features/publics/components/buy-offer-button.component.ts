@@ -27,13 +27,24 @@ export class BuyOfferButtonComponent {
 
   loading = false;
 
+  private redirectToRegister(returnUrl = this.router.url): void {
+    void this.router.navigate(['/register'], {
+      queryParams: { returnUrl },
+    });
+  }
+
   async addToCart(): Promise<void> {
     if (!this.offerId || this.loading) return;
 
     this.loading = true;
     try {
       await this.cart.addOffer(this.offerId);
-    } catch (e) {
+    } catch (e: any) {
+      if (e?.message === 'AUTH_REQUIRED') {
+        this.redirectToRegister();
+        return;
+      }
+
       console.error('Add to cart failed', e);
     } finally {
       this.loading = false;
@@ -55,9 +66,7 @@ export class BuyOfferButtonComponent {
     } catch (e: any) {
       if (e?.message === 'AUTH_REQUIRED') {
         this.loading = false;
-        this.router.navigate(['/login'], {
-          queryParams: { returnUrl: '/cart' },
-        });
+        this.redirectToRegister();
         return;
       }
 

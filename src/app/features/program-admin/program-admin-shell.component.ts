@@ -1,29 +1,59 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../core/auth';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
+import { GlobalSearchTriggerComponent } from '../../shared/global-search/global-search-trigger.component';
+import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-trigger.component';
 
 @Component({
   selector: 'app-program-admin-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LanguageSwitcherComponent, GlobalSearchTriggerComponent, OnboardingTriggerComponent],
   template: `
     <section class="admin-shell">
       <aside class="sidebar">
         <div class="brand">
-          <p class="eyebrow">Program Platform</p>
+          <p class="eyebrow">Admin Level 3 · Program Platform</p>
           <h2>Program Admin</h2>
+          <p class="brand-copy">Independent public-program governance, enrollment operations and learning analytics.</p>
+          <div class="brand-meta-row">
+            <div class="scope-pill">Program workspace</div>
+            <a routerLink="/admin-spaces" class="switch-link">Switch admin space</a>
+          </div>
+          <div class="brand-actions">
+            <app-global-search-trigger></app-global-search-trigger>
+            <app-onboarding-trigger></app-onboarding-trigger>
+          </div>
         </div>
 
         <nav>
           <a routerLink="/program-admin/dashboard" routerLinkActive="active">Dashboard</a>
           <a routerLink="/program-admin/programs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Programs</a>
           <a routerLink="/program-admin/programs/new" routerLinkActive="active">Create Program</a>
+          <a routerLink="/program-admin/exam-prep" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Exam Prep Hub</a>
+          <a routerLink="/program-admin/exam-prep/question-bank" routerLinkActive="active">Question Bank</a>
+          <a routerLink="/program-admin/exam-prep/blueprints" routerLinkActive="active">Blueprints</a>
+          <a routerLink="/program-admin/exam-prep/assessments" routerLinkActive="active">Assessments</a>
           <a routerLink="/program-admin/enrollments" routerLinkActive="active">Enrollments</a>
           <a routerLink="/program-admin/analytics" routerLinkActive="active">Analytics</a>
         </nav>
       </aside>
 
       <main class="content">
+        <header class="content-topbar">
+          <div class="content-topbar__copy">
+            <span>Program admin dashboard</span>
+            <strong>Fast access to search, language and session controls.</strong>
+          </div>
+          <div class="content-topbar__actions">
+            <app-global-search-trigger></app-global-search-trigger>
+            <app-onboarding-trigger></app-onboarding-trigger>
+            <a routerLink="/admin-spaces" class="topbar-link">Switch space</a>
+            <app-language-switcher></app-language-switcher>
+            <button type="button" class="topbar-logout" (click)="logout()">Logout</button>
+          </div>
+        </header>
         <router-outlet></router-outlet>
       </main>
     </section>
@@ -51,6 +81,54 @@ import { RouterModule } from '@angular/router';
 
       .brand h2 {
         margin: 0.25rem 0 0;
+      }
+
+      .brand-copy {
+        margin: 0.45rem 0 0;
+        color: #b9d0e8;
+        line-height: 1.45;
+        font-size: 0.86rem;
+      }
+
+      .scope-pill {
+        display: inline-flex;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.12);
+        padding: 0.38rem 0.72rem;
+        font-size: 0.76rem;
+        font-weight: 800;
+        color: #edf5ff;
+      }
+
+      .brand-meta-row {
+        margin-top: 0.7rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        align-items: center;
+      }
+
+      .switch-link {
+        color: #d8e8fb;
+        text-decoration: none;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.38rem 0.72rem;
+        font-size: 0.76rem;
+        font-weight: 800;
+      }
+
+      .switch-link:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .brand-actions {
+        margin-top: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
       }
 
       .eyebrow {
@@ -87,6 +165,70 @@ import { RouterModule } from '@angular/router';
         padding: 1rem;
       }
 
+      .content-topbar {
+        position: sticky;
+        top: 0.75rem;
+        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.95rem 1rem;
+        border: 1px solid rgba(15, 54, 89, 0.08);
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 14px 32px rgba(15, 54, 89, 0.08);
+        backdrop-filter: blur(12px);
+      }
+
+      .content-topbar__copy {
+        display: grid;
+        gap: 0.2rem;
+      }
+
+      .content-topbar__copy span {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #5b7795;
+      }
+
+      .content-topbar__copy strong {
+        color: #14385a;
+      }
+
+      .content-topbar__actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        justify-content: flex-end;
+      }
+
+      .topbar-link,
+      .topbar-logout {
+        border-radius: 999px;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .topbar-link {
+        text-decoration: none;
+        color: #123d66;
+        border: 1px solid rgba(18, 61, 102, 0.16);
+        background: #fff;
+      }
+
+      .topbar-logout {
+        border: 1px solid rgba(153, 27, 27, 0.18);
+        background: rgba(255, 255, 255, 0.96);
+        color: #8b1e1e;
+        cursor: pointer;
+      }
+
       @media (max-width: 1024px) {
         .admin-shell {
           grid-template-columns: 1fr;
@@ -101,8 +243,26 @@ import { RouterModule } from '@angular/router';
         nav {
           grid-template-columns: 1fr;
         }
+
+        .content-topbar {
+          top: 0.5rem;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .content-topbar__actions {
+          justify-content: flex-start;
+        }
       }
     `,
   ],
 })
-export class ProgramAdminShellComponent {}
+export class ProgramAdminShellComponent {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    await this.router.navigate(['/login']);
+  }
+}
