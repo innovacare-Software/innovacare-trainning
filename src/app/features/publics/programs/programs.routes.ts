@@ -9,6 +9,13 @@ export const PROGRAMS_ROUTES: Routes = [
       import('./programs-page.component').then((m) => m.ProgramsPageComponent),
   },
   {
+    path: 'public/:id',
+    loadComponent: () =>
+      import('./public-program-page.component').then(
+        (m) => m.PublicProgramPageComponent
+      ),
+  },
+  {
     path: ':programId',
     loadComponent: () =>
       import('./program-detail-page.component').then(

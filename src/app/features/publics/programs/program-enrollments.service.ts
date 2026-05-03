@@ -263,6 +263,15 @@ export class ProgramEnrollmentsService {
     });
   }
 
+  markManualPaymentPending(enrollmentId: string): Promise<void> {
+    return this.updateAdminState(enrollmentId, {
+      status: ProgramEnrollmentStatus.PENDING,
+      paymentStatus: PaymentStatus.PENDING,
+      paymentMethod: 'manual',
+      paymentProvider: 'manual',
+    });
+  }
+
   private async updateAdminState(
     enrollmentId: string,
     payload: Partial<ProgramEnrollment>

@@ -186,6 +186,8 @@ export interface Program {
   modules?: ProgramModule[];
   linkedCourseIds?: string[];
   moduleIds?: string[];
+  adminPhone?: string;
+  stripeAccountId?: string | null;
   startDate?: FirestoreDateValue | null;
   endDate?: FirestoreDateValue | null;
   ownerId: string;
@@ -220,6 +222,8 @@ export interface CreateProgramPayload {
   outcomes: string[];
   modules?: ProgramModule[];
   moduleIds?: string[];
+  adminPhone?: string;
+  stripeAccountId?: string | null;
   linkedCourseIds?: string[];
   startDate?: FirestoreDateValue | null;
   endDate?: FirestoreDateValue | null;
@@ -457,7 +461,7 @@ export interface ProgramEnrollment {
   paymentStatus: PaymentStatus;
   pendingPaymentId?: string;
   paymentId?: string;
-  paymentMethod?: 'stripe' | 'mobile_money';
+  paymentMethod?: 'stripe' | 'mobile_money' | 'manual';
   paymentProvider?: string;
   paymentReference?: string;
   checkoutSessionId?: string;

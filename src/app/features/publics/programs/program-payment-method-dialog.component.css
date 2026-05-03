@@ -111,7 +111,7 @@
 
 .payment-option-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -152,6 +152,10 @@
   border-color: #ffe0b2;
 }
 
+.payment-option-card--contact {
+  border-color: #bbf7d0;
+}
+
 .payment-option-card h3 {
   margin: 0.8rem 0 0;
   font-size: 1.15rem;
@@ -187,7 +191,7 @@
 }
 
 .payment-btn {
-  min-height: 2.9rem;
+  min-height: 3.1rem;
   border: none;
   border-radius: 0.9rem;
   font-weight: 800;
@@ -209,13 +213,38 @@
   color: #ffffff;
 }
 
+.payment-option-badge--contact {
+  background: #effcf5;
+  color: #166534;
+}
+
+.payment-btn--contact {
+  background: linear-gradient(135deg, #15803d, #22c55e);
+  color: #ffffff;
+}
+
 .payment-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 @media (max-width: 760px) {
+  .payment-dialog-shell {
+    min-height: 100dvh;
+    border-radius: 1rem 1rem 0 0;
+    padding: 1rem 0.95rem calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .payment-dialog-header h2 {
+    font-size: 1.3rem;
+  }
+
   .payment-option-grid {
     grid-template-columns: 1fr;
+  }
+
+  .payment-btn {
+    width: 100%;
+    min-height: 52px;
   }
 }

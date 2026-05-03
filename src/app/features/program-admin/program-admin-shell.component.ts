@@ -11,32 +11,43 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
   standalone: true,
   imports: [CommonModule, RouterModule, LanguageSwitcherComponent, GlobalSearchTriggerComponent, OnboardingTriggerComponent],
   template: `
-    <section class="admin-shell">
-      <aside class="sidebar">
+    <section class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed">
+      <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
         <div class="brand">
-          <p class="eyebrow">Admin Level 3 · Program Platform</p>
-          <h2>Program Admin</h2>
-          <p class="brand-copy">Independent public-program governance, enrollment operations and learning analytics.</p>
-          <div class="brand-meta-row">
-            <div class="scope-pill">Program workspace</div>
-            <a routerLink="/admin-spaces" class="switch-link">Switch admin space</a>
-          </div>
-          <div class="brand-actions">
-            <app-global-search-trigger></app-global-search-trigger>
-            <app-onboarding-trigger></app-onboarding-trigger>
-          </div>
+          <p class="eyebrow" *ngIf="!sidebarCollapsed">Program Platform</p>
+          <button class="sidebar-toggle" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+            <span>{{ sidebarCollapsed ? '→' : '←' }}</span>
+          </button>
         </div>
 
         <nav>
-          <a routerLink="/program-admin/dashboard" routerLinkActive="active">Dashboard</a>
-          <a routerLink="/program-admin/programs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Programs</a>
-          <a routerLink="/program-admin/programs/new" routerLinkActive="active">Create Program</a>
-          <a routerLink="/program-admin/exam-prep" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Exam Prep Hub</a>
-          <a routerLink="/program-admin/exam-prep/question-bank" routerLinkActive="active">Question Bank</a>
-          <a routerLink="/program-admin/exam-prep/blueprints" routerLinkActive="active">Blueprints</a>
-          <a routerLink="/program-admin/exam-prep/assessments" routerLinkActive="active">Assessments</a>
-          <a routerLink="/program-admin/enrollments" routerLinkActive="active">Enrollments</a>
-          <a routerLink="/program-admin/analytics" routerLinkActive="active">Analytics</a>
+          <a routerLink="/program-admin/dashboard" routerLinkActive="active" [title]="sidebarCollapsed ? 'Dashboard' : ''">
+            <span class="nav-icon">🏠</span><span class="nav-label" *ngIf="!sidebarCollapsed">Dashboard</span>
+          </a>
+          <a routerLink="/program-admin/programs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [title]="sidebarCollapsed ? 'Programs' : ''">
+            <span class="nav-icon">📋</span><span class="nav-label" *ngIf="!sidebarCollapsed">Programs</span>
+          </a>
+          <a routerLink="/program-admin/programs/new" routerLinkActive="active" [title]="sidebarCollapsed ? 'Create Program' : ''">
+            <span class="nav-icon">➕</span><span class="nav-label" *ngIf="!sidebarCollapsed">Create Program</span>
+          </a>
+          <a routerLink="/program-admin/exam-prep" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [title]="sidebarCollapsed ? 'Exam Prep Hub' : ''">
+            <span class="nav-icon">📚</span><span class="nav-label" *ngIf="!sidebarCollapsed">Exam Prep Hub</span>
+          </a>
+          <a routerLink="/program-admin/exam-prep/question-bank" routerLinkActive="active" [title]="sidebarCollapsed ? 'Question Bank' : ''">
+            <span class="nav-icon">❓</span><span class="nav-label" *ngIf="!sidebarCollapsed">Question Bank</span>
+          </a>
+          <a routerLink="/program-admin/exam-prep/blueprints" routerLinkActive="active" [title]="sidebarCollapsed ? 'Blueprints' : ''">
+            <span class="nav-icon">🗺️</span><span class="nav-label" *ngIf="!sidebarCollapsed">Blueprints</span>
+          </a>
+          <a routerLink="/program-admin/exam-prep/assessments" routerLinkActive="active" [title]="sidebarCollapsed ? 'Assessments' : ''">
+            <span class="nav-icon">📝</span><span class="nav-label" *ngIf="!sidebarCollapsed">Assessments</span>
+          </a>
+          <a routerLink="/program-admin/enrollments" routerLinkActive="active" [title]="sidebarCollapsed ? 'Enrollments' : ''">
+            <span class="nav-icon">👥</span><span class="nav-label" *ngIf="!sidebarCollapsed">Enrollments</span>
+          </a>
+          <a routerLink="/program-admin/analytics" routerLinkActive="active" [title]="sidebarCollapsed ? 'Analytics' : ''">
+            <span class="nav-icon">📊</span><span class="nav-label" *ngIf="!sidebarCollapsed">Analytics</span>
+          </a>
         </nav>
       </aside>
 
@@ -71,12 +82,55 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
         display: grid;
         min-height: 100vh;
         grid-template-columns: 280px minmax(0, 1fr);
+        transition: grid-template-columns 0.25s ease;
+      }
+
+      .admin-shell.sidebar-collapsed {
+        grid-template-columns: 68px minmax(0, 1fr);
       }
 
       .sidebar {
         color: #f3f7ff;
         padding: 1.1rem;
         background: linear-gradient(180deg, #0f3659 0%, #102f4f 60%, #152746 100%);
+        overflow: hidden;
+        transition: width 0.25s ease;
+      }
+
+      .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.5rem;
+        width: 100%;
+        padding: 0.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 0.5rem;
+        color: #d8e8fb;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+      }
+
+      .sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+      }
+
+      .nav-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+
+      .nav-label {
+        margin-left: 0.55rem;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .sidebar.collapsed .nav-label {
+        display: none;
       }
 
       .brand h2 {
@@ -147,6 +201,8 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
       }
 
       nav a {
+        display: flex;
+        align-items: center;
         color: #d8e8fb;
         text-decoration: none;
         border: 1px solid transparent;
@@ -260,6 +316,12 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
 export class ProgramAdminShellComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+
+  sidebarCollapsed = false;
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
 
   async logout(): Promise<void> {
     await this.auth.logout();

@@ -669,6 +669,13 @@ export const routes: Routes = [
         (m) => m.PROGRAMS_ROUTES
       ),
   },
+  {
+    path: 'programs/public/:id',
+    loadComponent: () =>
+      import('./features/publics/programs/public-program-page.component').then(
+        (m) => m.PublicProgramPageComponent
+      ),
+  },
   // ── Archer Exam Engine — blank page, no shell ──────────────────────────────
   {
     path: 'exam',
@@ -711,6 +718,14 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/program-admin/program-admin.routes').then(
         (m) => m.PROGRAM_ADMIN_ROUTES
+      ),
+  },
+  {
+    path: 'africa-mode',
+    canMatch: [programAdminAreaCanMatch],
+    loadComponent: () =>
+      import('./features/program-admin/africa-mode/africa-quick-launch.component').then(
+        (m) => m.AfricaQuickLaunchComponent
       ),
   },
   {

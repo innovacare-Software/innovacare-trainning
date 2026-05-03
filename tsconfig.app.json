@@ -7,10 +7,16 @@
     "rootDir": "./src",
     "types": []
   },
+  "files": [
+    "src/main.ts"
+  ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.d.ts"
   ],
   "exclude": [
-    "src/**/*.spec.ts"
+    "src/**/*.spec.ts",
+    "firebase-debug.log",
+    "./firebase-debug.log",
+    "**/firebase-debug.log"
   ]
 }

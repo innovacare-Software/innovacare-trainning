@@ -16,7 +16,7 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
         <div class="hero-left">
           <p class="eyebrow">Program Platform &middot; Admin Intelligence</p>
           <h1>Program Admin Dashboard</h1>
-          <p class="hero-desc">BI cockpit for public programs, enrollments, learner analytics, and operational insights — fully separated from organization.</p>
+          <p class="hero-desc"> </p>
           <div class="diag-banner" *ngIf="diagnostics().length">
             <strong>Firestore access fallback active.</strong>
             <span>Denied source(s): {{ diagnostics().join(', ') }}</span>
@@ -26,6 +26,7 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
           <a routerLink="/program-admin/programs/new" class="btn-action primary">+ New Program</a>
           <a routerLink="/program-admin/enrollments" class="btn-action outline">Review Enrollments</a>
           <a routerLink="/program-admin/analytics" class="btn-action outline">Analytics</a>
+          <a routerLink="/africa-mode" class="btn-action business">Switch to Business Mode</a>
         </div>
       </header>
 
@@ -135,6 +136,7 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
     .btn-action:hover { transform: translateY(-1px); }
     .btn-action.primary { color: #fff; background: linear-gradient(135deg, #0f5ca6, #1a74c8); box-shadow: 0 6px 16px rgba(15,92,166,0.25); }
     .btn-action.outline { color: #1a5a94; border: 1.5px solid #c2d8f0; background: #f8fbff; }
+    .btn-action.business { color: #0f6c46; border: 1.5px solid #9dd7be; background: #effcf6; }
 
     /* KPI ROW */
     .kpi-row { display: grid; gap: 0.65rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }

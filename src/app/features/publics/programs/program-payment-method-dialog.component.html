@@ -4,7 +4,7 @@
       <p class="payment-dialog-kicker">Secure checkout</p>
       <h2>Select your payment method</h2>
       <p class="payment-dialog-copy">
-        Complete payment for {{ data.programTitle }} using Stripe for cards or CinetPay for local wallets.
+        Complete payment for {{ data.programTitle }} with the option that works best for you.
       </p>
     </div>
 
@@ -36,13 +36,25 @@
 
       <article class="payment-option-card payment-option-card--cinetpay">
         <div>
-          <span class="payment-option-badge payment-option-badge--cinetpay">CinetPay</span>
-          <h3>Pay with CinetPay</h3>
-          <p>Mobile Money, Orange Money, Wave, MTN, Moov — fast and secure local payment.</p>
+          <span class="payment-option-badge payment-option-badge--cinetpay">Offline</span>
+          <h3>Pay offline</h3>
+          <p>Submit your offline payment request and the trainer can validate your enrollment manually.</p>
         </div>
 
-        <button type="button" class="payment-btn payment-btn--cinetpay" [disabled]="loadingMethod() !== null" (click)="payWithCinetPay()">
-          {{ loadingMethod() === 'cinetpay' ? 'Redirecting to CinetPay...' : 'Pay with CinetPay' }}
+        <button type="button" class="payment-btn payment-btn--cinetpay" [disabled]="loadingMethod() !== null" (click)="payOffline()">
+          {{ loadingMethod() === 'cinetpay' ? 'Saving request...' : 'Pay Offline' }}
+        </button>
+      </article>
+
+      <article class="payment-option-card payment-option-card--contact">
+        <div>
+          <span class="payment-option-badge payment-option-badge--contact">Support</span>
+          <h3>Contact trainer</h3>
+          <p>Get immediate help via WhatsApp before completing payment.</p>
+        </div>
+
+        <button type="button" class="payment-btn payment-btn--contact" [disabled]="loadingMethod() !== null" (click)="contactTrainer()">
+          Contact Trainer
         </button>
       </article>
 

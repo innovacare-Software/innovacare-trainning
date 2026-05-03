@@ -7,6 +7,7 @@ import {
 } from '../../../core/payment.service';
 import { CheckoutService } from '../../../core/checkout.service';
 import { ProgramCurrency } from './program.models';
+import { ProgramEnrollmentsService } from './program-enrollments.service';
 
 export interface ProgramPaymentMethodDialogData {
   programId: string;
@@ -39,6 +40,7 @@ export class ProgramPaymentMethodDialogComponent implements OnInit {
   );
   private readonly paymentService = inject(PaymentService);
   private readonly checkoutService = inject(CheckoutService);
+  private readonly enrollmentsService = inject(ProgramEnrollmentsService);
 
   readonly data = inject<ProgramPaymentMethodDialogData>(MAT_DIALOG_DATA);
   readonly loadingMethod = signal<null | 'stripe' | 'cinetpay'>(null);
@@ -101,5 +103,25 @@ export class ProgramPaymentMethodDialogComponent implements OnInit {
       );
       this.loadingMethod.set(null);
     }
+  }
+
+  async payOffline(): Promise<void> {
+    this.loadingMethod.set('cinetpay');
+    this.errorMessage.set('');
+
+    try {
+      await this.enrollmentsService.markManualPaymentPending(this.data.enrollmentId);
+      this.dialogRef.close({ status: 'closed' });
+    } catch (error) {
+      this.errorMessage.set(
+        error instanceof Error ? error.message : 'Unable to save your offline payment request.'
+      );
+      this.loadingMethod.set(null);
+    }
+  }
+
+  contactTrainer(): void {
+    const message = encodeURIComponent(`Hello, I need help to complete payment for ${this.data.programTitle}.`);
+    window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener');
   }
 }

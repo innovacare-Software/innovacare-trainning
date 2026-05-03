@@ -20,6 +20,22 @@ function template(type: NotificationEventType, key: string, subject: string, htm
 
 export const DEFAULT_NOTIFICATION_TEMPLATES: SeedTemplate[] = [
   template(
+    "ACCOUNT_CREATED",
+    "account_created_welcome",
+    "Welcome to InnovacareReview, {{learnerName}}",
+    "<p>Hello {{learnerName}},</p><p>Your account has been created successfully.</p><p>You can sign in and start exploring your learning workspace.</p><p><a href='{{ctaUrl}}'>Sign in now</a></p>",
+    "Hello {{learnerName}}, your account is ready. Sign in: {{ctaUrl}}",
+    ["learnerName", "ctaUrl"]
+  ),
+  template(
+    "FIRST_LOGIN",
+    "first_login_welcome",
+    "Great to see you, {{learnerName}}",
+    "<p>Hello {{learnerName}},</p><p>Welcome to your first connection on InnovacareReview.</p><p>Your dashboard is ready.</p><p><a href='{{ctaUrl}}'>Open my dashboard</a></p>",
+    "Hello {{learnerName}}, welcome to your first login. Open dashboard: {{ctaUrl}}",
+    ["learnerName", "ctaUrl"]
+  ),
+  template(
     "PURCHASE_CONFIRMATION",
     "purchase_confirmation",
     "Your InnovacareReview purchase is confirmed — {{courseTitle}}",

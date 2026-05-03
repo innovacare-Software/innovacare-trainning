@@ -177,6 +177,17 @@ body {
   overflow-x: hidden;
 }
 
+app-root,
+.mobile-first-container {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.mobile-first-container {
+  padding-inline: 16px;
+}
+
 *,
 *::before,
 *::after {
@@ -196,6 +207,25 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+button,
+[role="button"],
+a.btn,
+.btn,
+.btn-primary,
+.btn-outline,
+.btn-whatsapp {
+  min-height: 44px;
+}
+
+@media (hover: none) {
+  .btn:hover,
+  .btn-primary:hover,
+  .btn-outline:hover,
+  .btn-whatsapp:hover {
+    transform: none;
+  }
 }
 
 a {
@@ -226,6 +256,27 @@ mat-icon {
 .container {
   width: min(1180px, calc(100% - 2rem));
   margin-inline: auto;
+}
+
+@media (max-width: 768px) {
+  .mk-container,
+  .arx-container,
+  .marketing-header__inner,
+  .marketing-footer,
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 16px;
+  }
+
+  .program-payment-dialog-panel .mat-mdc-dialog-container,
+  .program-payment-dialog-panel .mdc-dialog__surface {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    align-self: flex-end;
+  }
 }
 
 .mk-page,

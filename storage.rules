@@ -51,6 +51,18 @@ service firebase.storage {
       allow write: if canManageProgramContent();
     }
 
+    // Africa Mode cover images uploaded during quick course creation.
+    match /program-images/{allPaths=**} {
+      allow read: if canManageProgramContent();
+      allow write: if canManageProgramContent();
+    }
+
+    // Africa Mode lesson images uploaded during lesson authoring.
+    match /lesson-images/{allPaths=**} {
+      allow read: if canManageProgramContent();
+      allow write: if canManageProgramContent();
+    }
+
     // Deny everything else by default.
     match /{allPaths=**} {
       allow read, write: if false;

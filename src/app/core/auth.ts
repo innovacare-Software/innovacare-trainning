@@ -138,11 +138,15 @@ export class AuthService {
   async loginWithEmail(
     email: string,
     password: string,
-    rememberMe = true
+    rememberMe = true,
+    trackLogin = true
   ): Promise<UserCredential> {
     await this.setRememberMe(rememberMe);
     const cred = await signInWithEmailAndPassword(this.auth, email, password);
     await this.reconcileAutoConnectedGuestProfile(cred.user.uid);
+    if (trackLogin) {
+      await this.markLoginActivity(cred.user.uid);
+    }
     return cred;
   }
 
@@ -199,6 +203,7 @@ export class AuthService {
     });
 
     await this.reconcileAutoConnectedGuestProfile(cred.user.uid);
+    await this.markLoginActivity(cred.user.uid);
 
     return cred;
   }
@@ -273,7 +278,8 @@ export class AuthService {
     const cred = await this.loginWithEmail(
       params.email,
       params.password,
-      params.rememberMe ?? true
+      params.rememberMe ?? true,
+      false
     );
 
     const userRef = doc(this.afs, `users/${cred.user.uid}`);
@@ -318,6 +324,8 @@ export class AuthService {
       );
     }
 
+    await this.markLoginActivity(cred.user.uid);
+
     return cred;
   }
 
@@ -350,6 +358,17 @@ export class AuthService {
     } catch {
       // Firestore will still reject if the token cannot be established.
     }
+  }
+
+  private async markLoginActivity(uid: string): Promise<void> {
+    await setDoc(
+      doc(this.afs, `users/${uid}`),
+      {
+        lastLoginAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
   }
 
   private async ensureUserProfile(profile: AppProfile): Promise<void> {

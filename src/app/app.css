@@ -51,4 +51,91 @@
     font-size: 20px;
     color: var(--primary, #3949ab);
   }
+
+  .app-shell {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .app-shell--mobile-nav {
+    padding-bottom: 0;
+  }
+
+  .app-offline-banner {
+    position: fixed;
+    top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1200;
+    width: min(94vw, 34rem);
+    padding: 0.75rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #fde68a;
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .app-install-banner {
+    position: fixed;
+    right: 1rem;
+    bottom: 5.75rem;
+    z-index: 1100;
+    width: min(92vw, 23rem);
+    padding: 0.95rem;
+    border-radius: 0.95rem;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.16);
+  }
+
+  .app-install-banner p {
+    margin: 0;
+    color: #1e3a8a;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .app-install-actions {
+    margin-top: 0.65rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.55rem;
+  }
+
+  .app-btn {
+    min-height: 44px;
+    padding: 0.55rem 0.85rem;
+    border-radius: 0.72rem;
+    border: 1px solid transparent;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .app-btn--ghost {
+    border-color: #93c5fd;
+    background: #ffffff;
+    color: #1d4ed8;
+  }
+
+  .app-btn--primary {
+    background: #1d4ed8;
+    color: #ffffff;
+  }
+
+  @media (max-width: 768px) {
+    .app-shell--mobile-nav {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .app-install-banner {
+      left: 0.75rem;
+      right: 0.75rem;
+      width: auto;
+      bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+  }
   

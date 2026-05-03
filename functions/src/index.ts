@@ -85,6 +85,8 @@ type SitemapBlogSeed = {
 };
 
 const APP_ORIGIN = "https://www.innovacarereview.com";
+const STRIPE_CONNECT_PLATFORM_FEE_RATE = 0.3;
+const STRIPE_CONNECT_ONBOARDING_PATH = "/program-admin/africa-mode";
 const SITEMAP_STATIC_ENTRIES: SitemapEntry[] = [
   {loc: `${APP_ORIGIN}/`, lastmod: "2026-04-22", changefreq: "daily", priority: "1.0"},
   {loc: `${APP_ORIGIN}/home`, lastmod: "2026-04-22", changefreq: "daily", priority: "1.0"},
@@ -2081,6 +2083,85 @@ function parseAllowedHosts(): Set<string> {
 function isEmailVerificationRequiredForCheckout(): boolean {
   const raw = (process.env.REQUIRE_VERIFIED_EMAIL_FOR_CHECKOUT || "").trim().toLowerCase();
   return raw === "true";
+}
+
+function canManageStripeConnect(role: string): boolean {
+  return ["super_admin", "admin", "manager", "programadmin", "programstaff", "instructor"]
+    .includes(String(role || "").trim().toLowerCase());
+}
+
+function buildStripeConnectReturnUrl(kind: "return" | "refresh", orgId: string): string {
+  const url = new URL(`${APP_ORIGIN}${STRIPE_CONNECT_ONBOARDING_PATH}`);
+  url.searchParams.set("stripe", kind);
+  url.searchParams.set("orgId", orgId);
+  return url.toString();
+}
+
+async function resolveProgramStripeAccountId(programId: string, fallbackOrgId?: string | null): Promise<string | null> {
+  const normalizedProgramId = String(programId || "").trim();
+  let programOrgId = String(fallbackOrgId || "").trim();
+
+  if (!normalizedProgramId && !programOrgId) {
+    return null;
+  }
+
+  if (normalizedProgramId) {
+    const programSnap = await db.doc(`programs/${normalizedProgramId}`).get();
+    if (programSnap.exists) {
+      const programData = (programSnap.data() || {}) as Record<string, unknown>;
+      const programStripeAccountId = String(programData["stripeAccountId"] || "").trim();
+      if (programStripeAccountId) {
+        return programStripeAccountId;
+      }
+
+      programOrgId = String(programData["orgId"] || programOrgId || "").trim();
+    }
+  }
+
+  if (!programOrgId) {
+    return null;
+  }
+
+  const organizationSnap = await db.doc(`organizations/${programOrgId}`).get();
+  if (!organizationSnap.exists) {
+    return null;
+  }
+
+  const organizationData = (organizationSnap.data() || {}) as Record<string, unknown>;
+  return String(organizationData["stripeAccountId"] || "").trim() || null;
+}
+
+async function buildProgramStripeConnectPaymentIntentData(
+  programId: string,
+  orgId: string | null | undefined,
+  amount: number,
+): Promise<{
+  stripeAccountId: string | null;
+  applicationFeeAmount: number | null;
+  paymentIntentData?: Stripe.Checkout.SessionCreateParams.PaymentIntentData;
+}> {
+  const stripeAccountId = await resolveProgramStripeAccountId(programId, orgId);
+  const unitAmount = Math.round(Number(amount || 0) * 100);
+
+  if (!stripeAccountId || !Number.isFinite(unitAmount) || unitAmount <= 0) {
+    return {
+      stripeAccountId,
+      applicationFeeAmount: null,
+    };
+  }
+
+  const applicationFeeAmount = Math.max(0, Math.round(unitAmount * STRIPE_CONNECT_PLATFORM_FEE_RATE));
+
+  return {
+    stripeAccountId,
+    applicationFeeAmount,
+    paymentIntentData: {
+      application_fee_amount: applicationFeeAmount,
+      transfer_data: {
+        destination: stripeAccountId,
+      },
+    },
+  };
 }
 
 function shuffleList<T>(items: T[]): T[] {
@@ -5367,6 +5448,8 @@ export const createProgramLiveSessionCheckoutSession = onCall(
     });
 
     const stripe = getStripe();
+    const connectDestination = await buildProgramStripeConnectPaymentIntentData(programId, orgId, amount);
+
     const createSessionPayload: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       customer_email: email,
@@ -5390,6 +5473,7 @@ export const createProgramLiveSessionCheckoutSession = onCall(
       }],
       success_url: successUrl,
       cancel_url: cancelUrl,
+      ...(connectDestination.paymentIntentData ? {payment_intent_data: connectDestination.paymentIntentData} : {}),
     };
 
     let checkoutSession: Stripe.Checkout.Session | null = null;
@@ -6880,6 +6964,14 @@ export const createPaymentIntent = onCall(
         sessionMetadata.amountUSD = String(walletContext?.amount || 0);
       }
 
+      const connectDestination = itemType === "program" && programContext ?
+        await buildProgramStripeConnectPaymentIntentData(
+          String(programContext.programId || ""),
+          programContext.orgId || null,
+          Number(programContext.amount || 0),
+        ) :
+        {stripeAccountId: null, applicationFeeAmount: null};
+
       let session: Stripe.Checkout.Session;
       try {
         session = await stripe.checkout.sessions.create({
@@ -6902,6 +6994,7 @@ export const createPaymentIntent = onCall(
           }],
           success_url: successUrl,
           cancel_url: cancelUrl,
+          ...(connectDestination.paymentIntentData ? {payment_intent_data: connectDestination.paymentIntentData} : {}),
         });
       } catch (stripeError: unknown) {
         const errType = String((stripeError as Record<string, unknown>)?.type || "");
@@ -6930,10 +7023,14 @@ export const createPaymentIntent = onCall(
         paymentRef.set({
           checkoutSessionId: session.id,
           checkoutUrl: session.url || null,
+          stripeAccountId: connectDestination.stripeAccountId,
+          platformFeeAmount: connectDestination.applicationFeeAmount,
           updatedAt: nowTs(),
         }, {merge: true}),
         orderRef.set({
           checkoutSessionId: session.id,
+          stripeAccountId: connectDestination.stripeAccountId,
+          platformFeeAmount: connectDestination.applicationFeeAmount,
           updatedAt: nowTs(),
         }, {merge: true}),
       ]);
@@ -6941,6 +7038,7 @@ export const createPaymentIntent = onCall(
       if (itemType === "program" && programContext) {
         await db.doc(`programEnrollments/${programContext.enrollmentId}`).set({
           checkoutSessionId: session.id,
+          paymentProvider: connectDestination.stripeAccountId ? "stripe_connect" : "stripe",
           updatedAt: nowTs(),
         }, {merge: true});
       }
@@ -7035,6 +7133,86 @@ export const createPaymentIntent = onCall(
       provider,
       reference,
       checkoutUrl: mobileMoneyResult.checkoutUrl || null,
+    };
+  },
+);
+
+export const connectStripeAccount = onCall(
+  {secrets: [STRIPE_SECRET_KEY], invoker: HTTPS_PUBLIC},
+  async (request) => {
+    const uid = String(request.auth?.uid || "").trim();
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
+    }
+
+    const userContext = await getUserContext(uid);
+    if (!userContext.active) {
+      throw new HttpsError("permission-denied", "Inactive users cannot manage payouts.");
+    }
+    if (!userContext.orgId) {
+      throw new HttpsError("failed-precondition", "Your organization profile is incomplete.");
+    }
+    if (!canManageStripeConnect(userContext.role)) {
+      throw new HttpsError("permission-denied", "You do not have access to manage Stripe payouts.");
+    }
+
+    const requestedOrgId = String(request.data?.orgId || "").trim();
+    const orgId = requestedOrgId || userContext.orgId;
+    const normalizedRole = String(userContext.role || "").trim().toLowerCase();
+    if (requestedOrgId && requestedOrgId !== userContext.orgId && normalizedRole !== "super_admin") {
+      throw new HttpsError("permission-denied", "You cannot manage another organization payout account.");
+    }
+
+    const organizationRef = db.doc(`organizations/${orgId}`);
+    const organizationSnap = await organizationRef.get();
+    const organizationData = (organizationSnap.data() || {}) as Record<string, unknown>;
+    const existingStripeAccountId = String(organizationData["stripeAccountId"] || "").trim();
+
+    const stripe = getStripe();
+    let stripeAccountId = existingStripeAccountId;
+
+    if (!stripeAccountId) {
+      const userSnap = await db.doc(`users/${uid}`).get();
+      const userData = (userSnap.data() || {}) as Record<string, unknown>;
+      const country = String(organizationData["country"] || userData["country"] || "US").trim().toUpperCase();
+
+      const account = await stripe.accounts.create({
+        type: "express",
+        country: /^[A-Z]{2}$/.test(country) ? country : "US",
+        email: String(organizationData["email"] || userData["email"] || request.auth?.token.email || "").trim() || undefined,
+        business_type: "individual",
+        metadata: {
+          orgId,
+          createdByUid: uid,
+        },
+      });
+      stripeAccountId = account.id;
+    }
+
+    const accountLink = await stripe.accountLinks.create({
+      account: stripeAccountId,
+      refresh_url: buildStripeConnectReturnUrl("refresh", orgId),
+      return_url: buildStripeConnectReturnUrl("return", orgId),
+      type: "account_onboarding",
+    });
+
+    const account = await stripe.accounts.retrieve(stripeAccountId);
+    await organizationRef.set({
+      stripeAccountId,
+      stripeChargesEnabled: account.charges_enabled === true,
+      stripeDetailsSubmitted: account.details_submitted === true,
+      stripePayoutsEnabled: account.payouts_enabled === true,
+      stripeConnectedBy: uid,
+      stripeConnectedAt: nowTs(),
+      updatedAt: nowTs(),
+    }, {merge: true});
+
+    return {
+      accountId: stripeAccountId,
+      onboardingUrl: accountLink.url,
+      chargesEnabled: account.charges_enabled === true,
+      detailsSubmitted: account.details_submitted === true,
+      payoutsEnabled: account.payouts_enabled === true,
     };
   },
 );
@@ -7310,6 +7488,8 @@ export const createProgramCheckoutSession = onCall(
       }
     }
 
+    const connectDestination = await buildProgramStripeConnectPaymentIntentData(programId, orgId, price);
+
     const createSessionPayload: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       customer_email: email,
@@ -7335,6 +7515,7 @@ export const createProgramCheckoutSession = onCall(
       }],
       success_url: successUrl,
       cancel_url: cancelUrl,
+      ...(connectDestination.paymentIntentData ? {payment_intent_data: connectDestination.paymentIntentData} : {}),
     };
 
     const waitMs = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -7387,10 +7568,16 @@ export const createProgramCheckoutSession = onCall(
     }
 
     /* ── Persist checkout refs ── */
-    await orderRef.update({checkoutSessionId: session.id, updatedAt: nowTs()});
+    await orderRef.update({
+      checkoutSessionId: session.id,
+      stripeAccountId: connectDestination.stripeAccountId,
+      platformFeeAmount: connectDestination.applicationFeeAmount,
+      updatedAt: nowTs(),
+    });
     await enrollmentRef.update({
       checkoutSessionId: session.id,
       paymentStatus: "pending",
+      paymentProvider: connectDestination.stripeAccountId ? "stripe_connect" : "stripe",
       updatedAt: nowTs(),
     });
 
@@ -9433,25 +9620,89 @@ export const chatWithAI = onCall(
       ? `The user is currently on the page: ${context.currentPage}.`
       : "";
 
-    const systemPrompt = `You are InnovaAssist, a helpful AI assistant for the Innovacare Training platform — \
-a healthcare e-learning system focused on wound care education and compliance training.
+    // Fetch active public courses to inject into the system prompt
+    let programsList = "No courses currently listed.";
+    try {
+      const offersSnap = await db
+        .collection("publicOffers")
+        .where("type", "==", "course")
+        .where("isActive", "==", true)
+        .where("isPublic", "==", true)
+        .limit(30)
+        .get();
+      if (!offersSnap.empty) {
+        const lines = offersSnap.docs.map((d) => {
+          const o = d.data() as Record<string, unknown>;
+          const title = String(o["title"] || "").trim();
+          const category = String(o["category"] || "").trim();
+          const price = o["price"] != null
+            ? `${String(o["price"])} ${String(o["currency"] || "USD")}`
+            : "Contact trainer";
+          const description = String(o["description"] || "").trim();
+          let line = `• ${title}`;
+          if (category) line += ` [${category}]`;
+          line += ` — ${price}`;
+          if (description) line += ` — ${description.slice(0, 120)}`;
+          return line;
+        });
+        programsList = lines.join("\n");
+      }
+    } catch (fetchErr) {
+      console.warn("[chatWithAI] Could not load publicOffers for context:", fetchErr);
+    }
 
-Your role is to help learners, managers, and admins navigate the platform and succeed in their training.
+    const systemPrompt = `You are InnovacareAssist, an AI-powered assistant for the Innovacare Training platform.
 
-You can help with:
-- Navigating courses, modules, lessons, and assessments
-- Understanding wound care concepts (pressure injuries, wound healing, dressings, infection control)
-- Tracking learning progress, certifications, and assignments
-- Explaining platform features (programs, live sessions, case studies, simulations)
-- Answering questions about policies, compliance requirements, and transcripts
-- Guiding users through enrollment, checkout, and program management
+# YOUR ROLE
+You are:
+- A learning guide
+- A sales assistant
+- A course recommendation engine
+- A user support agent
+
+Your goal is to help users discover courses, enroll in training, and take action quickly.
+
+# AVAILABLE COURSES
+${programsList}
+
+Each course may include: Title, Category, Price, Description.
+
+# CORE RULES
+1. ALWAYS base your answer on the real available courses listed above.
+2. NEVER assume all courses are healthcare-related.
+3. If no exact match → suggest closest categories.
+4. Keep answers SHORT and ACTIONABLE. Max 120 words.
+
+# RECOMMENDATION ENGINE
+If user asks "What courses are available?" or "Suggest something":
+1. Show 3–5 relevant courses in this format:
+   • Course Name — Short benefit
+   • Course Name — Short benefit
+2. End with: "You can enroll directly or contact the trainer."
+
+# SALES BEHAVIOR
+Always guide the user toward action: enroll, explore training, or contact trainer via WhatsApp.
+
+# PAYMENT GUIDANCE
+If asked about payment: "You can pay with card, pay offline, or contact the trainer directly."
+
+# LANGUAGE
+Detect user language. Reply in the same language (French or English).
+
+# TONE
+Clear, friendly, professional. No long explanations.
+
+# OUTPUT FORMAT
+Use bullet points. Avoid paragraphs longer than 3 lines.
+
+# FALLBACK
+If unclear: "I can help you find the right course. What type of training are you looking for?"
 
 ${userNameLine}
 ${roleLine}
 ${pageLine}
 
-Always respond in the same language the user writes in (English or French).
-Keep answers concise, accurate, and professional. If a question is outside your knowledge, say so honestly.`;
+Act fast. Be helpful. Drive action.`;
 
     try {
       const openAiMessages = [

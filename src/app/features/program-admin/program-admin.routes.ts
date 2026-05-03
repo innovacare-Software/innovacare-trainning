@@ -60,6 +60,13 @@ export const PROGRAM_ADMIN_ROUTES: Routes = [
           import('./analytics/program-analytics.page').then((m) => m.ProgramAnalyticsPage),
       },
       {
+        path: 'africa-mode',
+        loadComponent: () =>
+          import('./africa-mode/africa-quick-launch.component').then(
+            (m) => m.AfricaQuickLaunchComponent
+          ),
+      },
+      {
         path: 'exam-prep',
         loadChildren: () => import('./exam-prep/exam-prep.routes').then((m) => m.EXAM_PREP_ROUTES),
       },

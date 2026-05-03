@@ -57,16 +57,16 @@
     <div *ngIf="chatbot.messages().length === 0" class="chatbot-welcome">
       <div class="chatbot-welcome__icon">🩺</div>
       <h4>Hello! I'm InnovaAssist</h4>
-      <p>I can help you with courses, wound care topics, platform navigation, and more.</p>
+      <p>I can help you discover courses, enroll quickly, and get payment support.</p>
       <div class="chatbot-suggestions">
-        <button class="chatbot-suggestion" (click)="chatbot.sendMessage('How do I access my courses?')">
-          How do I access my courses?
+        <button class="chatbot-suggestion" (click)="chatbot.sendMessage('Show my courses')">
+          My Courses
         </button>
-        <button class="chatbot-suggestion" (click)="chatbot.sendMessage('Explain pressure injury stages')">
-          Explain pressure injury stages
+        <button class="chatbot-suggestion" (click)="chatbot.sendMessage('Help me enroll in a course')">
+          Enroll
         </button>
-        <button class="chatbot-suggestion" (click)="chatbot.sendMessage('How do I get my certificate?')">
-          How do I get my certificate?
+        <button class="chatbot-suggestion" (click)="chatbot.sendMessage('I need payment help')">
+          Payment Help
         </button>
       </div>
     </div>

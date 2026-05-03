@@ -14,6 +14,7 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "serviceWorker": "ngsw-config.json",
             "polyfills": [
               "zone.js"
             ],
@@ -24,7 +25,7 @@
               "rgbcolor",
               "html2canvas"
             ],
-            "tsConfig": "tsconfig.app.json",
+            "tsConfig": "tsconfig.build.json",
             "assets": [
               {
                 "glob": "**/*",
@@ -43,6 +44,11 @@
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              },
               "budgets": [
                 {
                   "type": "initial",
@@ -55,7 +61,8 @@
                   "maximumError": "8000kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,

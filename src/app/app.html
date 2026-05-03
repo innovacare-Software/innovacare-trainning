@@ -1,9 +1,31 @@
 @if (isReady()) {
-  <router-outlet></router-outlet>
+  <div class="app-shell" [class.app-shell--mobile-nav]="showMobileNav()">
+    <router-outlet></router-outlet>
+  </div>
+
+  @if (isOffline()) {
+    <div class="app-offline-banner" role="status">
+      You're offline. Some features may be limited.
+    </div>
+  }
+
+  @if (showInstallPrompt()) {
+    <section class="app-install-banner" aria-label="Install app prompt">
+      <p>Install Innovacare on your phone</p>
+      <div class="app-install-actions">
+        <button type="button" class="app-btn app-btn--ghost" (click)="dismissInstallPrompt()">Later</button>
+        <button type="button" class="app-btn app-btn--primary" (click)="installApp()">Install</button>
+      </div>
+    </section>
+  }
 
   <app-global-search-panel></app-global-search-panel>
 
   <app-onboarding-panel></app-onboarding-panel>
 
   <app-chatbot></app-chatbot>
+
+  @if (showMobileNav()) {
+    <app-mobile-bottom-nav></app-mobile-bottom-nav>
+  }
 }

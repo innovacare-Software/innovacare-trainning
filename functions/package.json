@@ -11,6 +11,7 @@
     "generate:exam-prep-blueprints": "node scripts/generate-exam-prep-blueprints.cjs",
     "seed:exam-prep-library": "node scripts/seed-exam-prep-library.cjs",
     "seed:program-live-sessions": "node scripts/seed-program-live-sessions.cjs",
+    "sendgrid:test": "node scripts/sendgrid-quickstart.cjs",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
@@ -23,6 +24,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
+    "@sendgrid/mail": "^8.1.6",
     "cors": "^2.8.6",
     "firebase-admin": "^12.6.0",
     "firebase-functions": "^6.5.0",

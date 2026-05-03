@@ -1,0 +1,443 @@
+<div class="am-shell">
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <header class="am-hero">
+    <div class="am-hero-glow"></div>
+    <div class="am-hero-inner">
+      <div class="am-hero-text">
+        <span class="am-badge">
+          <span class="am-badge-dot"></span>
+          Africa Business Mode
+        </span>
+        <h1 class="am-hero-title">Create &amp; Sell Your Training</h1>
+        <p class="am-hero-sub">Launch professional training programs, reach learners across Africa and the world, and get paid automatically.</p>
+      </div>
+      <button type="button" class="am-btn-cta" (click)="openWizard()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create &amp; Sell a Course
+      </button>
+    </div>
+    <div class="am-hero-stats">
+      <div class="am-hero-stat">
+        <span class="am-hero-stat-value">{{ totalCourses() }}</span>
+        <span class="am-hero-stat-label">Active Courses</span>
+      </div>
+      <div class="am-hero-stat-divider"></div>
+      <div class="am-hero-stat">
+        <span class="am-hero-stat-value">{{ totalStudents() }}</span>
+        <span class="am-hero-stat-label">Enrolled Learners</span>
+      </div>
+      <div class="am-hero-stat-divider"></div>
+      <div class="am-hero-stat">
+        <span class="am-hero-stat-value">{{ revenuePlaceholder() | currency:'USD':'symbol':'1.0-0' }}</span>
+        <span class="am-hero-stat-label">Total Revenue</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════ CONTENT GRID ═══════════ -->
+  <div class="am-content-grid">
+
+    <!-- LEFT: metrics + share -->
+    <div class="am-left-col">
+
+      <!-- SUCCESS SCREEN -->
+      <section class="am-success-card" *ngIf="isPublished(); else defaultDashboard">
+        <div class="am-success-icon">🎉</div>
+        <div class="am-success-text">
+          <p class="am-section-eyebrow">Live</p>
+          <h2 class="am-section-title">Your training is now live!</h2>
+          <p class="am-section-sub">Share it with your audience and start enrolling learners immediately.</p>
+        </div>
+        <div class="am-share-field">
+          <span class="am-share-icon">🔗</span>
+          <span class="am-share-url">{{ generatedLink() }}</span>
+        </div>
+        <div class="am-success-actions">
+          <button type="button" class="am-btn-whatsapp" (click)="shareOnWhatsApp()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+            Share on WhatsApp
+          </button>
+          <button type="button" class="am-btn-secondary" (click)="copyLink(generatedLink())">Copy Link</button>
+          <button type="button" class="am-btn-primary" (click)="goToPublishedDashboard()">Go to Dashboard</button>
+        </div>
+      </section>
+
+      <ng-template #defaultDashboard>
+        <!-- METRICS ROW -->
+        <div class="am-metrics-row">
+          <article class="am-metric-card">
+            <div class="am-metric-icon am-metric-icon--blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div class="am-metric-body">
+              <span class="am-metric-value">{{ totalCourses() }}</span>
+              <span class="am-metric-label">My Courses</span>
+            </div>
+            <a routerLink="/program-admin/programs" class="am-metric-action">Manage →</a>
+          </article>
+
+          <article class="am-metric-card">
+            <div class="am-metric-icon am-metric-icon--purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="am-metric-body">
+              <span class="am-metric-value">{{ totalStudents() }}</span>
+              <span class="am-metric-label">My Students</span>
+            </div>
+            <a routerLink="/program-admin/enrollments" class="am-metric-action">View →</a>
+          </article>
+
+          <article class="am-metric-card">
+            <div class="am-metric-icon am-metric-icon--green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="am-metric-body">
+              <span class="am-metric-value">{{ revenuePlaceholder() | currency:'USD':'symbol':'1.0-0' }}</span>
+              <span class="am-metric-label">Revenue</span>
+            </div>
+            <span class="am-metric-note">Manual tracking</span>
+          </article>
+        </div>
+
+        <!-- SHARE CARD -->
+        <article class="am-share-card">
+          <div class="am-share-card-head">
+            <div>
+              <p class="am-section-eyebrow">Distribution</p>
+              <h3 class="am-share-card-title">Share &amp; Sell</h3>
+            </div>
+            <button type="button" class="am-btn-ghost" (click)="onGetCourseLink()">Get Course Link</button>
+          </div>
+          <div class="am-share-field" *ngIf="shareLink()">
+            <span class="am-share-icon">🔗</span>
+            <span class="am-share-url">{{ shareLink() }}</span>
+          </div>
+          <div class="am-share-actions">
+            <button type="button" class="am-btn-secondary" (click)="copyLink(shareLink())">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+            <button type="button" class="am-btn-whatsapp" (click)="shareOnWhatsApp()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+              WhatsApp
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
+      <p class="am-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+    </div>
+
+    <!-- RIGHT: Stripe Connect -->
+    <aside class="am-right-col">
+      <div class="am-stripe-card">
+        <div class="am-stripe-top">
+          <div class="am-stripe-logo-wrap">
+            <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg" class="am-stripe-logo">
+              <path d="M8.48 9.8c0-.88.72-1.22 1.9-1.22 1.7 0 3.84.52 5.54 1.44V5.12C14.2 4.44 12.58 4 10.4 4 5.96 4 3 6.3 3 10.04c0 5.9 8.12 4.96 8.12 7.5 0 1.04-.9 1.38-2.16 1.38-1.88 0-4.26-.78-6.16-1.82v5.02C4.56 22.72 6.3 23.2 8 23.2c4.58 0 7.72-2.26 7.72-6.04C15.7 11.1 7.58 12.22 8.48 9.8z" fill="white"/>
+              <path d="M27.86 4.4l-.36 1.88h-2.08L24.06 12h-3.3l1.36-5.72h-2.08l.36-1.88h7.46zm3.4 0l-2.22 11.6h-3.3l2.22-11.6h3.3zm7.54 7.18c0 2.2-1.24 4.62-4.82 4.62-1.98 0-3.36-.86-3.36-2.64 0-2.32 1.86-3.06 4.62-3.06h.78v-.28c0-.82-.42-1.12-1.42-1.12-.88 0-2.06.32-2.94.72l-.64-2.32c1.08-.54 2.7-.9 4.08-.9 2.92 0 4.28 1.4 4.28 4.1v.88h-.58zm-3.3.96c-.74 0-1.78.14-1.78.98 0 .48.34.72.9.72.9 0 1.6-.7 1.6-1.7h-.72zm14.66-8.14l-3.08 11.6h-3.14l-.32-1.12c-.66.88-1.66 1.32-2.78 1.32-2.38 0-3.84-1.88-3.84-4.74 0-3.08 1.78-5.06 4.38-5.06.92 0 1.7.3 2.28.84l1.2-4.84h3.3zm-5.56 9.08c.92 0 1.58-.8 1.58-2.08 0-1-.46-1.62-1.3-1.62-.92 0-1.58.8-1.58 2.06 0 1.02.46 1.64 1.3 1.64z" fill="white"/>
+            </svg>
+          </div>
+          <div class="am-stripe-status-wrap">
+            <span class="am-stripe-pill" [class.am-stripe-pill--ready]="stripeAccount()?.stripeAccountId">
+              <span class="am-stripe-pill-dot"></span>
+              {{ stripeStatusLabel() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="am-stripe-body">
+          <p class="am-section-eyebrow">Payout Infrastructure</p>
+          <h2 class="am-stripe-title">Connect Stripe for Automatic Payouts</h2>
+          <p class="am-stripe-sub">Learners pay by card. Your 70% share is transferred automatically via Stripe Connect — no manual invoicing needed.</p>
+
+          <div class="am-stripe-split">
+            <div class="am-stripe-split-item">
+              <span class="am-stripe-split-pct am-stripe-split-pct--trainer">70%</span>
+              <span class="am-stripe-split-label">Your payout</span>
+            </div>
+            <div class="am-stripe-split-sep"></div>
+            <div class="am-stripe-split-item">
+              <span class="am-stripe-split-pct am-stripe-split-pct--platform">30%</span>
+              <span class="am-stripe-split-label">Platform fee</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="am-stripe-footer">
+          <button type="button" class="am-btn-stripe" (click)="connectWithStripe()" [disabled]="stripeConnectBusy()">
+            <svg *ngIf="!stripeConnectBusy()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <span class="am-spinner" *ngIf="stripeConnectBusy()"></span>
+            {{ stripeConnectBusy() ? 'Redirecting to Stripe...' : (stripeAccount()?.stripeAccountId ? 'Continue Stripe setup' : 'Connect with Stripe') }}
+          </button>
+          <p class="am-stripe-note" *ngIf="!stripeConnectError() && !stripeConnectNotice()">Secured by Stripe. Your banking info is never stored on our servers.</p>
+          <p class="am-error am-stripe-error" *ngIf="stripeConnectError()">{{ stripeConnectError() }}</p>
+          <p class="am-info-box" *ngIf="stripeConnectNotice()">{{ stripeConnectNotice() }}</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ═══════════ WIZARD ═══════════ -->
+  <div class="am-wizard-backdrop" *ngIf="wizardOpen()" (click)="closeWizard()">
+    <article class="am-wizard" (click)="$event.stopPropagation()">
+
+      <header class="am-wizard-head">
+        <div class="am-wizard-head-left">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <h2>Course Quick Launch</h2>
+        </div>
+        <div class="am-wizard-head-right">
+          <button *ngIf="wizardStep() === 3" type="button" class="am-btn-ghost am-btn-ghost--sm" (click)="togglePreview()">
+            {{ isPreviewMode() ? '✏️ Edit' : '👁 Preview' }}
+          </button>
+          <button type="button" class="am-wizard-close" (click)="closeWizard()" [disabled]="creating()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <nav class="am-wizard-steps">
+        <div class="am-step" [class.am-step--active]="wizardStep() === 1" [class.am-step--done]="wizardStep() > 1">
+          <span class="am-step-num">{{ wizardStep() > 1 ? '✓' : '1' }}</span>
+          <span class="am-step-label">Basic Info</span>
+        </div>
+        <div class="am-step-line" [class.am-step-line--done]="wizardStep() > 1"></div>
+        <div class="am-step" [class.am-step--active]="wizardStep() === 2" [class.am-step--done]="wizardStep() > 2">
+          <span class="am-step-num">{{ wizardStep() > 2 ? '✓' : '2' }}</span>
+          <span class="am-step-label">Pricing</span>
+        </div>
+        <div class="am-step-line" [class.am-step-line--done]="wizardStep() > 2"></div>
+        <div class="am-step" [class.am-step--active]="wizardStep() === 3" [class.am-step--done]="wizardStep() > 3">
+          <span class="am-step-num">{{ wizardStep() > 3 ? '✓' : '3' }}</span>
+          <span class="am-step-label">Lessons</span>
+        </div>
+        <div class="am-step-line" [class.am-step-line--done]="wizardStep() > 3"></div>
+        <div class="am-step" [class.am-step--active]="wizardStep() === 4">
+          <span class="am-step-num">4</span>
+          <span class="am-step-label">Publish</span>
+        </div>
+      </nav>
+
+      <form [formGroup]="form" class="am-wizard-body">
+
+        <!-- STEP 1 -->
+        <div *ngIf="wizardStep() === 1" class="am-step-panel">
+          <div class="am-field">
+            <label class="am-label">Course title <span class="am-required">*</span></label>
+            <input class="am-input" type="text" formControlName="courseTitle" placeholder="e.g. NCLEX Masterclass" />
+            <span class="am-field-error" *ngIf="form.controls.courseTitle.touched && form.controls.courseTitle.invalid">Title is required</span>
+          </div>
+          <div class="am-field">
+            <label class="am-label">Description</label>
+            <textarea class="am-input am-textarea" rows="4" formControlName="description" placeholder="What will learners achieve?"></textarea>
+          </div>
+          <div class="am-field">
+            <label class="am-label">Course image <span class="am-optional">(optional)</span></label>
+            <label class="am-upload-area" [class.am-upload-area--filled]="imagePreviewUrl()">
+              <img *ngIf="imagePreviewUrl()" [src]="imagePreviewUrl()" class="am-upload-preview" alt="Course image preview" />
+              <div *ngIf="!imagePreviewUrl()" class="am-upload-placeholder">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Click to upload a course image</span>
+                <span class="am-upload-hint">JPG, PNG or WEBP · Max 5 MB</span>
+              </div>
+              <input type="file" accept="image/*" (change)="onImageSelected($event)" class="am-file-input" />
+            </label>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div *ngIf="wizardStep() === 2" class="am-step-panel">
+          <div class="am-pricing-grid">
+            <div class="am-field">
+              <label class="am-label">Price</label>
+              <input class="am-input" type="number" min="0" formControlName="price" />
+            </div>
+            <div class="am-field">
+              <label class="am-label">Currency</label>
+              <select class="am-input am-select" formControlName="currency">
+                <option value="USD">USD – US Dollar</option>
+                <option value="EUR">EUR – Euro</option>
+                <option value="GBP">GBP – British Pound</option>
+                <option value="CAD">CAD – Canadian Dollar</option>
+                <option value="AED">AED – UAE Dirham</option>
+                <option value="XOF">XOF – Franc CFA</option>
+                <option value="NGN">NGN – Nigerian Naira</option>
+                <option value="GHS">GHS – Ghanaian Cedi</option>
+                <option value="KES">KES – Kenyan Shilling</option>
+                <option value="ZAR">ZAR – South African Rand</option>
+              </select>
+            </div>
+          </div>
+          <div class="am-info-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Set price to 0 to publish a free course
+          </div>
+        </div>
+
+        <!-- STEP 3 — LESSON BUILDER -->
+        <div *ngIf="wizardStep() === 3" class="am-step-panel">
+
+          <!-- PREVIEW MODE -->
+          <div *ngIf="isPreviewMode()" class="am-preview">
+            <div class="am-preview-hero">
+              <img *ngIf="imagePreviewUrl()" [src]="imagePreviewUrl()" class="am-preview-cover" alt="Course cover" />
+              <div class="am-preview-meta">
+                <h2 class="am-preview-title">{{ form.controls.courseTitle.value }}</h2>
+                <p class="am-preview-desc">{{ form.controls.description.value }}</p>
+                <span class="am-preview-price">{{ form.controls.price.value | number:'1.0-0' }} {{ form.controls.currency.value }}</span>
+              </div>
+            </div>
+            <div class="am-preview-modules">
+              <div *ngFor="let module of modules; trackBy: trackByModuleId" class="am-preview-module">
+                <div class="am-preview-module-head">
+                  <h3 class="am-preview-module-title">{{ module.title }}</h3>
+                  <p class="am-preview-module-desc" *ngIf="module.description">{{ module.description }}</p>
+                </div>
+                <div class="am-preview-lessons">
+                  <div *ngFor="let lesson of getLessonsForModule(module.id); let i = index; trackBy: trackByIndex" class="am-preview-lesson">
+                    <h4 class="am-preview-lesson-title">{{ lesson.title || ('Lesson ' + (i + 1)) }}</h4>
+                    <p class="am-preview-lesson-text" *ngIf="lesson.text">{{ lesson.text }}</p>
+                    <span class="am-tag-video" *ngIf="lesson.videoUrl">🎬 Video included</span>
+                    <img *ngIf="lesson.imagePreviewUrl" [src]="lesson.imagePreviewUrl" class="am-preview-lesson-img" alt="Lesson image" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDIT MODE -->
+          <div *ngIf="!isPreviewMode()">
+            <div class="am-module-builder">
+              <div class="am-builder-bar">
+                <div>
+                  <span class="am-builder-count">{{ modules.length }} module{{ modules.length > 1 ? 's' : '' }}</span>
+                  <p class="am-builder-hint">Define modules first, then assign lessons to each.</p>
+                </div>
+                <button type="button" class="am-btn-add" (click)="addModule()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add Module
+                </button>
+              </div>
+              <div class="am-module-list">
+                <div *ngFor="let module of modules; let moduleIndex = index; trackBy: trackByModuleId" class="am-module-card">
+                  <div class="am-module-badge">M{{ moduleIndex + 1 }}</div>
+                  <div class="am-module-fields">
+                    <input type="text" class="am-input am-module-title-input" [(ngModel)]="module.title" [ngModelOptions]="{ standalone: true }" placeholder="Module title *" />
+                    <textarea class="am-input am-textarea am-module-desc-input" [(ngModel)]="module.description" [ngModelOptions]="{ standalone: true }" rows="2" placeholder="Short description for this module"></textarea>
+                  </div>
+                  <button type="button" class="am-btn-remove" (click)="removeModule(moduleIndex)" [disabled]="modules.length === 1">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="am-builder-bar am-lesson-bar">
+              <span class="am-builder-count">{{ lessons.length }} lesson{{ lessons.length > 1 ? 's' : '' }}</span>
+              <button type="button" class="am-btn-add" (click)="addLesson()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Lesson
+              </button>
+            </div>
+
+            <div cdkDropList (cdkDropListDropped)="dropLesson($event)" class="am-lesson-list">
+              <div *ngFor="let lesson of lessons; let i = index; trackBy: trackByIndex" cdkDrag class="am-lesson-card">
+                <div class="am-drag-handle" cdkDragHandle>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                  <span class="am-lesson-num">{{ i + 1 }}</span>
+                </div>
+                <div class="am-lesson-fields">
+                  <select class="am-input am-select am-lesson-module-select" [(ngModel)]="lesson.moduleId" [ngModelOptions]="{ standalone: true }">
+                    <option *ngFor="let module of modules; trackBy: trackByModuleId" [value]="module.id">{{ module.title || 'Untitled module' }}</option>
+                  </select>
+                  <input type="text" class="am-input am-lesson-title-input" [(ngModel)]="lesson.title" [ngModelOptions]="{ standalone: true }" placeholder="Lesson title *" />
+                  <textarea class="am-input am-textarea am-lesson-text-input" [(ngModel)]="lesson.text" [ngModelOptions]="{ standalone: true }" rows="3" placeholder="Write the lesson content..."></textarea>
+                  <input type="url" class="am-input am-lesson-video-input" [(ngModel)]="lesson.videoUrl" [ngModelOptions]="{ standalone: true }" placeholder="Video URL (YouTube, Vimeo — optional)" />
+                  <label class="am-lesson-img-upload" [class.am-lesson-img-upload--filled]="lesson.imagePreviewUrl">
+                    <img *ngIf="lesson.imagePreviewUrl" [src]="lesson.imagePreviewUrl" class="am-lesson-img-preview" alt="Lesson image" />
+                    <span *ngIf="!lesson.imagePreviewUrl">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      Add image (optional)
+                    </span>
+                    <input type="file" accept="image/*" class="am-file-input" (change)="onLessonImageSelected($event, i)" />
+                  </label>
+                </div>
+                <button type="button" class="am-btn-remove" (click)="removeLesson(i)" [disabled]="lessons.length === 1">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div *ngIf="wizardStep() === 4" class="am-step-panel">
+          <div class="am-summary-banner">
+            <div class="am-summary-check">✓</div>
+            <span>Ready to publish</span>
+          </div>
+          <img *ngIf="imagePreviewUrl()" [src]="imagePreviewUrl()" class="am-summary-cover" alt="Course image" />
+          <div class="am-summary-fields">
+            <div class="am-summary-row">
+              <span class="am-summary-key">Title</span>
+              <span class="am-summary-val">{{ form.controls.courseTitle.value }}</span>
+            </div>
+            <div class="am-summary-row">
+              <span class="am-summary-key">Description</span>
+              <span class="am-summary-val">{{ form.controls.description.value || '—' }}</span>
+            </div>
+            <div class="am-summary-row">
+              <span class="am-summary-key">Price</span>
+              <span class="am-summary-val">{{ form.controls.price.value | number:'1.0-0' }} {{ form.controls.currency.value }}</span>
+            </div>
+            <div class="am-summary-row">
+              <span class="am-summary-key">Modules</span>
+              <span class="am-summary-val">{{ modules.length }}</span>
+            </div>
+            <div class="am-summary-row">
+              <span class="am-summary-key">Lessons</span>
+              <span class="am-summary-val">{{ lessons.length }}</span>
+            </div>
+          </div>
+          <div class="am-summary-lessons">
+            <div *ngFor="let lesson of lessons; let i = index; trackBy: trackByIndex" class="am-summary-lesson-row">
+              <span class="am-summary-num">{{ i + 1 }}</span>
+              <span class="am-summary-lesson-title">{{ lesson.title || '(Untitled)' }}</span>
+              <span class="am-module-pill">{{ getModuleTitle(lesson.moduleId) }}</span>
+              <span *ngIf="lesson.videoUrl" class="am-badge-icon">🎬</span>
+              <span *ngIf="lesson.imageFile" class="am-badge-icon">🖼</span>
+            </div>
+          </div>
+          <div class="am-info-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+            Your course will be published immediately and accessible via the public link.
+          </div>
+        </div>
+
+      </form>
+
+      <footer class="am-wizard-footer">
+        <button type="button" class="am-btn-secondary" (click)="previousStep()" [disabled]="wizardStep() === 1 || creating()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <div class="am-wizard-footer-right">
+          <button type="button" class="am-btn-primary" *ngIf="wizardStep() < 4" (click)="nextStep()">
+            Continue
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button type="button" class="am-btn-publish" *ngIf="wizardStep() === 4" (click)="createAndPublish()" [disabled]="creating() || uploadingImage()">
+            <span class="am-spinner" *ngIf="uploadingImage() || creating()"></span>
+            {{ uploadingImage() ? 'Uploading assets...' : creating() ? 'Publishing...' : 'Publish Course' }}
+            <svg *ngIf="!uploadingImage() && !creating()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </footer>
+
+    </article>
+  </div>
+
+</div>
