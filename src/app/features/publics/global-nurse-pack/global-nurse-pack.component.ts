@@ -143,14 +143,14 @@ export class GlobalNursePackComponent {
   } as const;
 
   readonly heroImages = [
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922255/ChatGPT_Image_Apr_22_2026_08_49_40_PM_mymund.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922229/ChatGPT_Image_Apr_22_2026_08_50_15_PM_bfy4pn.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922228/ChatGPT_Image_Apr_22_2026_08_50_04_PM_kwbvm7.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922229/ChatGPT_Image_Apr_22_2026_08_49_55_PM_ic5qq7.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922226/ChatGPT_Image_Apr_22_2026_08_50_38_PM_wnpd0b.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922226/ChatGPT_Image_Apr_22_2026_08_51_00_PM_nhvwcc.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922226/ChatGPT_Image_Apr_22_2026_08_51_17_PM_ejqvtq.png',
-    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922221/ChatGPT_Image_Apr_22_2026_08_51_57_PM_ci5rkh.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778122215/ChatGPT_Image_6_mai_2026_22_49_30_3_pr18gz.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778122215/ChatGPT_Image_6_mai_2026_22_49_30_1_agoquh.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_37_36_2_jmmn4p.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_08_1_gv03b6.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_11_3_m5wjoa.png',
+    'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   ];
 
   readonly painPoints: LocalizedText[] = [

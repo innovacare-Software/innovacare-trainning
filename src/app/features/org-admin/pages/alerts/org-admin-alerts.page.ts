@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationAlertsService } from '../../../../core/organization/services/organization-alerts.service';
 import { OrganizationFollowUpService } from '../../../../core/organization/services/organization-follow-up.service';
 import { of, switchMap } from 'rxjs';
@@ -105,18 +105,7 @@ export class OrgAdminAlertsPage {
   severityFilter = 'all';
   search = '';
 
-  private readonly context = toSignal(this.ctx.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: '',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
   readonly orgId = computed(() => this.context().orgId || '');
   private readonly orgId$ = toObservable(this.orgId);

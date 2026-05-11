@@ -36,6 +36,10 @@ export class ProgramEnrollmentsAdminService {
     return this.enrollments.cancelEnrollment(enrollmentId);
   }
 
+  deleteEnrollment(enrollmentId: string): Promise<void> {
+    return this.enrollments.deleteEnrollment(enrollmentId);
+  }
+
   markPaid(enrollmentId: string): Promise<void> {
     return this.enrollments.updatePaymentStatus(enrollmentId, PaymentStatus.PAID);
   }

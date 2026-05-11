@@ -61,6 +61,14 @@
               <mat-icon>bookmark_border</mat-icon>
               Ajouter au parcours
             </button>
+            <app-share-buttons
+              *ngIf="course"
+              [title]="course.title"
+              [url]="'/courses/' + course.id"
+              label="Partager"
+              sourcePage="course_detail"
+              [courseId]="course.id || null">
+            </app-share-buttons>
           </div>
         </div>
 

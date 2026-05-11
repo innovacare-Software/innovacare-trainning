@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { AccessCapabilitiesService } from '../../core/access-capabilities.service';
+import { OrgContextService } from '../../core/organization/org-context.service';
 import { AuthService, type AppProfile, type AppRole } from '../../core/auth';
 import { resolveDefaultRoute } from '../../core/auth-redirect.util';
 import { LanguageService } from '../../core/language.service';
@@ -27,6 +28,15 @@ interface NavDropdownItem {
   desc: string;
   path: string;
   fragment?: string;
+}
+
+interface PathwayActionCard {
+  title: string;
+  body: string;
+  cta: string;
+  path: string;
+  fragment?: string;
+  variant: 'light' | 'navy' | 'dark';
 }
 
 @Component({
@@ -53,94 +63,66 @@ interface NavDropdownItem {
             </button>
           </div>
 
-          <!-- ── Home dropdown ───────────────────────────────────────── -->
-          <div class="nav-dd" [class.open]="activeDD() === 'home'" (mouseenter)="openDD('home')" (mouseleave)="closeDD()">
-            <button type="button" class="nav-dd__trigger" [class.active]="activeDD() === 'home'" (click)="toggleDD('home')">
-              {{ t('NAV.home') }} <mat-icon class="nav-dd__chevron">expand_more</mat-icon>
+          <!-- ── Pathways mega menu ───────────────────────────────────── -->
+          <div class="nav-dd" [class.open]="activeDD() === 'pathways'" (mouseenter)="openDD('pathways')" (mouseleave)="closeDD()">
+            <button type="button" class="nav-dd__trigger" [class.active]="activeDD() === 'pathways'" (click)="toggleDD('pathways')">
+              {{ t('MARKETING_NAV.pathways') }} <mat-icon class="nav-dd__chevron">expand_more</mat-icon>
             </button>
-            <div class="nav-dd__panel nav-dd__panel--simple" *ngIf="activeDD() === 'home'">
-              <div class="nav-dd__items nav-dd__items--col">
-                <a
-                  *ngFor="let item of homeItems()"
-                  [routerLink]="localizedPath(item.path)"
-                  [fragment]="item.fragment"
-                  (click)="closeAllMenus()"
-                  class="nav-dd__item"
-                >
-                  <span class="nav-dd__item-emoji">{{ item.icon }}</span>
-                  <span><strong>{{ item.label }}</strong><small>{{ item.desc }}</small></span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Nursing dropdown ─────────────────────────────────────── -->
-          <div class="nav-dd" [class.open]="activeDD() === 'nursing'" (mouseenter)="openDD('nursing')" (mouseleave)="closeDD()">
-            <button type="button" class="nav-dd__trigger" [class.active]="activeDD() === 'nursing'" (click)="toggleDD('nursing')">
-              {{ t('NAV.nursing_school') }} <mat-icon class="nav-dd__chevron">expand_more</mat-icon>
-            </button>
-            <div class="nav-dd__panel nav-dd__panel--nursing" *ngIf="activeDD() === 'nursing'">
+            <div class="nav-dd__panel nav-dd__panel--nursing" *ngIf="activeDD() === 'pathways'">
               <div class="nav-dd__columns">
-                <div class="nav-dd__items">
-                  <a *ngFor="let item of nursingItems()" [routerLink]="localizedPath(item.path)" (click)="closeAllMenus()" class="nav-dd__item">
+                <div class="nav-dd__items nav-dd__items--col">
+                  <h4 class="nav-dd__section-title">{{ t('MARKETING_NAV.pathways_sections.licensure') }}</h4>
+                  <a *ngFor="let item of pathwayLicensureItems()" [routerLink]="localizedPath(item.path)" [fragment]="item.fragment" (click)="closeAllMenus()" class="nav-dd__item">
                     <span class="nav-dd__item-emoji">{{ item.icon }}</span>
                     <span><strong>{{ item.label }}</strong><small>{{ item.desc }}</small></span>
                   </a>
                 </div>
+                <div class="nav-dd__items nav-dd__items--col">
+                  <h4 class="nav-dd__section-title">{{ t('MARKETING_NAV.pathways_sections.practice') }}</h4>
+                  <a *ngFor="let item of pathwayPracticeItems()" [routerLink]="localizedPath(item.path)" [fragment]="item.fragment" (click)="closeAllMenus()" class="nav-dd__item">
+                    <span class="nav-dd__item-emoji">{{ item.icon }}</span>
+                    <span><strong>{{ item.label }}</strong><small>{{ item.desc }}</small></span>
+                  </a>
+                </div>
+                <div class="nav-dd__items nav-dd__items--col">
+                  <h4 class="nav-dd__section-title">{{ t('MARKETING_NAV.pathways_sections.people') }}</h4>
+                  <a *ngFor="let item of pathwayPeopleItems()" [routerLink]="localizedPath(item.path)" [fragment]="item.fragment" (click)="closeAllMenus()" class="nav-dd__item">
+                    <span class="nav-dd__item-emoji">{{ item.icon }}</span>
+                    <span><strong>{{ item.label }}</strong><small>{{ item.desc }}</small></span>
+                  </a>
+                  <a [routerLink]="localizedPath('/programs')" (click)="closeAllMenus()" class="nav-dd__item nav-dd__item--feature">
+                    <span class="nav-dd__item-emoji">📚</span>
+                    <span><strong>All programs</strong><small>Browse the full catalog of structured programs</small></span>
+                  </a>
+                </div>
                 <div class="nav-dd__aside">
-                  <div class="nav-dd__promo nav-dd__promo--light">
-                    <strong>{{ t('MARKETING_NAV.promo.discover_title') }}</strong>
-                    <a [routerLink]="localizedPath('/courses')" (click)="closeAllMenus()" class="nav-dd__promo-cta">{{ t('MARKETING_NAV.promo.discover_cta') }} &rarr;</a>
-                  </div>
-                  <div class="nav-dd__promo nav-dd__promo--navy">
-                    <span class="nav-dd__free-badge">{{ t('COMMON.free') }}</span>
-                    <strong>{{ t('MARKETING_NAV.promo.foreign_title') }}</strong>
-                    <a [routerLink]="localizedPath('/nclex-rn')" (click)="closeAllMenus()" class="nav-dd__apply-btn">{{ t('MARKETING_NAV.promo.apply_now') }}</a>
-                  </div>
-                  <div class="nav-dd__promo nav-dd__promo--dark">
-                    <strong>{{ t('MARKETING_NAV.account.refer') }}</strong>
-                    <p>{{ t('MARKETING_NAV.promo.refer_body') }}</p>
-                    <a [routerLink]="localizedPath('/social-learning')" fragment="nclex" (click)="closeAllMenus()" class="nav-dd__share-link">{{ t('MARKETING_NAV.promo.share_earn') }}</a>
+                  <div *ngFor="let card of pathwayActionCards()" class="nav-dd__promo" [ngClass]="{
+                    'nav-dd__promo--light': card.variant === 'light',
+                    'nav-dd__promo--navy': card.variant === 'navy',
+                    'nav-dd__promo--dark': card.variant === 'dark'
+                  }">
+                    <strong>{{ card.title }}</strong>
+                    <p>{{ card.body }}</p>
+                    <a
+                      [routerLink]="localizedPath(card.path)"
+                      [fragment]="card.fragment"
+                      (click)="closeAllMenus()"
+                      [class.nav-dd__promo-cta]="card.variant === 'light'"
+                      [class.nav-dd__apply-btn]="card.variant === 'navy'"
+                      [class.nav-dd__share-link]="card.variant === 'dark'"
+                    >{{ card.cta }}</a>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- ── Medical dropdown ─────────────────────────────────────── -->
-          <div class="nav-dd" [class.open]="activeDD() === 'medical'" (mouseenter)="openDD('medical')" (mouseleave)="closeDD()">
-            <button type="button" class="nav-dd__trigger" [class.active]="activeDD() === 'medical'" (click)="toggleDD('medical')">
-              {{ t('MARKETING_NAV.medical') }} <mat-icon class="nav-dd__chevron">expand_more</mat-icon>
-            </button>
-            <div class="nav-dd__panel nav-dd__panel--simple" *ngIf="activeDD() === 'medical'">
-              <div class="nav-dd__items nav-dd__items--col">
-                <a *ngFor="let item of medicalItems()" [routerLink]="localizedPath(item.path)" (click)="closeAllMenus()" class="nav-dd__item">
-                  <span class="nav-dd__item-emoji">{{ item.icon }}</span>
-                  <span><strong>{{ item.label }}</strong><small>{{ item.desc }}</small></span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── For Educators dropdown ───────────────────────────────── -->
-          <div class="nav-dd" [class.open]="activeDD() === 'educators'" (mouseenter)="openDD('educators')" (mouseleave)="closeDD()">
-            <button type="button" class="nav-dd__trigger" [class.active]="activeDD() === 'educators'" (click)="toggleDD('educators')">
-              {{ t('NAV.for_educators') }} <mat-icon class="nav-dd__chevron">expand_more</mat-icon>
-            </button>
-            <div class="nav-dd__panel nav-dd__panel--simple" *ngIf="activeDD() === 'educators'">
-              <div class="nav-dd__items nav-dd__items--col">
-                <a *ngFor="let item of educatorsItems()" [routerLink]="localizedPath(item.path)" (click)="closeAllMenus()" class="nav-dd__item">
-                  <span class="nav-dd__item-emoji">{{ item.icon }}</span>
-                  <span><strong>{{ item.label }}</strong><small>{{ item.desc }}</small></span>
-                </a>
-              </div>
-            </div>
-          </div>
-          <a [routerLink]="localizedPath('/programs')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.programs') }}</a>
-          <a [routerLink]="localizedPath('/social-learning')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.social_learning') }}</a>
-          <a [routerLink]="localizedPath('/testimonials')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.testimonials') }}</a>
-          <a [routerLink]="localizedPath('/blog')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.blogs') }}</a>
-          <a [routerLink]="localizedPath('/contact')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.contact_us') }}</a>
+          <a [routerLink]="localizedPath('/nclex-rn')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.nclex_readiness') }}</a>
+          <a [routerLink]="localizedPath('/home')" fragment="quiz" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.ai_tutor') }}</a>
+          <a [routerLink]="localizedPath('/private-tutors')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.for_tutors') }}</a>
+          <a [routerLink]="localizedPath('/for-educators')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.for_institutions') }}</a>
+          <a [routerLink]="localizedPath('/blog')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.resources') }}</a>
+          <a [routerLink]="localizedPath('/pricing')" (click)="closeMobileMenu()">{{ t('MARKETING_NAV.pricing') }}</a>
 
           <button
             *ngIf="isAuthenticated() && isCompactViewport()"
@@ -244,6 +226,7 @@ export class MarketingNavbarComponent {
   private readonly auth = inject(Auth);
   private readonly authService = inject(AuthService);
   private readonly capabilities = inject(AccessCapabilitiesService);
+  private readonly orgContext = inject(OrgContextService);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly lang = inject(LanguageService);
@@ -261,72 +244,63 @@ export class MarketingNavbarComponent {
   });
   readonly activeDD = signal<string>('');
 
-  readonly homeItems = computed<NavDropdownItem[]>(() => {
-    const french = this.lang.currentLang() === 'fr';
-    return [
-      {
-        icon: '📚',
-        label: french ? 'Programmes' : 'Programs',
-        desc: french ? 'Soins infirmiers & parcours médicaux' : 'Nursing & medical tracks',
-        path: '/home',
-        fragment: 'nursing',
-      },
-      {
-        icon: '🧪',
-        label: 'Quiz',
-        desc: french ? 'Diagnostic rapide' : 'Quick diagnostic quiz',
-        path: '/home',
-        fragment: 'quiz',
-      },
-      {
-        icon: '⭐',
-        label: french ? 'Témoignages' : 'Testimonials',
-        desc: french ? 'Success stories apprenants' : 'Learner success stories',
-        path: '/testimonials',
-      },
-      {
-        icon: '🌍',
-        label: french ? 'Tests de langue' : 'Language Tests',
-        desc: french ? 'IELTS · TEF · OET' : 'IELTS · TEF · OET',
-        path: '/tests-langue',
-      },
-      {
-        icon: '💻',
-        label: french ? 'Cours IT' : 'IT Courses',
-        desc: french ? 'Cloud, DevOps & cybersécurité' : 'Cloud, DevOps and cybersecurity',
-        path: '/it-courses',
-      },
-    ];
-  });
-
-  readonly nursingItems = computed(() => [
-    { icon: '🎓', label: this.t('MARKETING_NAV.nursing.pre_nursing'), desc: this.t('MARKETING_NAV.nursing.pre_nursing_desc'), path: '/pre-nursing' },
-    { icon: '🩺', label: 'NCLEX-RN®', desc: this.t('MARKETING_NAV.nursing.nclex_rn_desc'), path: '/nclex-rn' },
-    { icon: '👩‍⚕️', label: this.t('MARKETING_NAV.nursing.np'), desc: this.t('MARKETING_NAV.nursing.np_desc'), path: '/nurse-practitioner' },
-    { icon: '🏫', label: this.t('MARKETING_NAV.nursing.nursing_school'), desc: this.t('MARKETING_NAV.nursing.nursing_school_desc'), path: '/nursing-school' },
-    { icon: '📋', label: 'NCLEX-PN®', desc: this.t('MARKETING_NAV.nursing.nclex_pn_desc'), path: '/nclex-pn' },
-    { icon: '💓', label: 'CCRN®', desc: this.t('MARKETING_NAV.nursing.ccrn_desc'), path: '/ccrn' },
-    { icon: '👨‍🏫', label: this.t('MARKETING_NAV.nursing.private_tutors'), desc: this.t('MARKETING_NAV.nursing.private_tutors_desc'), path: '/private-tutors' },
+  readonly pathwayLicensureItems = computed<NavDropdownItem[]>(() => [
+    { icon: '🧭', label: this.t('MARKETING_NAV.pathway_items.nclex_readiness'), desc: this.t('MARKETING_NAV.pathway_desc.nclex_readiness'), path: '/nclex-rn' },
+    { icon: '🌍', label: this.t('MARKETING_NAV.pathway_items.intl_starter'), desc: this.t('MARKETING_NAV.pathway_desc.intl_starter'), path: '/global-nurse-pack' },
+    { icon: '🏙️', label: this.t('MARKETING_NAV.pathway_items.dha_doh'), desc: this.t('MARKETING_NAV.pathway_desc.dha_doh'), path: '/global-nurse-pack', fragment: 'pricing' },
+    { icon: '🍁', label: this.t('MARKETING_NAV.pathway_items.canada'), desc: this.t('MARKETING_NAV.pathway_desc.canada'), path: '/global-nurse-pack', fragment: 'pricing' },
+    { icon: '🗣️', label: this.t('MARKETING_NAV.pathway_items.ielts_oet'), desc: this.t('MARKETING_NAV.pathway_desc.ielts_oet'), path: '/tests-langue' },
   ]);
 
-  readonly medicalItems = computed(() => [
-    { icon: '🩻', label: 'USMLE®', desc: this.t('MARKETING_NAV.medical_items.usmle'), path: '/usmle' },
-    { icon: '🦴', label: 'COMLEX-USA®', desc: this.t('MARKETING_NAV.medical_items.comlex'), path: '/comlex' },
-    { icon: '🫁', label: 'PANCE / PANRE®', desc: this.t('MARKETING_NAV.medical_items.pance'), path: '/pance' },
+  readonly pathwayPracticeItems = computed<NavDropdownItem[]>(() => [
+    { icon: '🧪', label: this.t('MARKETING_NAV.pathway_items.ngn_case'), desc: this.t('MARKETING_NAV.pathway_desc.ngn_case'), path: '/home', fragment: 'quiz' },
+    { icon: '🧠', label: this.t('MARKETING_NAV.pathway_items.clinical_judgment'), desc: this.t('MARKETING_NAV.pathway_desc.clinical_judgment'), path: '/nclex-rn' },
+    { icon: '📊', label: this.t('MARKETING_NAV.pathway_items.readiness_diagnostic'), desc: this.t('MARKETING_NAV.pathway_desc.readiness_diagnostic'), path: '/home', fragment: 'quiz' },
+    { icon: '🤖', label: this.t('MARKETING_NAV.pathway_items.ai_remediation'), desc: this.t('MARKETING_NAV.pathway_desc.ai_remediation'), path: '/home', fragment: 'quiz' },
+    { icon: '🗓️', label: this.t('MARKETING_NAV.pathway_items.study_builder'), desc: this.t('MARKETING_NAV.pathway_desc.study_builder'), path: '/blog' },
   ]);
 
-  readonly educatorsItems = computed(() => [
-    { icon: '🏢', label: this.t('MARKETING_NAV.educators.overview'), desc: this.t('MARKETING_NAV.educators.overview_desc'), path: '/for-educators' },
-    { icon: '📖', label: this.t('MARKETING_NAV.educators.for_nclex'), desc: this.t('MARKETING_NAV.educators.for_nclex_desc'), path: '/educators-nclex' },
-    { icon: '🏛️', label: this.t('MARKETING_NAV.educators.for_school'), desc: this.t('MARKETING_NAV.educators.for_school_desc'), path: '/educators-nursing-school' },
-    { icon: '📅', label: this.t('MARKETING_NAV.educators.demo'), desc: this.t('MARKETING_NAV.educators.demo_desc'), path: '/for-educators/request-demo' },
+  readonly pathwayPeopleItems = computed<NavDropdownItem[]>(() => [
+    { icon: '👩‍🏫', label: this.t('MARKETING_NAV.pathway_items.private_tutors'), desc: this.t('MARKETING_NAV.pathway_desc.private_tutors'), path: '/private-tutors', fragment: 'tutors' },
+    { icon: '🤝', label: this.t('MARKETING_NAV.pathway_items.tutor_portal'), desc: this.t('MARKETING_NAV.pathway_desc.tutor_portal'), path: '/contact' },
+    { icon: '🏫', label: this.t('MARKETING_NAV.pathway_items.school_pilot'), desc: this.t('MARKETING_NAV.pathway_desc.school_pilot'), path: '/for-educators' },
+    { icon: '📈', label: this.t('MARKETING_NAV.pathway_items.cohort_dashboard'), desc: this.t('MARKETING_NAV.pathway_desc.cohort_dashboard'), path: '/for-educators' },
+    { icon: '📝', label: this.t('MARKETING_NAV.pathway_items.progress_reports'), desc: this.t('MARKETING_NAV.pathway_desc.progress_reports'), path: '/for-educators', fragment: 'pricing' },
+  ]);
+
+  readonly pathwayActionCards = computed<PathwayActionCard[]>(() => [
+    {
+      title: this.t('MARKETING_NAV.pathway_cards.roadmap_title'),
+      body: this.t('MARKETING_NAV.pathway_cards.roadmap_body'),
+      cta: this.t('MARKETING_NAV.pathway_cards.roadmap_cta'),
+      path: '/global-nurse-pack',
+      variant: 'light',
+    },
+    {
+      title: this.t('MARKETING_NAV.pathway_cards.readiness_title'),
+      body: this.t('MARKETING_NAV.pathway_cards.readiness_body'),
+      cta: this.t('MARKETING_NAV.pathway_cards.readiness_cta'),
+      path: '/home',
+      fragment: 'quiz',
+      variant: 'navy',
+    },
+    {
+      title: this.t('MARKETING_NAV.pathway_cards.partner_title'),
+      body: this.t('MARKETING_NAV.pathway_cards.partner_body'),
+      cta: this.t('MARKETING_NAV.pathway_cards.partner_cta'),
+      path: '/social-learning',
+      variant: 'dark',
+    },
   ]);
   readonly mobileOpen = signal(false);
   readonly isScrolled = signal(false);
   readonly isCompactViewport = signal(typeof window !== 'undefined' ? window.innerWidth <= 1240 : false);
   readonly profile = toSignal(this.authService.profile$, { initialValue: null });
+  readonly orgCtx = toSignal(this.orgContext.context$, { initialValue: null });
   readonly currentRole = computed(() => this.profile()?.role ?? this.profile()?.primaryRole ?? 'guest');
-  readonly hasProgramAdminWorkspace = computed(() => this.capabilities.canAccessProgramAdmin(this.profile()));
+  readonly hasProgramAdminWorkspace = computed(() =>
+    this.capabilities.canAccessProgramAdmin(this.profile(), this.orgCtx())
+  );
   readonly isAuthenticated = computed(() => !!this.auth.currentUser);
   readonly userName = computed(() => this.auth.currentUser?.displayName?.trim() || this.profile()?.displayName?.trim() || '');
   readonly initials = computed(() => {

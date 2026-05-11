@@ -1,28 +1,22 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, CanMatchFn, Router, UrlTree } from '@angular/router';
-import { combineLatest, filter, map, take } from 'rxjs';
-import { AccessCapabilitiesService } from '../../../core/access-capabilities.service';
-import { AuthService } from '../../../core/auth';
+import { map, take } from 'rxjs';
+import { OrgContextService } from '../../../core/organization/org-context.service';
 
 function requireProgramAdminAccess() {
-  const auth = inject(AuthService);
-  const capabilities = inject(AccessCapabilitiesService);
+  const ctx = inject(OrgContextService);
   const router = inject(Router);
 
-  return combineLatest([auth.ready$, auth.profile$]).pipe(
-    filter(([ready]) => ready),
+  return ctx.context$.pipe(
     take(1),
-    map(([_, profile]): boolean | UrlTree => {
-      if (!profile) {
+    map((c): boolean | UrlTree => {
+      if (!c.uid) {
         return router.createUrlTree(['/login']);
       }
-
-      if (!capabilities.canAccessProgramAdmin(profile)) {
-        return router.createUrlTree(['/home']);
-      }
-
-      return true;
-    })
+      if (c.isSuperAdmin) return true;
+      if (c.isProgramAdmin && c.activeOrgId) return true;
+      return router.createUrlTree(['/home']);
+    }),
   );
 }
 

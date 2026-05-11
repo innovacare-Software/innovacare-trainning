@@ -261,6 +261,15 @@
           <button mat-flat-button color="accent" type="button" class="btn-checkout" (click)="startCheckout()">
             S'abonner
           </button>
+
+          <app-share-buttons
+            [title]="course.title"
+            [url]="'/courses/' + course.id"
+            [compact]="true"
+            label="Partager"
+            sourcePage="catalogue_page"
+            [courseId]="course.id || null">
+          </app-share-buttons>
         </div>
       </article>
 

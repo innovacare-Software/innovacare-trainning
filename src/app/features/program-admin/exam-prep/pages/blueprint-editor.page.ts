@@ -4,7 +4,7 @@ import { ReactiveFormsModule, UntypedFormBuilder } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom, of } from 'rxjs';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { ExamPrepAdminService } from '../services/exam-prep-admin.service';
 import {
   EXAM_PREP_ASSESSMENT_FAMILIES,
@@ -142,18 +142,7 @@ export class BlueprintEditorPage {
   private readonly router = inject(Router);
 
   readonly blueprintId = this.route.snapshot.paramMap.get('blueprintId') ?? '';
-  readonly context = toSignal(this.orgContext.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: 'guest',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.orgContext.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly programs = toSignal(this.examPrep.programs$, { initialValue: [] });
   readonly blueprint = toSignal(this.blueprintId ? this.examPrep.getBlueprint(this.blueprintId) : of(undefined), { initialValue: undefined });
   readonly statusMessage = signal('');

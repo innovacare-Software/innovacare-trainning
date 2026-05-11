@@ -238,7 +238,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'A conversion-minded prep schedule using diagnostics, spaced repetition, and targeted simulation blocks.',
     readTime: '7 min read',
     publishedAt: 'April 2, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_09_2_ibwoar.png',
   },
   {
     slug: 'why-social-learning-works',
@@ -247,7 +247,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'Peer accountability, streak mechanics, and discussion prompts can improve consistency more than passive review.',
     readTime: '5 min read',
     publishedAt: 'March 21, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/71EA67DD-9BAC-401A-A907-855E2E2297F7_ozf7vw.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_37_36_2_jmmn4p.png',
   },
   {
     slug: 'from-exam-to-employment',
@@ -256,7 +256,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'The best NCLEX platforms now support confidence, onboarding, and career progression, not just question banks.',
     readTime: '6 min read',
     publishedAt: 'March 7, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775621955/ChatGPT_Image_8_avr._2026_00_15_15_zj9cjr.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_11_3_m5wjoa.png',
   },
   {
     slug: 'cohort-analytics-for-educators',
@@ -265,7 +265,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'A simple analytics framework for spotting disengagement, remediation gaps, and underused prep resources.',
     readTime: '8 min read',
     publishedAt: 'February 26, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/3AB0EC16-DEE3-4198-AD16-3F74FF0DCEAB_j85tzf.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_08_1_gv03b6.png',
   },
   {
     slug: 'nclex-test-day-prep',
@@ -274,7 +274,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'A tactical walkthrough for the last 72 hours before the exam, including pacing and mental load management.',
     readTime: '4 min read',
     publishedAt: 'February 12, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
   },
   {
     slug: 'institutional-buying-guide',
@@ -283,7 +283,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'What to look for in multi-tenant reporting, learner onboarding, and conversion from website to LMS.',
     readTime: '9 min read',
     publishedAt: 'January 18, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'infection-control-nclex',
@@ -292,7 +292,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'A focused review of isolation, PPE, sterile technique, and patient-safety traps that show up often on NCLEX-style exams.',
     readTime: '6 min read',
     publishedAt: 'January 10, 2026',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'nclex-priority-questions',
@@ -301,7 +301,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'Use ABCs, safety, and unstable-vs-stable triage to answer priority questions faster and with more confidence.',
     readTime: '5 min read',
     publishedAt: 'December 28, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'next-generation-nclex-strategy',
@@ -310,7 +310,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'A practical framework for reading NGN case studies, spotting cues, and choosing safer answers under pressure.',
     readTime: '7 min read',
     publishedAt: 'December 14, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'cgfns-vs-nclex-guide',
@@ -319,7 +319,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'Understand how CGFNS, licensure steps, and NCLEX preparation fit together for nurses targeting the USA and Canada.',
     readTime: '8 min read',
     publishedAt: 'November 30, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'nclex-pharmacology-mistakes',
@@ -328,7 +328,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'The common medication-safety and drug-class errors that slow progress and how to fix them with a tighter review loop.',
     readTime: '6 min read',
     publishedAt: 'November 16, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'first-job-after-nclex',
@@ -337,7 +337,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'Bridge the gap from exam success to interviews, onboarding, and clinical confidence in your first role.',
     readTime: '6 min read',
     publishedAt: 'November 2, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'nclex-remediation-after-fail',
@@ -346,7 +346,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'Reset your study system, diagnose score gaps, and rebuild momentum without repeating the same mistakes.',
     readTime: '7 min read',
     publishedAt: 'October 19, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'dha-doh-nurse-licensure-guide',
@@ -355,7 +355,7 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'Compare DHA and DOH requirements, exam expectations, and study priorities for nurses targeting UAE opportunities.',
     readTime: '6 min read',
     publishedAt: 'October 5, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
   {
     slug: 'nclex-day-prep',
@@ -364,14 +364,14 @@ export const BLOG_POSTS: MarketingBlogPost[] = [
     excerpt: 'What to prepare the night before, what to bring, and how to protect focus on exam day.',
     readTime: '4 min read',
     publishedAt: 'September 21, 2025',
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
   },
 ];
 
 export const BLOG_POST_DETAILS: MarketingBlogPostDetail[] = [
   {
     ...BLOG_POSTS[0],
-    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
+    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_09_2_ibwoar.png',
     author: 'Maya Henderson',
     authorRole: 'NCLEX Content Strategist',
     intro: 'Eight weeks is long enough to improve performance and short enough to keep urgency high. The schedule only works if diagnostics, repetition and recovery are designed as one system.',
@@ -405,7 +405,7 @@ export const BLOG_POST_DETAILS: MarketingBlogPostDetail[] = [
   },
   {
     ...BLOG_POSTS[1],
-    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/71EA67DD-9BAC-401A-A907-855E2E2297F7_ozf7vw.png',
+    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_37_36_2_jmmn4p.png',
     author: 'Jordan Ellis',
     authorRole: 'Learning Experience Lead',
     intro: 'High-stakes exam prep gets lonely fast. Social learning works because it converts intention into visible momentum.',
@@ -439,7 +439,7 @@ export const BLOG_POST_DETAILS: MarketingBlogPostDetail[] = [
   },
   {
     ...BLOG_POSTS[2],
-    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775621955/ChatGPT_Image_8_avr._2026_00_15_15_zj9cjr.png',
+    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_11_3_m5wjoa.png',
     author: 'Leah Morgan',
     authorRole: 'Career Pathway Editor',
     intro: 'The handoff between exam prep and employment is where many education brands lose trust. Learners need a bridge, not a cliff edge.',
@@ -473,7 +473,7 @@ export const BLOG_POST_DETAILS: MarketingBlogPostDetail[] = [
   },
   {
     ...BLOG_POSTS[3],
-    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/3AB0EC16-DEE3-4198-AD16-3F74FF0DCEAB_j85tzf.png',
+    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_08_1_gv03b6.png',
     author: 'Dr. Rina Patel',
     authorRole: 'Education Analytics Advisor',
     intro: 'Most cohorts do not fail suddenly. They show subtle warning signs first. Educators need cleaner leading indicators before performance collapses.',
@@ -507,7 +507,7 @@ export const BLOG_POST_DETAILS: MarketingBlogPostDetail[] = [
   },
   {
     ...BLOG_POSTS[4],
-    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png',
+    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
     author: 'Talia Green',
     authorRole: 'Readiness Coach',
     intro: 'The last three days before NCLEX should reduce noise, not increase it. A focused checklist preserves confidence under pressure.',
@@ -541,7 +541,7 @@ export const BLOG_POST_DETAILS: MarketingBlogPostDetail[] = [
   },
   {
     ...BLOG_POSTS[5],
-    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+    heroImageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
     author: 'Marcus Ellery',
     authorRole: 'Institutional Partnerships Lead',
     intro: 'Schools evaluating prep platforms often compare price first, but operational fit is what determines adoption. The buying guide should expose that reality early.',

@@ -86,6 +86,7 @@ import { StatusPillComponent } from '../shared/status-pill.component';
                 <button type="button" (click)="archive(row.id)" class="warn">Archive</button>
                 <button type="button" (click)="activate(row.id)">Activate</button>
                 <button type="button" (click)="deactivate(row.id)" class="warn">Deactivate</button>
+                <button type="button" (click)="delete(row.id)" class="warn">Delete</button>
               </td>
             </tr>
           </tbody>
@@ -196,6 +197,18 @@ export class ProgramsManagementPage {
 
   async deactivate(programId: string): Promise<void> {
     await this.programsService.deactivateProgram(programId);
+  }
+
+  async delete(programId: string): Promise<void> {
+    if (!confirm('Delete this program permanently? This cannot be undone.')) {
+      return;
+    }
+    try {
+      await this.programsService.deleteProgram(programId);
+    } catch (error) {
+      console.error('Failed to delete program', error);
+      alert('Failed to delete program. Please try again.');
+    }
   }
 
   trackById(_: number, row: { id: string }): string {

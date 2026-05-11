@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
 import { AccessCapabilitiesService, AdminSpaceKey, AdminSpaceOption } from '../../../core/access-capabilities.service';
 import { AuthService } from '../../../core/auth';
+import { OrgContextService } from '../../../core/organization/org-context.service';
 import { rememberAdminSpace } from '../../../core/auth-redirect.util';
 
 @Component({
@@ -73,9 +74,11 @@ export class AdminSpaceSelectorPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly capabilities = inject(AccessCapabilitiesService);
+  private readonly orgContext = inject(OrgContextService);
 
   readonly profile = toSignal(this.auth.profile$, { initialValue: null });
-  readonly spaces = computed(() => this.capabilities.getAdminSpaces(this.profile()));
+  readonly orgCtx = toSignal(this.orgContext.context$, { initialValue: null });
+  readonly spaces = computed(() => this.capabilities.getAdminSpaces(this.profile(), this.orgCtx()));
 
   async openSpace(space: AdminSpaceOption): Promise<void> {
     rememberAdminSpace(this.profile(), space.key);

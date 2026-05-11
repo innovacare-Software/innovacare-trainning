@@ -4,7 +4,7 @@ import { ReactiveFormsModule, UntypedFormBuilder } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { of } from 'rxjs';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { ExamPrepAdminService } from '../services/exam-prep-admin.service';
 import {
   EXAM_PREP_COGNITIVE_OPTIONS,
@@ -267,18 +267,7 @@ export class QuestionBankEditorPage {
   private readonly router = inject(Router);
 
   readonly itemId = this.route.snapshot.paramMap.get('itemId') ?? '';
-  readonly context = toSignal(this.orgContext.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: 'guest',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.orgContext.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly programs = toSignal(this.examPrep.programs$, { initialValue: [] });
   readonly courseGroups = toSignal(this.examPrep.courseGroups$, { initialValue: [] });
   readonly modules = toSignal(this.examPrep.modules$, { initialValue: [] });

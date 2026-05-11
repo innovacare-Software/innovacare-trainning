@@ -37,6 +37,8 @@ export class Shell {
   { labelKey: 'nav.logs', path: '/super-admin/logs' },
   { labelKey: 'nav.settings', path: '/super-admin/settings' },
   { labelKey: 'nav.orgContext', path: '/super-admin/organizations' },
+  { labelKey: 'Security Center', path: '/admin/security' },
+  { labelKey: 'Share Analytics', path: '/admin/analytics/shares' },
 ];
 
   constructor(

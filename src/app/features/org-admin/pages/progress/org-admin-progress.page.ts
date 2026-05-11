@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationProgressService } from '../../../../core/organization/services/organization-progress.service';
 import { OrganizationUsersService } from '../../../../core/organization/services/organization-users.service';
 import { of, switchMap } from 'rxjs';
@@ -118,7 +118,7 @@ export class OrgAdminProgressPage {
   search = '';
   statusFilter = 'all';
   sortBy = 'risk';
-  private readonly context = toSignal(this.ctx.context$, { initialValue: { uid: '', orgId: null, role: '', orgRole: null, isSuperAdmin: false, isOrgAdmin: false, isOrgManager: false, isOrgLearner: false } });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly orgId = computed(() => this.context().orgId || '');
   private readonly orgId$ = toObservable(this.orgId);
   readonly rows = toSignal(this.orgId$.pipe(switchMap((orgId) => (orgId ? this.progress.list(orgId) : of([] as any[])))), { initialValue: [] as any[] });

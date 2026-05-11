@@ -53,6 +53,11 @@ export const SUPER_ADMIN_ROUTES: Routes = [
               loadComponent: () =>
                 import('./users/program-access-diagnostic.page').then(m => m.ProgramAccessDiagnosticPage),
             },
+            {
+              path: 'users/:uid/memberships',
+              loadComponent: () =>
+                import('./users/memberships/user-memberships.page').then(m => m.UserMembershipsPage),
+            },
       {
         path: 'billing',
         loadComponent: () =>

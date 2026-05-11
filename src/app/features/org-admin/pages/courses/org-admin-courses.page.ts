@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationCoursesVisibilityService } from '../../../../core/organization/services/organization-courses-visibility.service';
 import { OrganizationAssignmentsService } from '../../../../core/organization/services/organization-assignments.service';
 import { of, switchMap } from 'rxjs';
@@ -68,7 +68,7 @@ export class OrgAdminCoursesPage {
   private readonly assignments = inject(OrganizationAssignmentsService);
   search = '';
   statusFilter = 'all';
-  private readonly context = toSignal(this.ctx.context$, { initialValue: { uid: '', orgId: null, role: '', orgRole: null, isSuperAdmin: false, isOrgAdmin: false, isOrgManager: false, isOrgLearner: false } });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly orgId = computed(() => this.context().orgId || '');
   private readonly orgId$ = toObservable(this.orgId);
   readonly rows = toSignal(this.orgId$.pipe(switchMap((orgId) => (orgId ? this.service.listVisibleCourses(orgId) : of([] as any[])))), { initialValue: [] as any[] });

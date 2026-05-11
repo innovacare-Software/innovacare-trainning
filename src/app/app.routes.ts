@@ -4,9 +4,10 @@ import { authenticatedGuard } from './core/auth-guard';
 import { programLearnerGuard } from './core/program-learner.guard';
 import { programAdminAreaCanMatch } from './features/program-admin/guards/program-admin.guard';
 import { isOrgAdminGuard } from './core/organization/org.guards';
+import { adminSecurityCanMatch } from './core/security/admin-security.guard';
 
 const MARKETING_DEFAULT_IMAGE =
-  'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png';
+  'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png';
 
 const CORE_NURSING_KEYWORDS_EN = [
   'NCLEX prep',
@@ -374,7 +375,7 @@ function marketingSeo(locale: 'en' | 'fr') {
         ? 'Un pack premium pas à pas pour aider les infirmiers formés en Afrique à planifier leur parcours de licence vers les USA, le Canada et les Émirats arabes unis.'
         : 'A premium step-by-step digital pack for nurses in Africa planning their licensing journey toward the USA, Canada, and UAE.',
       canonicalPath: `${prefix}/global-nurse-pack`,
-      image: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1776922255/ChatGPT_Image_Apr_22_2026_08_49_40_PM_mymund.png',
+      image: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121388/ChatGPT_Image_6_mai_2026_22_34_37_od5ekz.png',
       keywords: french
         ? ['licence infirmière internationale', 'NCLEX', 'CGFNS', 'NNAS', 'DHA', 'DOH', 'migration infirmière']
         : ['international nurse licensing', 'NCLEX', 'CGFNS', 'NNAS', 'DHA', 'DOH', 'nurse relocation'],
@@ -776,6 +777,31 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./features/admin/notification-logs/admin-notification-logs.page').then(
       (m) => m.AdminNotificationLogsPage
+    ),
+},
+{
+  path: 'admin/security',
+  canMatch: [adminSecurityCanMatch],
+  loadComponent: () =>
+    import('./features/admin/security/admin-security-dashboard.page').then(
+      (m) => m.AdminSecurityDashboardPage
+    ),
+},
+{
+  path: 'admin/analytics/shares',
+  canMatch: [adminSecurityCanMatch],
+  loadComponent: () =>
+    import('./features/admin/analytics/admin-share-analytics.page').then(
+      (m) => m.AdminShareAnalyticsPage
+    ),
+},
+{
+  // Public certificate verification — anyone can hit this URL with a code,
+  // no auth required. Backend rate-limits per IP.
+  path: 'certificates/verify/:code',
+  loadComponent: () =>
+    import('./features/public/certificates/certificate-verify.page').then(
+      (m) => m.CertificateVerifyPage
     ),
 },
 

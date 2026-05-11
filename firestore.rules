@@ -30,57 +30,100 @@ service cloud.firestore {
     }
 
     function isOrgMember(orgId) {
-      return isSignedIn()
-        && hasUser(request.auth.uid)
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId;
+      // SECURITY (P3-Step 2): membership-based. Legacy users.orgId is no longer
+      // sufficient by itself — the user MUST have an active membership in orgId.
+      // super_admin is intentionally NOT counted as an org member here; callers
+      // combine `isSuperAdmin() || isOrgMember(orgId)` when they want both.
+      return membershipActive(orgId);
     }
 
+    // --- Membership-based helpers (new multi-tenant model) ----------------
+    // A membership document lives at /userOrgMemberships/{uid}__{orgId}
+    // and authoritatively declares the role/status the user has within an org.
+    function membershipPath(orgId) {
+      return /databases/$(database)/documents/userOrgMemberships/$(request.auth.uid + "__" + orgId);
+    }
+
+    function hasMembership(orgId) {
+      return isSignedIn() && exists(membershipPath(orgId));
+    }
+
+    function membershipRole(orgId) {
+      return hasMembership(orgId) ? get(membershipPath(orgId)).data.role : "";
+    }
+
+    function membershipActive(orgId) {
+      return hasMembership(orgId) && get(membershipPath(orgId)).data.status == "active";
+    }
+
+    function hasActiveMembershipRole(orgId, roles) {
+      return membershipActive(orgId) && (membershipRole(orgId) in roles);
+    }
+
+    // Org admin / manager checks now require an explicit membership.
+    // Legacy users.role values for "admin"/"manager" are NOT honored anymore
+    // for org-scoped authorization — only super_admin keeps blanket powers.
     function isOrgAdmin(orgId) {
-      return isOrgMember(orgId)
-        && (
-          userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
-        );
+      return hasActiveMembershipRole(orgId, ["org_admin", "program_admin"]);
     }
 
     function isOrgManager(orgId) {
-      return isOrgMember(orgId) && userRole(request.auth.uid) in ["manager", "org_manager"];
+      return hasActiveMembershipRole(orgId, ["instructor", "org_admin", "program_admin"]);
     }
 
-    // Read role from users/{uid}
+    // Read role from users/{uid} (informational legacy field — DO NOT use
+    // for org-scoped authorization; use userOrgMemberships instead).
     function userRole(uid) {
       return exists(/databases/$(database)/documents/users/$(uid))
         ? get(/databases/$(database)/documents/users/$(uid)).data.role
         : "";
     }
 
-    // Admin capability used by client features (includes manager + super_admin).
+    // Platform-wide admin capability.
+    // SECURITY (P3-Step 2): restricted to super_admin and the explicit
+    // /admins/{uid} allow-list. Legacy roles (admin/manager/org_admin/
+    // org_manager) NO LONGER grant blanket access — they must use the
+    // membership-based helpers (isOrgAdmin/isOrgManager/canManageProgramOrg).
     function isAdmin() {
       return isSignedIn() && (
-        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true)
-        ||
-        (userRole(request.auth.uid) in ["super_admin", "admin", "manager", "org_admin", "org_manager"])
+        userRole(request.auth.uid) == "super_admin"
+        || (
+          exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+          && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true
+        )
       );
     }
 
+    function targetUserOrgId(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid))
+        ? get(/databases/$(database)/documents/users/$(uid)).data.orgId
+        : null;
+    }
+
     function canManageUser(uid) {
+      // SECURITY (P3-Step 2): require an active org_admin/program_admin
+      // membership in the TARGET user's organization. Legacy users.role
+      // checks have been removed.
       return isSuperAdmin()
         || isOwner(uid)
         || (
           isSignedIn()
-          && hasUser(request.auth.uid)
           && hasUser(uid)
-          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
-          && get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
+          && targetUserOrgId(uid) is string
+          && isOrgAdmin(targetUserOrgId(uid))
         );
     }
 
     function canAssignLearner(uid) {
+      // SECURITY (P3-Step 2): membership-based. Org admin or instructor in
+      // the target's org may assign provided the target is a learner.
       return isSignedIn()
-        && hasUser(request.auth.uid)
         && hasUser(uid)
-        && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
-        && get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
+        && targetUserOrgId(uid) is string
+        && (
+          isSuperAdmin()
+          || isOrgManager(targetUserOrgId(uid))
+        )
         && get(/databases/$(database)/documents/users/$(uid)).data.role in ["learner", "org_learner"];
     }
 
@@ -92,32 +135,21 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/organizations/$(orgId)/courses/$(courseId));
     }
 
-    function isProgramAdmin() {
-      return isSignedIn()
-        && hasUser(request.auth.uid)
-        && (
-          userRole(request.auth.uid) in ["super_admin", "admin", "manager", "org_admin", "org_manager"]
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramAdmin == true
-        );
-    }
-
-    function isProgramStaff() {
-      return isSignedIn()
-        && hasUser(request.auth.uid)
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isProgramStaff == true;
-    }
-
-    function canManagePrograms() {
-      return isProgramAdmin() || isProgramStaff();
-    }
+    // SECURITY (P3-Step 2): the legacy no-arg helpers `isProgramAdmin()`,
+    // `isProgramStaff()` and `canManagePrograms()` have been REMOVED. They
+    // granted authority based on global users.role flags which created
+    // cross-tenant admin escalation. All program-management authorization
+    // now goes through `canManageProgramOrg(orgId)` (membership-based).
 
       function canManageProgramOrg(orgId) {
+        // SECURITY (P3-Step 2): membership-based. Requires either super_admin
+        // or an ACTIVE program_admin/org_admin membership in the target org.
+        // Legacy users.role + sameRequesterOrg() path has been removed.
         return isSuperAdmin()
           || (
-            canManagePrograms()
-            && orgId is string
+            orgId is string
             && orgId.size() > 0
-            && sameRequesterOrg(orgId)
+            && hasActiveMembershipRole(orgId, ["program_admin", "org_admin"])
           );
       }
 
@@ -134,15 +166,20 @@ service cloud.firestore {
       }
 
       function canReadManagedUserPrivateData(uid, orgId) {
+        // SECURITY (P3-Step 2): membership-based. The reader must be either
+        // super_admin, the owner, or hold an active org_admin/program_admin
+        // membership in the data's orgId (with fallback to the target user's
+        // stored orgId when the document carries no orgId).
         return isSuperAdmin()
           || (
             isSignedIn()
-            && hasUser(request.auth.uid)
-            && hasUser(uid)
-            && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
             && (
-              (orgId is string && orgId.size() > 0 && sameRequesterOrg(orgId))
-              || get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
+              (orgId is string && orgId.size() > 0 && isOrgAdmin(orgId))
+              || (
+                hasUser(uid)
+                && targetUserOrgId(uid) is string
+                && isOrgAdmin(targetUserOrgId(uid))
+              )
             )
           );
       }
@@ -317,25 +354,30 @@ service cloud.firestore {
       allow read: if isSuperAdmin()
         || (isSignedIn() && request.auth.uid == uid)
         || (
+          // SECURITY (P3-Step 2): membership-based. Reader must hold an active
+          // org_admin/program_admin membership in the target user's org.
           isSignedIn()
-          && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && resource.data.orgId is string
-          && resource.data.orgId == requesterOrgId()
+          && isOrgAdmin(resource.data.orgId)
         );
 
       // super_admin full control
-      // org admin/manager can manage users of their org only, without super_admin escalation
+      // org admin can manage users of their org only via active membership
       // self-write cannot change role/orgId/active
       allow create: if isSuperAdmin()
         || (
+          // SECURITY (P3-Step 2): creator must hold an active org_admin/
+          // program_admin membership in the target org. Legacy global admin
+          // role checks have been removed.
           isSignedIn()
-          && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && request.resource.data.orgId is string
-          && request.resource.data.orgId == requesterOrgId()
+          && isOrgAdmin(request.resource.data.orgId)
           && request.resource.data.role in ["admin", "manager", "org_admin", "org_manager", "learner", "org_learner", "guest"]
         )
+        // SECURITY: a self-created profile (public signup) MUST stay org-less.
+        // It can only become attached to an org via a userOrgMembership written
+        // by a super_admin. We no longer accept the legacy public-org id here:
+        // any pre-assignment to a real org from the client side is a tenant leak.
         || (
           isSignedIn()
           && request.auth.uid == uid
@@ -343,17 +385,18 @@ service cloud.firestore {
           && (
             !('orgId' in request.resource.data)
             || request.resource.data.orgId == null
-            || request.resource.data.orgId == "Waxxi8M4qpTSsoGJ8fJS"
           )
         );
 
       allow update: if isSuperAdmin()
         || (
+          // SECURITY (P3-Step 2): updater must hold an active org_admin/
+          // program_admin membership in the target user's org and the orgId
+          // assignment cannot be changed (only super_admin can move a user
+          // across orgs).
           isSignedIn()
-          && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
           && resource.data.orgId is string
-          && resource.data.orgId == requesterOrgId()
+          && isOrgAdmin(resource.data.orgId)
           && request.resource.data.orgId == resource.data.orgId
           && request.resource.data.role in ["admin", "manager", "org_admin", "org_manager", "learner", "org_learner", "guest"]
         )
@@ -365,6 +408,19 @@ service cloud.firestore {
         );
 
       allow delete: if isSuperAdmin();
+    }
+
+    // ---------- USER ORG MEMBERSHIPS (multi-tenant authorization source) ----------
+    // Each document id is `${userId}__${orgId}`. The role/status here is the
+    // authoritative source of truth for org-scoped admin powers. Only the
+    // super_admin can write; the membership owner and org admins of the same
+    // org can read.
+    match /userOrgMemberships/{membershipId} {
+      allow read: if isSuperAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid)
+        || (isSignedIn() && isOrgAdmin(resource.data.orgId));
+
+      allow create, update, delete: if isSuperAdmin();
     }
 
     // ---------- ORGANIZATIONS (multi-tenant boundary) ----------
@@ -523,63 +579,58 @@ service cloud.firestore {
       }
 
       match /examPrograms/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /examCourseGroups/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /examModules/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /questionBank/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /caseStudies/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /examBlueprints/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /assessmentDefinitions/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /jurisdictionOverlays/{docId} {
-        allow read, create, update, delete: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read, create, update, delete: if canManageProgramOrg(orgId);
       }
 
       match /attemptSessions/{docId} {
-        allow read: if sameRequesterOrg(orgId)
-          && (
-            canManagePrograms()
-            || (isSignedIn() && resource.data.learnerId == request.auth.uid)
-          );
-        allow create, update: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read: if canManageProgramOrg(orgId)
+          || (isSignedIn() && hasMembership(orgId) && resource.data.learnerId == request.auth.uid);
+        allow create, update: if canManageProgramOrg(orgId);
         allow delete: if false;
 
         match /events/{eventId} {
-          allow read: if sameRequesterOrg(orgId)
-            && (
-              canManagePrograms()
-              || (isSignedIn() && get(/databases/$(database)/documents/organizations/$(orgId)/attemptSessions/$(docId)).data.learnerId == request.auth.uid)
+          allow read: if canManageProgramOrg(orgId)
+            || (
+              isSignedIn()
+              && hasMembership(orgId)
+              && get(/databases/$(database)/documents/organizations/$(orgId)/attemptSessions/$(docId)).data.learnerId == request.auth.uid
             );
           allow create, update, delete: if false;
         }
       }
 
       match /attemptReviewSnapshots/{docId} {
-        allow read: if sameRequesterOrg(orgId)
-          && (
-            canManagePrograms()
-            || (isSignedIn() && resource.data.learnerId == request.auth.uid)
-          );
-        allow create, update: if sameRequesterOrg(orgId) && canManagePrograms();
+        allow read: if canManageProgramOrg(orgId)
+          || (isSignedIn() && hasMembership(orgId) && resource.data.learnerId == request.auth.uid);
+        allow create, update: if canManageProgramOrg(orgId);
         allow delete: if false;
       }
     }
@@ -855,6 +906,19 @@ service cloud.firestore {
           isSignedIn()
           && resource.data.uid is string
           && canManageUser(resource.data.uid)
+        )
+        || (
+          // Automation v1 writes `userId` instead of `uid` — let the learner
+          // read their own certificate without going through the callable.
+          isSignedIn()
+          && resource.data.userId is string
+          && request.auth.uid == resource.data.userId
+        )
+        || (
+          // Org admins can read certificates issued under their organization.
+          resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && isOrgAdmin(resource.data.orgId)
         );
 
       allow create, update: if isSuperAdmin()
@@ -864,6 +928,72 @@ service cloud.firestore {
           && canManageUser(request.resource.data.uid)
         );
 
+      allow delete: if isSuperAdmin();
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Enrollments (automation v1 — top-level collection)
+    // ──────────────────────────────────────────────────────────────────
+    match /enrollments/{enrollmentId} {
+      // Writes go through Cloud Functions (admin SDK bypasses these rules):
+      // createCheckoutSession → stripeWebhook → handleAutomationCheckoutCompleted.
+      allow create: if false;
+
+      allow read: if isSuperAdmin()
+        || (
+          isSignedIn()
+          && resource.data.userId is string
+          && request.auth.uid == resource.data.userId
+        )
+        || (
+          resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && isOrgAdmin(resource.data.orgId)
+        );
+
+      // The learner can flip status from "active" to "completed" so the
+      // onEnrollmentCompleted trigger picks it up. Everything else is
+      // server-only.
+      allow update: if isSuperAdmin()
+        || (
+          isSignedIn()
+          && resource.data.userId is string
+          && request.auth.uid == resource.data.userId
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'progress', 'updatedAt'])
+          && request.resource.data.status in ['active', 'completed']
+        );
+
+      allow delete: if false;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Organization settings (per-org configuration documents)
+    // ──────────────────────────────────────────────────────────────────
+    match /orgSettings/{orgId} {
+      allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+      allow write: if isSuperAdmin() || isOrgAdmin(orgId);
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Lead capture (public marketing form → triage by org admins)
+    // ──────────────────────────────────────────────────────────────────
+    match /leadCapture/{leadId} {
+      // Anyone (signed in or not) may submit a lead, but the payload must
+      // look like a lead and cannot pre-set internal fields.
+      allow create: if request.resource.data.keys().hasOnly([
+            'name', 'phone', 'email', 'country', 'interest',
+            'source', 'orgId', 'createdAt', 'status',
+          ])
+        && (request.resource.data.email is string
+            || request.resource.data.phone is string)
+        && request.resource.data.status == 'new';
+      allow read, update: if isSuperAdmin()
+        || (
+          resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && (isOrgAdmin(resource.data.orgId) || isOrgManager(resource.data.orgId))
+        );
       allow delete: if isSuperAdmin();
     }
 
@@ -899,24 +1029,26 @@ service cloud.firestore {
     match /courseAssignments/{docId} {
       // Authenticated users can read
       allow read: if request.auth != null;
-      // Super admin can manage everything, org admin/manager can assign learners in same org only.
+      // SECURITY (P3-Step 2): super_admin OR an active org_admin/program_admin
+      // membership in the target learner's org. Legacy users.role checks have
+      // been removed.
       allow create, update, delete: if isSuperAdmin()
         || (
           isSignedIn()
-          && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager"]
           && (
             (
               request.resource.data.userId is string
               && hasUser(request.resource.data.userId)
-              && get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.orgId == requesterOrgId()
+              && targetUserOrgId(request.resource.data.userId) is string
+              && isOrgAdmin(targetUserOrgId(request.resource.data.userId))
               && get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.role == "learner"
             )
             ||
             (
               resource.data.userId is string
               && hasUser(resource.data.userId)
-              && get(/databases/$(database)/documents/users/$(resource.data.userId)).data.orgId == requesterOrgId()
+              && targetUserOrgId(resource.data.userId) is string
+              && isOrgAdmin(targetUserOrgId(resource.data.userId))
               && get(/databases/$(database)/documents/users/$(resource.data.userId)).data.role == "learner"
             )
           )
@@ -937,30 +1069,18 @@ service cloud.firestore {
           )
           || canManageProgramOrg(resource.data.orgId);
 
-        allow create: if isSuperAdmin()
-          || (
-            canManagePrograms()
-            && request.resource.data.orgId is string
-            && request.resource.data.orgId.size() > 0
-            && sameRequesterOrg(request.resource.data.orgId)
-          );
+        allow create: if canManageProgramOrg(request.resource.data.orgId)
+          && request.resource.data.orgId is string
+          && request.resource.data.orgId.size() > 0;
 
-        allow update: if isSuperAdmin()
-          || (
-            canManagePrograms()
-            && resource.data.orgId is string
-            && resource.data.orgId.size() > 0
-            && request.resource.data.orgId == resource.data.orgId
-            && sameRequesterOrg(resource.data.orgId)
-          );
+        allow update: if canManageProgramOrg(resource.data.orgId)
+          && resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && request.resource.data.orgId == resource.data.orgId;
 
-        allow delete: if isSuperAdmin()
-          || (
-            canManagePrograms()
-            && resource.data.orgId is string
-            && resource.data.orgId.size() > 0
-            && sameRequesterOrg(resource.data.orgId)
-          );
+        allow delete: if canManageProgramOrg(resource.data.orgId)
+          && resource.data.orgId is string
+          && resource.data.orgId.size() > 0;
 
       match /modules/{moduleId} {
         allow read: if (
@@ -1421,11 +1541,11 @@ match /bookings/{doc} {
       allow read: if canManageUser(uid);
       allow create, update: if isOwner(uid)
         || (
+          // SECURITY (P3-Step 2): membership-based.
           isSignedIn()
           && hasUser(uid)
-          && hasUser(request.auth.uid)
-          && userRole(request.auth.uid) in ["admin", "manager", "org_admin", "org_manager"]
-          && get(/databases/$(database)/documents/users/$(uid)).data.orgId == requesterOrgId()
+          && targetUserOrgId(uid) is string
+          && isOrgAdmin(targetUserOrgId(uid))
         );
       allow delete: if isOwner(uid) || isSuperAdmin();
     }
@@ -1434,12 +1554,112 @@ match /bookings/{doc} {
     match /adminNotifications/{id} {
       allow read: if isSuperAdmin()
         || (
-          isAdmin()
-          && resource.data.organizationId is string
+          // SECURITY (P3-Step 2): require active org_admin membership in the
+          // target organization — not just any platform admin role.
+          resource.data.organizationId is string
           && resource.data.organizationId.size() > 0
-          && sameRequesterOrg(resource.data.organizationId)
+          && isOrgAdmin(resource.data.organizationId)
         );
-      allow write: if false;
+      // Allow super_admin or matching org_admin to flip read/readBy ONLY.
+      allow update: if (
+          isSuperAdmin()
+          || (
+            resource.data.organizationId is string
+            && resource.data.organizationId.size() > 0
+            && isOrgAdmin(resource.data.organizationId)
+          )
+        )
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['read', 'readBy']);
+      allow create, delete: if false;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Security Events  (Admin Security Center — Lot 1/2/3/4)
+    // ──────────────────────────────────────────────────────────────────
+    match /securityEvents/{eventId} {
+      // CREATE: only Cloud Functions / service account (admin SDK bypasses
+      // these rules). The frontend uses the `logSecurityEvent` callable.
+      allow create: if false;
+
+      // READ: super_admin sees everything; org_admin sees only events that
+      // touch their organization (matches resource.data.orgId OR
+      // resource.data.attemptedOrgId).
+      allow read: if isSuperAdmin()
+        || (
+          resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && isOrgAdmin(resource.data.orgId)
+        )
+        || (
+          resource.data.attemptedOrgId is string
+          && resource.data.attemptedOrgId.size() > 0
+          && isOrgAdmin(resource.data.attemptedOrgId)
+        );
+
+      // UPDATE: only the resolution fields, by super_admin or matching
+      // org_admin. Everything else is immutable from the client.
+      allow update: if (
+          isSuperAdmin()
+          || (
+            resource.data.orgId is string
+            && resource.data.orgId.size() > 0
+            && isOrgAdmin(resource.data.orgId)
+          )
+          || (
+            resource.data.attemptedOrgId is string
+            && resource.data.attemptedOrgId.size() > 0
+            && isOrgAdmin(resource.data.attemptedOrgId)
+          )
+        )
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['resolved', 'resolvedBy', 'resolvedAt', 'resolutionNote'])
+        && request.resource.data.resolved == true
+        && request.resource.data.resolvedBy == request.auth.uid;
+
+      // DELETE: never allowed from the client (audit trail must persist).
+      allow delete: if false;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Share Events  (lightweight viral-loop analytics for share buttons)
+    // ──────────────────────────────────────────────────────────────────
+    match /shareEvents/{eventId} {
+      // CREATE: anyone (auth or anonymous public visitor) may log a share.
+      // Strict shape validation prevents abuse / payload pollution.
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'app','platform','sourcePage','sharedUrl','deviceType',
+          'courseId','courseSlug','programId','programSlug',
+          'orgId','userId','userRole','createdAt'
+        ])
+        && request.resource.data.app in ['innovacare_review','sygepec']
+        && request.resource.data.platform in [
+            'whatsapp','telegram','facebook','x','linkedin','email','copy','native_share'
+           ]
+        && request.resource.data.sourcePage in [
+            'programs_page','program_detail','course_detail','catalogue_page'
+           ]
+        && request.resource.data.sharedUrl is string
+        && request.resource.data.sharedUrl.size() > 0
+        && request.resource.data.sharedUrl.size() <= 500
+        && request.resource.data.createdAt == request.time
+        && (
+            !('userId' in request.resource.data)
+            || request.resource.data.userId == null
+            || (request.auth != null && request.resource.data.userId == request.auth.uid)
+           );
+
+      // READ: super_admin all; org_admin only events from their orgs.
+      allow read: if isSuperAdmin()
+        || (
+          resource.data.orgId is string
+          && resource.data.orgId.size() > 0
+          && isOrgAdmin(resource.data.orgId)
+        );
+
+      // Immutable from clients.
+      allow update, delete: if false;
     }
 
     // ──────────────────────────────────────────────────────────────────

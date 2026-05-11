@@ -1,14 +1,15 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
+import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { OrganizationAdminDashboardService } from '../../../../core/organization/services/organization-admin-dashboard.service';
 import { OrganizationAlertsService } from '../../../../core/organization/services/organization-alerts.service';
 import { OrganizationAuditService } from '../../../../core/organization/services/organization-audit.service';
 import { OrganizationFollowUpService } from '../../../../core/organization/services/organization-follow-up.service';
 import { OrganizationTroubleshootingService } from '../../../../core/organization/services/organization-troubleshooting.service';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 
 @Component({
   standalone: true,
@@ -28,6 +29,21 @@ import { OrgContextService } from '../../../../core/organization/org-context.ser
           <a routerLink="/org-admin/reports">Generate Report</a>
         </div>
       </header>
+
+      <article class="panel access-code-panel" *ngIf="organization() as org">
+        <div class="ac-info">
+          <h3>Organization Access Code</h3>
+          <p>Share this code with your team so they can sign in via the "Organization" tab.</p>
+        </div>
+        <div class="ac-actions" *ngIf="org.accessCode; else noCodeTpl">
+          <code class="ac-code">{{ codeRevealed() ? org.accessCode : '••••••••' }}</code>
+          <button type="button" class="ac-btn" (click)="toggleCode()">{{ codeRevealed() ? 'Hide' : 'Reveal' }}</button>
+          <button type="button" class="ac-btn" (click)="copyCode(org.accessCode)">{{ codeCopied() ? 'Copied' : 'Copy' }}</button>
+        </div>
+        <ng-template #noCodeTpl>
+          <p class="ac-empty">No access code configured. Ask a super admin to set one for this organization.</p>
+        </ng-template>
+      </article>
 
       <section class="kpi-grid" *ngIf="stats() as s; else loadingKpiTpl">
         <article><h3>{{ s.totalUsers }}</h3><p>Total users</p></article>
@@ -248,6 +264,14 @@ Enroll -> Assign -> Learn -> Measure
     .bar.running { background: #2f78c4; }
     .bar.idle { background: #a4b8ca; }
     .panels { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .7rem; margin-top: .7rem; }
+    .access-code-panel { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .7rem; border-color: #c8dbed; background: linear-gradient(135deg, #ffffff 0%, #f3f9ff 100%); flex-wrap: wrap; }
+    .access-code-panel .ac-info h3 { margin: 0 0 .25rem; }
+    .access-code-panel .ac-info p { margin: 0; color: #5a7590; font-size: .88rem; }
+    .access-code-panel .ac-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .access-code-panel .ac-code { background: #fff; border: 1px solid #c9d9ea; color: #102f4f; border-radius: 8px; padding: .45rem .75rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; letter-spacing: .12em; }
+    .access-code-panel .ac-btn { background: #fff; border: 1px solid #c9d9ea; color: #1f486c; border-radius: 8px; padding: .4rem .65rem; font-weight: 700; cursor: pointer; }
+    .access-code-panel .ac-btn:hover { background: #f4f8fb; }
+    .access-code-panel .ac-empty { margin: 0; color: #9a4d10; font-weight: 600; }
     ul { margin: 0; padding-left: 1rem; color: #2f4f6d; }
     li { margin-bottom: .28rem; }
     .sev { text-transform: uppercase; font-size: .75rem; font-weight: 700; }
@@ -263,22 +287,50 @@ export class OrgAdminDashboardPage {
   private readonly audit = inject(OrganizationAuditService);
   private readonly followUp = inject(OrganizationFollowUpService);
   private readonly troubleshooting = inject(OrganizationTroubleshootingService);
+  private readonly firestore = inject(Firestore);
 
-  private readonly context = toSignal(this.ctx.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: '',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
   readonly orgId = computed(() => this.context().orgId || '');
   private readonly orgId$ = toObservable(this.orgId);
+
+  // Live read of the organization document so org admins can reveal/copy
+  // the access code they need to share with their team for sign-in.
+  readonly organization = toSignal(
+    this.orgId$.pipe(
+      switchMap((id) => (id
+        ? docData(doc(this.firestore, `organizations/${id}`), { idField: 'id' }).pipe(
+            catchError((error) => {
+              this.logPanelError('organizations/{orgId}', id, error);
+              return of(null as any);
+            })
+          )
+        : of(null as any)
+      ))
+    ),
+    { initialValue: null as any }
+  );
+
+  // Local UX state for the access code reveal/copy controls.
+  readonly codeRevealed = signal(false);
+  readonly codeCopied = signal(false);
+
+  toggleCode(): void {
+    this.codeRevealed.update((v) => !v);
+  }
+
+  async copyCode(code: string | null | undefined): Promise<void> {
+    if (!code) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(code);
+      this.codeCopied.set(true);
+      setTimeout(() => this.codeCopied.set(false), 2000);
+    } catch {
+      // Clipboard API may be blocked (insecure context); silently ignore.
+    }
+  }
 
   readonly diagnostics = toSignal(this.orgId$.pipe(
     map(() => [] as string[])

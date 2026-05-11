@@ -25,7 +25,7 @@ type QuizGoal = 'fast-pass' | 'confidence' | 'repeat' | 'institution';
 @Component({
   selector: 'app-public-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, MatSnackBarModule, HeroParallaxDirective, TranslocoModule, LocalizedFieldPipe],
+  imports: [CommonModule, RouterModule, FormsModule, MatSnackBarModule, TranslocoModule, LocalizedFieldPipe, HeroParallaxDirective],
   templateUrl: './public-home.page.html',
   styleUrls: ['./public-home.page.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,13 +48,13 @@ export class PublicHomePage {
   readonly blogPosts = toSignal(this.marketingContent.getBlogPosts(), { initialValue: [] });
 
   readonly visuals = {
-    heroBackdrop: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
-    heroPrimary: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1767048761/qckTuJKvM5-bgGMG_NQPmKMC1ha_edLmx_jrgdx7.jpg',
-    heroSecondary: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775001208/ChatGPT_Image_31_mars_2026_19_53_03_ng7bsw.png',
-    heroTertiary: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png',
-    nursingSpotlight: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
-    medicalSpotlight: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/3AB0EC16-DEE3-4198-AD16-3F74FF0DCEAB_j85tzf.png',
-    storiesSpotlight: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/71EA67DD-9BAC-401A-A907-855E2E2297F7_ozf7vw.png',
+    heroBackdrop: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778122215/ChatGPT_Image_6_mai_2026_22_49_30_3_pr18gz.png',
+    heroPrimary: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
+    heroSecondary: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
+    heroTertiary: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_09_2_ibwoar.png',
+    nursingSpotlight: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_09_2_ibwoar.png',
+    medicalSpotlight: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_08_1_gv03b6.png',
+    storiesSpotlight: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_37_36_2_jmmn4p.png',
   };
 
   readonly appPrograms = [

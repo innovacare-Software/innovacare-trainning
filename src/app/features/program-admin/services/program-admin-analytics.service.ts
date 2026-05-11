@@ -15,6 +15,7 @@ import { ProgramEnrollmentsAdminService } from './program-enrollments-admin.serv
 import { ProgramsAdminService } from './programs-admin.service';
 import { AuthService } from '../../../core/auth';
 import { AccessCapabilitiesService } from '../../../core/access-capabilities.service';
+import { OrgContextService } from '../../../core/organization/org-context.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProgramAdminAnalyticsService {
@@ -22,6 +23,7 @@ export class ProgramAdminAnalyticsService {
   private readonly injector = inject(Injector);
   private readonly auth = inject(AuthService);
   private readonly capabilities = inject(AccessCapabilitiesService);
+  private readonly orgContext = inject(OrgContextService);
   private readonly programs = inject(ProgramsAdminService);
   private readonly enrollments = inject(ProgramEnrollmentsAdminService);
   readonly deniedScopes = signal<string[]>([]);
@@ -33,9 +35,10 @@ export class ProgramAdminAnalyticsService {
   private readonly canReadProgramAnalytics$ = combineLatest([
     this.auth.ready$,
     this.auth.profile$,
+    this.orgContext.context$,
   ]).pipe(
     filter(([ready]) => ready),
-    map(([_, profile]) => this.capabilities.canAccessProgramAdmin(profile)),
+    map(([_, profile, ctx]) => this.capabilities.canAccessProgramAdmin(profile, ctx)),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 

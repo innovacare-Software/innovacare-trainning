@@ -29,7 +29,14 @@ import {
 } from '@angular/fire/firestore';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
-const AUTO_CONNECTED_ORG_ID = 'Waxxi8M4qpTSsoGJ8fJS';
+/**
+ * Legacy public-org id (Innovacare main).
+ *
+ * SECURITY: New users MUST NOT be auto-attached to this org. It is kept only
+ * for read-only public catalog access. Authorization for any private/admin
+ * area is granted exclusively via `userOrgMemberships`.
+ */
+const LEGACY_PUBLIC_ORG_ID = 'Waxxi8M4qpTSsoGJ8fJS';
 
 export type AppRole = 'super_admin' | 'manager' | 'admin' | 'learner' | 'guest' | 'instructor' | 'programAdmin' | 'programStaff' | 'programLearner';
 
@@ -110,14 +117,47 @@ export class AuthService {
         return;
       }
 
-      const ref = doc(this.afs, `users/${user.uid}`);
+      const expectedUid = user.uid;
+      const ref = doc(this.afs, `users/${expectedUid}`);
       this.profileSub = this.inContext(() => docData(ref, { idField: 'uid' })).subscribe({
         next: (profile: any) => {
-          this.profileSubject.next(profile ? (profile as AppProfile) : null);
+          // Guard against late emissions from a previous user's listener
+          // arriving after a fast account switch.
+          if (this.auth.currentUser?.uid !== expectedUid) {
+            return;
+          }
+
+          if (profile && profile.uid) {
+            this.profileSubject.next(profile as AppProfile);
+          } else {
+            // Doc missing: surface a minimal profile so the login flow can
+            // resolve instead of hanging forever waiting for `profile.uid`.
+            // Downstream guards still gate on role/orgId via memberships.
+            console.warn('[AuthService] users/' + expectedUid + ' is missing — using fallback profile.');
+            this.profileSubject.next({
+              uid: expectedUid,
+              email: user.email ?? '',
+              role: 'guest',
+              active: true,
+              orgId: null,
+            } as AppProfile);
+          }
           this.readySubject.next(true);
         },
-        error: () => {
-          this.profileSubject.next(null);
+        error: (err) => {
+          console.error('[AuthService] users/' + expectedUid + ' read failed', err);
+          if (this.auth.currentUser?.uid !== expectedUid) {
+            return;
+          }
+          // Same fallback as missing-doc: keep the spinner from hanging while
+          // the user is redirected to a safe area for a super_admin to fix.
+          this.profileSubject.next({
+            uid: expectedUid,
+            email: user.email ?? '',
+            role: 'guest',
+            active: true,
+            orgId: null,
+          } as AppProfile);
           this.readySubject.next(true);
         },
       });
@@ -173,7 +213,10 @@ export class AuthService {
       email: cred.user.email ?? email,
       displayName: fullName,
       role: 'guest',
-      orgId: AUTO_CONNECTED_ORG_ID,
+      // SECURITY: do NOT auto-attach to the public org. Guests get read-only
+      // public catalog access without an orgId. A super_admin must explicitly
+      // create a userOrgMembership to grant private access.
+      orgId: null,
       active: true,
     });
 
@@ -198,11 +241,11 @@ export class AuthService {
       email: cred.user.email ?? '',
       displayName: cred.user.displayName ?? '',
       role: 'guest',
-      orgId: AUTO_CONNECTED_ORG_ID,
+      // SECURITY: do NOT auto-attach to the public org (see registerWithEmail).
+      orgId: null,
       active: true,
     });
 
-    await this.reconcileAutoConnectedGuestProfile(cred.user.uid);
     await this.markLoginActivity(cred.user.uid);
 
     return cred;
@@ -223,13 +266,17 @@ export class AuthService {
 
     // Try accessCode/orgId field variants first.
     for (const candidate of candidates) {
-      const byAccessCode = await getDocs(query(organizationsRef, where('accessCode', '==', candidate)));
+      const byAccessCode = await this.inContext(
+        () => getDocs(query(organizationsRef, where('accessCode', '==', candidate)))
+      );
       if (!byAccessCode.empty) {
         orgDoc = byAccessCode.docs[0];
         break;
       }
 
-      const byOrgIdField = await getDocs(query(organizationsRef, where('orgId', '==', candidate)));
+      const byOrgIdField = await this.inContext(
+        () => getDocs(query(organizationsRef, where('orgId', '==', candidate)))
+      );
       if (!byOrgIdField.empty) {
         orgDoc = byOrgIdField.docs[0];
         break;
@@ -239,7 +286,7 @@ export class AuthService {
     // Legacy fallback: some tenants use the organization document id as login code.
     if (!orgDoc) {
       for (const candidate of candidates) {
-        const byDocId = await getDoc(doc(this.afs, `organizations/${candidate}`));
+        const byDocId = await this.inContext(() => getDoc(doc(this.afs, `organizations/${candidate}`)));
         if (byDocId.exists()) {
           orgDoc = byDocId;
           break;
@@ -283,7 +330,7 @@ export class AuthService {
     );
 
     const userRef = doc(this.afs, `users/${cred.user.uid}`);
-    const userSnap = await getDoc(userRef);
+    const userSnap = await this.inContext(() => getDoc(userRef));
 
     if (!userSnap.exists()) {
       throw new Error('User profile not found.');
@@ -372,22 +419,26 @@ export class AuthService {
   }
 
   private async ensureUserProfile(profile: AppProfile): Promise<void> {
-    await setDoc(
-      doc(this.afs, `users/${profile.uid}`),
-      {
-        uid: profile.uid,
-        email: profile.email ?? '',
-        role: profile.role,
-        orgId: profile.orgId ?? null,
-        accessCode: profile.accessCode ?? null,
-        orgAccessCode: profile.orgAccessCode ?? null,
-        active: profile.active ?? true,
-        displayName: profile.displayName ?? '',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
+    // SECURITY: never overwrite an existing orgId with null. The orgId field
+    // is informational only (last-known org) and authorization happens via
+    // userOrgMemberships. We omit orgId from the merge payload when caller
+    // does not explicitly provide one, so guest auto-creation never resets a
+    // legitimate admin's org assignment.
+    const payload: Record<string, unknown> = {
+      uid: profile.uid,
+      email: profile.email ?? '',
+      role: profile.role,
+      accessCode: profile.accessCode ?? null,
+      orgAccessCode: profile.orgAccessCode ?? null,
+      active: profile.active ?? true,
+      displayName: profile.displayName ?? '',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    if (profile.orgId) {
+      payload['orgId'] = profile.orgId;
+    }
+    await setDoc(doc(this.afs, `users/${profile.uid}`), payload, { merge: true });
   }
 
   private async storeRegistrationRecord(
@@ -410,7 +461,9 @@ export class AuthService {
         source: 'public_register',
         status: 'new',
         role: 'guest',
-        orgId: AUTO_CONNECTED_ORG_ID,
+        // SECURITY: registration is org-agnostic. orgId is assigned only when
+        // a super_admin creates an explicit userOrgMembership.
+        orgId: null,
         profileComplete: true,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -419,31 +472,10 @@ export class AuthService {
     );
   }
 
-  private async reconcileAutoConnectedGuestProfile(uid: string): Promise<void> {
-    const userRef = doc(this.afs, `users/${uid}`);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      return;
-    }
-
-    const profile = userSnap.data() as AppProfile;
-    const role = String(profile.role || profile.primaryRole || '').trim();
-    if (role !== 'guest') {
-      return;
-    }
-
-    const currentOrgId = String(profile.orgId || '').trim();
-    if (currentOrgId === AUTO_CONNECTED_ORG_ID) {
-      return;
-    }
-
-    await setDoc(
-      userRef,
-      {
-        orgId: AUTO_CONNECTED_ORG_ID,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
+  private async reconcileAutoConnectedGuestProfile(_uid: string): Promise<void> {
+    // SECURITY: deprecated. Force-resetting a user's orgId to the public org
+    // is dangerous (could undo super-admin assignments). Kept as no-op for
+    // backward compatibility. Use userOrgMemberships for any org assignment.
+    return;
   }
 }

@@ -4,8 +4,9 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { of, switchMap } from 'rxjs';
 import { AuthService } from '../../core/auth';
-import { OrgContextService } from '../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../core/organization/org-context.service';
 import { OrganizationAdminDashboardService } from '../../core/organization/services/organization-admin-dashboard.service';
+import { SuperAdminOrganizationsService } from '../superAdmin/services/super-admin-organizations';
 import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 import { GlobalSearchTriggerComponent } from '../../shared/global-search/global-search-trigger.component';
 import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-trigger.component';
@@ -33,9 +34,9 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
       <header class="oa-top">
         <div class="oa-top-copy">
           <p class="oa-kicker">Admin Level 2 · Organization Control Center</p>
-          <h1>Organization Admin</h1>
+          <h1 class="oa-org-name">{{ orgName() || 'Organization Admin' }}</h1>
           <p>Operate users, assignments, compliance and interventions from a single org-scoped workspace.</p>
-          <p class="oa-org-context">Org context: <strong>{{ orgId() || 'n/a' }}</strong> · Role: <strong>{{ roleLabel() }}</strong></p>
+          <p class="oa-org-context">Role: <strong>{{ roleLabel() }}</strong></p>
         </div>
         <div class="oa-top-actions">
           <app-global-search-trigger></app-global-search-trigger>
@@ -82,6 +83,8 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
         <a routerLink="/org-admin/audit" routerLinkActive="active">Audit</a>
         <a routerLink="/org-admin/alerts" routerLinkActive="active">Alerts</a>
         <a routerLink="/org-admin/troubleshooting" routerLinkActive="active">Troubleshooting</a>
+        <a routerLink="/admin/security" routerLinkActive="active">Security</a>
+        <a routerLink="/admin/analytics/shares" routerLinkActive="active">Share Analytics</a>
       </nav>
 
       <main class="oa-content">
@@ -113,6 +116,7 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
     .oa-top-copy { max-width: 760px; }
     .oa-kicker { margin: 0; text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; font-weight: 800; color: #55779a; }
     .oa-top h1 { margin: 0; font-size: 1.55rem; color: #132d48; }
+    .oa-org-name { font-size: 2.1rem !important; font-weight: 900; letter-spacing: -0.02em; background: linear-gradient(95deg, #0f3e68 0%, #2070bd 50%, #2aa9d8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 6px 22px rgba(15, 62, 104, 0.22); padding: 0.1rem 0; }
     .oa-top p { margin: .35rem 0 0; color: #496682; }
     .oa-org-context strong { color: #14385a; }
     .oa-top-actions { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; justify-content: flex-end; }
@@ -139,18 +143,8 @@ export class OrgAdminShellComponent {
   private readonly router = inject(Router);
   private readonly ctx = inject(OrgContextService);
   private readonly dashboard = inject(OrganizationAdminDashboardService);
-  readonly context = toSignal(this.ctx.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: '',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly orgsSvc = inject(SuperAdminOrganizationsService);
+  readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
   readonly orgId = computed(() => this.context().orgId);
   readonly roleLabel = computed(() => this.context().orgRole || this.context().role || 'org_admin');
@@ -159,6 +153,11 @@ export class OrgAdminShellComponent {
     this.orgId$.pipe(switchMap((orgId) => (orgId ? this.dashboard.stats(orgId) : of(null as any)))),
     { initialValue: null as any }
   );
+  readonly organization = toSignal(
+    this.orgId$.pipe(switchMap((id) => (id ? this.orgsSvc.getOrganizationById(id) : of(null)))),
+    { initialValue: null as any }
+  );
+  readonly orgName = computed(() => this.organization()?.name || '');
 
   async logout(): Promise<void> {
     await this.auth.logout();

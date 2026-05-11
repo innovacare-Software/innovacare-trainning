@@ -26,6 +26,12 @@ export class Organizations {
 
   loading = signal(false);
   notice = signal('');
+  editingId = signal<string | null>(null);
+
+  // Track which organization access codes are revealed in the table.
+  private revealedCodes = signal<Set<string>>(new Set<string>());
+  // Track recently-copied access codes for transient "Copied" feedback.
+  private copiedCodes = signal<Set<string>>(new Set<string>());
 
   newOrg = {
     orgId: '',
@@ -106,7 +112,33 @@ export class Organizations {
       ownerDisplayName: '',
       accessCode: '',
     };
+    this.editingId.set(null);
     this.notice.set('');
+  }
+
+  startEdit(orgId: string | undefined) {
+    if (!orgId) {
+      return;
+    }
+    const row = this.rows().find((r) => r.organization.id === orgId);
+    if (!row) {
+      this.notice.set('Organization not found.');
+      return;
+    }
+    const org = row.organization as any;
+    this.newOrg = {
+      orgId: org.orgId || '',
+      name: org.name || '',
+      type: (org.type as OrgType) || 'health',
+      plan: (org.plan as PlanType) || 'free',
+      ownerUid: org.ownerUid || '',
+      ownerEmail: org.ownerEmail || '',
+      ownerDisplayName: org.ownerDisplayName || '',
+      accessCode: org.accessCode || '',
+    };
+    this.editingId.set(orgId);
+    this.notice.set('');
+    this.scrollToForm();
   }
 
   async createWithOwner() {
@@ -153,7 +185,8 @@ export class Organizations {
   }
 
   async editOrganization(orgId: string | undefined) {
-    if (!orgId || orgId.trim() === '') {
+    const targetId = orgId || this.editingId();
+    if (!targetId || targetId.trim() === '') {
       this.notice.set('Organization ID is required.');
       return;
     }
@@ -165,8 +198,8 @@ export class Organizations {
     this.loading.set(true);
     this.notice.set('');
     try {
-      await this.orgSvc.update(orgId, {
-        name: this.newOrg.name,
+      await this.orgSvc.update(targetId, {
+        name: this.newOrg.name.trim(),
         type: this.newOrg.type,
         plan: this.newOrg.plan,
       });
@@ -187,11 +220,18 @@ export class Organizations {
       return;
     }
 
+    if (!confirm('Delete this organization permanently? This cannot be undone.')) {
+      return;
+    }
+
     this.loading.set(true);
     this.notice.set('');
     try {
       await this.orgSvc.delete(orgId);
       this.notice.set('Organization deleted successfully.');
+      if (this.editingId() === orgId) {
+        this.resetForm();
+      }
       this.applyFilters();
     } catch (e: any) {
       this.notice.set(e?.message || 'Failed to delete organization.');
@@ -202,5 +242,55 @@ export class Organizations {
 
   totalPages() {
     return Math.max(1, Math.ceil(this.filteredRows().length / this.pageSize));
+  }
+
+  // ---------- Access code visibility / clipboard helpers ----------
+  // Codes are masked by default; super admins can reveal or copy them to share
+  // with org users so they can sign in via the Organization tab.
+  isCodeVisible(orgId: string | undefined): boolean {
+    if (!orgId) {
+      return false;
+    }
+    return this.revealedCodes().has(orgId);
+  }
+
+  toggleCodeVisibility(orgId: string | undefined): void {
+    if (!orgId) {
+      return;
+    }
+    const next = new Set(this.revealedCodes());
+    if (next.has(orgId)) {
+      next.delete(orgId);
+    } else {
+      next.add(orgId);
+    }
+    this.revealedCodes.set(next);
+  }
+
+  wasCodeCopied(orgId: string | undefined): boolean {
+    if (!orgId) {
+      return false;
+    }
+    return this.copiedCodes().has(orgId);
+  }
+
+  async copyAccessCode(orgId: string | undefined, code: string | null | undefined): Promise<void> {
+    if (!orgId || !code) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(code);
+      const next = new Set(this.copiedCodes());
+      next.add(orgId);
+      this.copiedCodes.set(next);
+      // Clear the visual feedback after a short delay.
+      setTimeout(() => {
+        const cleared = new Set(this.copiedCodes());
+        cleared.delete(orgId);
+        this.copiedCodes.set(cleared);
+      }, 2000);
+    } catch (e) {
+      this.notice.set('Could not copy access code to clipboard.');
+    }
   }
 }

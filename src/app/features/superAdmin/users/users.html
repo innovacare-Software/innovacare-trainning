@@ -68,6 +68,7 @@
             </button>
             <button class="btn" (click)="normalizeUser(u.uid)">Normalize</button>
             <a class="btn" [routerLink]="['/super-admin/users', u.uid, 'program-access']">Diagnose access</a>
+            <a class="btn" [routerLink]="['/super-admin/users', u.uid, 'memberships']">Memberships</a>
           </div>
         </div>
       </div>

@@ -31,6 +31,10 @@ export class ProgramsAdminService {
     return this.programs.archiveProgram(programId);
   }
 
+  deleteProgram(programId: string): Promise<void> {
+    return this.programs.deleteProgram(programId);
+  }
+
   activateProgram(programId: string): Promise<void> {
     return this.programs.updateProgram(programId, {
       active: true,

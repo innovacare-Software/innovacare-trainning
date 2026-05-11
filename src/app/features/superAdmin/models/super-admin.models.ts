@@ -19,6 +19,7 @@ export interface SuperAdminOrganization {
   active?: boolean;
   ownerUid?: string | null;
   ownerEmail?: string | null;
+  ownerDisplayName?: string | null;
   accessCode?: string | null;
   contactName?: string | null;
   contactEmail?: string | null;

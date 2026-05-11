@@ -28,24 +28,24 @@ export class TestimonialsPage {
   readonly highlightStory = {
     title: { en: 'Success Stories: From study pressure to exam confidence', fr: 'Histoires de réussite : de la pression des études à la confiance pour l’examen' },
     body: { en: 'Delve into real learner stories, institutional wins and premium product experiences that made Innovacare feel trustworthy before the first purchase and valuable after enrollment.', fr: 'Découvrez de vraies histoires d’apprenants, des réussites institutionnelles et des expériences premium qui rendent Innovacare crédible avant l’achat et précieuse après l’inscription.' },
-    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
+    imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_09_2_ibwoar.png',
     imageAlt: { en: 'Learner success story illustration', fr: 'Illustration de réussite apprenante' },
   };
 
   readonly gallery = [
     {
       title: { en: 'Learner momentum', fr: 'Élan de l’apprenant' },
-      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/71EA67DD-9BAC-401A-A907-855E2E2297F7_ozf7vw.png',
+      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_37_36_2_jmmn4p.png',
       imageAlt: { en: 'Learner support and study momentum visual', fr: 'Visuel de soutien et d’élan d’étude' },
     },
     {
       title: { en: 'Exam readiness', fr: 'Préparation à l’examen' },
-      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png',
+      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
       imageAlt: { en: 'Exam readiness and confidence visual', fr: 'Visuel de préparation et de confiance' },
     },
     {
       title: { en: 'Institutional trust', fr: 'Confiance institutionnelle' },
-      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622329/3AB0EC16-DEE3-4198-AD16-3F74FF0DCEAB_j85tzf.png',
+      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_08_1_gv03b6.png',
       imageAlt: { en: 'Institutional learning platform visual', fr: 'Visuel de plateforme d’apprentissage institutionnelle' },
     },
   ];

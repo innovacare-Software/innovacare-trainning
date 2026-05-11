@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationTroubleshootingService } from '../../../../core/organization/services/organization-troubleshooting.service';
 
 @Component({
@@ -108,18 +108,7 @@ export class OrgAdminTroubleshootingPage {
   riskFilter = 'all';
   search = '';
 
-  private readonly context = toSignal(this.ctx.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: '',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
   readonly orgId = computed(() => this.context().orgId || '');
   readonly issues = toSignal(this.troubleshooting.list(this.orgId()), { initialValue: [] as any[] });

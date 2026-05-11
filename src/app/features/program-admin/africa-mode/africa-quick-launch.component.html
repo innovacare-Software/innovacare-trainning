@@ -129,51 +129,109 @@
       <p class="am-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
     </div>
 
-    <!-- RIGHT: Stripe Connect -->
+    <!-- RIGHT: Reversement partenaire -->
     <aside class="am-right-col">
       <div class="am-stripe-card">
         <div class="am-stripe-top">
           <div class="am-stripe-logo-wrap">
-            <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg" class="am-stripe-logo">
-              <path d="M8.48 9.8c0-.88.72-1.22 1.9-1.22 1.7 0 3.84.52 5.54 1.44V5.12C14.2 4.44 12.58 4 10.4 4 5.96 4 3 6.3 3 10.04c0 5.9 8.12 4.96 8.12 7.5 0 1.04-.9 1.38-2.16 1.38-1.88 0-4.26-.78-6.16-1.82v5.02C4.56 22.72 6.3 23.2 8 23.2c4.58 0 7.72-2.26 7.72-6.04C15.7 11.1 7.58 12.22 8.48 9.8z" fill="white"/>
-              <path d="M27.86 4.4l-.36 1.88h-2.08L24.06 12h-3.3l1.36-5.72h-2.08l.36-1.88h7.46zm3.4 0l-2.22 11.6h-3.3l2.22-11.6h3.3zm7.54 7.18c0 2.2-1.24 4.62-4.82 4.62-1.98 0-3.36-.86-3.36-2.64 0-2.32 1.86-3.06 4.62-3.06h.78v-.28c0-.82-.42-1.12-1.42-1.12-.88 0-2.06.32-2.94.72l-.64-2.32c1.08-.54 2.7-.9 4.08-.9 2.92 0 4.28 1.4 4.28 4.1v.88h-.58zm-3.3.96c-.74 0-1.78.14-1.78.98 0 .48.34.72.9.72.9 0 1.6-.7 1.6-1.7h-.72zm14.66-8.14l-3.08 11.6h-3.14l-.32-1.12c-.66.88-1.66 1.32-2.78 1.32-2.38 0-3.84-1.88-3.84-4.74 0-3.08 1.78-5.06 4.38-5.06.92 0 1.7.3 2.28.84l1.2-4.84h3.3zm-5.56 9.08c.92 0 1.58-.8 1.58-2.08 0-1-.46-1.62-1.3-1.62-.92 0-1.58.8-1.58 2.06 0 1.02.46 1.64 1.3 1.64z" fill="white"/>
-            </svg>
+            <span class="am-section-eyebrow">Reversement partenaire</span>
           </div>
           <div class="am-stripe-status-wrap">
-            <span class="am-stripe-pill" [class.am-stripe-pill--ready]="stripeAccount()?.stripeAccountId">
+            <span class="am-stripe-pill" [class]="'am-stripe-pill ' + payoutStatusClass()">
               <span class="am-stripe-pill-dot"></span>
-              {{ stripeStatusLabel() }}
+              <span>{{ payoutStatusLabel() }}</span>
             </span>
+            <button type="button" class="am-stripe-refresh-btn" (click)="loadPartnerPayoutSummary()" title="Rafraîchir les reversements">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
           </div>
         </div>
 
         <div class="am-stripe-body">
-          <p class="am-section-eyebrow">Payout Infrastructure</p>
-          <h2 class="am-stripe-title">Connect Stripe for Automatic Payouts</h2>
-          <p class="am-stripe-sub">Learners pay by card. Your 70% share is transferred automatically via Stripe Connect — no manual invoicing needed.</p>
+          <p class="am-section-eyebrow">Infrastructure de paiement</p>
+          <h2 class="am-stripe-title">Reversement manuel partenaire</h2>
+          <p class="am-stripe-sub">Les apprenants paient sur Innovacare via Stripe. Votre part partenaire est calculée automatiquement, puis reversée manuellement selon votre méthode configurée.</p>
 
           <div class="am-stripe-split">
             <div class="am-stripe-split-item">
               <span class="am-stripe-split-pct am-stripe-split-pct--trainer">70%</span>
-              <span class="am-stripe-split-label">Your payout</span>
+              <span class="am-stripe-split-label">Partenaire</span>
             </div>
             <div class="am-stripe-split-sep"></div>
             <div class="am-stripe-split-item">
               <span class="am-stripe-split-pct am-stripe-split-pct--platform">30%</span>
-              <span class="am-stripe-split-label">Platform fee</span>
+              <span class="am-stripe-split-label">Frais plateforme</span>
             </div>
+          </div>
+
+          <div class="am-stripe-active-notice">
+            <span class="am-stripe-active-badge">ℹ️ Stripe Connect optionnel</span>
+            <p>Stripe Connect pourra être activé plus tard pour automatiser les virements. Phase 1 utilise un reversement manuel sécurisé.</p>
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Méthode de reversement</label>
+            <select class="am-input am-select" [ngModel]="payoutMethod()" (ngModelChange)="payoutMethod.set($event)">
+              <option value="MTN_MOBILE_MONEY">MTN Mobile Money</option>
+              <option value="ORANGE_MONEY">Orange Money</option>
+              <option value="WISE">Wise</option>
+              <option value="BANK_TRANSFER">Virement bancaire</option>
+              <option value="MANUAL_OTHER">Autre (manuel)</option>
+            </select>
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Pays de reversement</label>
+            <input class="am-input" type="text" [ngModel]="payoutCountry()" (ngModelChange)="payoutCountry.set($event)" placeholder="ex: Cameroun" />
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Devise de reversement</label>
+            <input class="am-input" type="text" [ngModel]="payoutCurrency()" (ngModelChange)="payoutCurrency.set($event)" placeholder="USD / XAF / EUR" />
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Nom du titulaire</label>
+            <input class="am-input" type="text" [ngModel]="accountHolderName()" (ngModelChange)="accountHolderName.set($event)" placeholder="Nom complet" />
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Provider Mobile Money</label>
+            <input class="am-input" type="text" [ngModel]="mobileMoneyProvider()" (ngModelChange)="mobileMoneyProvider.set($event)" placeholder="MTN ou Orange" />
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Téléphone / Compte (masqué)</label>
+            <input class="am-input" type="text" [ngModel]="mobileMoneyPhone()" (ngModelChange)="mobileMoneyPhone.set($event)" placeholder="***1234" />
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Banque</label>
+            <input class="am-input" type="text" [ngModel]="bankName()" (ngModelChange)="bankName.set($event)" placeholder="Nom de banque" />
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Instructions / compte (masqué)</label>
+            <textarea class="am-input am-textarea" rows="2" [ngModel]="bankInstructions()" (ngModelChange)="bankInstructions.set($event)" placeholder="IBAN/compte masqué uniquement"></textarea>
+          </div>
+
+          <div class="am-field">
+            <label class="am-label">Notes reversement</label>
+            <textarea class="am-input am-textarea" rows="2" [ngModel]="payoutNotes()" (ngModelChange)="payoutNotes.set($event)" placeholder="Précisions utiles pour l'équipe Innovacare"></textarea>
           </div>
         </div>
 
         <div class="am-stripe-footer">
-          <button type="button" class="am-btn-stripe" (click)="connectWithStripe()" [disabled]="stripeConnectBusy()">
-            <svg *ngIf="!stripeConnectBusy()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            <span class="am-spinner" *ngIf="stripeConnectBusy()"></span>
-            {{ stripeConnectBusy() ? 'Redirecting to Stripe...' : (stripeAccount()?.stripeAccountId ? 'Continue Stripe setup' : 'Connect with Stripe') }}
+          <button type="button" class="am-btn-stripe" (click)="saveManualPayoutSettings()" [disabled]="payoutSaveBusy()">
+            {{ payoutSaveBusy() ? 'Enregistrement...' : 'Enregistrer la méthode de reversement' }}
           </button>
-          <p class="am-stripe-note" *ngIf="!stripeConnectError() && !stripeConnectNotice()">Secured by Stripe. Your banking info is never stored on our servers.</p>
-          <p class="am-error am-stripe-error" *ngIf="stripeConnectError()">{{ stripeConnectError() }}</p>
-          <p class="am-info-box" *ngIf="stripeConnectNotice()">{{ stripeConnectNotice() }}</p>
+          <button type="button" class="am-btn-secondary am-btn-secondary--sm" (click)="connectWithStripe()" [disabled]="stripeConnectBusy()">
+            Activer Stripe Connect plus tard (optionnel)
+          </button>
+          <p class="am-error am-stripe-error" *ngIf="payoutSaveError()">{{ payoutSaveError() }}</p>
+          <p class="am-info-box" *ngIf="payoutSaveSuccess()">{{ payoutSaveSuccess() }}</p>
+          <p class="am-stripe-note">Ne partagez jamais un numéro complet ou un compte complet. Utilisez des informations masquées uniquement.</p>
+          <p class="am-stripe-checked-at">Pending: {{ payoutPendingCount() }} · Paid: {{ payoutPaidCount() }} · Statut optionnel: stripe_connect_optional</p>
         </div>
       </div>
     </aside>

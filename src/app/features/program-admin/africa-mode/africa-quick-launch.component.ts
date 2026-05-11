@@ -1,13 +1,14 @@
-﻿import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Firestore, doc, setDoc, serverTimestamp } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth';
-import { StripeConnectService } from '../../../core/stripe-connect.service';
+import { StripeConnectService, ConnectAccountStatus, StripeConnectStatusResult } from '../../../core/stripe-connect.service';
 import {
   ProgramCategory,
   ProgramDeliveryMode,
@@ -36,6 +37,9 @@ export interface AfricaModule {
   description: string;
 }
 
+type PartnerPayoutMethod = 'MTN_MOBILE_MONEY' | 'ORANGE_MONEY' | 'WISE' | 'BANK_TRANSFER' | 'MANUAL_OTHER';
+type PartnerPayoutUiStatus = 'payout_method_missing' | 'manual_payout_ready' | 'payout_pending' | 'payout_paid' | 'stripe_connect_optional';
+
 @Component({
   selector: 'app-africa-quick-launch',
   standalone: true,
@@ -43,9 +47,11 @@ export interface AfricaModule {
   templateUrl: './africa-quick-launch.component.html',
   styleUrls: ['./africa-quick-launch.component.css'],
 })
-export class AfricaQuickLaunchComponent {
+export class AfricaQuickLaunchComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly firestore = inject(Firestore);
   private readonly storage = inject(Storage);
   private readonly authService = inject(AuthService);
   private readonly programsService = inject(ProgramsService);
@@ -72,9 +78,27 @@ export class AfricaQuickLaunchComponent {
   readonly wizardStep = signal(1);
   readonly creating = signal(false);
   readonly errorMessage = signal('');
+  // ─── Stripe Connect state machine ────────────────────────────────────────
   readonly stripeConnectBusy = signal(false);
   readonly stripeConnectError = signal('');
-  readonly stripeConnectNotice = signal('');
+  readonly stripeStatusLoading = signal(false);
+  readonly stripeStatusCheckedAt = signal<string | null>(null);
+  readonly connectStatus = signal<ConnectAccountStatus | null>(null);
+  readonly connectStatusResult = signal<StripeConnectStatusResult | null>(null);
+  readonly payoutSaveBusy = signal(false);
+  readonly payoutSaveError = signal('');
+  readonly payoutSaveSuccess = signal('');
+  readonly payoutPendingCount = signal(0);
+  readonly payoutPaidCount = signal(0);
+  readonly payoutMethod = signal<PartnerPayoutMethod>('MANUAL_OTHER');
+  readonly payoutCountry = signal('');
+  readonly payoutCurrency = signal('USD');
+  readonly accountHolderName = signal('');
+  readonly mobileMoneyProvider = signal('');
+  readonly mobileMoneyPhone = signal('');
+  readonly bankName = signal('');
+  readonly bankInstructions = signal('');
+  readonly payoutNotes = signal('');
   readonly isPublished = signal(false);
   readonly publishedProgramId = signal('');
   readonly publishedTitle = signal('');
@@ -101,18 +125,128 @@ export class AfricaQuickLaunchComponent {
   readonly totalStudents = computed(() => this.enrollments().length);
   readonly revenuePlaceholder = computed(() => 0);
   readonly stripeStatusLabel = computed(() => {
-    const account = this.stripeAccount();
-    if (!account?.stripeAccountId) {
-      return 'Not connected';
+    const status = this.connectStatus();
+    if (!status) {
+      const account = this.stripeAccount();
+      if (!account?.stripeAccountId) return 'Non connecté';
+      if (account.stripeChargesEnabled && account.stripePayoutsEnabled) return 'Prêt à recevoir les paiements';
+      if (account.stripeDetailsSubmitted) return 'Vérification en cours';
+      return 'Intégration Stripe en cours';
     }
-    if (account.stripeChargesEnabled && account.stripePayoutsEnabled) {
-      return 'Ready to receive payouts';
-    }
-    if (account.stripeDetailsSubmitted) {
-      return 'Stripe linked, final checks pending';
-    }
-    return 'Stripe onboarding in progress';
+    const labels: Record<ConnectAccountStatus, string> = {
+      missing_account: 'Compte Stripe non créé',
+      onboarding_required: 'Intégration requise',
+      pending_verification: 'Vérification Stripe en cours',
+      charges_enabled: 'Paiements activés',
+      fully_active: 'Stripe actif — prêt à recevoir les paiements',
+      restricted: 'Compte restreint — informations manquantes',
+    };
+    return labels[status] ?? 'Statut inconnu';
   });
+
+  readonly isStripeFullyActive = computed(() => this.connectStatus() === 'fully_active');
+  readonly isStripeMissingAccount = computed(() => this.connectStatus() === 'missing_account');
+  readonly isStripeOnboardingRequired = computed(() =>
+    this.connectStatus() === 'onboarding_required' || this.connectStatus() === null
+  );
+  readonly isStripePendingVerification = computed(() => this.connectStatus() === 'pending_verification');
+  readonly isStripeRestricted = computed(() => this.connectStatus() === 'restricted');
+  readonly isStripeChargesEnabled = computed(() => this.connectStatus() === 'charges_enabled');
+  readonly isManualPayoutConfigured = computed(() => this.stripeAccount()?.payoutMethodConfigured === true);
+  readonly payoutUiStatus = computed<PartnerPayoutUiStatus>(() => {
+    if (this.payoutPendingCount() > 0) return 'payout_pending';
+    if (this.payoutPaidCount() > 0) return 'payout_paid';
+    if (this.isManualPayoutConfigured()) return 'manual_payout_ready';
+    return 'payout_method_missing';
+  });
+
+  readonly payoutStatusLabel = computed(() => {
+    const labels: Record<PartnerPayoutUiStatus, string> = {
+      payout_method_missing: 'Méthode de reversement à configurer',
+      manual_payout_ready: 'Reversement manuel activé',
+      payout_pending: 'Reversement en attente',
+      payout_paid: 'Reversement effectué',
+      stripe_connect_optional: 'Stripe Connect optionnel',
+    };
+    return labels[this.payoutUiStatus()];
+  });
+
+  private readonly payoutHydrationEffect = effect(() => {
+    const account = this.stripeAccount();
+    if (!account) return;
+    this.payoutMethod.set((account.payoutMethod as PartnerPayoutMethod) || this.payoutMethod());
+    if (!this.payoutCountry()) this.payoutCountry.set(String(account.payoutCountry || ''));
+    if (!this.payoutCurrency()) this.payoutCurrency.set(String(account.payoutCurrency || 'USD'));
+    if (!this.accountHolderName()) this.accountHolderName.set(String(account.accountHolderName || ''));
+    if (!this.mobileMoneyProvider()) this.mobileMoneyProvider.set(String(account.mobileMoneyProvider || ''));
+    if (!this.mobileMoneyPhone()) this.mobileMoneyPhone.set(String(account.mobileMoneyPhoneMasked || ''));
+    if (!this.bankName()) this.bankName.set(String(account.bankName || ''));
+    if (!this.bankInstructions()) this.bankInstructions.set(String(account.bankAccountMasked || ''));
+    if (!this.payoutNotes()) this.payoutNotes.set(String(account.payoutNotes || ''));
+  });
+
+  ngOnInit(): void {
+    // Rafraîchir le statut réel au chargement et à chaque retour depuis Stripe
+    this.route.queryParamMap.subscribe((params) => {
+      const stripeParam = params.get('stripe');
+      if (stripeParam === 'return' || stripeParam === 'refresh') {
+        // Effacer le param de l'URL sans naviguer
+        this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+        // Forcer un rechargement du statut depuis Stripe API
+        this.loadConnectAccountStatus();
+      } else {
+        this.loadConnectAccountStatus();
+      }
+    });
+
+    this.hydratePayoutFormFromOrganization();
+    this.loadPartnerPayoutSummary();
+  }
+
+  hydratePayoutFormFromOrganization(): void {
+    const account = this.stripeAccount();
+    if (!account) return;
+    this.payoutMethod.set((account.payoutMethod as PartnerPayoutMethod) || 'MANUAL_OTHER');
+    this.payoutCountry.set(String(account.payoutCountry || ''));
+    this.payoutCurrency.set(String(account.payoutCurrency || 'USD'));
+    this.accountHolderName.set(String(account.accountHolderName || ''));
+    this.mobileMoneyProvider.set(String(account.mobileMoneyProvider || ''));
+    this.mobileMoneyPhone.set(String(account.mobileMoneyPhoneMasked || ''));
+    this.bankName.set(String(account.bankName || ''));
+    this.bankInstructions.set(String(account.bankAccountMasked || ''));
+    this.payoutNotes.set(String(account.payoutNotes || ''));
+  }
+
+  async loadPartnerPayoutSummary(): Promise<void> {
+    try {
+      const pending = await this.stripeConnectService.getPartnerPayoutRecords('pending', 100);
+      const paid = await this.stripeConnectService.getPartnerPayoutRecords('paid', 100);
+      this.payoutPendingCount.set(Number(pending.count || 0));
+      this.payoutPaidCount.set(Number(paid.count || 0));
+    } catch {
+      this.payoutPendingCount.set(0);
+      this.payoutPaidCount.set(0);
+    }
+  }
+
+  async loadConnectAccountStatus(): Promise<void> {
+    const orgId = String(this.profile()?.orgId || '').trim();
+    if (!orgId) return;
+
+    this.stripeStatusLoading.set(true);
+    this.stripeConnectError.set('');
+
+    try {
+      const result = await this.stripeConnectService.getConnectAccountStatus(orgId);
+      this.connectStatus.set(result.status);
+      this.connectStatusResult.set(result);
+      this.stripeStatusCheckedAt.set(result.checkedAt);
+    } catch {
+      // En cas d'erreur silencieuse, on utilise les données Firestore déjà chargées
+    } finally {
+      this.stripeStatusLoading.set(false);
+    }
+  }
 
   readonly form = this.fb.group({
     courseTitle: this.fb.nonNullable.control('', [Validators.required]),
@@ -383,7 +517,7 @@ ${lesson.imageUrl ? `<img src="${lesson.imageUrl}" alt="${sanitizedTitle}" style
         category: ProgramCategory.OTHER,
         tags: [],
         imageUrl: uploadedImageUrl ??
-          'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png',
+          'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png',
         durationText: 'Self-paced',
         scheduleText: 'Flexible schedule',
         level: ProgramLevel.BEGINNER,
@@ -391,6 +525,20 @@ ${lesson.imageUrl ? `<img src="${lesson.imageUrl}" alt="${sanitizedTitle}" style
         isFeatured: false,
         active: true,
         status: ProgramStatus.PUBLISHED,
+        ownerType: 'partner',
+        payoutMode: 'manual',
+        platformFeePercent: 30,
+        partnerSharePercent: 70,
+        payoutMethodConfigured: Boolean(this.payoutMethod()),
+        payoutMethod: this.payoutMethod(),
+        payoutCountry: this.payoutCountry().trim() || undefined,
+        payoutCurrency: this.payoutCurrency().trim().toUpperCase() || 'USD',
+        accountHolderName: this.accountHolderName().trim() || undefined,
+        mobileMoneyProvider: this.mobileMoneyProvider().trim() || undefined,
+        mobileMoneyPhoneMasked: this.mobileMoneyPhone().trim() || undefined,
+        bankName: this.bankName().trim() || undefined,
+        bankAccountMasked: this.bankInstructions().trim() || undefined,
+        payoutNotes: this.payoutNotes().trim() || undefined,
         requirements: [],
         outcomes: [],
         modules: modulesPayload,
@@ -427,25 +575,84 @@ ${lesson.imageUrl ? `<img src="${lesson.imageUrl}" alt="${sanitizedTitle}" style
   async connectWithStripe(): Promise<void> {
     const orgId = String(this.profile()?.orgId || '').trim();
     if (!orgId) {
-      this.stripeConnectError.set('Your account must be linked to an organization before payouts can be enabled.');
+      this.stripeConnectError.set("Votre compte doit être lié à une organisation avant d'activer les virements.");
       return;
     }
 
     this.stripeConnectBusy.set(true);
     this.stripeConnectError.set('');
-    this.stripeConnectNotice.set('');
 
     try {
       const result = await this.stripeConnectService.connectStripeAccount(orgId);
-      this.stripeConnectNotice.set('Redirecting you to Stripe onboarding...');
       window.location.href = result.onboardingUrl;
     } catch (error) {
-      console.error(error);
-      this.stripeConnectError.set(
-        error instanceof Error ? error.message : 'Unable to open Stripe onboarding right now.'
-      );
+      const message = error instanceof Error ? error.message : "Impossible d'ouvrir l'intégration Stripe.";
+      const normalized = message.toLowerCase();
+
+      if (
+        normalized.includes('platform profile') ||
+        normalized.includes('questionnaire') ||
+        normalized.includes('failed-precondition')
+      ) {
+        this.stripeConnectError.set(
+          '⚠️ Votre profil de plateforme Stripe Connect est incomplet. ' +
+          'Ouvrez le Dashboard Stripe, complétez le questionnaire "Profil de la plateforme Connect", puis réessayez.'
+        );
+      } else {
+        this.stripeConnectError.set(message);
+      }
     } finally {
       this.stripeConnectBusy.set(false);
+    }
+  }
+
+  openStripeConnectDashboard(): void {
+    window.open('https://dashboard.stripe.com/connect/accounts/overview', '_blank', 'noopener');
+  }
+
+  payoutStatusClass(): string {
+    const status = this.payoutUiStatus();
+    if (status === 'manual_payout_ready' || status === 'payout_paid') return 'am-stripe-pill--ready';
+    if (status === 'payout_pending') return 'am-stripe-pill--pending';
+    return 'am-stripe-pill--error';
+  }
+
+  async saveManualPayoutSettings(): Promise<void> {
+    const orgId = String(this.profile()?.orgId || '').trim();
+    if (!orgId) {
+      this.payoutSaveError.set('Organisation introuvable pour enregistrer la méthode de reversement.');
+      return;
+    }
+
+    this.payoutSaveBusy.set(true);
+    this.payoutSaveError.set('');
+    this.payoutSaveSuccess.set('');
+
+    try {
+      await setDoc(
+        doc(this.firestore, `organizations/${orgId}`),
+        {
+          payoutMethodConfigured: true,
+          payoutMode: 'manual',
+          payoutMethod: this.payoutMethod(),
+          payoutCountry: this.payoutCountry().trim() || null,
+          payoutCurrency: this.payoutCurrency().trim().toUpperCase() || 'USD',
+          accountHolderName: this.accountHolderName().trim() || null,
+          mobileMoneyProvider: this.mobileMoneyProvider().trim() || null,
+          mobileMoneyPhoneMasked: this.mobileMoneyPhone().trim() || null,
+          bankName: this.bankName().trim() || null,
+          bankAccountMasked: this.bankInstructions().trim() || null,
+          payoutNotes: this.payoutNotes().trim() || null,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      this.payoutSaveSuccess.set('Méthode de reversement enregistrée.');
+      this.loadPartnerPayoutSummary();
+    } catch {
+      this.payoutSaveError.set('Impossible d’enregistrer la méthode de reversement.');
+    } finally {
+      this.payoutSaveBusy.set(false);
     }
   }
 

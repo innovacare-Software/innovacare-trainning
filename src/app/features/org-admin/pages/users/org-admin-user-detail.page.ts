@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationUsersService } from '../../../../core/organization/services/organization-users.service';
 import { OrganizationAssignmentsService } from '../../../../core/organization/services/organization-assignments.service';
 import { OrganizationProgressService } from '../../../../core/organization/services/organization-progress.service';
@@ -30,7 +30,7 @@ export class OrgAdminUserDetailPage {
   private readonly assignmentsService = inject(OrganizationAssignmentsService);
   private readonly progressService = inject(OrganizationProgressService);
 
-  private readonly context = toSignal(this.ctx.context$, { initialValue: { uid: '', orgId: null, role: '', orgRole: null, isSuperAdmin: false, isOrgAdmin: false, isOrgManager: false, isOrgLearner: false } });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly orgId = computed(() => this.context().orgId || '');
   readonly uid = toSignal(this.route.paramMap.pipe(map((p) => p.get('uid') || '')), { initialValue: '' });
   readonly user = toSignal(this.route.paramMap.pipe(map((p) => p.get('uid') || ''), switchMap((uid) => this.users.getByUid(this.orgId(), uid))), { initialValue: null as any });

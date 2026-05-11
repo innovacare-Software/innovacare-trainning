@@ -17,6 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DemoRequestDialog } from '../demo-request-dialog/demo-request-dialog';
 import { CartService } from '../../../core/cart.service';
 import { CheckoutService } from '../../../core/checkout.service';
+import { ShareButtonsComponent } from '../../../shared/share/share-buttons.component';
 
 
 
@@ -90,6 +91,7 @@ interface FaqItem {
     MatSelectModule,
     MatSnackBarModule,
     RouterModule,
+    ShareButtonsComponent,
   ],
   templateUrl: './catalogue-page.html',
   styleUrl: './catalogue-page.css',

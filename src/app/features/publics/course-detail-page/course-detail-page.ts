@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CourseCatalogService } from '../catalogue-page';
 import { Course } from '../../../data/models';
 import { CartService } from '../../../core/cart.service';
+import { ShareButtonsComponent } from '../../../shared/share/share-buttons.component';
 
 
 @Component({
@@ -22,6 +23,7 @@ import { CartService } from '../../../core/cart.service';
     MatIconModule,
     MatChipsModule,
     MatSnackBarModule,
+    ShareButtonsComponent,
   ],
   templateUrl: './course-detail-page.html',
   styleUrl: './course-detail-page.css',

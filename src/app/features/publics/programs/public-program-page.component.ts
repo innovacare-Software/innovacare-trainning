@@ -11,7 +11,7 @@ import { ProgramEnrollmentsService } from './program-enrollments.service';
 import { ProgramsService } from './programs.service';
 
 const DEFAULT_IMAGE =
-  'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775876293/8B3AC2EB-D700-4446-8E63-CFC050AB7704_aj4s69.png';
+  'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121784/ChatGPT_Image_6_mai_2026_22_40_14_4_khn31u.png';
 
 @Component({
   selector: 'app-public-program-page',

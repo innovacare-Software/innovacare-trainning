@@ -34,6 +34,13 @@
         <div class="hero-actions">
           <a class="btn-primary-premium" [routerLink]="bookLink()">Enroll Now</a>
           <a class="btn-secondary-premium" routerLink="/programs">View All Programs</a>
+          <app-share-buttons
+            [title]="currentProgram.title"
+            [url]="'/programs/' + currentProgram.id"
+            label="Share"
+            sourcePage="program_detail"
+            [programId]="currentProgram.id">
+          </app-share-buttons>
         </div>
       </div>
     </div>

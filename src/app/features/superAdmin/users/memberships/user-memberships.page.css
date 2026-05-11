@@ -1,0 +1,27 @@
+.mship-page { padding: 1.25rem 1rem; max-width: 1080px; margin: 0 auto; color: #1a2b3d; }
+.mship-header { margin-bottom: 1rem; }
+.mship-header .back { color: #1f4a72; text-decoration: none; font-weight: 600; font-size: .9rem; }
+.mship-header h1 { margin: .25rem 0 .25rem; font-size: 1.4rem; color: #112f4e; }
+.mship-header .sub { margin: 0; color: #50708e; }
+.muted { color: #6b8298; }
+.small { font-size: .8rem; }
+.alert { padding: .6rem .8rem; border-radius: .5rem; margin: .5rem 0; }
+.alert-error { background: #fdecec; color: #952121; border: 1px solid #f3c2c2; }
+.alert-info { background: #ecf6fd; color: #154d72; border: 1px solid #c3def0; }
+.card { background: #fff; border: 1px solid #d8e4ef; border-radius: .9rem; padding: 1rem 1.1rem; margin-top: 1rem; box-shadow: 0 4px 14px rgba(15,53,90,.04); }
+.card h2 { margin: 0 0 .6rem; font-size: 1.05rem; color: #163d61; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th, .tbl td { text-align: left; padding: .55rem .5rem; border-bottom: 1px solid #ebf1f8; vertical-align: middle; }
+.tbl th { font-size: .8rem; color: #50708e; text-transform: uppercase; letter-spacing: .04em; }
+.actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+.btn { padding: .35rem .7rem; border-radius: .45rem; border: 1px solid #c8d6e3; background: #f4f8fc; color: #1a3a5c; cursor: pointer; font-size: .85rem; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: #1f5d99; color: #fff; border-color: #1f5d99; }
+.btn-danger { background: #fff; color: #9a2222; border-color: #e7c0c0; }
+.badge { padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+.badge-on { background: #e3f5e8; color: #1c6d36; }
+.badge-off { background: #f1e6e6; color: #823333; }
+.form-row { display: flex; gap: .8rem; flex-wrap: wrap; align-items: flex-end; }
+.form-row label { display: flex; flex-direction: column; font-size: .8rem; color: #50708e; gap: .25rem; }
+.form-row select { padding: .4rem .55rem; border-radius: .45rem; border: 1px solid #c8d6e3; min-width: 220px; }
+code { background: #f1f4f8; padding: 0 .25rem; border-radius: .25rem; font-size: .85em; }

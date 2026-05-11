@@ -17,7 +17,7 @@ import {
   deleteDoc,
 } from '@angular/fire/firestore';
 import { combineLatest, map, Observable, of, switchMap } from 'rxjs';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { ExamPrepPaths } from '../exam-prep-paths';
 import { assembleBlueprintPreview, type BlueprintAssemblyPreview } from '../utils/exam-blueprint-assembly';
 import {
@@ -50,18 +50,7 @@ import type {
 export class ExamPrepAdminService {
   private readonly firestore = inject(Firestore);
   private readonly orgContext = inject(OrgContextService);
-  private readonly context = toSignal(this.orgContext.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: 'guest',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.orgContext.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
   readonly programs$ = this.orgScopedCollection<ExamProgram>('examPrograms');
   readonly courseGroups$ = this.orgScopedCollection<ExamCourseGroup>('examCourseGroups');

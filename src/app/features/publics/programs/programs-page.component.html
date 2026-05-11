@@ -178,6 +178,15 @@
         >
           View Program
         </button>
+
+        <app-share-buttons
+          [title]="program.title"
+          [url]="'/programs/' + program.id"
+          [compact]="true"
+          label="Share"
+          sourcePage="programs_page"
+          [programId]="program.id">
+        </app-share-buttons>
       </div>
     </article>
 

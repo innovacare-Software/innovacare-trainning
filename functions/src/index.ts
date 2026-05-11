@@ -25,6 +25,11 @@ import {
   type MobileMoneyGatewayConfig,
 } from "./mobile-money";
 import {emitNotificationEvent} from "./notifications/events";
+import {
+  handleAutomationCheckoutCompleted,
+  handleStripeRecurringEvent,
+} from "./automation/recurring";
+import {recordServerSecurityEvent} from "./security/functions";
 
 /* ─────────── Init & global opts ─────────── */
 admin.initializeApp();
@@ -85,7 +90,6 @@ type SitemapBlogSeed = {
 };
 
 const APP_ORIGIN = "https://www.innovacarereview.com";
-const STRIPE_CONNECT_PLATFORM_FEE_RATE = 0.3;
 const STRIPE_CONNECT_ONBOARDING_PATH = "/program-admin/africa-mode";
 const SITEMAP_STATIC_ENTRIES: SitemapEntry[] = [
   {loc: `${APP_ORIGIN}/`, lastmod: "2026-04-22", changefreq: "daily", priority: "1.0"},
@@ -621,6 +625,13 @@ type CartItemStored = {
 
 type OfferType = "course" | "program" | "live_class" | "wallet_topup" | "tutor_session" | "digital_product";
 
+type OwnerType = "platform" | "partner";
+type PayoutMode = "manual" | "stripe_connect";
+type PartnerPayoutMethod = "MTN_MOBILE_MONEY" | "ORANGE_MONEY" | "WISE" | "BANK_TRANSFER" | "MANUAL_OTHER";
+
+const DEFAULT_PLATFORM_FEE_PERCENT = 30;
+const DEFAULT_PARTNER_SHARE_PERCENT = 70;
+
 type ProductDoc = {
   id?: string;
   name?: string;
@@ -688,6 +699,13 @@ type PublicOfferDoc = {
   isPublic: boolean;
   category?: string;
   tags?: string[];
+  ownerType?: OwnerType;
+  ownerId?: string;
+  payoutMode?: PayoutMode;
+  platformFeePercent?: number;
+  partnerSharePercent?: number;
+  payoutMethodConfigured?: boolean;
+  payoutMethod?: PartnerPayoutMethod;
 };
 
 type ProgramDoc = {
@@ -897,6 +915,7 @@ type OrderStored = {
   currency?: string;
   status?: string;
   title?: string;
+  offerId?: string | null;
   orgId?: string | null;
   provider?: string | null;
   paymentId?: string | null;
@@ -911,7 +930,21 @@ type OrderStored = {
     amount: number;
     currency: string;
     qty: number;
+    ownerType?: OwnerType;
+    ownerId?: string | null;
+    payoutMode?: PayoutMode;
+    platformFeePercent?: number;
+    partnerSharePercent?: number;
+    payoutMethodConfigured?: boolean;
+    payoutMethod?: PartnerPayoutMethod | null;
   }>;
+  ownerType?: OwnerType;
+  ownerId?: string | null;
+  payoutMode?: PayoutMode;
+  platformFeePercent?: number;
+  partnerSharePercent?: number;
+  payoutMethodConfigured?: boolean;
+  payoutMethod?: PartnerPayoutMethod | null;
 };
 
 type UserProfileDoc = {
@@ -962,6 +995,13 @@ type ProgramPaymentContext = {
   orgId: string | null;
   email?: string;
   displayName?: string;
+  ownerType?: OwnerType;
+  ownerId?: string;
+  payoutMode?: PayoutMode;
+  platformFeePercent?: number;
+  partnerSharePercent?: number;
+  payoutMethodConfigured?: boolean;
+  payoutMethod?: PartnerPayoutMethod;
 };
 
 type CreatePaymentIntentPayload = {
@@ -1099,6 +1139,13 @@ async function resolveProgramPaymentContext(
     discountPrice?: number | null;
     currency?: string;
     orgId?: string | null;
+    ownerType?: OwnerType;
+    ownerId?: string;
+    payoutMode?: PayoutMode;
+    platformFeePercent?: number;
+    partnerSharePercent?: number;
+    payoutMethodConfigured?: boolean;
+    payoutMethod?: PartnerPayoutMethod;
   };
   const userData = (userSnap.data() || {}) as UserProfileDoc;
 
@@ -1129,6 +1176,13 @@ async function resolveProgramPaymentContext(
       : (typeof enrollment.learnerName === "string" && enrollment.learnerName.trim())
         ? enrollment.learnerName.trim()
         : undefined,
+    ownerType: sanitizeOwnerType(program.ownerType),
+    ownerId: String(program.ownerId || "").trim() || undefined,
+    payoutMode: sanitizePayoutMode(program.payoutMode),
+    platformFeePercent: sanitizePercent(program.platformFeePercent, DEFAULT_PLATFORM_FEE_PERCENT),
+    partnerSharePercent: sanitizePercent(program.partnerSharePercent, DEFAULT_PARTNER_SHARE_PERCENT),
+    payoutMethodConfigured: Boolean(program.payoutMethodConfigured),
+    payoutMethod: sanitizePayoutMethod(program.payoutMethod),
   };
 }
 
@@ -1460,21 +1514,205 @@ async function finalizeWalletTopUpPayment(args: {
   });
 }
 
+function roundMoney(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+async function createPurchaseAndPartnerPayoutRecords(args: {
+  uid: string;
+  orderId: string;
+  orderData: OrderStored;
+  session: Stripe.Checkout.Session;
+  paidAtIso: string;
+}): Promise<void> {
+  const items = Array.isArray(args.orderData.items) && args.orderData.items.length ?
+    args.orderData.items :
+    [{
+      offerId: String(args.orderData.offerId || "").trim(),
+      itemType: args.orderData.itemType || "digital_product",
+      itemId: String(args.orderData.itemId || "").trim(),
+      title: String(args.orderData.title || "Order item").trim() || "Order item",
+      amount: Number(args.orderData.amount || 0),
+      currency: String(args.orderData.currency || "USD").toUpperCase(),
+      qty: 1,
+      ownerType: args.orderData.ownerType,
+      ownerId: args.orderData.ownerId || null,
+      payoutMode: args.orderData.payoutMode,
+      platformFeePercent: args.orderData.platformFeePercent,
+      partnerSharePercent: args.orderData.partnerSharePercent,
+      payoutMethodConfigured: args.orderData.payoutMethodConfigured,
+      payoutMethod: args.orderData.payoutMethod || null,
+    }];
+
+  await Promise.all(items.map(async (item, index) => {
+    const grossAmount = roundMoney(Number(item.amount || 0) * Math.max(1, Number(item.qty || 1)));
+    if (!Number.isFinite(grossAmount) || grossAmount <= 0) {
+      return;
+    }
+
+    const ownerType = sanitizeOwnerType(item.ownerType);
+    const ownerId = String(item.ownerId || "").trim() || null;
+    const payoutMode = sanitizePayoutMode(item.payoutMode);
+    const platformFeePercent = sanitizePercent(item.platformFeePercent, DEFAULT_PLATFORM_FEE_PERCENT);
+    const partnerSharePercent = sanitizePercent(item.partnerSharePercent, Math.max(0, 100 - platformFeePercent));
+    const platformFeeAmount = roundMoney(grossAmount * (platformFeePercent / 100));
+    const partnerNetAmount = roundMoney(grossAmount * (partnerSharePercent / 100));
+    const courseId = String(item.itemType === "course" ? item.itemId : item.itemType === "program" ? item.itemId : "").trim() || null;
+    const normalizedOfferId = String(item.offerId || "").trim() || null;
+    const currency = String(item.currency || args.orderData.currency || "USD").toUpperCase();
+
+    const purchaseId = `${args.orderId}_${index + 1}`;
+    const purchaseRef = db.doc(`purchases/${purchaseId}`);
+    await purchaseRef.set({
+      id: purchaseId,
+      orderId: args.orderId,
+      userId: args.uid,
+      courseId,
+      offerId: normalizedOfferId,
+      ownerType,
+      ownerId,
+      grossAmount,
+      currency,
+      status: "paid",
+      stripeSessionId: args.session.id,
+      stripePaymentIntentId: String(args.session.payment_intent || "").trim() || null,
+      paymentDate: args.paidAtIso,
+      source: "stripe",
+      createdAt: nowTs(),
+      updatedAt: nowTs(),
+    }, {merge: true});
+
+    if (courseId) {
+      const enrollmentRef = db.doc(`purchaseEnrollments/${args.uid}_${courseId}`);
+      await enrollmentRef.set({
+        id: `${args.uid}_${courseId}`,
+        userId: args.uid,
+        courseId,
+        accessGranted: true,
+        source: "stripe",
+        purchaseId,
+        updatedAt: nowTs(),
+        ...(args.orderData.status === "paid" ? {} : {createdAt: nowTs()}),
+      }, {merge: true});
+    }
+
+    if (ownerType === "partner" && payoutMode === "manual" && ownerId) {
+      const payoutRecordRef = db.doc(`partnerPayoutRecords/${purchaseId}`);
+      await payoutRecordRef.set({
+        id: purchaseId,
+        purchaseId,
+        orderId: args.orderId,
+        courseId,
+        offerId: normalizedOfferId,
+        partnerId: ownerId,
+        ownerId,
+        grossAmount,
+        currency,
+        platformFeePercent,
+        platformFeeAmount,
+        partnerSharePercent,
+        partnerNetAmount,
+        payoutMode: "manual",
+        payoutMethod: sanitizePayoutMethod(item.payoutMethod) || "MANUAL_OTHER",
+        payoutStatus: "pending",
+        payoutReference: null,
+        paidAt: null,
+        paymentDate: args.paidAtIso,
+        learnerId: args.uid,
+        stripeSessionId: args.session.id,
+        stripePaymentIntentId: String(args.session.payment_intent || "").trim() || null,
+        createdAt: nowTs(),
+        updatedAt: nowTs(),
+      }, {merge: true});
+    }
+  }));
+}
+
 async function handleStripeWebhookRequest(req: any, res: any): Promise<void> {
-  const sig = req.headers["stripe-signature"];
-  if (!sig || typeof sig !== "string") {
-    res.status(400).send("Missing Stripe signature");
+  const signatureHeader = req.headers["stripe-signature"];
+  const hasSignatureHeader =
+    typeof signatureHeader === "string" && signatureHeader.trim().length > 0;
+  const rawBody = req.rawBody;
+  const hasRawBody =
+    Buffer.isBuffer(rawBody) ||
+    rawBody instanceof Uint8Array ||
+    typeof rawBody === "string";
+  const rawBodyLength = Buffer.isBuffer(rawBody) ?
+    rawBody.length :
+    rawBody instanceof Uint8Array ?
+      rawBody.byteLength :
+      typeof rawBody === "string" ?
+        Buffer.byteLength(rawBody) :
+        0;
+
+  const webhookSecret = STRIPE_WEBHOOK_SECRET.value();
+  const webhookSecretConfigured = webhookSecret.trim().length > 0;
+
+  console.info("Stripe webhook received", {
+    hasSignatureHeader,
+    hasRawBody,
+    rawBodyLength,
+    webhookSecretConfigured,
+  });
+
+  if (!hasSignatureHeader) {
+    res.status(400).send("Missing Stripe signature header (stripe-signature).");
+    return;
+  }
+
+  if (!hasRawBody || rawBodyLength <= 0) {
+    res.status(400).send("Invalid webhook payload: raw body is missing.");
+    return;
+  }
+
+  if (!webhookSecretConfigured) {
+    res.status(500).send("Webhook configuration error: STRIPE_WEBHOOK_SECRET is not configured.");
     return;
   }
 
   try {
     const stripe = getStripe();
+    const normalizedRawBody = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
 
-    const event = stripe.webhooks.constructEvent(
-      req.rawBody,
-      sig,
-      STRIPE_WEBHOOK_SECRET.value(),
-    );
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        normalizedRawBody,
+        signatureHeader,
+        webhookSecret,
+      );
+    } catch (signatureError: any) {
+      console.error("Stripe webhook signature verification failed", {
+        hasSignatureHeader,
+        hasRawBody,
+        rawBodyLength,
+        webhookSecretConfigured,
+        errorMessage: signatureError?.message || "Unknown signature error",
+      });
+      // SECURITY: emit a critical event so the Admin Security Center surfaces
+      // any tampered/forged webhook calls. Best-effort — never throw here.
+      try {
+        await recordServerSecurityEvent({
+          eventType: "STRIPE_WEBHOOK_INVALID",
+          severity: "critical",
+          action: "stripe_signature_invalid",
+          resourceType: "stripe_webhook",
+          ip: (req.headers?.["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+            (req.socket?.remoteAddress as string) || null,
+          userAgent: (req.headers?.["user-agent"] as string) || null,
+          metadata: {
+            reason: signatureError?.message || "signature_verification_failed",
+            rawBodyLength,
+          },
+        });
+      } catch (logErr) {
+        console.warn("Failed to record STRIPE_WEBHOOK_INVALID security event", logErr);
+      }
+      res.status(400).send(
+        "Invalid Stripe signature: verify stripe-signature header, use req.rawBody, and confirm STRIPE_WEBHOOK_SECRET matches this endpoint.",
+      );
+      return;
+    }
 
     let alreadyProcessed = false;
     const eventRef = db.doc(`stripeWebhookEvents/${event.id}`);
@@ -1497,6 +1735,44 @@ async function handleStripeWebhookRequest(req: any, res: any): Promise<void> {
     if (alreadyProcessed) {
       res.status(200).send({received: true, duplicate: true});
       return;
+    }
+
+    // Automation v1: enrollments produced via createCheckoutSession callable.
+    // Detected by metadata.automation === 'innovacare_v1'. Runs BEFORE the
+    // legacy order-based branch so it does not require a users/{uid}/orders
+    // document to exist.
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.metadata?.automation === "innovacare_v1") {
+        try {
+          await handleAutomationCheckoutCompleted(session, event.id);
+        } catch (err) {
+          console.error("[automation] checkout.session.completed failed", err);
+          throw err;
+        }
+        res.status(200).send({received: true, automation: true});
+        return;
+      }
+    }
+
+    // Stripe recurring billing events (subscriptions / invoices). These are
+    // independent of the legacy checkout flow.
+    if (
+      event.type === "invoice.payment_succeeded" ||
+      event.type === "invoice.payment_failed" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
+      try {
+        const handled = await handleStripeRecurringEvent(event);
+        if (handled) {
+          res.status(200).send({received: true, recurring: true});
+          return;
+        }
+      } catch (err) {
+        console.error("[automation] recurring event failed", err);
+        throw err;
+      }
     }
 
     if (event.type === "checkout.session.completed") {
@@ -1675,6 +1951,14 @@ async function handleStripeWebhookRequest(req: any, res: any): Promise<void> {
         });
       }
 
+      await createPurchaseAndPartnerPayoutRecords({
+        uid,
+        orderId,
+        orderData,
+        session,
+        paidAtIso: new Date().toISOString(),
+      });
+
       const enrollmentId = session.metadata?.enrollmentId;
       if (paymentId) {
         await finalizeProgramEnrollmentPayment({
@@ -1749,6 +2033,44 @@ async function handleStripeWebhookRequest(req: any, res: any): Promise<void> {
           category: itemType === "live_class" ? "live_sessions" : "commerce",
           organizationId: String(orderData.orgId || "").trim() || null,
         });
+      }
+    }
+
+    if (event.type === "account.updated") {
+      const account = event.data.object as Stripe.Account;
+      const stripeAccountId = account.id;
+      if (stripeAccountId) {
+        const orgsQuery = await db.collection("organizations")
+          .where("stripeAccountId", "==", stripeAccountId)
+          .limit(1)
+          .get();
+        if (!orgsQuery.empty) {
+          const currentlyDue = account.requirements?.currently_due ?? [];
+          const pastDue = account.requirements?.past_due ?? [];
+          let status: string = "onboarding_required";
+          if (account.details_submitted) {
+            if (account.requirements?.disabled_reason || currentlyDue.length > 0 || pastDue.length > 0) {
+              status = "restricted";
+            } else if (account.charges_enabled && account.payouts_enabled) {
+              status = "fully_active";
+            } else if (account.charges_enabled) {
+              status = "charges_enabled";
+            } else {
+              status = "pending_verification";
+            }
+          }
+          await orgsQuery.docs[0].ref.set({
+            stripeChargesEnabled: account.charges_enabled === true,
+            stripeDetailsSubmitted: account.details_submitted === true,
+            stripePayoutsEnabled: account.payouts_enabled === true,
+            stripeConnectStatus: status,
+            stripeRequirementsCurrentlyDue: currentlyDue,
+            stripeRequirementsPastDue: pastDue,
+            stripeDisabledReason: account.requirements?.disabled_reason || null,
+            stripeStatusCheckedAt: nowTs(),
+            updatedAt: nowTs(),
+          }, {merge: true});
+        }
       }
     }
 
@@ -2097,38 +2419,101 @@ function buildStripeConnectReturnUrl(kind: "return" | "refresh", orgId: string):
   return url.toString();
 }
 
-async function resolveProgramStripeAccountId(programId: string, fallbackOrgId?: string | null): Promise<string | null> {
+function sanitizeOwnerType(value: unknown): OwnerType {
+  return String(value || "").trim().toLowerCase() === "partner" ? "partner" : "platform";
+}
+
+function sanitizePayoutMode(value: unknown): PayoutMode {
+  return String(value || "").trim().toLowerCase() === "stripe_connect" ? "stripe_connect" : "manual";
+}
+
+function sanitizePayoutMethod(value: unknown): PartnerPayoutMethod | undefined {
+  const normalized = String(value || "").trim().toUpperCase();
+  if (["MTN_MOBILE_MONEY", "ORANGE_MONEY", "WISE", "BANK_TRANSFER", "MANUAL_OTHER"].includes(normalized)) {
+    return normalized as PartnerPayoutMethod;
+  }
+  return undefined;
+}
+
+function sanitizePercent(value: unknown, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100) {
+    return fallback;
+  }
+  return parsed;
+}
+
+type ProgramOwnershipConfig = {
+  ownerType: OwnerType;
+  ownerId: string | null;
+  payoutMode: PayoutMode;
+  platformFeePercent: number;
+  partnerSharePercent: number;
+  payoutMethodConfigured: boolean;
+  payoutMethod?: PartnerPayoutMethod;
+  stripeAccountId: string | null;
+};
+
+async function resolveProgramOwnershipConfig(programId: string, fallbackOrgId?: string | null): Promise<ProgramOwnershipConfig> {
   const normalizedProgramId = String(programId || "").trim();
   let programOrgId = String(fallbackOrgId || "").trim();
+  let stripeAccountId: string | null = null;
 
-  if (!normalizedProgramId && !programOrgId) {
-    return null;
-  }
+  let ownerType: OwnerType = "platform";
+  let ownerId: string | null = null;
+  let payoutMode: PayoutMode = "manual";
+  let platformFeePercent = DEFAULT_PLATFORM_FEE_PERCENT;
+  let partnerSharePercent = DEFAULT_PARTNER_SHARE_PERCENT;
+  let payoutMethodConfigured = false;
+  let payoutMethod: PartnerPayoutMethod | undefined;
 
   if (normalizedProgramId) {
     const programSnap = await db.doc(`programs/${normalizedProgramId}`).get();
     if (programSnap.exists) {
       const programData = (programSnap.data() || {}) as Record<string, unknown>;
-      const programStripeAccountId = String(programData["stripeAccountId"] || "").trim();
-      if (programStripeAccountId) {
-        return programStripeAccountId;
-      }
-
+      ownerType = sanitizeOwnerType(programData["ownerType"]);
+      ownerId = String(programData["ownerId"] || "").trim() || null;
+      payoutMode = sanitizePayoutMode(programData["payoutMode"]);
+      platformFeePercent = sanitizePercent(programData["platformFeePercent"], DEFAULT_PLATFORM_FEE_PERCENT);
+      partnerSharePercent = sanitizePercent(
+        programData["partnerSharePercent"],
+        Math.max(0, 100 - platformFeePercent),
+      );
+      payoutMethodConfigured = Boolean(programData["payoutMethodConfigured"]);
+      payoutMethod = sanitizePayoutMethod(programData["payoutMethod"]);
+      stripeAccountId = String(programData["stripeAccountId"] || "").trim() || null;
       programOrgId = String(programData["orgId"] || programOrgId || "").trim();
     }
   }
 
-  if (!programOrgId) {
-    return null;
+  if (!ownerId && programOrgId) {
+    ownerId = programOrgId;
   }
 
-  const organizationSnap = await db.doc(`organizations/${programOrgId}`).get();
-  if (!organizationSnap.exists) {
-    return null;
+  if (ownerType !== "partner") {
+    payoutMethodConfigured = true;
+    payoutMode = "manual";
+    partnerSharePercent = 0;
   }
 
-  const organizationData = (organizationSnap.data() || {}) as Record<string, unknown>;
-  return String(organizationData["stripeAccountId"] || "").trim() || null;
+  if (!stripeAccountId && programOrgId) {
+    const organizationSnap = await db.doc(`organizations/${programOrgId}`).get();
+    if (organizationSnap.exists) {
+      const organizationData = (organizationSnap.data() || {}) as Record<string, unknown>;
+      stripeAccountId = String(organizationData["stripeAccountId"] || "").trim() || null;
+    }
+  }
+
+  return {
+    ownerType,
+    ownerId,
+    payoutMode,
+    platformFeePercent,
+    partnerSharePercent,
+    payoutMethodConfigured,
+    payoutMethod,
+    stripeAccountId,
+  };
 }
 
 async function buildProgramStripeConnectPaymentIntentData(
@@ -2136,23 +2521,47 @@ async function buildProgramStripeConnectPaymentIntentData(
   orgId: string | null | undefined,
   amount: number,
 ): Promise<{
+  ownerType: OwnerType;
+  ownerId: string | null;
+  payoutMode: PayoutMode;
+  platformFeePercent: number;
+  partnerSharePercent: number;
+  payoutMethodConfigured: boolean;
+  payoutMethod?: PartnerPayoutMethod;
   stripeAccountId: string | null;
   applicationFeeAmount: number | null;
   paymentIntentData?: Stripe.Checkout.SessionCreateParams.PaymentIntentData;
 }> {
-  const stripeAccountId = await resolveProgramStripeAccountId(programId, orgId);
+  const ownership = await resolveProgramOwnershipConfig(programId, orgId);
+  const stripeAccountId = ownership.ownerType === "partner" && ownership.payoutMode === "stripe_connect" ?
+    ownership.stripeAccountId :
+    null;
   const unitAmount = Math.round(Number(amount || 0) * 100);
 
   if (!stripeAccountId || !Number.isFinite(unitAmount) || unitAmount <= 0) {
     return {
+      ownerType: ownership.ownerType,
+      ownerId: ownership.ownerId,
+      payoutMode: ownership.payoutMode,
+      platformFeePercent: ownership.platformFeePercent,
+      partnerSharePercent: ownership.partnerSharePercent,
+      payoutMethodConfigured: ownership.payoutMethodConfigured,
+      payoutMethod: ownership.payoutMethod,
       stripeAccountId,
       applicationFeeAmount: null,
     };
   }
 
-  const applicationFeeAmount = Math.max(0, Math.round(unitAmount * STRIPE_CONNECT_PLATFORM_FEE_RATE));
+  const applicationFeeAmount = Math.max(0, Math.round(unitAmount * (ownership.platformFeePercent / 100)));
 
   return {
+    ownerType: ownership.ownerType,
+    ownerId: ownership.ownerId,
+    payoutMode: ownership.payoutMode,
+    platformFeePercent: ownership.platformFeePercent,
+    partnerSharePercent: ownership.partnerSharePercent,
+    payoutMethodConfigured: ownership.payoutMethodConfigured,
+    payoutMethod: ownership.payoutMethod,
     stripeAccountId,
     applicationFeeAmount,
     paymentIntentData: {
@@ -4395,6 +4804,62 @@ function isAllowedCheckoutUrl(rawUrl: string): boolean {
   }
 }
 
+async function resolveOfferOwnershipConfig(
+  offer: PublicOfferDoc,
+  itemType: OfferType,
+  itemId: string,
+): Promise<{
+  ownerType: OwnerType;
+  ownerId: string | null;
+  payoutMode: PayoutMode;
+  platformFeePercent: number;
+  partnerSharePercent: number;
+  payoutMethodConfigured: boolean;
+  payoutMethod?: PartnerPayoutMethod;
+}> {
+  const directOwnerType = sanitizeOwnerType(offer.ownerType);
+  const directOwnerId = String(offer.ownerId || "").trim() || null;
+  const directPayoutMode = sanitizePayoutMode(offer.payoutMode);
+  const directPlatformFee = sanitizePercent(offer.platformFeePercent, DEFAULT_PLATFORM_FEE_PERCENT);
+  const directPartnerShare = sanitizePercent(offer.partnerSharePercent, Math.max(0, 100 - directPlatformFee));
+  const directPayoutMethodConfigured = Boolean(offer.payoutMethodConfigured);
+  const directPayoutMethod = sanitizePayoutMethod(offer.payoutMethod);
+
+  if (itemType === "program") {
+    const programOwnership = await resolveProgramOwnershipConfig(itemId, null);
+    return {
+      ownerType: programOwnership.ownerType,
+      ownerId: programOwnership.ownerId,
+      payoutMode: programOwnership.payoutMode,
+      platformFeePercent: programOwnership.platformFeePercent,
+      partnerSharePercent: programOwnership.partnerSharePercent,
+      payoutMethodConfigured: programOwnership.payoutMethodConfigured,
+      payoutMethod: programOwnership.payoutMethod,
+    };
+  }
+
+  if (directOwnerType !== "platform" || directOwnerId) {
+    return {
+      ownerType: directOwnerType,
+      ownerId: directOwnerId,
+      payoutMode: directOwnerType === "partner" ? directPayoutMode : "manual",
+      platformFeePercent: directPlatformFee,
+      partnerSharePercent: directOwnerType === "partner" ? directPartnerShare : 0,
+      payoutMethodConfigured: directOwnerType === "partner" ? directPayoutMethodConfigured : true,
+      payoutMethod: directPayoutMethod,
+    };
+  }
+
+  return {
+    ownerType: "platform",
+    ownerId: null,
+    payoutMode: "manual",
+    platformFeePercent: DEFAULT_PLATFORM_FEE_PERCENT,
+    partnerSharePercent: 0,
+    payoutMethodConfigured: true,
+  };
+}
+
 async function normalizeCartItems(items: CartItemInput[]): Promise<Array<{
   offerId: string;
   offer: PublicOfferDoc;
@@ -5422,6 +5887,7 @@ export const createProgramLiveSessionCheckoutSession = onCall(
     const itemId = buildProgramLiveSessionItemId(programId, sessionId);
     const title = String(session.title || "Live session").trim() || "Live session";
 
+    const connectDestination = await buildProgramStripeConnectPaymentIntentData(programId, orgId, amount);
     const orderRef = db.collection(`users/${uid}/orders`).doc();
     await orderRef.set({
       id: orderRef.id,
@@ -5434,6 +5900,13 @@ export const createProgramLiveSessionCheckoutSession = onCall(
       currency,
       status: "pending",
       provider: "stripe",
+      ownerType: connectDestination.ownerType,
+      ownerId: connectDestination.ownerId,
+      payoutMode: connectDestination.payoutMode,
+      platformFeePercent: connectDestination.platformFeePercent,
+      partnerSharePercent: connectDestination.partnerSharePercent,
+      payoutMethodConfigured: connectDestination.payoutMethodConfigured,
+      payoutMethod: connectDestination.payoutMethod || null,
       createdAt: nowTs(),
       updatedAt: nowTs(),
       items: [{
@@ -5444,11 +5917,17 @@ export const createProgramLiveSessionCheckoutSession = onCall(
         amount,
         currency,
         qty: 1,
+        ownerType: connectDestination.ownerType,
+        ownerId: connectDestination.ownerId,
+        payoutMode: connectDestination.payoutMode,
+        platformFeePercent: connectDestination.platformFeePercent,
+        partnerSharePercent: connectDestination.partnerSharePercent,
+        payoutMethodConfigured: connectDestination.payoutMethodConfigured,
+        payoutMethod: connectDestination.payoutMethod || null,
       }],
     });
 
     const stripe = getStripe();
-    const connectDestination = await buildProgramStripeConnectPaymentIntentData(programId, orgId, amount);
 
     const createSessionPayload: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
@@ -5459,6 +5938,13 @@ export const createProgramLiveSessionCheckoutSession = onCall(
         cartId: "program-live-session",
         programId,
         sessionId,
+        ownerType: connectDestination.ownerType,
+        ownerId: String(connectDestination.ownerId || ""),
+        courseId: "",
+        offerId: "",
+        payoutMode: connectDestination.payoutMode,
+        platformFeePercent: String(connectDestination.platformFeePercent),
+        partnerSharePercent: String(connectDestination.partnerSharePercent),
       },
       line_items: [{
         price_data: {
@@ -6142,15 +6628,25 @@ export const createCheckoutSession = onCall(
       return title || "Offer";
     };
 
-    const orderItems = normalizedItems.map((x) => ({
-      offerId: x.offerId,
-      itemType: x.itemType,
-      itemId: x.itemId,
-      title: toSafeTitle(x.offer.title),
-      amount: Number.isFinite(Number(x.offer.price || 0)) ? Number(x.offer.price || 0) : 0,
-      currency,
-      qty: x.qty,
-      stripePriceId: String(x.offer.stripePriceId || "").trim() || null,
+    const orderItems = await Promise.all(normalizedItems.map(async (x) => {
+      const ownership = await resolveOfferOwnershipConfig(x.offer, x.itemType, x.itemId);
+      return {
+        offerId: x.offerId,
+        itemType: x.itemType,
+        itemId: x.itemId,
+        title: toSafeTitle(x.offer.title),
+        amount: Number.isFinite(Number(x.offer.price || 0)) ? Number(x.offer.price || 0) : 0,
+        currency,
+        qty: x.qty,
+        stripePriceId: String(x.offer.stripePriceId || "").trim() || null,
+        ownerType: ownership.ownerType,
+        ownerId: ownership.ownerId,
+        payoutMode: ownership.payoutMode,
+        platformFeePercent: ownership.platformFeePercent,
+        partnerSharePercent: ownership.partnerSharePercent,
+        payoutMethodConfigured: ownership.payoutMethodConfigured,
+        payoutMethod: ownership.payoutMethod || null,
+      };
     }));
 
     const first = orderItems[0];
@@ -6170,6 +6666,13 @@ export const createCheckoutSession = onCall(
       currency,
       cartId,
       items: orderItems,
+      ownerType: first.ownerType || "platform",
+      ownerId: first.ownerId || null,
+      payoutMode: first.payoutMode || "manual",
+      platformFeePercent: Number(first.platformFeePercent || DEFAULT_PLATFORM_FEE_PERCENT),
+      partnerSharePercent: Number(first.partnerSharePercent || DEFAULT_PARTNER_SHARE_PERCENT),
+      payoutMethodConfigured: first.payoutMethodConfigured !== false,
+      payoutMethod: first.payoutMethod || null,
       status: "pending",
       provider: "stripe",
       createdAt: nowTs(),
@@ -6229,6 +6732,13 @@ export const createCheckoutSession = onCall(
         orderId: orderRef.id,
         cartId,
         productId,
+        ownerType: String(first.ownerType || "platform"),
+        ownerId: String(first.ownerId || ""),
+        courseId: String(first.itemType === "course" ? first.itemId : ""),
+        offerId: String(first.offerId || ""),
+        payoutMode: String(first.payoutMode || "manual"),
+        platformFeePercent: String(Number(first.platformFeePercent || DEFAULT_PLATFORM_FEE_PERCENT)),
+        partnerSharePercent: String(Number(first.partnerSharePercent || DEFAULT_PARTNER_SHARE_PERCENT)),
         checkoutSource: productId ? "product" : offerId ? "offer" : "cart",
         productBlueprintId: productId === "global-nurse-pack" ? GLOBAL_NURSE_PACK_PRODUCT_BLUEPRINT.id || "global-nurse-pack" : "",
       },
@@ -6855,6 +7365,23 @@ export const createPaymentIntent = onCall(
     const itemType = request.data?.itemType === "wallet_topup" ? "wallet_topup" : "program";
     const programContext = itemType === "program" ? await resolveProgramPaymentContext(uid, request.data || {}) : null;
     const walletContext = itemType === "wallet_topup" ? await resolveWalletTopUpPaymentContext(uid, request.data || {}) : null;
+    const programConnectDestination = itemType === "program" && programContext ?
+      await buildProgramStripeConnectPaymentIntentData(
+        String(programContext.programId || ""),
+        programContext.orgId || null,
+        Number(programContext.amount || 0),
+      ) :
+      {
+        ownerType: "platform" as OwnerType,
+        ownerId: null,
+        payoutMode: "manual" as PayoutMode,
+        platformFeePercent: DEFAULT_PLATFORM_FEE_PERCENT,
+        partnerSharePercent: 0,
+        payoutMethodConfigured: true,
+        payoutMethod: undefined,
+        stripeAccountId: null,
+        applicationFeeAmount: null,
+      };
     const paymentRef = db.collection("payments").doc();
     const orderRef = db.collection(`users/${uid}/orders`).doc();
     const reference = itemType === "program" ?
@@ -6870,6 +7397,13 @@ export const createPaymentIntent = onCall(
       itemType,
       title: itemType === "program" ? programContext?.programTitle : walletContext?.title,
       orgId: itemType === "program" ? programContext?.orgId : walletContext?.orgId,
+      ownerType: itemType === "program" ? programConnectDestination.ownerType : "platform",
+      ownerId: itemType === "program" ? programConnectDestination.ownerId : null,
+      payoutMode: itemType === "program" ? programConnectDestination.payoutMode : "manual",
+      platformFeePercent: itemType === "program" ? programConnectDestination.platformFeePercent : DEFAULT_PLATFORM_FEE_PERCENT,
+      partnerSharePercent: itemType === "program" ? programConnectDestination.partnerSharePercent : 0,
+      payoutMethodConfigured: itemType === "program" ? programConnectDestination.payoutMethodConfigured : true,
+      payoutMethod: itemType === "program" ? programConnectDestination.payoutMethod || null : null,
       createdAt: nowTs(),
       updatedAt: nowTs(),
     };
@@ -6902,6 +7436,13 @@ export const createPaymentIntent = onCall(
         enrollmentId: itemType === "program" ? programContext?.enrollmentId : null,
         paymentId: paymentRef.id,
         reference,
+        ownerType: itemType === "program" ? programConnectDestination.ownerType : "platform",
+        ownerId: itemType === "program" ? programConnectDestination.ownerId : null,
+        payoutMode: itemType === "program" ? programConnectDestination.payoutMode : "manual",
+        platformFeePercent: itemType === "program" ? programConnectDestination.platformFeePercent : DEFAULT_PLATFORM_FEE_PERCENT,
+        partnerSharePercent: itemType === "program" ? programConnectDestination.partnerSharePercent : 0,
+        payoutMethodConfigured: itemType === "program" ? programConnectDestination.payoutMethodConfigured : true,
+        payoutMethod: itemType === "program" ? programConnectDestination.payoutMethod || null : null,
         items: [{
           offerId: null,
           itemType,
@@ -6910,6 +7451,13 @@ export const createPaymentIntent = onCall(
           amount: itemType === "program" ? programContext?.amount || 0 : walletContext?.amount || 0,
           currency: itemType === "program" ? programContext?.currency || "USD" : walletContext?.currency || "USD",
           qty: 1,
+          ownerType: itemType === "program" ? programConnectDestination.ownerType : "platform",
+          ownerId: itemType === "program" ? programConnectDestination.ownerId : null,
+          payoutMode: itemType === "program" ? programConnectDestination.payoutMode : "manual",
+          platformFeePercent: itemType === "program" ? programConnectDestination.platformFeePercent : DEFAULT_PLATFORM_FEE_PERCENT,
+          partnerSharePercent: itemType === "program" ? programConnectDestination.partnerSharePercent : 0,
+          payoutMethodConfigured: itemType === "program" ? programConnectDestination.payoutMethodConfigured : true,
+          payoutMethod: itemType === "program" ? programConnectDestination.payoutMethod || null : null,
         }],
         status: "pending",
         provider: method === "mobile_money" ? "mobile_money" : "stripe",
@@ -6958,19 +7506,18 @@ export const createPaymentIntent = onCall(
       if (itemType === "program") {
         sessionMetadata.enrollmentId = String(programContext?.enrollmentId || "");
         sessionMetadata.programId = String(programContext?.programId || "");
+        sessionMetadata.ownerType = String(programConnectDestination.ownerType);
+        sessionMetadata.ownerId = String(programConnectDestination.ownerId || "");
+        sessionMetadata.courseId = "";
+        sessionMetadata.offerId = "";
+        sessionMetadata.payoutMode = String(programConnectDestination.payoutMode);
+        sessionMetadata.platformFeePercent = String(programConnectDestination.platformFeePercent);
+        sessionMetadata.partnerSharePercent = String(programConnectDestination.partnerSharePercent);
         sessionMetadata.type = "program_enrollment";
       } else {
         sessionMetadata.type = "wallet_topup";
         sessionMetadata.amountUSD = String(walletContext?.amount || 0);
       }
-
-      const connectDestination = itemType === "program" && programContext ?
-        await buildProgramStripeConnectPaymentIntentData(
-          String(programContext.programId || ""),
-          programContext.orgId || null,
-          Number(programContext.amount || 0),
-        ) :
-        {stripeAccountId: null, applicationFeeAmount: null};
 
       let session: Stripe.Checkout.Session;
       try {
@@ -6994,7 +7541,7 @@ export const createPaymentIntent = onCall(
           }],
           success_url: successUrl,
           cancel_url: cancelUrl,
-          ...(connectDestination.paymentIntentData ? {payment_intent_data: connectDestination.paymentIntentData} : {}),
+          ...(programConnectDestination.paymentIntentData ? {payment_intent_data: programConnectDestination.paymentIntentData} : {}),
         });
       } catch (stripeError: unknown) {
         const errType = String((stripeError as Record<string, unknown>)?.type || "");
@@ -7023,14 +7570,14 @@ export const createPaymentIntent = onCall(
         paymentRef.set({
           checkoutSessionId: session.id,
           checkoutUrl: session.url || null,
-          stripeAccountId: connectDestination.stripeAccountId,
-          platformFeeAmount: connectDestination.applicationFeeAmount,
+          stripeAccountId: programConnectDestination.stripeAccountId,
+          platformFeeAmount: programConnectDestination.applicationFeeAmount,
           updatedAt: nowTs(),
         }, {merge: true}),
         orderRef.set({
           checkoutSessionId: session.id,
-          stripeAccountId: connectDestination.stripeAccountId,
-          platformFeeAmount: connectDestination.applicationFeeAmount,
+          stripeAccountId: programConnectDestination.stripeAccountId,
+          platformFeeAmount: programConnectDestination.applicationFeeAmount,
           updatedAt: nowTs(),
         }, {merge: true}),
       ]);
@@ -7038,7 +7585,7 @@ export const createPaymentIntent = onCall(
       if (itemType === "program" && programContext) {
         await db.doc(`programEnrollments/${programContext.enrollmentId}`).set({
           checkoutSessionId: session.id,
-          paymentProvider: connectDestination.stripeAccountId ? "stripe_connect" : "stripe",
+          paymentProvider: programConnectDestination.stripeAccountId ? "stripe_connect" : "stripe",
           updatedAt: nowTs(),
         }, {merge: true});
       }
@@ -7168,52 +7715,175 @@ export const connectStripeAccount = onCall(
     const organizationData = (organizationSnap.data() || {}) as Record<string, unknown>;
     const existingStripeAccountId = String(organizationData["stripeAccountId"] || "").trim();
 
-    const stripe = getStripe();
-    let stripeAccountId = existingStripeAccountId;
+    try {
+      const stripe = getStripe();
+      let stripeAccountId = existingStripeAccountId;
 
-    if (!stripeAccountId) {
-      const userSnap = await db.doc(`users/${uid}`).get();
-      const userData = (userSnap.data() || {}) as Record<string, unknown>;
-      const country = String(organizationData["country"] || userData["country"] || "US").trim().toUpperCase();
+      if (!stripeAccountId) {
+        const userSnap = await db.doc(`users/${uid}`).get();
+        const userData = (userSnap.data() || {}) as Record<string, unknown>;
+        const country = String(organizationData["country"] || userData["country"] || "US").trim().toUpperCase();
 
-      const account = await stripe.accounts.create({
-        type: "express",
-        country: /^[A-Z]{2}$/.test(country) ? country : "US",
-        email: String(organizationData["email"] || userData["email"] || request.auth?.token.email || "").trim() || undefined,
-        business_type: "individual",
-        metadata: {
-          orgId,
-          createdByUid: uid,
-        },
+        const account = await stripe.accounts.create({
+          type: "express",
+          country: /^[A-Z]{2}$/.test(country) ? country : "US",
+          email: String(organizationData["email"] || userData["email"] || request.auth?.token.email || "").trim() || undefined,
+          business_type: "individual",
+          metadata: {
+            orgId,
+            createdByUid: uid,
+          },
+        });
+        stripeAccountId = account.id;
+      }
+
+      const accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: buildStripeConnectReturnUrl("refresh", orgId),
+        return_url: buildStripeConnectReturnUrl("return", orgId),
+        type: "account_onboarding",
       });
-      stripeAccountId = account.id;
+
+      const account = await stripe.accounts.retrieve(stripeAccountId);
+      await organizationRef.set({
+        stripeAccountId,
+        stripeChargesEnabled: account.charges_enabled === true,
+        stripeDetailsSubmitted: account.details_submitted === true,
+        stripePayoutsEnabled: account.payouts_enabled === true,
+        stripeConnectedBy: uid,
+        stripeConnectedAt: nowTs(),
+        updatedAt: nowTs(),
+      }, {merge: true});
+
+      return {
+        accountId: stripeAccountId,
+        onboardingUrl: accountLink.url,
+        chargesEnabled: account.charges_enabled === true,
+        detailsSubmitted: account.details_submitted === true,
+        payoutsEnabled: account.payouts_enabled === true,
+      };
+    } catch (error: unknown) {
+      const message = String((error as {message?: string})?.message || "Unable to initialize Stripe Connect.");
+      const requestId = String((error as {requestId?: string})?.requestId || "").trim();
+      console.error("connectStripeAccount failed", {
+        uid,
+        orgId,
+        message,
+        requestId: requestId || null,
+      });
+
+      if (message.includes("complete your platform profile")) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Stripe platform profile is incomplete. Complete the Stripe Connect questionnaire in your Stripe dashboard before onboarding organizations."
+        );
+      }
+
+      throw new HttpsError("internal", `Stripe Connect onboarding failed: ${message}`);
+    }
+  },
+);
+
+/* ─────────── Callable: getConnectAccountStatus ─────────── */
+type ConnectAccountStatus =
+  | "missing_account"
+  | "onboarding_required"
+  | "pending_verification"
+  | "charges_enabled"
+  | "fully_active"
+  | "restricted";
+
+function resolveConnectAccountStatus(account: Stripe.Account): ConnectAccountStatus {
+  if (!account.details_submitted) return "onboarding_required";
+  if (account.requirements?.disabled_reason) return "restricted";
+  const currentlyDue = account.requirements?.currently_due ?? [];
+  const pastDue = account.requirements?.past_due ?? [];
+  if (currentlyDue.length > 0 || pastDue.length > 0) return "restricted";
+  if (!account.charges_enabled && !account.payouts_enabled) return "pending_verification";
+  if (account.charges_enabled && account.payouts_enabled) return "fully_active";
+  return "charges_enabled";
+}
+
+export const getConnectAccountStatus = onCall(
+  {secrets: [STRIPE_SECRET_KEY], invoker: HTTPS_PUBLIC},
+  async (request) => {
+    const uid = String(request.auth?.uid || "").trim();
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "User must be authenticated.");
     }
 
-    const accountLink = await stripe.accountLinks.create({
-      account: stripeAccountId,
-      refresh_url: buildStripeConnectReturnUrl("refresh", orgId),
-      return_url: buildStripeConnectReturnUrl("return", orgId),
-      type: "account_onboarding",
-    });
+    const userContext = await getUserContext(uid);
+    if (!userContext.active) {
+      throw new HttpsError("permission-denied", "Inactive account.");
+    }
 
-    const account = await stripe.accounts.retrieve(stripeAccountId);
-    await organizationRef.set({
-      stripeAccountId,
-      stripeChargesEnabled: account.charges_enabled === true,
-      stripeDetailsSubmitted: account.details_submitted === true,
-      stripePayoutsEnabled: account.payouts_enabled === true,
-      stripeConnectedBy: uid,
-      stripeConnectedAt: nowTs(),
-      updatedAt: nowTs(),
-    }, {merge: true});
+    const requestedOrgId = String(request.data?.orgId || "").trim();
+    const orgId = requestedOrgId || String(userContext.orgId || "").trim();
+    if (!orgId) {
+      throw new HttpsError("failed-precondition", "No organization linked to your account.");
+    }
 
-    return {
-      accountId: stripeAccountId,
-      onboardingUrl: accountLink.url,
-      chargesEnabled: account.charges_enabled === true,
-      detailsSubmitted: account.details_submitted === true,
-      payoutsEnabled: account.payouts_enabled === true,
-    };
+    const normalizedRole = String(userContext.role || "").trim().toLowerCase();
+    if (requestedOrgId && requestedOrgId !== userContext.orgId && normalizedRole !== "super_admin") {
+      throw new HttpsError("permission-denied", "You cannot check another organization's Stripe status.");
+    }
+
+    const orgRef = db.doc(`organizations/${orgId}`);
+    const orgSnap = await orgRef.get();
+    const orgData = (orgSnap.data() || {}) as Record<string, unknown>;
+    const stripeAccountId = String(orgData["stripeAccountId"] || "").trim();
+
+    if (!stripeAccountId) {
+      return {
+        status: "missing_account" as ConnectAccountStatus,
+        chargesEnabled: false,
+        payoutsEnabled: false,
+        detailsSubmitted: false,
+        requirementsCurrentlyDue: [],
+        requirementsPastDue: [],
+        disabledReason: null,
+        stripeAccountId: null,
+        checkedAt: new Date().toISOString(),
+      };
+    }
+
+    try {
+      const stripe = getStripe();
+      const account = await stripe.accounts.retrieve(stripeAccountId);
+      const status = resolveConnectAccountStatus(account);
+
+      const currentlyDue = account.requirements?.currently_due ?? [];
+      const pastDue = account.requirements?.past_due ?? [];
+
+      await orgRef.set({
+        stripeAccountId,
+        stripeChargesEnabled: account.charges_enabled === true,
+        stripeDetailsSubmitted: account.details_submitted === true,
+        stripePayoutsEnabled: account.payouts_enabled === true,
+        stripeConnectStatus: status,
+        stripeRequirementsCurrentlyDue: currentlyDue,
+        stripeRequirementsPastDue: pastDue,
+        stripeDisabledReason: account.requirements?.disabled_reason || null,
+        stripeStatusCheckedAt: nowTs(),
+        updatedAt: nowTs(),
+      }, {merge: true});
+
+      return {
+        status,
+        chargesEnabled: account.charges_enabled === true,
+        payoutsEnabled: account.payouts_enabled === true,
+        detailsSubmitted: account.details_submitted === true,
+        requirementsCurrentlyDue: currentlyDue,
+        requirementsPastDue: pastDue,
+        disabledReason: account.requirements?.disabled_reason || null,
+        stripeAccountId,
+        checkedAt: new Date().toISOString(),
+      };
+    } catch (error: unknown) {
+      const message = String((error as {message?: string})?.message || "Unable to retrieve Stripe account.");
+      console.error("getConnectAccountStatus failed", {uid, orgId, message});
+      throw new HttpsError("internal", `Failed to retrieve Stripe Connect status: ${message}`);
+    }
   },
 );
 
@@ -7274,6 +7944,101 @@ export const manualGrantPurchasedAccess = onCall(
     });
 
     return {ok: true};
+  },
+);
+
+export const getPartnerPayoutRecords = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<{status?: "pending" | "paid"; limit?: number}>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const userCtx = await getUserContext(uid);
+    if (!userCtx.active) {
+      throw new HttpsError("permission-denied", "Inactive account.");
+    }
+
+    const role = String(userCtx.role || "").trim().toLowerCase();
+    const isAdmin = ["super_admin", "admin", "manager", "programadmin", "programstaff"].includes(role);
+    const requestedStatus = String(request.data?.status || "").trim().toLowerCase();
+    const limitValue = Math.min(200, Math.max(1, Number(request.data?.limit || 50)));
+
+    let queryRef: FirebaseFirestore.Query = db.collection("partnerPayoutRecords")
+      .orderBy("updatedAt", "desc")
+      .limit(limitValue);
+
+    if (isAdmin) {
+      if (requestedStatus === "pending" || requestedStatus === "paid") {
+        queryRef = db.collection("partnerPayoutRecords")
+          .where("payoutStatus", "==", requestedStatus)
+          .orderBy("updatedAt", "desc")
+          .limit(limitValue);
+      }
+    } else {
+      queryRef = db.collection("partnerPayoutRecords")
+        .where("partnerId", "==", uid)
+        .orderBy("updatedAt", "desc")
+        .limit(limitValue);
+    }
+
+    const snap = await queryRef.get();
+    const records = snap.docs
+      .map((docSnap) => ({id: docSnap.id, ...(docSnap.data() || {})}))
+      .filter((record) => {
+        if (!requestedStatus || isAdmin === true && (requestedStatus !== "pending" && requestedStatus !== "paid")) {
+          return true;
+        }
+        return String((record as Record<string, unknown>)["payoutStatus"] || "").trim().toLowerCase() === requestedStatus;
+      });
+
+    return {
+      records,
+      count: records.length,
+      role: isAdmin ? "admin" : "partner",
+    };
+  },
+);
+
+export const markPartnerPayoutPaid = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<{payoutId?: string; payoutReference?: string; notes?: string}>) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const userCtx = await getUserContext(uid);
+    const role = String(userCtx.role || "").trim().toLowerCase();
+    const isAdmin = ["super_admin", "admin", "manager", "programadmin", "programstaff"].includes(role);
+    if (!isAdmin) {
+      throw new HttpsError("permission-denied", "Only admins can mark payouts as paid.");
+    }
+
+    const payoutId = String(request.data?.payoutId || "").trim();
+    const payoutReference = String(request.data?.payoutReference || "").trim() || null;
+    const notes = String(request.data?.notes || "").trim() || null;
+    if (!payoutId) {
+      throw new HttpsError("invalid-argument", "payoutId is required.");
+    }
+
+    const payoutRef = db.doc(`partnerPayoutRecords/${payoutId}`);
+    const payoutSnap = await payoutRef.get();
+    if (!payoutSnap.exists) {
+      throw new HttpsError("not-found", "Payout record not found.");
+    }
+
+    await payoutRef.set({
+      payoutStatus: "paid",
+      payoutReference,
+      notes,
+      paidAt: nowTs(),
+      paidByAdminId: uid,
+      updatedAt: nowTs(),
+    }, {merge: true});
+
+    return {ok: true, payoutId};
   },
 );
 
@@ -7444,6 +8209,7 @@ export const createProgramCheckoutSession = onCall(
     const userData = (userSnap.data() || {}) as UserProfileDoc;
     const email = typeof userData.email === "string" ? userData.email : undefined;
     const orgId = String(userData.orgId || program.orgId || "").trim() || null;
+    const connectDestination = await buildProgramStripeConnectPaymentIntentData(programId, orgId, price);
 
     /* ── Create order ── */
     const orderRef = db.collection(`users/${uid}/orders`).doc();
@@ -7458,6 +8224,13 @@ export const createProgramCheckoutSession = onCall(
       amount: price,
       currency: currency.toUpperCase(),
       enrollmentId,
+      ownerType: connectDestination.ownerType,
+      ownerId: connectDestination.ownerId,
+      payoutMode: connectDestination.payoutMode,
+      platformFeePercent: connectDestination.platformFeePercent,
+      partnerSharePercent: connectDestination.partnerSharePercent,
+      payoutMethodConfigured: connectDestination.payoutMethodConfigured,
+      payoutMethod: connectDestination.payoutMethod || null,
       items: [{
         offerId: null,
         itemType: "program",
@@ -7467,6 +8240,13 @@ export const createProgramCheckoutSession = onCall(
         currency: currency.toUpperCase(),
         qty: 1,
         stripePriceId: null,
+        ownerType: connectDestination.ownerType,
+        ownerId: connectDestination.ownerId,
+        payoutMode: connectDestination.payoutMode,
+        platformFeePercent: connectDestination.platformFeePercent,
+        partnerSharePercent: connectDestination.partnerSharePercent,
+        payoutMethodConfigured: connectDestination.payoutMethodConfigured,
+        payoutMethod: connectDestination.payoutMethod || null,
       }],
       status: "pending",
       provider: "stripe",
@@ -7488,8 +8268,6 @@ export const createProgramCheckoutSession = onCall(
       }
     }
 
-    const connectDestination = await buildProgramStripeConnectPaymentIntentData(programId, orgId, price);
-
     const createSessionPayload: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       customer_email: email,
@@ -7497,6 +8275,13 @@ export const createProgramCheckoutSession = onCall(
         uid,
         orderId: orderRef.id,
         enrollmentId,
+        ownerType: connectDestination.ownerType,
+        ownerId: String(connectDestination.ownerId || ""),
+        courseId: "",
+        offerId: "",
+        payoutMode: connectDestination.payoutMode,
+        platformFeePercent: String(connectDestination.platformFeePercent),
+        partnerSharePercent: String(connectDestination.partnerSharePercent),
         type: "program_enrollment",
       },
       line_items: [{
@@ -7652,6 +8437,12 @@ export const publishCourseToMarketplace = onCall(
       type: "course",
       orgId,
       courseId,
+      ownerType: "platform",
+      ownerId: uid,
+      payoutMode: "manual",
+      platformFeePercent: DEFAULT_PLATFORM_FEE_PERCENT,
+      partnerSharePercent: 0,
+      payoutMethodConfigured: true,
       title: String(course?.title || "").trim(),
       description: String(course?.description || "").trim(),
       imageUrl: String(course?.imageUrl || "").trim(),
@@ -9573,6 +10364,10 @@ export const submitMarketingLead = onCall(async (request: CallableRequest<Submit
 });
 
 export * from "./notifications/functions";
+export * from "./security/functions";
+export * from "./automation/checkout";
+export * from "./automation/triggers";
+export * from "./automation/verify";
 
 export const chatWithAI = onCall(
   {secrets: [OPENAI_API_KEY], cors: true},

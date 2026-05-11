@@ -1,5 +1,6 @@
 import type { AppProfile, AppRole } from './auth';
 import { AccessCapabilitiesService, AdminSpaceKey } from './access-capabilities.service';
+import type { OrgContext } from './organization/org-context.service';
 
 const ADMIN_SPACE_STORAGE_PREFIX = 'preferredAdminSpace';
 
@@ -52,14 +53,24 @@ export function defaultRouteForRole(role: AppRole): string {
   }
 }
 
-export function resolveDefaultRoute(profile: AppProfile | null): string {
+/**
+ * Resolve the post-login route. The optional `ctx` argument carries the
+ * membership-derived org context — when present, admin spaces are computed
+ * from real memberships (not from `users.role`). Without `ctx` we fall back
+ * to the safest behavior: only `super_admin` profile-role grants admin
+ * landing pages.
+ */
+export function resolveDefaultRoute(
+  profile: AppProfile | null,
+  ctx?: OrgContext | null,
+): string {
   if (!profile || profile.active === false) {
     return '/login';
   }
 
   const role = profile.role ?? profile.primaryRole ?? 'guest';
   const capabilities = new AccessCapabilitiesService();
-  const adminSpaces = capabilities.getAdminSpaces(profile);
+  const adminSpaces = capabilities.getAdminSpaces(profile, ctx);
   const preferredSpace = getPreferredAdminSpace(profile);
 
   if (adminSpaces.length > 1) {
@@ -78,10 +89,9 @@ export function resolveDefaultRoute(profile: AppProfile | null): string {
 
   clearPreferredAdminSpace(profile);
 
-  if (role === 'admin' || role === 'manager' || role === 'instructor') {
-    return '/manager/dashboard';
-  }
-
+  // No global admin powers and no admin memberships. Honor learner-style
+  // shortcuts but never default into a manager dashboard solely on the
+  // user document role — that is what caused the cross-tenant leak.
   if (role === 'programLearner' || profile.isProgramLearner === true) {
     return '/my-programs';
   }

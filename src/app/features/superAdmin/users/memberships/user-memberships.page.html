@@ -1,0 +1,86 @@
+<section class="mship-page">
+  <header class="mship-header">
+    <a routerLink="/super-admin/users" class="back">← Utilisateurs</a>
+    <h1>Memberships d’organisations</h1>
+    <p class="sub" *ngIf="user() as u">
+      <strong>{{ u.displayName || u.email || u.uid }}</strong>
+      <span class="muted"> · uid {{ u.uid }} · rôle global <code>{{ u.role }}</code></span>
+    </p>
+    <p class="sub" *ngIf="!user()">UID: {{ uid }}</p>
+  </header>
+
+  <div *ngIf="error()" class="alert alert-error">{{ error() }}</div>
+  <div *ngIf="notice()" class="alert alert-info">{{ notice() }}</div>
+
+  <section class="card">
+    <h2>Memberships actuels</h2>
+    <table class="tbl" *ngIf="userMemberships().length; else noneTpl">
+      <thead>
+        <tr>
+          <th>Organisation</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of userMemberships()">
+          <td>
+            <div>{{ orgName(m.orgId) }}</div>
+            <div class="muted small">{{ m.orgId }}</div>
+          </td>
+          <td>
+            <select [ngModel]="m.role" (ngModelChange)="changeRole(m, $event)" [disabled]="busy()">
+              <option *ngFor="let r of assignableRoles" [value]="r">{{ r }}</option>
+            </select>
+          </td>
+          <td>
+            <span class="badge" [class.badge-on]="m.status === 'active'" [class.badge-off]="m.status !== 'active'">
+              {{ m.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button type="button" class="btn" (click)="toggle(m)" [disabled]="busy()">
+              {{ m.status === 'active' ? 'Désactiver' : 'Activer' }}
+            </button>
+            <button type="button" class="btn btn-danger" (click)="remove(m)" [disabled]="busy()">
+              Retirer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noneTpl>
+      <p class="muted">Aucun membership pour cet utilisateur.</p>
+    </ng-template>
+  </section>
+
+  <section class="card">
+    <h2>Ajouter un membership</h2>
+    <div class="form-row">
+      <label>
+        Organisation
+        <select [ngModel]="selectedOrgId()" (ngModelChange)="selectedOrgId.set($event)" [disabled]="busy()">
+          <option value="">— Sélectionner —</option>
+          <option *ngFor="let o of availableOrgsForAssign()" [value]="o.id ?? o.orgId">
+            {{ o.name }} ({{ o.id ?? o.orgId }})
+          </option>
+        </select>
+      </label>
+      <label>
+        Rôle
+        <select [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)" [disabled]="busy()">
+          <option *ngFor="let r of assignableRoles" [value]="r">{{ r }}</option>
+        </select>
+      </label>
+      <button type="button" class="btn btn-primary" (click)="assign()" [disabled]="busy() || !selectedOrgId()">
+        Assigner
+      </button>
+    </div>
+    <p class="muted small">
+      Les rôles <code>program_admin</code> et <code>org_admin</code> sont strictement limités à
+      l’organisation sélectionnée. Pour les pouvoirs globaux, garder le rôle <code>super_admin</code>
+      sur la fiche utilisateur.
+    </p>
+  </section>
+</section>

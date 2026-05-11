@@ -87,14 +87,14 @@ export class NursePractitionerPage {
 
   readonly testimonials = [
     {
-      image: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png',
+      image: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
       alt: 'Sarah Mitchell',
       name: 'Sarah Mitchell, RN, MSN',
       title: { en: 'Acute Care NP | Mayo Clinic', fr: 'NP en soins aigus | Mayo Clinic' },
       text: { en: '"I passed my ANCC certification on my first attempt with an 89%. The clinical cases were incredibly realistic and the AI study plans adapted perfectly to my learning style. Highly recommend!"', fr: '« J’ai réussi ma certification ANCC dès la première tentative avec 89 %. Les cas cliniques étaient incroyablement réalistes et les plans d’étude IA se sont parfaitement adaptés à mon style d’apprentissage. Je recommande fortement. »' },
     },
     {
-      image: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1775001208/ChatGPT_Image_31_mars_2026_19_53_03_ng7bsw.png',
+      image: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121779/ChatGPT_Image_6_mai_2026_22_40_15_5_d95dt1.png',
       alt: 'Michael Chen',
       name: 'Michael Chen, RN, BSN',
       title: { en: 'Family Practice NP | Cleveland Clinic', fr: 'NP en médecine familiale | Cleveland Clinic' },

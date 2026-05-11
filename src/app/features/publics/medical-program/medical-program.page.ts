@@ -33,12 +33,12 @@ export class MedicalProgramPage {
   readonly gallery = [
     {
       title: 'Clinical coaching',
-      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1775622326/D12A1509-BD77-4AF8-8D46-36CCEE440BC4_ctl46n.png',
+      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121787/ChatGPT_Image_6_mai_2026_22_40_09_2_ibwoar.png',
       imageAlt: 'Clinical coaching illustration',
     },
     {
       title: 'Learner confidence',
-      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/q_auto/f_auto/v1774998911/ChatGPT_Image_31_mars_2026_19_13_12_pogn1o.png',
+      imageUrl: 'https://res.cloudinary.com/dtdpx59sc/image/upload/v1778121785/ChatGPT_Image_6_mai_2026_22_40_16_6_jpgu4b.png',
       imageAlt: 'Learner confidence visual',
     },
   ];

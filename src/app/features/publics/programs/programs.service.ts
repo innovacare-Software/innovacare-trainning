@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
@@ -7,6 +7,7 @@ import {
   collectionData,
   doc,
   docData,
+  deleteDoc,
   limit,
   orderBy,
   query,
@@ -31,8 +32,13 @@ export class ProgramsService {
   private readonly firestore = inject(Firestore);
   private readonly auth = inject(Auth);
   private readonly authService = inject(AuthService);
+  private readonly injector = inject(Injector);
 
   private readonly programsPath = 'programs';
+
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   getPublishedPrograms(): Observable<Program[]> {
     const programsRef = collection(this.firestore, this.programsPath);
@@ -44,7 +50,7 @@ export class ProgramsService {
       orderBy('updatedAt', 'desc')
     );
 
-    return collectionData(publishedQuery, { idField: 'id' }) as Observable<Program[]>;
+    return this.inContext(() => collectionData(publishedQuery, { idField: 'id' }) as Observable<Program[]>);
   }
 
   getFeaturedPrograms(limitCount = 6): Observable<Program[]> {
@@ -58,7 +64,7 @@ export class ProgramsService {
       limit(Math.max(1, limitCount))
     );
 
-    return collectionData(featuredQuery, { idField: 'id' }) as Observable<Program[]>;
+    return this.inContext(() => collectionData(featuredQuery, { idField: 'id' }) as Observable<Program[]>);
   }
 
   getProgramsByCategory(category: ProgramCategory): Observable<Program[]> {
@@ -71,7 +77,7 @@ export class ProgramsService {
       orderBy('updatedAt', 'desc')
     );
 
-    return collectionData(categoryQuery, { idField: 'id' }) as Observable<Program[]>;
+    return this.inContext(() => collectionData(categoryQuery, { idField: 'id' }) as Observable<Program[]>);
   }
 
   getProgramById(programId: string): Observable<Program | undefined> {
@@ -80,7 +86,9 @@ export class ProgramsService {
     }
 
     const programDoc = doc(this.firestore, `${this.programsPath}/${programId}`);
-    return (docData(programDoc, { idField: 'id' }) as Observable<Program | undefined>).pipe(
+    return (this.inContext(
+      () => docData(programDoc, { idField: 'id' }) as Observable<Program | undefined>
+    )).pipe(
       catchError(() => of(undefined))
     );
   }
@@ -93,11 +101,34 @@ export class ProgramsService {
     const seatsValue = payload.seats ?? null;
     const sourceModules = Array.isArray(payload.modules) ? payload.modules : [];
     const orgId = this.resolveManagedOrgId(profile, payload.orgId);
+    const ownerType = payload.ownerType ?? 'partner';
+    const payoutMode = payload.payoutMode ?? 'manual';
+    const platformFeePercent = Number.isFinite(Number(payload.platformFeePercent))
+      ? Number(payload.platformFeePercent)
+      : 30;
+    const partnerSharePercent = Number.isFinite(Number(payload.partnerSharePercent))
+      ? Number(payload.partnerSharePercent)
+      : 70;
+    const payoutMethodConfigured = payload.payoutMethodConfigured === true;
 
     const programToCreate = this.stripUndefinedDeep({
       ...payload,
       slug,
       ownerId,
+      ownerType,
+      payoutMode,
+      platformFeePercent,
+      partnerSharePercent,
+      payoutMethodConfigured,
+      payoutMethod: payload.payoutMethod || undefined,
+      payoutCountry: payload.payoutCountry || undefined,
+      payoutCurrency: payload.payoutCurrency || undefined,
+      accountHolderName: payload.accountHolderName || undefined,
+      mobileMoneyProvider: payload.mobileMoneyProvider || undefined,
+      mobileMoneyPhoneMasked: payload.mobileMoneyPhoneMasked || undefined,
+      bankName: payload.bankName || undefined,
+      bankAccountMasked: payload.bankAccountMasked || undefined,
+      payoutNotes: payload.payoutNotes || undefined,
       orgId,
       linkedCourseIds: Array.isArray(payload.linkedCourseIds)
         ? payload.linkedCourseIds.filter(Boolean)
@@ -171,6 +202,14 @@ export class ProgramsService {
     });
   }
 
+  async deleteProgram(programId: string): Promise<void> {
+    if (!programId?.trim()) {
+      throw new Error('programId is required.');
+    }
+
+    await deleteDoc(doc(this.firestore, `${this.programsPath}/${programId}`));
+  }
+
   async publishProgram(programId: string): Promise<void> {
     if (!programId?.trim()) {
       throw new Error('programId is required.');
@@ -199,7 +238,7 @@ export class ProgramsService {
         const adminProgramsQuery = this.isSuperAdmin(profile)
           ? query(programsRef, orderBy('updatedAt', 'desc'))
           : query(programsRef, where('orgId', '==', scopedOrgId), orderBy('updatedAt', 'desc'));
-        return collectionData(adminProgramsQuery, { idField: 'id' }) as Observable<Program[]>;
+        return this.inContext(() => collectionData(adminProgramsQuery, { idField: 'id' }) as Observable<Program[]>);
       })
     );
   }
@@ -227,7 +266,7 @@ export class ProgramsService {
       return currentUser;
     }
 
-    const userFromState = await firstValueFrom(authState(this.auth));
+    const userFromState = await firstValueFrom(this.inContext(() => authState(this.auth)));
     if (!userFromState) {
       throw new Error('Authentication required. Please sign in first.');
     }

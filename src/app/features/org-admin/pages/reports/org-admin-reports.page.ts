@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationReportType } from '../../../../core/organization/org.models';
 import { OrganizationReportsService } from '../../../../core/organization/services/organization-reports.service';
 
@@ -153,18 +153,7 @@ export class OrgAdminReportsPage {
   statusFilter = 'all';
   search = '';
 
-  private readonly context = toSignal(this.ctx.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: '',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
   readonly orgId = computed(() => this.context().orgId || '');
   readonly reports = toSignal(this.reportsService.list(this.orgId()), { initialValue: [] as any[] });

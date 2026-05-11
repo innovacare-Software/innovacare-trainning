@@ -81,6 +81,7 @@ import { StatusPillComponent } from '../shared/status-pill.component';
                 <button type="button" (click)="activate(row.id)">Activate</button>
                 <button type="button" (click)="complete(row.id)">Complete</button>
                 <button type="button" (click)="cancel(row.id)" class="warn">Cancel</button>
+                <button type="button" (click)="delete(row.id)" class="warn">Delete</button>
               </td>
             </tr>
           </tbody>
@@ -193,6 +194,18 @@ export class ProgramEnrollmentsPage {
 
   async cancel(id: string): Promise<void> {
     await this.service.cancelEnrollment(id);
+  }
+
+  async delete(id: string): Promise<void> {
+    if (!confirm('Delete this enrollment permanently? This cannot be undone.')) {
+      return;
+    }
+    try {
+      await this.service.deleteEnrollment(id);
+    } catch (error) {
+      console.error('Failed to delete enrollment', error);
+      alert('Failed to delete enrollment. Please try again.');
+    }
   }
 
   trackById(_: number, row: { id: string }): string {

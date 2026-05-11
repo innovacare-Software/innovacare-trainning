@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { EnvironmentInjector, Injectable, inject, runInInjectionContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { Firestore, collection, collectionData, doc, docData, limit, query, where } from '@angular/fire/firestore';
-import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, filter, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, filter, map, of, shareReplay, switchMap } from 'rxjs';
 import { AuthService, AppProfile, AppRole } from '../../core/auth';
 import { ProfileService } from '../../core/profile.service';
 
@@ -355,12 +355,23 @@ export class OnboardingService {
   private readonly profiles = inject(ProfileService);
   private readonly router = inject(Router);
   private readonly firestore = inject(Firestore);
+  private readonly injector = inject(EnvironmentInjector);
   private readonly route$ = new BehaviorSubject<string>(this.router.url);
 
   private profileSnapshot: AppProfile | null = null;
   private writeInFlight = false;
+  // SECURITY/UX: dedupe Firestore-permission-denied logs so the console isn't
+  // flooded when the signed-in user lacks read access to the optional signal
+  // collections (expected for guests / cross-tenant accounts).
+  private readonly loggedSignalErrors = new Set<string>();
+  // Cache the signals$() observable so multiple vm$ subscribers share a
+  // single Firestore listener tree instead of multiplying listeners per
+  // component subscription.
+  private readonly signalsStream$ = this.signals$().pipe(
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
 
-  readonly vm$ = combineLatest([this.auth.profile$, this.route$, this.signals$()]).pipe(
+  readonly vm$ = combineLatest([this.auth.profile$, this.route$, this.signalsStream$]).pipe(
     map(([profile, currentRoute, signals]) => {
       this.profileSnapshot = profile;
 
@@ -402,13 +413,19 @@ export class OnboardingService {
         allCompleted,
       } as OnboardingViewModel;
     }),
-    distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current))
+    distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current)),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
 
   constructor() {
     this.auth.profile$
       .pipe(filter((profile): profile is AppProfile => !!profile?.uid))
       .subscribe((profile) => {
+        if (this.profileSnapshot?.uid !== profile.uid) {
+          // Different account signed in: reset the dedupe set so legitimate
+          // permission errors for the new user are reported once.
+          this.loggedSignalErrors.clear();
+        }
         this.profileSnapshot = profile;
       });
   }
@@ -535,7 +552,7 @@ export class OnboardingService {
             this.existsInCollection('users'),
             this.existsInCollection('billingRecords'),
             this.existsInCollection('adminLogs'),
-            this.existsInCollection('programs'),
+            orgId ? this.existsByField('programs', 'orgId', orgId) : of(false),
           ]).pipe(
             map(([profileCompleted, hasOrganizations, hasGlobalUsers, hasBillingRecords, hasAdminLogs, hasPrograms]) => ({
               profileCompleted,
@@ -596,8 +613,8 @@ export class OnboardingService {
         if (role === 'programAdmin' || role === 'programStaff') {
           return combineLatest([
             of(this.isProfileComplete(profile)),
-            this.existsInCollection('programs'),
-            this.existsInCollection('programEnrollments'),
+            orgId ? this.existsByField('programs', 'orgId', orgId) : of(false),
+            orgId ? this.existsByField('programEnrollments', 'orgId', orgId) : of(false),
           ]).pipe(
             map(([profileCompleted, hasPrograms, hasEnrollments]) => ({
               profileCompleted,
@@ -671,36 +688,46 @@ export class OnboardingService {
     );
   }
 
+  // SDK builders (collection/collectionData/docData) must run inside the
+  // Angular injection context. switchMap callbacks fire asynchronously, so we
+  // re-enter the injector here to silence the runtime warning and prevent
+  // Firestore internal assertion failures triggered by losing zone context.
   private existsInCollection(path: string) {
-    const ref = query(collection(this.firestore, path), limit(1));
-    return collectionData(ref, { idField: 'id' }).pipe(
-      map((rows) => rows.length > 0),
-      catchError((error) => {
-        this.logSignalError(path, error);
-        return of(false);
-      })
-    );
+    return runInInjectionContext(this.injector, () => {
+      const ref = query(collection(this.firestore, path), limit(1));
+      return collectionData(ref, { idField: 'id' }).pipe(
+        map((rows) => rows.length > 0),
+        catchError((error) => {
+          this.logSignalError(path, error);
+          return of(false);
+        })
+      );
+    });
   }
 
   private existsByField(path: string, field: string, value: string) {
-    const ref = query(collection(this.firestore, path), where(field, '==', value), limit(1));
-    return collectionData(ref, { idField: 'id' }).pipe(
-      map((rows) => rows.length > 0),
-      catchError((error) => {
-        this.logSignalError(`${path}?${field}=${value}`, error);
-        return of(false);
-      })
-    );
+    return runInInjectionContext(this.injector, () => {
+      const ref = query(collection(this.firestore, path), where(field, '==', value), limit(1));
+      return collectionData(ref, { idField: 'id' }).pipe(
+        map((rows) => rows.length > 0),
+        catchError((error) => {
+          this.logSignalError(`${path}?${field}=${value}`, error);
+          return of(false);
+        })
+      );
+    });
   }
 
   private existsDocument(path: string) {
-    return docData(doc(this.firestore, path)).pipe(
-      map((value) => !!value),
-      catchError((error) => {
-        this.logSignalError(path, error);
-        return of(false);
-      })
-    );
+    return runInInjectionContext(this.injector, () => {
+      return docData(doc(this.firestore, path)).pipe(
+        map((value) => !!value),
+        catchError((error) => {
+          this.logSignalError(path, error);
+          return of(false);
+        })
+      );
+    });
   }
 
   private isProfileComplete(profile: AppProfile): boolean {
@@ -847,7 +874,14 @@ export class OnboardingService {
   }
 
   private logSignalError(scope: string, error: unknown): void {
-    console.error('[OnboardingService] Firestore signal fallback', {
+    // Dedupe per scope: a permission-denied on `programs?orgId=X` is the same
+    // signal regardless of how many times the listener retries; we don't want
+    // to spam the console.
+    if (this.loggedSignalErrors.has(scope)) {
+      return;
+    }
+    this.loggedSignalErrors.add(scope);
+    console.warn('[OnboardingService] Firestore signal fallback', {
       scope,
       error,
       hint: 'A shell-level onboarding read was denied; fallback=false applied to keep the page rendering.',

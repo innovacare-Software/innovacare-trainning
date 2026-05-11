@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { ExamPrepAdminService } from '../services/exam-prep-admin.service';
 
 @Component({
@@ -229,18 +229,7 @@ export class ExamPrepDashboardPage {
   private readonly examPrep = inject(ExamPrepAdminService);
   private readonly orgContext = inject(OrgContextService);
 
-  readonly context = toSignal(this.orgContext.context$, {
-    initialValue: {
-      uid: '',
-      orgId: null,
-      role: 'guest',
-      orgRole: null,
-      isSuperAdmin: false,
-      isOrgAdmin: false,
-      isOrgManager: false,
-      isOrgLearner: false,
-    },
-  });
+  private readonly context = toSignal(this.orgContext.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly stats = toSignal(this.examPrep.dashboardStats$, {
     initialValue: {
       questionCount: 0,

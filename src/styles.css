@@ -1938,7 +1938,7 @@ app-course-player .course-html code {
 }
 
 .nav-dd__panel--nursing {
-  width: min(700px, 92vw);
+  width: min(1080px, 96vw);
 }
 
 .nav-dd__panel--simple {
@@ -1955,6 +1955,14 @@ app-course-player .course-html code {
   grid-template-columns: 1fr 1fr;
   gap: 0.35rem;
   flex: 1 1 auto;
+}
+
+.nav-dd__section-title {
+  margin: 0.1rem 0.2rem 0.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0b3c5d;
 }
 
 .nav-dd__items--col {
@@ -2644,6 +2652,7 @@ app-course-player .course-html code {
 
   .nav-dd__columns {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .nav-dd__aside {
@@ -2652,6 +2661,64 @@ app-course-player .course-html code {
 
   .nav-dd__items {
     grid-template-columns: 1fr;
+  }
+
+  .nav-dd__panel--nursing {
+    max-height: 58vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.8rem;
+  }
+
+  .nav-dd__section-title {
+    margin: 0.05rem 0.15rem 0.35rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+  }
+
+  .nav-dd__item {
+    gap: 0.5rem;
+    padding: 0.52rem 0.5rem;
+    border-radius: 0.72rem;
+  }
+
+  .nav-dd__item-emoji {
+    font-size: 1.1rem;
+    margin-top: 0.02rem;
+  }
+
+  .nav-dd__item strong {
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .nav-dd__item small {
+    font-size: 0.7rem;
+    margin-top: 0.04rem;
+    line-height: 1.3;
+  }
+
+  .nav-dd__promo {
+    padding: 0.62rem 0.72rem;
+    gap: 0.28rem;
+  }
+
+  .nav-dd__promo strong {
+    font-size: 0.8rem;
+    line-height: 1.25;
+  }
+
+  .nav-dd__promo p {
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+
+  .nav-dd__promo-cta,
+  .nav-dd__apply-btn,
+  .nav-dd__share-link {
+    min-height: 2rem;
+    padding: 0 0.65rem;
+    font-size: 0.72rem;
   }
 
   .mega-panel__grid,

@@ -29,7 +29,7 @@ import { environment } from '../enviroments/enviroment';
 import {
   initializeFirestore,
   persistentLocalCache,
-  persistentMultipleTabManager,
+  persistentSingleTabManager,
 } from 'firebase/firestore';
 import { browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { AuthTokenInterceptor } from './core/auth-token.interceptor';
@@ -113,7 +113,7 @@ export const appConfig: ApplicationConfig = {
     provideFirestore(() => {
       return initializeFirestore(getStripeApp(), {
         localCache: persistentLocalCache({
-          tabManager: persistentMultipleTabManager(),
+          tabManager: persistentSingleTabManager({ forceOwnership: true }),
         }),
       });
     }),

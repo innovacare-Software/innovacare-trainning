@@ -33,8 +33,8 @@
   <!-- Create Organization Panel -->
   <div class="panel form-panel" #formSection>
     <div class="panel-header">
-      <h2>Create Organization & Owner</h2>
-      <p class="subtitle">Set up a new organization with an owner account</p>
+      <h2>{{ editingId() ? 'Edit Organization' : 'Create Organization & Owner' }}</h2>
+      <p class="subtitle">{{ editingId() ? 'Update the selected organization' : 'Set up a new organization with an owner account' }}</p>
     </div>
 
     <div class="form-container">
@@ -94,10 +94,13 @@
     </div>
 
     <div class="form-actions">
-      <button class="btn primary" (click)="createWithOwner()" [disabled]="loading()">
+      <button class="btn primary" *ngIf="!editingId()" (click)="createWithOwner()" [disabled]="loading()">
         {{ loading() ? 'Creating…' : 'Create Organization' }}
       </button>
-      <button class="btn secondary" (click)="resetForm()">Reset</button>
+      <button class="btn primary" *ngIf="editingId()" (click)="editOrganization(editingId() || undefined)" [disabled]="loading()">
+        {{ loading() ? 'Updating…' : 'Update Organization' }}
+      </button>
+      <button class="btn secondary" (click)="resetForm()">{{ editingId() ? 'Cancel' : 'Reset' }}</button>
     </div>
 
     <div class="alert" [ngClass]="notice() ? 'show' : ''" *ngIf="notice()">
@@ -162,6 +165,7 @@
             <th>Status</th>
             <th>Users</th>
             <th>Assigned Courses</th>
+            <th>Access Code</th>
             <th>Created At</th>
             <th>Plan</th>
             <th>Actions</th>
@@ -181,6 +185,18 @@
             </td>
             <td>{{ row.usersCount }}</td>
             <td>{{ row.assignedCoursesCount }}</td>
+            <td class="cell-access-code">
+              <ng-container *ngIf="row.organization.accessCode; else noCode">
+                <code class="access-code">{{ isCodeVisible(row.organization.id) ? row.organization.accessCode : '••••••••' }}</code>
+                <button type="button" class="btn ghost sm" (click)="toggleCodeVisibility(row.organization.id)">
+                  {{ isCodeVisible(row.organization.id) ? 'Hide' : 'Reveal' }}
+                </button>
+                <button type="button" class="btn ghost sm" (click)="copyAccessCode(row.organization.id, row.organization.accessCode)">
+                  {{ wasCodeCopied(row.organization.id) ? 'Copied' : 'Copy' }}
+                </button>
+              </ng-container>
+              <ng-template #noCode><span class="sub">—</span></ng-template>
+            </td>
             <td>{{ row.organization.createdAt?.toDate ? (row.organization.createdAt.toDate() | date:'mediumDate') : '—' }}</td>
             <td class="cell-plan"><span class="badge badge-plan" [ngClass]="row.organization.plan">{{ row.organization.plan }}</span></td>
             <td class="cell-actions">
@@ -188,12 +204,12 @@
               <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'assign-courses']">Assign Courses</a>
               <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'users']">Manage Users</a>
               <a class="btn secondary sm" [routerLink]="['/super-admin/organizations', row.organization.id, 'progress']">Troubleshoot</a>
-              <button class="btn ghost sm" (click)="editOrganization(row.organization.id)">Edit</button>
+              <button class="btn ghost sm" (click)="startEdit(row.organization.id)">Edit</button>
               <button class="btn danger sm" (click)="deleteOrganization(row.organization.id)">Delete</button>
             </td>
           </tr>
           <tr *ngIf="!pagedRows().length" class="empty-row">
-            <td colspan="8" class="text-center">No organizations found</td>
+            <td colspan="9" class="text-center">No organizations found</td>
           </tr>
         </tbody>
       </table>

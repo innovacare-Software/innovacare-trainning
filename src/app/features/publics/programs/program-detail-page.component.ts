@@ -11,11 +11,12 @@ import {
   PROGRAM_LEVEL_LABELS,
 } from './program.models';
 import { ProgramsService } from './programs.service';
+import { ShareButtonsComponent } from '../../../shared/share/share-buttons.component';
 
 @Component({
   selector: 'app-program-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ShareButtonsComponent],
   templateUrl: './program-detail-page.component.html',
   styleUrls: ['./program-detail-page.component.css'],
 })

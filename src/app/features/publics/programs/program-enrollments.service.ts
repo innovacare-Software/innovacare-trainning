@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import {
   Firestore,
@@ -12,6 +12,7 @@ import {
 } from '@angular/fire/firestore';
 import {
   addDoc,
+  deleteDoc,
   getDoc,
   getDocs,
   serverTimestamp,
@@ -33,9 +34,14 @@ export class ProgramEnrollmentsService {
   private readonly firestore = inject(Firestore);
   private readonly auth = inject(Auth);
   private readonly authService = inject(AuthService);
+  private readonly injector = inject(Injector);
 
   private readonly programsPath = 'programs';
   private readonly enrollmentsPath = 'programEnrollments';
+
+  private inContext<T>(factory: () => T): T {
+    return runInInjectionContext(this.injector, factory);
+  }
 
   async createEnrollment(
     program: Program,
@@ -177,7 +183,7 @@ export class ProgramEnrollmentsService {
   }
 
   getMyEnrollments(): Observable<ProgramEnrollment[]> {
-    return authState(this.auth).pipe(
+    return this.inContext(() => authState(this.auth)).pipe(
       switchMap((user) => {
         if (!user?.uid) {
           return of([] as ProgramEnrollment[]);
@@ -186,7 +192,7 @@ export class ProgramEnrollmentsService {
         const ref = collection(this.firestore, this.enrollmentsPath);
         const myQuery = query(ref, where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
 
-        return collectionData(myQuery, { idField: 'id' }) as Observable<ProgramEnrollment[]>;
+        return this.inContext(() => collectionData(myQuery, { idField: 'id' }) as Observable<ProgramEnrollment[]>);
       })
     );
   }
@@ -207,7 +213,7 @@ export class ProgramEnrollmentsService {
         const q = this.isSuperAdmin(profile)
           ? query(ref, orderBy('createdAt', 'desc'))
           : query(ref, where('orgId', '==', scopedOrgId), orderBy('createdAt', 'desc'));
-        return collectionData(q, { idField: 'id' }) as Observable<ProgramEnrollment[]>;
+        return this.inContext(() => collectionData(q, { idField: 'id' }) as Observable<ProgramEnrollment[]>);
       })
     );
   }
@@ -218,7 +224,9 @@ export class ProgramEnrollmentsService {
     }
 
     const ref = doc(this.firestore, `${this.enrollmentsPath}/${enrollmentId}`);
-    return (docData(ref, { idField: 'id' }) as Observable<ProgramEnrollment | undefined>).pipe(
+    return (this.inContext(
+      () => docData(ref, { idField: 'id' }) as Observable<ProgramEnrollment | undefined>
+    )).pipe(
       catchError(() => of(undefined))
     );
   }
@@ -255,6 +263,14 @@ export class ProgramEnrollmentsService {
     return this.updateAdminState(enrollmentId, {
       status: ProgramEnrollmentStatus.CANCELLED,
     });
+  }
+
+  async deleteEnrollment(enrollmentId: string): Promise<void> {
+    if (!enrollmentId?.trim()) {
+      throw new Error('enrollmentId is required.');
+    }
+    await this.requireCurrentUser();
+    await deleteDoc(doc(this.firestore, `${this.enrollmentsPath}/${enrollmentId}`));
   }
 
   updatePaymentStatus(enrollmentId: string, paymentStatus: PaymentStatus): Promise<void> {
@@ -303,7 +319,7 @@ export class ProgramEnrollmentsService {
       return currentUser;
     }
 
-    const userFromState = await firstValueFrom(authState(this.auth));
+    const userFromState = await firstValueFrom(this.inContext(() => authState(this.auth)));
     if (!userFromState) {
       throw new Error('Authentication required. Please sign in first.');
     }

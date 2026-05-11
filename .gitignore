@@ -11,6 +11,17 @@
 npm-debug.log
 yarn-error.log
 
+# Secrets & environment variables — NEVER commit these
+.env
+.env.local
+.env.production
+.env.live
+*.env
+functions/.env
+functions/.env.local
+functions/.env.production
+innovacare-stripe-*.json
+
 # IDEs and editors
 .idea/
 .project

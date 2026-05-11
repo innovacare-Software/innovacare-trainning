@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { combineLatest, firstValueFrom } from 'rxjs';
-import { filter, map, take } from 'rxjs/operators';
+import { combineLatest, firstValueFrom, throwError } from 'rxjs';
+import { filter, map, take, timeout } from 'rxjs/operators';
 import { AuthService, AppProfile, RegisterWithEmailPayload } from '../../../core/auth';
 import { AuthRedirectService, resolveDefaultRoute } from '../../../core/auth-redirect.service';
 
@@ -110,6 +110,10 @@ export class LoginComponent {
   }
 
   private async waitForFreshProfile(): Promise<AppProfile> {
+    // SECURITY/UX: bound the wait so a stale Firestore listener (e.g. left
+    // over from the previous account when the user switches accounts) cannot
+    // hang the login spinner forever. If the new profile fails to load in
+    // time we surface a clear error and let the caller retry.
     return firstValueFrom(
       combineLatest([this.auth.ready$, this.auth.profile$]).pipe(
         filter(([ready, profile]) =>
@@ -119,7 +123,14 @@ export class LoginComponent {
           profile.uid === this.auth.currentUid
         ),
         map(([_, profile]) => profile as AppProfile),
-        take(1)
+        take(1),
+        timeout({
+          each: 15000,
+          with: () =>
+            throwError(() => new Error(
+              'Profile load timed out. Please reload the page and sign in again.'
+            )),
+        })
       )
     );
   }
@@ -177,12 +188,35 @@ export class LoginComponent {
       await this.auth.loginWithEmail(email!, password!, !!rememberMe);
 
       const profile = await this.waitForFreshProfile();
+
+      // SECURITY: enforce that org-affiliated users sign in via the
+      // Organization tab with their org access code. Public/guest login is
+      // reserved for accounts with no org assignment (role 'guest', no orgId).
+      if (this.isOrgAffiliated(profile)) {
+        await this.auth.logout();
+        this.error.set(
+          'This account belongs to an organization. Please use the "Organization" tab and enter your organization code.'
+        );
+        // Switch the visible tab to organization to guide the user.
+        this.switchTab('org');
+        return;
+      }
+
       await this.redirectAfterAuth(profile);
     } catch (e: any) {
       this.error.set(this.mapAuthError(e, 'Login failed'));
     } finally {
       this.loading.set(false);
     }
+  }
+
+  // SECURITY helper: an account is org-affiliated when it carries an explicit
+  // orgId. Such users MUST sign in via the Organization tab so the org access
+  // code is verified. Super admins, platform staff and brand-new guests have
+  // no orgId and are allowed through the guest tab.
+  private isOrgAffiliated(profile: AppProfile): boolean {
+    const orgId = String(profile?.orgId ?? '').trim();
+    return orgId.length > 0;
   }
 
   async submitOrg() {

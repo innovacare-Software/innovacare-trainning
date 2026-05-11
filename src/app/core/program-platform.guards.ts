@@ -1,31 +1,26 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, CanMatchFn, Router, UrlTree } from '@angular/router';
-import { combineLatest, filter, map, take } from 'rxjs';
-import { AccessCapabilitiesService } from './access-capabilities.service';
-import { AuthService } from './auth';
+import { map, take } from 'rxjs';
+import { OrgContextService } from './organization/org-context.service';
 
 function requireProgramAdminAccess() {
-  const auth = inject(AuthService);
-  const capabilities = inject(AccessCapabilitiesService);
+  const ctx = inject(OrgContextService);
   const router = inject(Router);
 
-  return combineLatest([auth.ready$, auth.profile$]).pipe(
-    filter(([ready]) => ready),
+  return ctx.context$.pipe(
     take(1),
-    map(([_, profile]): boolean | UrlTree => {
-      if (!profile) {
+    map((c): boolean | UrlTree => {
+      if (!c.uid) {
         return router.createUrlTree(['/login']);
       }
-
-      if (!capabilities.canAccessProgramAdmin(profile)) {
-        return router.createUrlTree(['/home']);
-      }
-
-      return true;
-    })
+      // Super admin has unrestricted access. Otherwise an active membership
+      // with role program_admin or org_admin in the active org is required.
+      if (c.isSuperAdmin) return true;
+      if (c.isProgramAdmin && c.activeOrgId) return true;
+      return router.createUrlTree(['/home']);
+    }),
   );
 }
 
 export const programAdminCanMatch: CanMatchFn = () => requireProgramAdminAccess();
-
 export const programAdminGuard: CanActivateFn = () => requireProgramAdminAccess();

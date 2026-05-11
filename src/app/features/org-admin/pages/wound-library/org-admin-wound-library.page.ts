@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { OrgContextService } from '../../../../core/organization/org-context.service';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationWoundLibraryService } from '../../../../core/organization/services/organization-wound-library.service';
 
 @Component({
@@ -24,7 +24,7 @@ import { OrganizationWoundLibraryService } from '../../../../core/organization/s
 export class OrgAdminWoundLibraryPage {
   private readonly ctx = inject(OrgContextService);
   private readonly wounds = inject(OrganizationWoundLibraryService);
-  private readonly context = toSignal(this.ctx.context$, { initialValue: { uid: '', orgId: null, role: '', orgRole: null, isSuperAdmin: false, isOrgAdmin: false, isOrgManager: false, isOrgLearner: false } });
+  private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
   readonly orgId = computed(() => this.context().orgId || '');
   readonly rows = toSignal(this.wounds.list(this.orgId()), { initialValue: [] as any[] });
 }

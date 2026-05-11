@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { of, switchMap } from 'rxjs';
 import { AuthService } from '../../core/auth';
+import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../core/organization/org-context.service';
+import { SuperAdminOrganizationsService } from '../superAdmin/services/super-admin-organizations';
 import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 import { GlobalSearchTriggerComponent } from '../../shared/global-search/global-search-trigger.component';
 import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-trigger.component';
@@ -48,6 +52,12 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
           <a routerLink="/program-admin/analytics" routerLinkActive="active" [title]="sidebarCollapsed ? 'Analytics' : ''">
             <span class="nav-icon">📊</span><span class="nav-label" *ngIf="!sidebarCollapsed">Analytics</span>
           </a>
+          <a routerLink="/admin/security" routerLinkActive="active" [title]="sidebarCollapsed ? 'Security' : ''">
+            <span class="nav-icon">🛡️</span><span class="nav-label" *ngIf="!sidebarCollapsed">Security</span>
+          </a>
+          <a routerLink="/admin/analytics/shares" routerLinkActive="active" [title]="sidebarCollapsed ? 'Shares' : ''">
+            <span class="nav-icon">📣</span><span class="nav-label" *ngIf="!sidebarCollapsed">Share Analytics</span>
+          </a>
         </nav>
       </aside>
 
@@ -55,7 +65,8 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
         <header class="content-topbar">
           <div class="content-topbar__copy">
             <span>Program admin dashboard</span>
-            <strong>Fast access to search, language and session controls.</strong>
+            <strong class="org-name" *ngIf="orgName(); else fallbackTitle">{{ orgName() }}</strong>
+            <ng-template #fallbackTitle><strong>Fast access to search, language and session controls.</strong></ng-template>
           </div>
           <div class="content-topbar__actions">
             <app-global-search-trigger></app-global-search-trigger>
@@ -255,6 +266,18 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
         color: #14385a;
       }
 
+      .content-topbar__copy .org-name {
+        font-size: 1.45rem;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        background: linear-gradient(95deg, #0f3659 0%, #1f6dbf 55%, #2aa1d8 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 4px 14px rgba(15, 54, 89, 0.18);
+        padding: 0.05rem 0;
+      }
+
       .content-topbar__actions {
         display: flex;
         align-items: center;
@@ -316,6 +339,17 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
 export class ProgramAdminShellComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly ctx = inject(OrgContextService);
+  private readonly orgsSvc = inject(SuperAdminOrganizationsService);
+
+  readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
+  readonly orgId = computed(() => this.context().orgId);
+  private readonly orgId$ = toObservable(this.orgId);
+  readonly organization = toSignal(
+    this.orgId$.pipe(switchMap((id) => (id ? this.orgsSvc.getOrganizationById(id) : of(null)))),
+    { initialValue: null as any }
+  );
+  readonly orgName = computed(() => this.organization()?.name || '');
 
   sidebarCollapsed = false;
 

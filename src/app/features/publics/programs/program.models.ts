@@ -124,6 +124,9 @@ export enum CaseStudyScoringMode {
 }
 
 export type ProgramCurrency = 'USD' | 'CAD' | 'AED' | 'EUR' | 'GBP';
+export type ProgramOwnerType = 'platform' | 'partner';
+export type ProgramPayoutMode = 'manual' | 'stripe_connect';
+export type PartnerPayoutMethod = 'MTN_MOBILE_MONEY' | 'ORANGE_MONEY' | 'WISE' | 'BANK_TRANSFER' | 'MANUAL_OTHER';
 
 export type FirestoreDateValue = unknown;
 
@@ -188,9 +191,23 @@ export interface Program {
   moduleIds?: string[];
   adminPhone?: string;
   stripeAccountId?: string | null;
+  ownerType?: ProgramOwnerType;
   startDate?: FirestoreDateValue | null;
   endDate?: FirestoreDateValue | null;
   ownerId: string;
+  payoutMode?: ProgramPayoutMode;
+  platformFeePercent?: number;
+  partnerSharePercent?: number;
+  payoutMethodConfigured?: boolean;
+  payoutMethod?: PartnerPayoutMethod;
+  payoutCountry?: string;
+  payoutCurrency?: string;
+  accountHolderName?: string;
+  mobileMoneyProvider?: string;
+  mobileMoneyPhoneMasked?: string;
+  bankName?: string;
+  bankAccountMasked?: string;
+  payoutNotes?: string;
   orgId?: string | null;
   createdAt?: FirestoreDateValue;
   updatedAt?: FirestoreDateValue;
@@ -224,10 +241,24 @@ export interface CreateProgramPayload {
   moduleIds?: string[];
   adminPhone?: string;
   stripeAccountId?: string | null;
+  ownerType?: ProgramOwnerType;
   linkedCourseIds?: string[];
   startDate?: FirestoreDateValue | null;
   endDate?: FirestoreDateValue | null;
   ownerId?: string;
+  payoutMode?: ProgramPayoutMode;
+  platformFeePercent?: number;
+  partnerSharePercent?: number;
+  payoutMethodConfigured?: boolean;
+  payoutMethod?: PartnerPayoutMethod;
+  payoutCountry?: string;
+  payoutCurrency?: string;
+  accountHolderName?: string;
+  mobileMoneyProvider?: string;
+  mobileMoneyPhoneMasked?: string;
+  bankName?: string;
+  bankAccountMasked?: string;
+  payoutNotes?: string;
   orgId?: string | null;
 }
 
