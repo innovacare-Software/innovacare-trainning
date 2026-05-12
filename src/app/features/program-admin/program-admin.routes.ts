@@ -48,6 +48,11 @@ export const PROGRAM_ADMIN_ROUTES: Routes = [
           ),
       },
       {
+        path: 'users',
+        loadComponent: () =>
+          import('./users/program-admin-users.page').then((m) => m.ProgramAdminUsersPage),
+      },
+      {
         path: 'enrollments/:id',
         loadComponent: () =>
           import('./enrollments/program-enrollment-detail.page').then(

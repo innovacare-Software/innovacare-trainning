@@ -1,11 +1,49 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Functions, httpsCallable } from '@angular/fire/functions';
 import { Program, ProgramStatus } from '../shared/program-admin.models';
 import { ProgramsService } from '../../publics/programs/programs.service';
+
+export interface CloneProgramRequest {
+  sourceProgramId: string;
+  destinationOrgId?: string | null;
+  newTitle?: string;
+  newSlug?: string;
+  market?: string | null;
+  jurisdiction?: string | null;
+  language?: string | null;
+  cloneLabel?: string | null;
+  includeModules?: boolean;
+  includeLessons?: boolean;
+  includeDocuments?: boolean;
+  includeAssessments?: boolean;
+  includeCaseStudies?: boolean;
+  includeSimulations?: boolean;
+  includeLiveSessions?: boolean;
+  includeOffers?: boolean;
+  includePricing?: boolean;
+  includeCertificateTemplate?: boolean;
+  publishImmediately?: boolean;
+}
+
+export interface CloneProgramResult {
+  ok: boolean;
+  newProgramId: string;
+  cloneBatchId: string;
+  destinationOrgId: string | null;
+  counts: Record<string, number>;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ProgramsAdminService {
   private readonly programs = inject(ProgramsService);
+  private readonly functions = inject(Functions);
+
+  async cloneProgram(payload: CloneProgramRequest): Promise<CloneProgramResult> {
+    const callable = httpsCallable<CloneProgramRequest, CloneProgramResult>(this.functions, 'cloneProgram');
+    const res = await callable(payload);
+    return res.data;
+  }
 
   getAllProgramsForAdmin(): Observable<Program[]> {
     return this.programs.getAdminPrograms();

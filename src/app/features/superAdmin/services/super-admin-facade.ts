@@ -51,4 +51,45 @@ export class SuperAdminDashboardService {
       ...(docSnap.data() as Omit<SuperAdminRegistration, 'id'>),
     }));
   }
+
+  /**
+   * Live alerts feed: recent users, enrollments, audit logs, payments
+   * across all organizations. Used on the Super Admin dashboard.
+   */
+  async getRecentAlerts(maxRows = 10): Promise<{
+    recentUsers: any[];
+    recentEnrollments: any[];
+    recentAuditLogs: any[];
+    recentPayments: any[];
+    countsByOrg: Record<string, number>;
+  }> {
+    const usersRef = collection(this.afs, 'users');
+    const enrollRef = collection(this.afs, 'programEnrollments');
+    const auditRef = collection(this.afs, 'auditLogs');
+    const paymentsRef = collection(this.afs, 'paymentIntents');
+
+    const [usersSnap, enrollSnap, auditSnap, paymentsSnap] = await Promise.all([
+      getDocs(query(usersRef, orderBy('createdAt', 'desc'), limit(maxRows))).catch(() => null),
+      getDocs(query(enrollRef, orderBy('createdAt', 'desc'), limit(maxRows))).catch(() => null),
+      getDocs(query(auditRef, orderBy('createdAt', 'desc'), limit(maxRows))).catch(() => null),
+      getDocs(query(paymentsRef, orderBy('createdAt', 'desc'), limit(maxRows))).catch(() => null),
+    ]);
+
+    const recentUsers = usersSnap?.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) ?? [];
+    const recentEnrollments = enrollSnap?.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) ?? [];
+    const recentAuditLogs = auditSnap?.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) ?? [];
+    const recentPayments = paymentsSnap?.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) ?? [];
+
+    const countsByOrg: Record<string, number> = {};
+    for (const u of recentUsers) {
+      const org = u.orgId || 'unassigned';
+      countsByOrg[org] = (countsByOrg[org] || 0) + 1;
+    }
+    for (const e of recentEnrollments) {
+      const org = e.orgId || 'unassigned';
+      countsByOrg[org] = (countsByOrg[org] || 0) + 1;
+    }
+
+    return { recentUsers, recentEnrollments, recentAuditLogs, recentPayments, countsByOrg };
+  }
 }

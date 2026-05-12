@@ -49,6 +49,9 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
           <a routerLink="/program-admin/enrollments" routerLinkActive="active" [title]="sidebarCollapsed ? 'Enrollments' : ''">
             <span class="nav-icon">👥</span><span class="nav-label" *ngIf="!sidebarCollapsed">Enrollments</span>
           </a>
+          <a routerLink="/program-admin/users" routerLinkActive="active" [title]="sidebarCollapsed ? 'Users' : ''">
+            <span class="nav-icon">👤</span><span class="nav-label" *ngIf="!sidebarCollapsed">Users</span>
+          </a>
           <a routerLink="/program-admin/analytics" routerLinkActive="active" [title]="sidebarCollapsed ? 'Analytics' : ''">
             <span class="nav-icon">📊</span><span class="nav-label" *ngIf="!sidebarCollapsed">Analytics</span>
           </a>

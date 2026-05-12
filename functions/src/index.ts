@@ -584,7 +584,7 @@ type CreateOrgUserPayload = {
   phone?: string;
   department?: string;
   title?: string;
-  role?: "admin" | "manager" | "learner" | "guest";
+  role?: "admin" | "manager" | "learner" | "guest" | "instructor" | "tutor" | "staff";
   status?: "active" | "inactive";
 };
 
@@ -6035,7 +6035,7 @@ export const createOrgUser = onCall(
     const phone = String(data.phone || "").trim();
     const department = String(data.department || "").trim();
     const title = String(data.title || "").trim();
-    const role = (data.role || "learner") as "admin" | "manager" | "learner" | "guest";
+    const role = (data.role || "learner") as "admin" | "manager" | "learner" | "guest" | "instructor" | "tutor" | "staff";
     const status = (data.status || "active") as "active" | "inactive";
 
     if (!email || !email.includes("@")) {
@@ -6044,7 +6044,7 @@ export const createOrgUser = onCall(
     if (password.length < 8) {
       throw new HttpsError("invalid-argument", "Initial password must be at least 8 characters.");
     }
-    if (!["admin", "manager", "learner", "guest"].includes(role)) {
+    if (!["admin", "manager", "learner", "guest", "instructor", "tutor", "staff"].includes(role)) {
       throw new HttpsError("invalid-argument", "Invalid role.");
     }
     if (!["active", "inactive"].includes(status)) {
@@ -11303,3 +11303,498 @@ export const cinetPayNotify = onRequest(
   },
 );
 
+/* ─────────── Program Duplication / Clone Engine (Lot 11) ─────────── */
+
+interface CloneProgramPayload {
+  sourceProgramId: string;
+  destinationOrgId?: string | null;
+  newTitle?: string;
+  newSlug?: string;
+  market?: string | null;
+  jurisdiction?: string | null;
+  language?: string | null;
+  cloneLabel?: string | null;
+  includeModules?: boolean;
+  includeLessons?: boolean;
+  includeDocuments?: boolean;
+  includeAssessments?: boolean;
+  includeCaseStudies?: boolean;
+  includeSimulations?: boolean;
+  includeLiveSessions?: boolean;
+  includeOffers?: boolean;
+  includePricing?: boolean;
+  includeCertificateTemplate?: boolean;
+  publishImmediately?: boolean;
+}
+
+const PROGRAM_CLONE_SUBCOLLECTIONS = [
+  "modules",
+  "lessons",
+  "documents",
+  "assessments",
+  "caseStudies",
+  "simulations",
+  "liveSessions",
+] as const;
+
+function slugifyForClone(input: string): string {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function rewireIds(
+  data: Record<string, unknown>,
+  idMap: Map<string, string>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (typeof v === "string" && idMap.has(v)) {
+      out[k] = idMap.get(v);
+    } else if (Array.isArray(v)) {
+      out[k] = v.map((item) =>
+        typeof item === "string" && idMap.has(item) ? idMap.get(item) : item,
+      );
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+async function cloneSubcollection(
+  sourceProgramId: string,
+  destProgramId: string,
+  sub: string,
+  destOrgId: string | null,
+  idMap: Map<string, string>,
+): Promise<number> {
+  const srcCol = db.collection(`programs/${sourceProgramId}/${sub}`);
+  const snap = await srcCol.get();
+  if (snap.empty) return 0;
+
+  // First pass: assign new IDs.
+  const docs = snap.docs.map((d) => {
+    const newId = db.collection("_ids").doc().id;
+    idMap.set(d.id, newId);
+    return {oldId: d.id, newId, raw: d.data() as Record<string, unknown>};
+  });
+
+  // Second pass: rewire references then write in chunks of 450.
+  let written = 0;
+  for (let i = 0; i < docs.length; i += 450) {
+    const chunk = docs.slice(i, i + 450);
+    const batch = db.batch();
+    for (const item of chunk) {
+      const cleaned = rewireIds(item.raw, idMap);
+      cleaned["id"] = item.newId;
+      cleaned["programId"] = destProgramId;
+      if (destOrgId) cleaned["orgId"] = destOrgId;
+      cleaned["clonedFromId"] = item.oldId;
+      cleaned["clonedFromProgramId"] = sourceProgramId;
+      cleaned["createdAt"] = admin.firestore.FieldValue.serverTimestamp();
+      cleaned["updatedAt"] = admin.firestore.FieldValue.serverTimestamp();
+      const ref = db.doc(`programs/${destProgramId}/${sub}/${item.newId}`);
+      batch.set(ref, cleaned);
+    }
+    await batch.commit();
+    written += chunk.length;
+  }
+  return written;
+}
+
+export const cloneProgram = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<CloneProgramPayload>) => {
+    const callerUid = request.auth?.uid;
+    if (!callerUid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const callerCtx = await getUserContext(callerUid);
+    if (!callerCtx.active) {
+      throw new HttpsError("permission-denied", "Caller account is inactive.");
+    }
+    const allowedRoles = ["manager", "admin", "super_admin"];
+    if (!allowedRoles.includes(callerCtx.role)) {
+      throw new HttpsError("permission-denied", "You are not allowed to clone programs.");
+    }
+
+    const data = request.data || ({} as CloneProgramPayload);
+    const sourceProgramId = String(data.sourceProgramId || "").trim();
+    if (!sourceProgramId) {
+      throw new HttpsError("invalid-argument", "sourceProgramId is required.");
+    }
+
+    const sourceSnap = await db.doc(`programs/${sourceProgramId}`).get();
+    if (!sourceSnap.exists) {
+      throw new HttpsError("not-found", "Source program not found.");
+    }
+    const sourceProgram = sourceSnap.data() as Record<string, unknown>;
+    const sourceOrgId = (sourceProgram["orgId"] as string | null) || null;
+
+    // Determine destination org with permission check.
+    const requestedDestOrgId = data.destinationOrgId ? String(data.destinationOrgId).trim() : null;
+    let destOrgId: string | null = requestedDestOrgId || sourceOrgId || callerCtx.orgId || null;
+
+    if (callerCtx.role !== "super_admin") {
+      // Non super-admin must clone within their own org.
+      if (!callerCtx.orgId) {
+        throw new HttpsError("permission-denied", "No organization attached to caller.");
+      }
+      if (sourceOrgId && sourceOrgId !== callerCtx.orgId) {
+        throw new HttpsError("permission-denied", "Cannot clone programs from another organization.");
+      }
+      if (destOrgId && destOrgId !== callerCtx.orgId) {
+        throw new HttpsError("permission-denied", "Cannot clone into another organization.");
+      }
+      destOrgId = callerCtx.orgId;
+    }
+
+    if (destOrgId) {
+      const orgSnap = await db.doc(`organizations/${destOrgId}`).get();
+      if (!orgSnap.exists) {
+        throw new HttpsError("failed-precondition", "Destination organization does not exist.");
+      }
+      if (orgSnap.get("active") === false) {
+        throw new HttpsError("permission-denied", "Destination organization is inactive.");
+      }
+    }
+
+    const cloneBatchId = db.collection("_ids").doc().id;
+    const newProgramId = db.collection("_ids").doc().id;
+    const idMap = new Map<string, string>();
+    idMap.set(sourceProgramId, newProgramId);
+
+    const newTitle = String(data.newTitle || "").trim() || `${String(sourceProgram["title"] || "Program")} (Copy)`;
+    const newSlug = String(data.newSlug || "").trim() || slugifyForClone(`${newTitle}-${cloneBatchId.slice(0, 6)}`);
+    const market = data.market ? String(data.market).trim() : null;
+    const jurisdiction = data.jurisdiction ? String(data.jurisdiction).trim() : null;
+    const language = data.language ? String(data.language).trim() : null;
+    const cloneLabel = data.cloneLabel ? String(data.cloneLabel).trim() : null;
+    const publishImmediately = callerCtx.role === "super_admin" && Boolean(data.publishImmediately);
+
+    // Build cloned program doc — never carry forward learners/payments/issued cert state.
+    const STRIP_KEYS = new Set([
+      "id",
+      "createdAt",
+      "updatedAt",
+      "seatsRemaining",
+      "stripeAccountId",
+    ]);
+    const clonedProgram: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(sourceProgram)) {
+      if (STRIP_KEYS.has(k)) continue;
+      clonedProgram[k] = v;
+    }
+
+    if (data.includePricing === false) {
+      clonedProgram["price"] = 0;
+      clonedProgram["discountPrice"] = null;
+      clonedProgram["payoutMode"] = null;
+      clonedProgram["platformFeePercent"] = null;
+      clonedProgram["partnerSharePercent"] = null;
+    }
+    if (data.includeOffers === false) {
+      clonedProgram["isFeatured"] = false;
+    }
+    if (data.includeCertificateTemplate === false) {
+      clonedProgram["certificateTemplateId"] = null;
+    }
+
+    clonedProgram["id"] = newProgramId;
+    clonedProgram["title"] = newTitle;
+    clonedProgram["slug"] = newSlug;
+    clonedProgram["orgId"] = destOrgId;
+    clonedProgram["ownerId"] = callerUid;
+    clonedProgram["status"] = publishImmediately ? "PUBLISHED" : "DRAFT";
+    clonedProgram["active"] = publishImmediately;
+    clonedProgram["clonedFromProgramId"] = sourceProgramId;
+    clonedProgram["clonedFromOrgId"] = sourceOrgId;
+    clonedProgram["cloneBatchId"] = cloneBatchId;
+    clonedProgram["cloneLabel"] = cloneLabel;
+    clonedProgram["market"] = market;
+    clonedProgram["jurisdiction"] = jurisdiction;
+    clonedProgram["language"] = language;
+    clonedProgram["createdBy"] = callerUid;
+    clonedProgram["createdAt"] = admin.firestore.FieldValue.serverTimestamp();
+    clonedProgram["updatedAt"] = admin.firestore.FieldValue.serverTimestamp();
+
+    // Rewrite arrays of ids on the program doc using the (yet-to-be-built) idMap;
+    // we'll write the program doc AFTER subcollections so id mapping is complete.
+
+    // Decide which subcollections to clone.
+    const includeMap: Record<string, boolean> = {
+      modules: data.includeModules !== false,
+      lessons: data.includeLessons !== false,
+      documents: data.includeDocuments !== false,
+      assessments: data.includeAssessments !== false,
+      caseStudies: data.includeCaseStudies !== false,
+      simulations: data.includeSimulations !== false,
+      liveSessions: data.includeLiveSessions !== false,
+    };
+
+    const counts: Record<string, number> = {};
+    try {
+      for (const sub of PROGRAM_CLONE_SUBCOLLECTIONS) {
+        if (!includeMap[sub]) {
+          counts[sub] = 0;
+          continue;
+        }
+        counts[sub] = await cloneSubcollection(sourceProgramId, newProgramId, sub, destOrgId, idMap);
+      }
+
+      // Now rewire program-level id arrays/refs (moduleIds, linkedCourseIds…).
+      const rewiredProgram = rewireIds(clonedProgram, idMap);
+      // Preserve our overridden fields after rewireIds.
+      rewiredProgram["id"] = newProgramId;
+      rewiredProgram["clonedFromProgramId"] = sourceProgramId;
+      rewiredProgram["cloneBatchId"] = cloneBatchId;
+
+      await db.doc(`programs/${newProgramId}`).set(rewiredProgram);
+
+      // Audit log.
+      await db.collection("auditLogs").add({
+        action: "PROGRAM_CLONED",
+        actorUid: callerUid,
+        actorRole: callerCtx.role,
+        actorOrgId: callerCtx.orgId || null,
+        sourceProgramId,
+        sourceOrgId,
+        destinationProgramId: newProgramId,
+        destinationOrgId: destOrgId,
+        cloneBatchId,
+        cloneLabel,
+        market,
+        jurisdiction,
+        language,
+        counts,
+        publishImmediately,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return {
+        ok: true,
+        newProgramId,
+        cloneBatchId,
+        destinationOrgId: destOrgId,
+        counts,
+      };
+    } catch (err) {
+      // Best-effort cleanup of partial subcollection writes; the program doc was
+      // not yet created so no public exposure.
+      console.error("cloneProgram: failure, attempting cleanup", {sourceProgramId, newProgramId, err});
+      try {
+        for (const sub of PROGRAM_CLONE_SUBCOLLECTIONS) {
+          const subRef = db.collection(`programs/${newProgramId}/${sub}`);
+          const subSnap = await subRef.get();
+          if (subSnap.empty) continue;
+          for (let i = 0; i < subSnap.docs.length; i += 450) {
+            const chunk = subSnap.docs.slice(i, i + 450);
+            const batch = db.batch();
+            chunk.forEach((d) => batch.delete(d.ref));
+            await batch.commit();
+          }
+        }
+      } catch (cleanupErr) {
+        console.error("cloneProgram: cleanup also failed", {newProgramId, cleanupErr});
+      }
+      const message = err instanceof Error ? err.message : "Clone failed.";
+      throw new HttpsError("internal", message);
+    }
+  },
+);
+
+
+
+
+// =====================================================================
+// programAdminInviteLearner — create or attach learner + enrollment
+// =====================================================================
+
+interface InviteLearnerPayload {
+  programId: string;
+  email: string;
+  displayName?: string;
+  password?: string;        // if absent, a random one is generated
+  phone?: string;
+  status?: "active" | "inactive";
+  enrollmentStatus?: "PENDING_REVIEW" | "ACTIVE";
+  paymentStatus?: "UNPAID" | "PAID" | "WAIVED";
+  reviewStatus?: "PENDING" | "APPROVED" | "REJECTED";
+  amount?: number;
+  currency?: string;
+  notes?: string;
+}
+
+interface InviteLearnerResult {
+  ok: boolean;
+  uid: string;
+  email: string;
+  enrollmentId: string;
+  created: boolean;
+}
+
+function generateTempPassword(): string {
+  const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+  let out = "";
+  for (let i = 0; i < 14; i++) {
+    out += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return out;
+}
+
+export const programAdminInviteLearner = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<InviteLearnerPayload>) => {
+    const callerUid = request.auth?.uid;
+    if (!callerUid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+    const callerCtx = await getUserContext(callerUid);
+    if (!["manager", "admin", "super_admin"].includes(callerCtx.role)) {
+      throw new HttpsError("permission-denied", "Only manager/admin can invite learners.");
+    }
+    if (!callerCtx.active) {
+      throw new HttpsError("permission-denied", "Caller account is inactive.");
+    }
+
+    const data = request.data || ({} as InviteLearnerPayload);
+    const programId = String(data.programId || "").trim();
+    const email = String(data.email || "").trim().toLowerCase();
+    const displayName = String(data.displayName || "").trim();
+    if (!programId) throw new HttpsError("invalid-argument", "programId is required.");
+    if (!email || !email.includes("@")) throw new HttpsError("invalid-argument", "A valid email is required.");
+
+    const programSnap = await db.doc(`programs/${programId}`).get();
+    if (!programSnap.exists) {
+      throw new HttpsError("not-found", "Program not found.");
+    }
+    const programData = programSnap.data() || {};
+    const programOrgId = String(programData.orgId || "").trim() || null;
+
+    if (callerCtx.role !== "super_admin") {
+      if (!callerCtx.orgId) {
+        throw new HttpsError("failed-precondition", "Caller has no organization.");
+      }
+      if (programOrgId && programOrgId !== callerCtx.orgId) {
+        throw new HttpsError("permission-denied", "You cannot invite into a program of another organization.");
+      }
+    }
+
+    const orgId = programOrgId || callerCtx.orgId || null;
+
+    // Resolve or create the user.
+    let uid = "";
+    let created = false;
+    try {
+      const existing = await admin.auth().getUserByEmail(email);
+      uid = existing.uid;
+    } catch (err: any) {
+      if (err?.code === "auth/user-not-found") {
+        const password = String(data.password || "") || generateTempPassword();
+        const newUser = await admin.auth().createUser({
+          email,
+          password,
+          displayName: displayName || undefined,
+          disabled: data.status === "inactive",
+        });
+        uid = newUser.uid;
+        created = true;
+
+        const userPayload = {
+          uid: newUser.uid,
+          email,
+          displayName,
+          phone: String(data.phone || "").trim(),
+          role: "learner",
+          status: data.status || "active",
+          orgId,
+          loginType: "organization",
+          active: data.status !== "inactive",
+          createdAt: nowTs(),
+          updatedAt: nowTs(),
+          createdBy: callerUid,
+          createdVia: "programAdminInviteLearner",
+        };
+        const batch = db.batch();
+        batch.set(db.doc(`users/${newUser.uid}`), userPayload, {merge: true});
+        if (orgId) {
+          batch.set(db.doc(`organizations/${orgId}/users/${newUser.uid}`), userPayload, {merge: true});
+          batch.set(db.doc(`organizations/${orgId}/orgUsers/${newUser.uid}`), userPayload, {merge: true});
+        }
+        await batch.commit();
+      } else {
+        throw new HttpsError("internal", err?.message || "Failed to resolve user.");
+      }
+    }
+
+    // Avoid duplicate enrollments for same (uid, programId).
+    const existingEnrollSnap = await db
+      .collection("programEnrollments")
+      .where("learnerUid", "==", uid)
+      .where("programId", "==", programId)
+      .limit(1)
+      .get();
+
+    if (!existingEnrollSnap.empty) {
+      return {
+        ok: true,
+        uid,
+        email,
+        enrollmentId: existingEnrollSnap.docs[0].id,
+        created,
+      } satisfies InviteLearnerResult;
+    }
+
+    const enrollmentRef = db.collection("programEnrollments").doc();
+    const enrollmentDoc = {
+      id: enrollmentRef.id,
+      programId,
+      programTitle: String(programData.title || ""),
+      category: programData.category || null,
+      orgId,
+      learnerUid: uid,
+      learnerEmail: email,
+      learnerName: displayName,
+      amount: typeof data.amount === "number" ? data.amount : (programData.discountPrice ?? programData.price ?? 0),
+      currency: data.currency || programData.currency || "USD",
+      paymentStatus: data.paymentStatus || "WAIVED",
+      reviewStatus: data.reviewStatus || "APPROVED",
+      status: data.enrollmentStatus || "ACTIVE",
+      notes: data.notes || "",
+      createdAt: nowTs(),
+      updatedAt: nowTs(),
+      createdBy: callerUid,
+      createdVia: "programAdminInviteLearner",
+    };
+    await enrollmentRef.set(enrollmentDoc);
+
+    // Audit log
+    try {
+      await db.collection("auditLogs").add({
+        action: "PROGRAM_LEARNER_INVITED",
+        actorUid: callerUid,
+        targetUid: uid,
+        programId,
+        orgId,
+        enrollmentId: enrollmentRef.id,
+        emailCreated: created,
+        createdAt: nowTs(),
+      });
+    } catch (e) {
+      console.warn("auditLogs write failed (non-fatal)", e);
+    }
+
+    return {
+      ok: true,
+      uid,
+      email,
+      enrollmentId: enrollmentRef.id,
+      created,
+    } satisfies InviteLearnerResult;
+  }
+);

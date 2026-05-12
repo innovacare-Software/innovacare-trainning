@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 import { ExamPrepAdminService } from '../services/exam-prep-admin.service';
-import type { ExamBlueprint } from '../models/exam-prep.models';
+import { BLUEPRINT_TYPE_LABELS, type BlueprintType, type ExamBlueprint } from '../models/exam-prep.models';
 
 @Component({
   selector: 'app-blueprint-manager-page',
@@ -24,7 +24,10 @@ import type { ExamBlueprint } from '../models/exam-prep.models';
         <div class="list" *ngIf="blueprints().length; else emptyState">
           <div class="row" *ngFor="let blueprint of blueprints(); trackBy: trackById">
             <div>
-              <strong>{{ blueprint.title || 'Untitled blueprint' }}</strong>
+              <strong>
+                {{ blueprint.title || 'Untitled blueprint' }}
+                <span class="badge badge--type">{{ typeLabel(blueprint.blueprintType) }}</span>
+              </strong>
               <span>{{ blueprint.assessmentFamily }} · {{ blueprint.programId }} · {{ blueprint.totalQuestionCount }} questions</span>
               <small>{{ blueprint.caseStudyBundleQuota }} case studies · {{ blueprint.clinicalJudgmentQuota }} clinical judgment quota · {{ blueprint.timeBudgetMinutes }} minutes</small>
             </div>
@@ -57,6 +60,7 @@ import type { ExamBlueprint } from '../models/exam-prep.models';
       .row-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
       .row-actions a, .row-actions button { border: 1px solid #c9dbee; border-radius: 0.58rem; background: #f8fbff; color: #224f7d; text-decoration: none; padding: 0.35rem 0.55rem; cursor: pointer; }
       .row-actions .warn { color: #8a3344; border-color: #efc5ce; background: #fff4f6; }
+      .badge--type { display: inline-block; margin-left: 0.5rem; background: #eef4fb; color: #224f7d; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; vertical-align: middle; }
     `,
   ],
 })
@@ -68,6 +72,10 @@ export class BlueprintManagerPage {
 
   trackById(_: number, row: { id: string }): string {
     return row.id;
+  }
+
+  typeLabel(t: BlueprintType | undefined): string {
+    return BLUEPRINT_TYPE_LABELS[t ?? 'exam_prep'] ?? 'Exam prep';
   }
 
   async duplicate(blueprint: ExamBlueprint): Promise<void> {

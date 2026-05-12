@@ -4,6 +4,9 @@ import { RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ProgramAdminAnalyticsService } from '../services/program-admin-analytics.service';
 import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../shared/program-admin.models';
+import { ExamPrepAdminService } from '../exam-prep/services/exam-prep-admin.service';
+import { BLUEPRINT_TYPES, BLUEPRINT_TYPE_LABELS, type BlueprintType } from '../exam-prep/models/exam-prep.models';
+import { combineLatest, map } from 'rxjs';
 
 @Component({
   selector: 'app-program-admin-dashboard-page',
@@ -68,6 +71,26 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
             </div>
           </div>
           <ng-template #noStatus><p class="empty-msg">No enrollment data yet.</p></ng-template>
+        </article>
+      </section>
+
+      <!-- DATA ROWS -->
+      <section class="data-row">
+        <article class="data-card" style="grid-column: 1 / -1;">
+          <div class="data-head">
+            <h2>Training catalog by blueprint type</h2>
+            <a routerLink="/program-admin/exam-prep/blueprints" class="see-all">Manage blueprints →</a>
+          </div>
+          <div class="bp-grid">
+            <div class="bp-cell" *ngFor="let row of blueprintTypeBreakdown()">
+              <span class="bp-name">{{ row.label }}</span>
+              <div class="bp-counts">
+                <span title="Question bank items">QB <strong>{{ row.questionBank }}</strong></span>
+                <span title="Blueprints">BP <strong>{{ row.blueprints }}</strong></span>
+                <span title="Assessments">AS <strong>{{ row.assessments }}</strong></span>
+              </div>
+            </div>
+          </div>
         </article>
       </section>
 
@@ -210,6 +233,11 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
       background: #f8fbff;
     }
     .empty-msg { margin: 0.65rem 0 0; color: #6d849d; font-style: italic; }
+    .bp-grid { margin-top: 0.7rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.5rem; }
+    .bp-cell { border: 1px solid #e7eef8; border-radius: 0.7rem; padding: 0.55rem 0.7rem; background: #f8fbff; display: flex; flex-direction: column; gap: 0.25rem; }
+    .bp-name { color: #173f68; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .bp-counts { display: flex; gap: 0.7rem; color: #4f7097; font-size: 0.78rem; }
+    .bp-counts strong { color: #173f68; margin-left: 0.2rem; }
 
     @media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-row, .data-row { grid-template-columns: 1fr; } }
     @media (max-width: 700px) { .kpi-row { grid-template-columns: 1fr; } }
@@ -217,6 +245,7 @@ import { PROGRAM_CATEGORY_LABELS, PROGRAM_ENROLLMENT_STATUS_LABELS } from '../sh
 })
 export class ProgramAdminDashboardPage {
   private readonly analytics = inject(ProgramAdminAnalyticsService);
+  private readonly examPrep = inject(ExamPrepAdminService);
 
   readonly stats = toSignal(this.analytics.getProgramAdminStats());
   readonly recentPrograms = toSignal(this.analytics.getRecentPrograms(), { initialValue: [] });
@@ -233,4 +262,21 @@ export class ProgramAdminDashboardPage {
 
   catPct(count: number): number { return Math.max(4, (count / this.maxCat()) * 100); }
   funnelPct(count: number): number { return Math.max(4, (count / this.maxFunnel()) * 100); }
+
+  readonly blueprintTypeBreakdown = toSignal(
+    combineLatest([this.examPrep.questionBank$, this.examPrep.blueprints$, this.examPrep.assessments$]).pipe(
+      map(([qb, bps, asm]) => {
+        const counter = (arr: any[], key: BlueprintType) =>
+          arr.filter((x) => (x?.blueprintType ?? 'exam_prep') === key).length;
+        return BLUEPRINT_TYPES.map((t) => ({
+          type: t,
+          label: BLUEPRINT_TYPE_LABELS[t] ?? t,
+          questionBank: counter(qb as any[], t),
+          blueprints: counter(bps as any[], t),
+          assessments: counter(asm as any[], t),
+        })).filter((row) => row.questionBank + row.blueprints + row.assessments > 0);
+      })
+    ),
+    { initialValue: [] as Array<{ type: BlueprintType; label: string; questionBank: number; blueprints: number; assessments: number }> }
+  );
 }

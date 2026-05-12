@@ -24,6 +24,7 @@ import {
   splitCommaSeparated,
 } from './exam-prep-admin.defaults';
 import type { AssessmentDefinition, AssessmentSectionDefinition } from '../models/exam-prep.models';
+import { BLUEPRINT_TYPES, BLUEPRINT_TYPE_LABELS, type BlueprintType } from '../models/exam-prep.models';
 
 @Component({
   selector: 'app-assessment-editor-page',
@@ -44,6 +45,12 @@ import type { AssessmentDefinition, AssessmentSectionDefinition } from '../model
       </header>
 
       <form class="panel form-grid" [formGroup]="form">
+        <label>
+          Blueprint type
+          <select formControlName="blueprintType">
+            <option *ngFor="let option of blueprintTypes" [value]="option">{{ blueprintTypeLabel(option) }}</option>
+          </select>
+        </label>
         <label>Title<input formControlName="title" /></label>
         <label>Slug<input formControlName="slug" placeholder="auto-generated if blank" /></label>
         <label>Description<textarea formControlName="description" rows="3"></textarea></label>
@@ -186,6 +193,7 @@ export class AssessmentEditorPage {
 
   readonly form = this.formBuilder.group({
     id: '',
+    blueprintType: 'exam_prep' as BlueprintType,
     title: '',
     slug: '',
     description: '',
@@ -228,6 +236,11 @@ export class AssessmentEditorPage {
   readonly assessmentModes = EXAM_PREP_ASSESSMENT_MODES;
   readonly sourceModes = EXAM_PREP_SOURCE_MODES;
   readonly blueprintModes = EXAM_PREP_BLUEPRINT_MODES;
+  readonly blueprintTypes = BLUEPRINT_TYPES;
+
+  blueprintTypeLabel(t: BlueprintType): string {
+    return BLUEPRINT_TYPE_LABELS[t] ?? t;
+  }
   readonly reviewModes = EXAM_PREP_REVIEW_MODES;
   readonly workflowOptions = EXAM_PREP_WORKFLOW_OPTIONS;
   readonly trackOptions = EXAM_PREP_TRACK_OPTIONS;
@@ -258,6 +271,7 @@ export class AssessmentEditorPage {
         ...current,
         id: String(raw['id'] || '') || generateExamPrepId('asm'),
         organizationId: orgId,
+        blueprintType: (raw['blueprintType'] as BlueprintType) || 'exam_prep',
         title: String(raw['title'] || '').trim(),
         slug: String(raw['slug'] || '').trim() || slugifyExamPrep(String(raw['title'] || '')),
         description: String(raw['description'] || '').trim(),
@@ -311,6 +325,7 @@ export class AssessmentEditorPage {
   private applyDraft(assessment: AssessmentDefinition): void {
     this.form.patchValue({
       id: assessment.id,
+      blueprintType: assessment.blueprintType ?? 'exam_prep',
       title: assessment.title,
       slug: assessment.slug,
       description: assessment.description,

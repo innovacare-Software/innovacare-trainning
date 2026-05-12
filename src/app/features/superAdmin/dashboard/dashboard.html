@@ -122,6 +122,76 @@
 
   <!-- System Overview Panel -->
   <div class="panel">
+    <h2>Live activity & alerts</h2>
+    <p style="color:#5b7797; margin:0 0 0.7rem;">Latest changes across all organizations — users, enrollments, payments, and audit events.</p>
+
+    <div class="alerts-grid">
+      <article class="alerts-card">
+        <header><h3>New users</h3><span class="badge">{{ recentUsers().length }}</span></header>
+        <ul>
+          <li *ngFor="let u of recentUsers()">
+            <strong>{{ u.displayName || u.email || u.id }}</strong>
+            <small>{{ u.role || '—' }} · org {{ u.orgId || '—' }}</small>
+            <small>{{ formatTimestamp(u.createdAt) }}</small>
+          </li>
+          <li *ngIf="!recentUsers().length" class="empty">None.</li>
+        </ul>
+      </article>
+
+      <article class="alerts-card">
+        <header><h3>New enrollments</h3><span class="badge">{{ recentEnrollments().length }}</span></header>
+        <ul>
+          <li *ngFor="let e of recentEnrollments()">
+            <strong>{{ e.learnerName || e.learnerEmail || e.id }}</strong>
+            <small>{{ e.programTitle || e.programId }} · {{ e.status || '—' }}</small>
+            <small>org {{ e.orgId || '—' }} · {{ formatTimestamp(e.createdAt) }}</small>
+          </li>
+          <li *ngIf="!recentEnrollments().length" class="empty">None.</li>
+        </ul>
+      </article>
+
+      <article class="alerts-card">
+        <header><h3>Recent payments</h3><span class="badge">{{ recentPayments().length }}</span></header>
+        <ul>
+          <li *ngFor="let p of recentPayments()">
+            <strong>{{ p.amount }} {{ p.currency || 'USD' }}</strong>
+            <small>{{ p.status || '—' }} · {{ p.email || p.customerId || '—' }}</small>
+            <small>{{ formatTimestamp(p.createdAt) }}</small>
+          </li>
+          <li *ngIf="!recentPayments().length" class="empty">None.</li>
+        </ul>
+      </article>
+
+      <article class="alerts-card">
+        <header><h3>Audit log</h3><span class="badge">{{ recentAuditLogs().length }}</span></header>
+        <ul>
+          <li *ngFor="let a of recentAuditLogs()">
+            <strong>{{ a.action || a.type || 'EVENT' }}</strong>
+            <small>actor {{ a.actorUid || '—' }} · org {{ a.orgId || '—' }}</small>
+            <small>{{ formatTimestamp(a.createdAt) }}</small>
+          </li>
+          <li *ngIf="!recentAuditLogs().length" class="empty">None.</li>
+        </ul>
+      </article>
+
+      <article class="alerts-card alerts-card--wide">
+        <header><h3>Activity by organization</h3></header>
+        <table class="org-table">
+          <thead><tr><th>Organization</th><th>Recent events</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let row of orgRows()">
+              <td>{{ row.orgId }}</td>
+              <td><span class="badge">{{ row.count }}</span></td>
+            </tr>
+            <tr *ngIf="!orgRows().length"><td colspan="2" class="empty">No recent activity.</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+
+  <!-- System Overview Panel -->
+  <div class="panel">
     <h2>System Overview</h2>
     <div class="overview-content">
       <div class="overview-section">

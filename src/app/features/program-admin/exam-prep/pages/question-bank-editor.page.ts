@@ -27,6 +27,7 @@ import {
   splitCommaSeparated,
 } from './exam-prep-admin.defaults';
 import type { QuestionBankItem } from '../models/exam-prep.models';
+import { BLUEPRINT_TYPES, BLUEPRINT_TYPE_LABELS, type BlueprintType } from '../models/exam-prep.models';
 
 @Component({
   selector: 'app-question-bank-editor-page',
@@ -47,6 +48,12 @@ import type { QuestionBankItem } from '../models/exam-prep.models';
       </header>
 
       <form class="panel form-grid" [formGroup]="form">
+        <label>
+          Blueprint type
+          <select formControlName="blueprintType">
+            <option *ngFor="let option of blueprintTypes" [value]="option">{{ blueprintTypeLabel(option) }}</option>
+          </select>
+        </label>
         <label>
           Stem
           <textarea formControlName="stem" rows="4"></textarea>
@@ -279,6 +286,7 @@ export class QuestionBankEditorPage {
 
   readonly form = this.formBuilder.group({
     id: '',
+    blueprintType: 'exam_prep' as BlueprintType,
     stem: '',
     leadInQuestion: '',
     scenarioText: '',
@@ -324,6 +332,11 @@ export class QuestionBankEditorPage {
   readonly cognitiveOptions = EXAM_PREP_COGNITIVE_OPTIONS;
   readonly trackOptions = EXAM_PREP_TRACK_OPTIONS;
   readonly jurisdictionOptions = EXAM_PREP_JURISDICTION_OPTIONS;
+  readonly blueprintTypes = BLUEPRINT_TYPES;
+
+  blueprintTypeLabel(t: BlueprintType): string {
+    return BLUEPRINT_TYPE_LABELS[t] ?? t;
+  }
 
   constructor() {
     effect(() => {
@@ -352,6 +365,7 @@ export class QuestionBankEditorPage {
         ...current,
         id: String(raw.id || '') || generateExamPrepId('qb'),
         organizationId: orgId,
+        blueprintType: (raw.blueprintType as BlueprintType) || 'exam_prep',
         programId: raw.programId as QuestionBankItem['programId'],
         programTitle: this.selectedProgramTitle(),
         jurisdiction: raw.jurisdiction as QuestionBankItem['jurisdiction'],
@@ -405,6 +419,7 @@ export class QuestionBankEditorPage {
   private applyDraft(item: QuestionBankItem): void {
     this.form.patchValue({
       id: item.id,
+      blueprintType: item.blueprintType ?? 'exam_prep',
       stem: item.stem,
       leadInQuestion: item.leadInQuestion,
       scenarioText: item.scenarioText ?? '',

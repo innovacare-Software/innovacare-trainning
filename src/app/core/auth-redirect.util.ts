@@ -44,6 +44,10 @@ export function defaultRouteForRole(role: AppRole): string {
     case 'admin':
     case 'manager':
       return '/manager/dashboard';
+    case 'instructor':
+    case 'tutor':
+    case 'staff':
+      return '/staff/dashboard';
     case 'learner':
       return '/learner';
     case 'guest':

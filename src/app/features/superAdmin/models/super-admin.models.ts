@@ -6,6 +6,9 @@ export type UserRole =
   | 'manager'
   | 'learner'
   | 'guest'
+  | 'instructor'
+  | 'tutor'
+  | 'staff'
   | 'programAdmin'
   | 'programStaff'
   | 'programLearner';

@@ -15,15 +15,22 @@ import {
 } from '../shared/program-admin.models';
 import { ProgramEnrollmentsAdminService } from '../services/program-enrollments-admin.service';
 import { StatusPillComponent } from '../shared/status-pill.component';
+import { AuthService } from '../../../core/auth';
+import { signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ProgramAdminUsersService } from '../users/program-admin-users.service';
+import { ProgramsService } from '../../publics/programs/programs.service';
 
 @Component({
   selector: 'app-program-enrollments-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, StatusPillComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, StatusPillComponent],
   template: `
     <section class="panel">
       <header class="head">
         <h1>Program Enrollments</h1>
+        <span class="scope-pill" *ngIf="orgScopeLabel() as scope">{{ scope }}</span>
+        <button type="button" class="btn-add" (click)="openInvite()">+ Add learner</button>
       </header>
 
       <div class="filters">
@@ -91,6 +98,54 @@ import { StatusPillComponent } from '../shared/status-pill.component';
       <ng-template #emptyState>
         <section class="empty">No enrollments found.</section>
       </ng-template>
+
+      <!-- Invite learner modal -->
+      <div class="modal-back" *ngIf="inviteOpen()" (click)="closeInvite()">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+          <header class="modal-head">
+            <h2>Invite a learner to a program</h2>
+            <button type="button" class="icon" (click)="closeInvite()" aria-label="Close">×</button>
+          </header>
+          <div class="form-grid">
+            <label>Program
+              <select [(ngModel)]="invite.programId">
+                <option value="">— Select a program —</option>
+                <option *ngFor="let p of programOptions()" [value]="p.id">{{ p.title }}</option>
+              </select>
+            </label>
+            <label>Email
+              <input type="email" [(ngModel)]="invite.email" />
+            </label>
+            <label>Display name
+              <input type="text" [(ngModel)]="invite.displayName" />
+            </label>
+            <label>Initial password (blank = auto)
+              <input type="text" [(ngModel)]="invite.password" placeholder="min. 8 chars" />
+            </label>
+            <label>Enrollment status
+              <select [(ngModel)]="invite.enrollmentStatus">
+                <option value="ACTIVE">Active</option>
+                <option value="PENDING_REVIEW">Pending review</option>
+              </select>
+            </label>
+            <label>Payment status
+              <select [(ngModel)]="invite.paymentStatus">
+                <option value="WAIVED">Waived</option>
+                <option value="PAID">Paid</option>
+                <option value="UNPAID">Unpaid</option>
+              </select>
+            </label>
+          </div>
+          <p class="err" *ngIf="inviteError()">{{ inviteError() }}</p>
+          <p class="ok" *ngIf="inviteOk()">{{ inviteOk() }}</p>
+          <footer class="modal-foot">
+            <button type="button" class="btn-secondary" (click)="closeInvite()" [disabled]="inviteLoading()">Cancel</button>
+            <button type="button" class="btn-primary" (click)="submitInvite()" [disabled]="inviteLoading()">
+              {{ inviteLoading() ? 'Inviting…' : 'Invite & enroll' }}
+            </button>
+          </footer>
+        </div>
+      </div>
     </section>
   `,
   styles: [
@@ -108,6 +163,24 @@ import { StatusPillComponent } from '../shared/status-pill.component';
       .actions a, .actions button { border: 1px solid #c9dbef; border-radius: 0.58rem; padding: 0.3rem 0.5rem; background: #f8fbff; text-decoration: none; color: #224f7d; cursor: pointer; font-size: 0.78rem; }
       .actions .warn { color: #8a3344; border-color: #efc5ce; background: #fef2f4; }
       .empty { margin-top: 0.8rem; border: 1px dashed #c7d8ea; border-radius: 0.8rem; text-align: center; padding: 1rem; }
+      .scope-pill { display: inline-block; margin-left: 0.6rem; background: #eef4fb; color: #224f7d; border-radius: 999px; padding: 0.18rem 0.7rem; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; vertical-align: middle; }
+      .head { display: flex; align-items: center; gap: 0.6rem; }
+      .head h1 { flex: 1; }
+      .btn-add { border: 0; cursor: pointer; border-radius: 0.7rem; padding: 0.5rem 0.85rem; color: #fff; background: linear-gradient(135deg, #1a74c8, #0f5ca6); font-weight: 600; }
+      .modal-back { position: fixed; inset: 0; background: rgba(15,40,75,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+      .modal-card { background: #fff; border-radius: 1rem; max-width: 640px; width: 100%; max-height: 92vh; overflow: auto; padding: 1.1rem 1.3rem; box-shadow: 0 30px 60px rgba(15,40,75,0.25); }
+      .modal-head { display: flex; justify-content: space-between; align-items: center; }
+      .modal-head h2 { margin: 0; color: #173f68; }
+      .modal-head .icon { background: transparent; border: 0; font-size: 1.6rem; color: #5f7a96; cursor: pointer; }
+      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem 0.75rem; margin-top: 0.6rem; }
+      .form-grid label { display: flex; flex-direction: column; font-size: 0.8rem; color: #224f7d; font-weight: 600; gap: 0.25rem; }
+      .form-grid input, .form-grid select { border: 1px solid #c9dbee; border-radius: 0.55rem; padding: 0.45rem 0.6rem; font-size: 0.88rem; }
+      .err { color: #8a3344; background: #fef2f4; border: 1px solid #efc5ce; padding: 0.5rem 0.7rem; border-radius: 0.6rem; font-size: 0.85rem; margin-top: 0.7rem; }
+      .ok { color: #0f6c46; background: #effcf6; border: 1px solid #9dd7be; padding: 0.5rem 0.7rem; border-radius: 0.6rem; font-size: 0.85rem; margin-top: 0.7rem; }
+      .modal-foot { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
+      .btn-primary { border: 0; cursor: pointer; border-radius: 0.7rem; padding: 0.5rem 0.85rem; color: #fff; background: linear-gradient(135deg, #1a74c8, #0f5ca6); font-weight: 600; }
+      .btn-secondary { border: 1px solid #c8dff7; cursor: pointer; border-radius: 0.7rem; padding: 0.5rem 0.85rem; color: #1a74c8; background: #fff; font-weight: 600; }
+      @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
       @media (max-width: 1320px) { .filters { grid-template-columns: 1fr 1fr; } }
       @media (max-width: 760px) { .filters { grid-template-columns: 1fr; } }
     `,
@@ -115,6 +188,15 @@ import { StatusPillComponent } from '../shared/status-pill.component';
 })
 export class ProgramEnrollmentsPage {
   private readonly service = inject(ProgramEnrollmentsAdminService);
+  private readonly authService = inject(AuthService);
+
+  readonly profile = toSignal(this.authService.profile$, { initialValue: null as any });
+  readonly orgScopeLabel = computed(() => {
+    const p: any = this.profile();
+    if (!p) return '';
+    if (p.platformRole === 'super_admin' || p.role === 'super_admin') return 'All organizations';
+    return p.orgId ? `Org: ${p.orgId}` : '';
+  });
 
   readonly searchControl = new FormControl('', { nonNullable: true });
   readonly categoryControl = new FormControl<ProgramCategory | 'ALL'>('ALL', { nonNullable: true });
@@ -235,5 +317,74 @@ export class ProgramEnrollmentsPage {
     const da = this.asDate(a)?.getTime() ?? 0;
     const db = this.asDate(b)?.getTime() ?? 0;
     return db - da;
+  }
+
+  // ---- Invite learner modal ----
+  private readonly usersService = inject(ProgramAdminUsersService);
+  private readonly programsService = inject(ProgramsService);
+
+  readonly programOptions = toSignal(
+    this.programsService.getAdminPrograms().pipe(
+      map((list) => list.map((p) => ({ id: p.id, title: p.title })).sort((a, b) => a.title.localeCompare(b.title)))
+    ),
+    { initialValue: [] as Array<{ id: string; title: string }> }
+  );
+
+  readonly inviteOpen = signal(false);
+  readonly inviteLoading = signal(false);
+  readonly inviteError = signal('');
+  readonly inviteOk = signal('');
+  invite = this.blankInvite();
+
+  blankInvite() {
+    return {
+      programId: '',
+      email: '',
+      displayName: '',
+      password: '',
+      enrollmentStatus: 'ACTIVE' as 'ACTIVE' | 'PENDING_REVIEW',
+      paymentStatus: 'WAIVED' as 'WAIVED' | 'PAID' | 'UNPAID',
+    };
+  }
+
+  openInvite(): void {
+    this.invite = this.blankInvite();
+    this.inviteError.set('');
+    this.inviteOk.set('');
+    this.inviteOpen.set(true);
+  }
+
+  closeInvite(): void {
+    if (this.inviteLoading()) return;
+    this.inviteOpen.set(false);
+  }
+
+  async submitInvite(): Promise<void> {
+    this.inviteError.set('');
+    this.inviteOk.set('');
+    if (!this.invite.programId) { this.inviteError.set('Select a program.'); return; }
+    if (!this.invite.email.trim() || !this.invite.email.includes('@')) {
+      this.inviteError.set('Valid learner email required.');
+      return;
+    }
+    this.inviteLoading.set(true);
+    try {
+      const res = await this.usersService.inviteLearner({
+        programId: this.invite.programId,
+        email: this.invite.email.trim().toLowerCase(),
+        displayName: this.invite.displayName.trim(),
+        password: this.invite.password || undefined,
+        enrollmentStatus: this.invite.enrollmentStatus,
+        paymentStatus: this.invite.paymentStatus,
+      });
+      this.inviteOk.set(
+        `${res.created ? 'User created and enrolled' : 'Existing user enrolled'} (enrollment ${res.enrollmentId}).`
+      );
+      this.invite = this.blankInvite();
+    } catch (err: any) {
+      this.inviteError.set(err?.message || 'Invite failed.');
+    } finally {
+      this.inviteLoading.set(false);
+    }
   }
 }

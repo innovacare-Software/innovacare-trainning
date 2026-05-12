@@ -22,12 +22,14 @@ import { OrgTimestamp } from './org.models';
  * Note: `super_admin` is intentionally NOT in this list — it is a global
  * platform role that lives on the user profile, never on a membership.
  */
-export type UserOrgRole = 'guest' | 'learner' | 'instructor' | 'program_admin' | 'org_admin';
+export type UserOrgRole = 'guest' | 'learner' | 'instructor' | 'tutor' | 'staff' | 'program_admin' | 'org_admin';
 
 export const ASSIGNABLE_USER_ORG_ROLES: UserOrgRole[] = [
   'guest',
   'learner',
   'instructor',
+  'tutor',
+  'staff',
   'program_admin',
   'org_admin',
 ];

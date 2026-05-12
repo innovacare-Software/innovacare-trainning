@@ -93,17 +93,35 @@ export const questionBankItemSchema = z
   .object({
     id: z.string().min(1),
     organizationId: z.string().min(1),
+    blueprintType: z
+      .enum([
+        'exam_prep',
+        'course_training',
+        'certificate_program',
+        'compliance_training',
+        'professional_development',
+        'language_training',
+        'ai_training',
+        'accounting_training',
+        'public_procurement',
+        'decentralization',
+        'healthcare_training',
+        'custom',
+      ])
+      .optional(),
+    category: z.string().optional(),
+    topic: z.string().optional(),
     programId: z.string().min(1),
     programTitle: z.string().min(1),
-    jurisdiction: jurisdictionSchema,
-    examTrack: examTrackSchema,
-    courseGroupId: z.string().min(1),
-    courseGroupTitle: z.string().min(1),
-    moduleId: z.string().min(1),
-    moduleTitle: z.string().min(1),
+    jurisdiction: jurisdictionSchema.optional(),
+    examTrack: examTrackSchema.optional(),
+    courseGroupId: z.string().optional().default(''),
+    courseGroupTitle: z.string().optional().default(''),
+    moduleId: z.string().optional().default(''),
+    moduleTitle: z.string().optional().default(''),
     parentCaseId: z.string().optional().nullable(),
     itemType: itemTypeSchema,
-    cognitiveLevel: cognitiveLevelSchema,
+    cognitiveLevel: cognitiveLevelSchema.optional(),
     difficulty: difficultySchema,
     stem: z.string().min(5),
     scenarioText: z.string().optional().nullable(),
@@ -314,6 +332,22 @@ export const blueprintSchema = z
     title: z.string().min(3),
     slug: z.string().min(3),
     description: z.string().min(5),
+    blueprintType: z
+      .enum([
+        'exam_prep',
+        'course_training',
+        'certificate_program',
+        'compliance_training',
+        'professional_development',
+        'language_training',
+        'ai_training',
+        'accounting_training',
+        'public_procurement',
+        'decentralization',
+        'healthcare_training',
+        'custom',
+      ])
+      .optional(),
     assessmentFamily: z.enum(['module_assessment', 'comprehensive_assessment']),
     programId: z.string().min(1),
     jurisdiction: jurisdictionSchema,
@@ -332,8 +366,23 @@ export const blueprintSchema = z
     difficultyDistributions: z.array(z.object({ key: z.string(), label: z.string(), minCount: z.number().int().optional(), targetCount: z.number().int().optional(), maxCount: z.number().int().optional(), targetPercent: z.number().optional() })),
     progressiveSections: z.array(z.object({ id: z.string(), title: z.string(), sequence: z.number().int().min(1), questionCount: z.number().int().min(0), caseStudyCount: z.number().int().min(0), allowedDifficulties: z.array(difficultySchema), requiredTags: z.array(z.string()), recommendedItemTypes: z.array(itemTypeSchema) })),
     active: z.boolean(),
+    // ---- General training fields (optional, used when blueprintType !== 'exam_prep') ----
+    category: z.string().optional(),
+    targetAudience: z.string().optional(),
+    level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+    deliveryMode: z.enum(['self_paced', 'live', 'hybrid', 'in_person']).optional(),
+    language: z.string().optional(),
+    certificateEnabled: z.boolean().optional(),
+    assessmentRequired: z.boolean().optional(),
+    passingScore: z.number().min(0).max(100).optional(),
+    durationHours: z.number().min(0).optional(),
+    completionRequirements: z.array(z.string()).optional(),
+    practicalChecklist: z.array(z.string()).optional(),
+    finalAssessmentEnabled: z.boolean().optional(),
   })
   .superRefine((value, ctx) => {
+    // Progressive section integrity check is meaningful only when the
+    // blueprint actually defines progressive sections.
     const totalFromSections = value.progressiveSections.reduce((sum, section) => sum + section.questionCount, 0);
     if (value.progressiveSections.length > 0 && totalFromSections !== value.totalQuestionCount) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['progressiveSections'], message: 'Progressive sections must sum exactly to totalQuestionCount.' });
@@ -344,6 +393,22 @@ export const assessmentDefinitionSchema = z
   .object({
     id: z.string().min(1),
     organizationId: z.string().min(1),
+    blueprintType: z
+      .enum([
+        'exam_prep',
+        'course_training',
+        'certificate_program',
+        'compliance_training',
+        'professional_development',
+        'language_training',
+        'ai_training',
+        'accounting_training',
+        'public_procurement',
+        'decentralization',
+        'healthcare_training',
+        'custom',
+      ])
+      .optional(),
     assessmentFamily: z.enum(['module_assessment', 'comprehensive_assessment']),
     assessmentMode: z.enum(['module_quiz', 'module_final', 'competency_check', 'case_simulation', 'comprehensive_mock_fixed', 'comprehensive_mock_progressive', 'comprehensive_ngn_mock', 'jurisdiction_readiness_exam', 'preboard_final_exam', 'cat_like_mock', 'adaptive_remediation_exam']),
     title: z.string().min(3),
@@ -351,8 +416,8 @@ export const assessmentDefinitionSchema = z
     description: z.string().min(5),
     instructions: z.string().min(5),
     programId: z.string().min(1),
-    jurisdiction: jurisdictionSchema,
-    examTrack: examTrackSchema,
+    jurisdiction: jurisdictionSchema.optional(),
+    examTrack: examTrackSchema.optional(),
     courseGroupId: z.string().optional().nullable(),
     moduleId: z.string().optional().nullable(),
     sourceMode: z.enum(['fixed_static', 'filtered_bank_draw', 'blueprint_assembled']),

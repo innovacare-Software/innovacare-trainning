@@ -34,6 +34,20 @@ export class Dashboard {
   healthIndicators = signal<any[]>([]);
   recentActivities = signal<any[]>([]);
 
+  // Live alerts (Lot 12)
+  recentUsers = signal<any[]>([]);
+  recentEnrollments = signal<any[]>([]);
+  recentAuditLogs = signal<any[]>([]);
+  recentPayments = signal<any[]>([]);
+  countsByOrg = signal<Record<string, number>>({});
+
+  readonly orgRows = computed(() =>
+    Object.entries(this.countsByOrg())
+      .map(([orgId, count]) => ({ orgId, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8)
+  );
+
   readonly chartRows = computed(() => {
     const s = this.stats();
     const orgRatio = s.organizations > 0 ? Math.round((s.activeOrganizations / s.organizations) * 100) : 0;
@@ -50,12 +64,20 @@ export class Dashboard {
 
   async ngOnInit(): Promise<void> {
     try {
-      const [stats, registrations] = await Promise.all([
+      const [stats, registrations, alerts] = await Promise.all([
         this.dashboardSvc.getStats(),
         this.dashboardSvc.getRecentRegistrations(),
+        this.dashboardSvc.getRecentAlerts(12).catch(() => null),
       ]);
       this.stats.set(stats);
       this.registrations.set(registrations);
+      if (alerts) {
+        this.recentUsers.set(alerts.recentUsers);
+        this.recentEnrollments.set(alerts.recentEnrollments);
+        this.recentAuditLogs.set(alerts.recentAuditLogs);
+        this.recentPayments.set(alerts.recentPayments);
+        this.countsByOrg.set(alerts.countsByOrg);
+      }
       this.healthIndicators.set([
         { name: 'Auth and onboarding', status: registrations.length ? 'healthy' : 'monitoring' },
         { name: 'Registration intake', status: 'healthy' },

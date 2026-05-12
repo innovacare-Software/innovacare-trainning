@@ -10,7 +10,13 @@ import {
   EXAM_PREP_WORKFLOW_OPTIONS,
   formatCommaSeparated,
 } from './exam-prep-admin.defaults';
-import type { CaseStudyBundle, QuestionBankItem } from '../models/exam-prep.models';
+import {
+  BLUEPRINT_TYPES,
+  BLUEPRINT_TYPE_LABELS,
+  type BlueprintType,
+  type CaseStudyBundle,
+  type QuestionBankItem,
+} from '../models/exam-prep.models';
 
 @Component({
   selector: 'app-question-bank-manager-page',
@@ -33,6 +39,10 @@ import type { CaseStudyBundle, QuestionBankItem } from '../models/exam-prep.mode
 
       <section class="filters panel">
         <input [formControl]="searchControl" placeholder="Search stem, lead-in, tags, source title" />
+        <select [formControl]="blueprintTypeControl">
+          <option value="all">All blueprint types</option>
+          <option *ngFor="let option of blueprintTypes" [value]="option">{{ blueprintTypeLabel(option) }}</option>
+        </select>
         <select [formControl]="workflowControl">
           <option value="all">All workflow states</option>
           <option *ngFor="let option of workflowOptions" [value]="option">{{ option }}</option>
@@ -53,7 +63,10 @@ import type { CaseStudyBundle, QuestionBankItem } from '../models/exam-prep.mode
           <div class="list" *ngIf="filteredItems().length; else emptyItems">
             <div class="row" *ngFor="let item of filteredItems(); trackBy: trackById">
               <div>
-                <strong>{{ item.stem || 'Untitled question' }}</strong>
+                <strong>
+                  {{ item.stem || 'Untitled question' }}
+                  <span class="badge badge--type">{{ blueprintTypeLabel(item.blueprintType) }}</span>
+                </strong>
                 <span>{{ item.moduleTitle }} · {{ item.itemType }} · {{ item.workflowStatus }}</span>
                 <small>Tags: {{ commaList(item.tags) || 'none' }}</small>
               </div>
@@ -135,7 +148,7 @@ import type { CaseStudyBundle, QuestionBankItem } from '../models/exam-prep.mode
         font-weight: 700;
       }
       .btn.primary { background: linear-gradient(135deg, #1a74c8, #0f5ca6); color: #fff; border-color: transparent; }
-      .filters { display: grid; gap: 0.65rem; grid-template-columns: 2fr 1fr 1fr 1fr; }
+      .filters { display: grid; gap: 0.65rem; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; }
       .filters input, .filters select, textarea {
         border: 1px solid #c9dbee;
         border-radius: 0.8rem;
@@ -169,6 +182,7 @@ import type { CaseStudyBundle, QuestionBankItem } from '../models/exam-prep.mode
         font-size: 0.8rem;
       }
       .row-actions .warn { color: #8a3344; border-color: #efc5ce; background: #fff4f6; }
+      .badge--type { display: inline-block; margin-left: 0.5rem; background: #eef4fb; color: #224f7d; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; vertical-align: middle; }
       .io-panel textarea { width: 100%; min-height: 240px; margin-top: 0.75rem; }
       @media (max-width: 980px) {
         .filters, .grid { grid-template-columns: 1fr; }
@@ -182,6 +196,7 @@ export class QuestionBankManagerPage {
   readonly searchControl = new FormControl('', { nonNullable: true });
   readonly workflowControl = new FormControl<'all' | string>('all', { nonNullable: true });
   readonly itemTypeControl = new FormControl<'all' | string>('all', { nonNullable: true });
+  readonly blueprintTypeControl = new FormControl<'all' | BlueprintType>('all', { nonNullable: true });
   readonly tagControl = new FormControl('', { nonNullable: true });
   readonly jsonControl = new FormControl('', { nonNullable: true });
   readonly statusMessage = signal('');
@@ -191,23 +206,27 @@ export class QuestionBankManagerPage {
   readonly searchTerm = toSignal(this.searchControl.valueChanges.pipe(startWith(this.searchControl.value)), { initialValue: '' });
   readonly workflowValue = toSignal(this.workflowControl.valueChanges.pipe(startWith(this.workflowControl.value)), { initialValue: 'all' });
   readonly itemTypeValue = toSignal(this.itemTypeControl.valueChanges.pipe(startWith(this.itemTypeControl.value)), { initialValue: 'all' });
+  readonly blueprintTypeValue = toSignal(this.blueprintTypeControl.valueChanges.pipe(startWith(this.blueprintTypeControl.value)), { initialValue: 'all' as 'all' | BlueprintType });
   readonly tagValue = toSignal(this.tagControl.valueChanges.pipe(startWith(this.tagControl.value)), { initialValue: '' });
 
   readonly filteredItems = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const workflow = this.workflowValue();
     const itemType = this.itemTypeValue();
+    const blueprintType = this.blueprintTypeValue();
     const tag = this.tagValue().trim().toLowerCase();
 
     return this.questionBank().filter((item) => {
       const haystack = [item.stem, item.leadInQuestion, item.moduleTitle, item.sourceReferenceTitle, ...item.tags]
         .join(' ')
         .toLowerCase();
+      const itemBlueprintType = (item.blueprintType ?? 'exam_prep') as BlueprintType;
 
       return (
         (!term || haystack.includes(term)) &&
         (workflow === 'all' || item.workflowStatus === workflow) &&
         (itemType === 'all' || item.itemType === itemType) &&
+        (blueprintType === 'all' || itemBlueprintType === blueprintType) &&
         (!tag || item.tags.some((entry) => entry.toLowerCase().includes(tag)))
       );
     });
@@ -230,6 +249,11 @@ export class QuestionBankManagerPage {
 
   readonly workflowOptions = EXAM_PREP_WORKFLOW_OPTIONS;
   readonly itemTypeOptions = EXAM_PREP_ITEM_TYPE_OPTIONS;
+  readonly blueprintTypes = BLUEPRINT_TYPES;
+
+  blueprintTypeLabel(t: BlueprintType | undefined): string {
+    return BLUEPRINT_TYPE_LABELS[t ?? 'exam_prep'] ?? 'Exam prep';
+  }
 
   commaList(values: string[]): string {
     return formatCommaSeparated(values);

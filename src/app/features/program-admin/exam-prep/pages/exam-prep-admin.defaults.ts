@@ -273,6 +273,7 @@ export function buildDefaultBlueprint(organizationId: string, actor: string): Ex
     title: '',
     slug: '',
     description: '',
+    blueprintType: 'exam_prep',
     assessmentFamily: 'comprehensive_assessment',
     programId: EXAM_PREP_DEFAULT_PROGRAM.id,
     jurisdiction: EXAM_PREP_JURISDICTION_OPTIONS[0],

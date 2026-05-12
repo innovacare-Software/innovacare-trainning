@@ -57,6 +57,8 @@ const ROLE_LABELS: Record<AppRole, string> = {
   admin: 'Admin',
   super_admin: 'Super Admin',
   instructor: 'Instructor',
+  tutor: 'Tutor',
+  staff: 'Staff',
   programAdmin: 'Program Admin',
   programStaff: 'Program Staff',
   programLearner: 'Program Learner',
@@ -206,9 +208,9 @@ const STEP_LIBRARY: Record<AppRole, OnboardingStep[]> = {
       id: 'instructor-dashboard',
       title: 'Open your teaching dashboard',
       description: 'Start from the teaching workspace to review assigned cohorts and active sessions.',
-      route: '/manager/dashboard',
+      route: '/staff/dashboard',
       actionLabel: 'Open dashboard',
-      matchers: ['/instructor/dashboard', '/manager/dashboard', '/manager'],
+      matchers: ['/staff/dashboard', '/instructor/dashboard', '/manager/dashboard', '/manager'],
     },
     {
       id: 'instructor-learners',
@@ -225,6 +227,26 @@ const STEP_LIBRARY: Record<AppRole, OnboardingStep[]> = {
       route: '/manager/reports',
       actionLabel: 'Open reports',
       matchers: ['/manager/reports', '/manager/policy-report'],
+    },
+  ],
+  tutor: [
+    {
+      id: 'tutor-dashboard',
+      title: 'Open your tutor dashboard',
+      description: 'Access your assigned tutoring sessions and learner roster.',
+      route: '/staff/dashboard',
+      actionLabel: 'Open dashboard',
+      matchers: ['/staff/dashboard'],
+    },
+  ],
+  staff: [
+    {
+      id: 'staff-dashboard',
+      title: 'Open your staff dashboard',
+      description: 'Access the shared staff workspace.',
+      route: '/staff/dashboard',
+      actionLabel: 'Open dashboard',
+      matchers: ['/staff/dashboard'],
     },
   ],
   programAdmin: [
@@ -881,6 +903,15 @@ export class OnboardingService {
       return;
     }
     this.loggedSignalErrors.add(scope);
+
+    // Permission-denied is an expected outcome when a profile holds a role
+    // (e.g. programAdmin) without a matching active userOrgMembership in the
+    // target org. The fallback keeps the UI rendering — no console noise.
+    const code = (error as { code?: string } | null)?.code;
+    if (code === 'permission-denied' || code === 'PERMISSION_DENIED') {
+      return;
+    }
+
     console.warn('[OnboardingService] Firestore signal fallback', {
       scope,
       error,

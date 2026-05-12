@@ -254,6 +254,15 @@ export interface CaseStudyBundle extends AuditMetadata {
 export interface QuestionBankItem extends AuditMetadata {
   id: string;
   organizationId: string;
+  /**
+   * Multi-tenant discriminator. Defaults to 'exam_prep' for backward compatibility
+   * with existing NCLEX/DHA/DOH content. General training items can use the broader
+   * BlueprintType options.
+   */
+  blueprintType?: BlueprintType;
+  /** Optional generic taxonomy for non-exam_prep items. */
+  category?: string;
+  topic?: string;
   programId: ExamProgramId;
   programTitle: string;
   jurisdiction: JurisdictionCode;
@@ -320,12 +329,70 @@ export interface BlueprintDifficultySection {
   recommendedItemTypes: QuestionItemType[];
 }
 
+/**
+ * Discriminator for the blueprint kind. Existing NCLEX-style blueprints
+ * default to `exam_prep`; partner organizations can author general training
+ * blueprints across many domains without inheriting NCLEX-specific rules.
+ */
+export type BlueprintType =
+  | 'exam_prep'
+  | 'course_training'
+  | 'certificate_program'
+  | 'compliance_training'
+  | 'professional_development'
+  | 'language_training'
+  | 'ai_training'
+  | 'accounting_training'
+  | 'public_procurement'
+  | 'decentralization'
+  | 'healthcare_training'
+  | 'custom';
+
+export const BLUEPRINT_TYPES: readonly BlueprintType[] = [
+  'exam_prep',
+  'course_training',
+  'certificate_program',
+  'compliance_training',
+  'professional_development',
+  'language_training',
+  'ai_training',
+  'accounting_training',
+  'public_procurement',
+  'decentralization',
+  'healthcare_training',
+  'custom',
+] as const;
+
+export const BLUEPRINT_TYPE_LABELS: Record<BlueprintType, string> = {
+  exam_prep: 'Exam preparation (NCLEX / DHA / DOH)',
+  course_training: 'Course training',
+  certificate_program: 'Certificate program',
+  compliance_training: 'Compliance training',
+  professional_development: 'Professional development',
+  language_training: 'Language training',
+  ai_training: 'AI training',
+  accounting_training: 'Accounting training',
+  public_procurement: 'Public procurement',
+  decentralization: 'Decentralization',
+  healthcare_training: 'Healthcare training',
+  custom: 'Custom program',
+};
+
+export type BlueprintDeliveryMode = 'self_paced' | 'live' | 'hybrid' | 'in_person';
+export type BlueprintLevel = 'beginner' | 'intermediate' | 'advanced';
+
 export interface ExamBlueprint extends AuditMetadata {
   id: string;
   organizationId: string;
   title: string;
   slug: string;
   description: string;
+  /**
+   * Discriminator. Defaults to `exam_prep` for backward compatibility with
+   * existing NCLEX/DHA/DOH blueprints. UI must hide NCLEX-only fields when
+   * this is anything other than `exam_prep`.
+   */
+  blueprintType?: BlueprintType;
   assessmentFamily: AssessmentFamily;
   programId: ExamProgramId;
   jurisdiction: JurisdictionCode;
@@ -344,6 +411,20 @@ export interface ExamBlueprint extends AuditMetadata {
   difficultyDistributions: BlueprintDistributionRule[];
   progressiveSections: BlueprintDifficultySection[];
   active: boolean;
+
+  // ---- General training fields (optional, used when blueprintType !== 'exam_prep') ----
+  category?: string;
+  targetAudience?: string;
+  level?: BlueprintLevel;
+  deliveryMode?: BlueprintDeliveryMode;
+  language?: string;
+  certificateEnabled?: boolean;
+  assessmentRequired?: boolean;
+  passingScore?: number;
+  durationHours?: number;
+  completionRequirements?: string[];
+  practicalChecklist?: string[];
+  finalAssessmentEnabled?: boolean;
 }
 
 export interface AssessmentSectionDefinition {
@@ -361,6 +442,10 @@ export interface AssessmentSectionDefinition {
 export interface AssessmentDefinition extends AuditMetadata {
   id: string;
   organizationId: string;
+  /**
+   * Multi-tenant discriminator. Defaults to 'exam_prep' for backward compatibility.
+   */
+  blueprintType?: BlueprintType;
   assessmentFamily: AssessmentFamily;
   assessmentMode: AssessmentMode;
   title: string;

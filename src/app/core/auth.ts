@@ -38,7 +38,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
  */
 const LEGACY_PUBLIC_ORG_ID = 'Waxxi8M4qpTSsoGJ8fJS';
 
-export type AppRole = 'super_admin' | 'manager' | 'admin' | 'learner' | 'guest' | 'instructor' | 'programAdmin' | 'programStaff' | 'programLearner';
+export type AppRole = 'super_admin' | 'manager' | 'admin' | 'learner' | 'guest' | 'instructor' | 'tutor' | 'staff' | 'programAdmin' | 'programStaff' | 'programLearner';
 
 export interface AppProfile {
   uid: string;

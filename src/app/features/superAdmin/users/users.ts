@@ -40,7 +40,7 @@ export class Users {
   }
 
   isUserRole(value: string): value is UserRole {
-    return ['super_admin', 'admin', 'manager', 'learner', 'guest', 'programAdmin', 'programStaff', 'programLearner'].includes(value);
+    return ['super_admin', 'admin', 'manager', 'learner', 'guest', 'instructor', 'tutor', 'staff', 'programAdmin', 'programStaff', 'programLearner'].includes(value);
   }
 
  async changeRole(uid: string, role: string) {

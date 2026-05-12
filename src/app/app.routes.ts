@@ -650,6 +650,19 @@ export const routes: Routes = [
   },
 
   {
+    path: 'staff',
+    canMatch: [roleCanMatch(['instructor', 'tutor', 'staff', 'super_admin'])],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/staff/staff-dashboard.page').then(m => m.StaffDashboardPage),
+      },
+    ],
+  },
+
+  {
     path: 'super-admin',
     canMatch: [roleCanMatch(['super_admin'])],
     loadChildren: () =>
