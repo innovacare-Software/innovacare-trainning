@@ -112,21 +112,27 @@ export class LearnerSpaceShellComponent {
     const upcomingSessions = liveSessions.filter((item) => item.status !== 'recorded');
     const orders = experience?.orders ?? [];
     const products = experience?.products ?? [];
+    const pid = this.programId();
+    const ptitle = experience?.programTitle || '';
+    const assistantQp: Record<string, string> = {};
+    if (pid) assistantQp['programId'] = pid;
+    if (ptitle) assistantQp['programTitle'] = ptitle;
 
     return [
-      { route: 'dashboard', label: this.t('nav.dashboard'), icon: 'space_dashboard', exact: true, badge: undefined as string | undefined },
-      { route: 'modules', label: this.t('programs.learnerSpace.shell.nav.modules'), icon: 'library_books', exact: false, badge: undefined },
-      { route: 'videos', label: this.t('programs.learnerSpace.shell.nav.videoLibrary'), icon: 'smart_display', exact: false, badge: undefined },
-      { route: 'live-sessions', label: this.t('programs.learnerSpace.shell.nav.liveSessions'), icon: 'live_tv', exact: false, badge: upcomingSessions.length ? String(upcomingSessions.length) : undefined },
-      { route: 'assessments', label: this.t('programs.learnerSpace.shell.nav.assessments'), icon: 'quiz', exact: false, badge: undefined },
-      { route: 'documents', label: this.t('programs.learnerSpace.shell.nav.documents'), icon: 'description', exact: false, badge: undefined },
-      { route: 'exam-prep', label: this.t('programs.learnerSpace.shell.nav.examPrep'), icon: 'school', exact: false, badge: undefined },
-      { route: 'simulations', label: this.t('programs.learnerSpace.shell.nav.simulations'), icon: 'monitor_heart', exact: false, badge: undefined },
-      { route: 'case-studies', label: this.t('programs.learnerSpace.shell.nav.caseStudies'), icon: 'assignment', exact: false, badge: undefined },
-      { route: 'study-calendar', label: this.t('programs.learnerSpace.shell.nav.studyCalendar'), icon: 'calendar_month', exact: false, badge: undefined },
-      { route: 'wallet', label: this.t('programs.learnerSpace.shell.wallet'), icon: 'account_balance_wallet', exact: false, badge: experience?.walletPoints ? String(experience.walletPoints) : undefined },
-      { route: 'order-history', label: this.t('programs.learnerSpace.shell.nav.orderHistory'), icon: 'receipt_long', exact: false, badge: orders.length ? String(orders.length) : undefined },
-      { route: 'explore-products', label: this.t('programs.learnerSpace.shell.nav.exploreProducts'), icon: 'shopping_bag', exact: false, badge: products.length ? this.t('programs.learnerSpace.shell.nav.newBadge') : undefined },
+      { route: 'dashboard', label: this.t('nav.dashboard'), icon: 'space_dashboard', exact: true, badge: undefined as string | undefined, queryParams: undefined as Record<string, string> | undefined },
+      { route: 'modules', label: this.t('programs.learnerSpace.shell.nav.modules'), icon: 'library_books', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'videos', label: this.t('programs.learnerSpace.shell.nav.videoLibrary'), icon: 'smart_display', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'live-sessions', label: this.t('programs.learnerSpace.shell.nav.liveSessions'), icon: 'live_tv', exact: false, badge: upcomingSessions.length ? String(upcomingSessions.length) : undefined, queryParams: undefined },
+      { route: 'assessments', label: this.t('programs.learnerSpace.shell.nav.assessments'), icon: 'quiz', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'documents', label: this.t('programs.learnerSpace.shell.nav.documents'), icon: 'description', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'exam-prep', label: this.t('programs.learnerSpace.shell.nav.examPrep'), icon: 'school', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'simulations', label: this.t('programs.learnerSpace.shell.nav.simulations'), icon: 'monitor_heart', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'case-studies', label: this.t('programs.learnerSpace.shell.nav.caseStudies'), icon: 'assignment', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'study-calendar', label: this.t('programs.learnerSpace.shell.nav.studyCalendar'), icon: 'calendar_month', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'assistant', label: this.t('nav.aiAssistant'), icon: 'smart_toy', exact: false, badge: undefined, queryParams: assistantQp },
+      { route: 'wallet', label: this.t('programs.learnerSpace.shell.wallet'), icon: 'account_balance_wallet', exact: false, badge: experience?.walletPoints ? String(experience.walletPoints) : undefined, queryParams: undefined },
+      { route: 'order-history', label: this.t('programs.learnerSpace.shell.nav.orderHistory'), icon: 'receipt_long', exact: false, badge: orders.length ? String(orders.length) : undefined, queryParams: undefined },
+      { route: 'explore-products', label: this.t('programs.learnerSpace.shell.nav.exploreProducts'), icon: 'shopping_bag', exact: false, badge: products.length ? this.t('programs.learnerSpace.shell.nav.newBadge') : undefined, queryParams: undefined },
     ];
   });
 

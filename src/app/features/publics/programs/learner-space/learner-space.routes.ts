@@ -165,6 +165,11 @@ export const LEARNER_SPACE_ROUTES: Routes = [
         loadComponent: () =>
           import('./resources/resources.page').then((m) => m.ResourcesPage),
       },
+      {
+        path: 'assistant',
+        loadComponent: () =>
+          import('../../../learner/assistant/learner-assistant.page').then((m) => m.LearnerAssistantPage),
+      },
     ],
   },
 ];

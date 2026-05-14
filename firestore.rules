@@ -761,6 +761,30 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ---------- LEARNER ASSISTANT (chat) ----------
+    // Owner-scoped chat sessions and messages.
+    // Generation + usage accounting are performed by the
+    // `learnerAssistantChat` callable using admin SDK.
+    match /users/{uid}/assistantSessions/{sessionId} {
+      allow read: if isOwner(uid) || canManageUser(uid);
+      allow create, update: if isOwner(uid);
+      allow delete: if isSuperAdmin() || isOwner(uid);
+
+      match /messages/{messageId} {
+        allow read: if isOwner(uid) || canManageUser(uid);
+        // Owner can append their own user messages from the client.
+        // Assistant replies are written by the backend (admin SDK bypasses rules).
+        allow create: if isOwner(uid);
+        allow update, delete: if false;
+      }
+    }
+
+    match /users/{uid}/assistantUsage/{day} {
+      allow read: if isOwner(uid) || canManageUser(uid);
+      // Backend-only writes via admin SDK.
+      allow write: if false;
+    }
+
     // ---------- SERVICES (public read; admin write) ----------
     match /services/{id} {
       allow read: if true;

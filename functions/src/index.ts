@@ -10368,6 +10368,8 @@ export * from "./security/functions";
 export * from "./automation/checkout";
 export * from "./automation/triggers";
 export * from "./automation/verify";
+export * from "./learner-assistant";
+export * from "./ai-content";
 
 export const chatWithAI = onCall(
   {secrets: [OPENAI_API_KEY], cors: true},

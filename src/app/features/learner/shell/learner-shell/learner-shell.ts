@@ -65,6 +65,7 @@ export class LearnerShell implements OnDestroy {
   links = [
     { path: '/learner', labelKey: 'nav.dashboard' },
     { path: '/learner/assignments', labelKey: 'nav.assignments' },
+    { path: '/learner/assistant', labelKey: 'nav.aiAssistant' },
     { path: '/learner/wound', labelKey: 'nav.woundLibrary' },
     { path: '/learner/profile', labelKey: 'nav.yourProfile' },
     { path: '/learner/policies', labelKey: 'nav.policies' }

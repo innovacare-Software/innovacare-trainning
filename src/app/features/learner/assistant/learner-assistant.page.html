@@ -1,0 +1,214 @@
+<div class="la-wrap">
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="la-head">
+    <div class="la-head-identity">
+      <div class="la-bot-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="la-hg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#0b2d57"/><stop offset="1" stop-color="#18b8c5"/>
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="12" fill="url(#la-hg)"/>
+          <circle cx="15" cy="17" r="2.8" fill="white"/>
+          <circle cx="25" cy="17" r="2.8" fill="white"/>
+          <path d="M13 25c2 2.5 12 2.5 14 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <rect x="19" y="6" width="2.5" height="4" rx="1.25" fill="white"/>
+          <circle cx="20" cy="5" r="1.8" fill="white"/>
+        </svg>
+        <span class="la-online-dot"></span>
+      </div>
+      <div class="la-head-text">
+        <h1 class="la-head-title">{{ session()?.title ?? 'Innovacare AI' }}</h1>
+        <div class="la-head-sub">
+          <span class="la-active-domain-badge">{{ domainLabel() }}</span>
+          <ng-container *ngIf="context().courseTitle as ct">
+            <span class="la-head-sep">·</span><span class="la-head-course">{{ ct }}</span>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <div class="la-head-actions">
+      <a routerLink="/learner" class="la-back-btn">
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════ LOADING ═══════════ -->
+  <div *ngIf="entitlement() === null" class="la-state-screen" aria-live="polite">
+    <div class="la-spinner" role="status" aria-label="Chargement"></div>
+    <p class="la-state-text">Loading your assistant…</p>
+  </div>
+
+  <!-- ═══════════ PAYWALL ═══════════ -->
+  <div *ngIf="entitlement() && !entitlement()!.hasAccess" class="la-state-screen">
+    <div class="la-paywall-card">
+      <div class="la-paywall-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="14" fill="#f1f5f9"/>
+          <rect x="14" y="22" width="20" height="14" rx="4" stroke="#0b2d57" stroke-width="2"/>
+          <path d="M18 22v-5a6 6 0 1 1 12 0v5" stroke="#18b8c5" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="29" r="2" fill="#0b2d57"/>
+        </svg>
+      </div>
+      <h2>Assistant locked</h2>
+      <p>The Innovacare AI coach is included with every enrolled program. Pick a program to get a personalised study companion — coaching stays focused on your domain.</p>
+      <div class="la-paywall-actions">
+        <a routerLink="/learner/library" class="btn">Explore programs</a>
+        <a routerLink="/learner" class="btn la-btn-ghost">Back to dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MAIN (enrolled) ═══════════ -->
+  <ng-container *ngIf="entitlement()?.hasAccess">
+
+    <!-- Domain chips -->
+    <nav class="la-chips" aria-label="Subject domain">
+      <button
+        *ngFor="let d of availableDomains()"
+        type="button"
+        class="la-chip"
+        [class.la-chip--active]="context().domain === d.id"
+        (click)="pickDomain(d.id)">
+        <span class="la-chip-icon" aria-hidden="true">{{ domainIcon(d.id) }}</span>
+        <span>{{ d.label }}</span>
+      </button>
+    </nav>
+
+    <!-- Thread -->
+    <section class="la-thread" aria-live="polite" aria-label="Conversation">
+
+      <ng-container *ngIf="messages().length > 0; else emptyTpl">
+        <div
+          *ngFor="let m of messages(); trackBy: trackByMessage"
+          class="la-msg"
+          [class.la-msg--user]="m.role === 'user'"
+          [class.la-msg--bot]="m.role === 'assistant'">
+
+          <!-- Bot avatar -->
+          <div *ngIf="m.role === 'assistant'" class="la-msg-avatar" aria-hidden="true">
+            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="la-ag" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#0b2d57"/><stop offset="1" stop-color="#18b8c5"/>
+                </linearGradient>
+              </defs>
+              <rect width="28" height="28" rx="8" fill="url(#la-ag)"/>
+              <circle cx="10.5" cy="12" r="1.9" fill="white"/>
+              <circle cx="17.5" cy="12" r="1.9" fill="white"/>
+              <path d="M9 18c1.5 2 9.5 2 11 0" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <!-- Bubble -->
+          <div class="la-msg-body">
+            <div class="la-bubble" [innerHTML]="renderMarkdown(m.content)"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Empty / welcome -->
+      <ng-template #emptyTpl>
+        <div class="la-welcome">
+          <div class="la-welcome-icon" aria-hidden="true">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="la-wg" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#0b2d57"/><stop offset="1" stop-color="#18b8c5"/>
+                </linearGradient>
+              </defs>
+              <rect width="72" height="72" rx="20" fill="url(#la-wg)"/>
+              <circle cx="26" cy="29" r="5" fill="white"/>
+              <circle cx="46" cy="29" r="5" fill="white"/>
+              <path d="M20 46c3 4.5 29 4.5 32 0" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <rect x="34" y="11" width="4" height="6" rx="2" fill="white"/>
+              <circle cx="36" cy="9.5" r="2.5" fill="white"/>
+            </svg>
+          </div>
+          <h2 class="la-welcome-title">How can I help you today?</h2>
+          <p class="la-welcome-sub">I'm your personalised study coach. Ask anything or pick a prompt to start.</p>
+          <div class="la-suggestions">
+            <button
+              *ngFor="let s of suggestions()"
+              type="button"
+              class="la-suggestion"
+              (click)="useSuggestion(s)">
+              <svg class="la-suggestion-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M8 2l1.8 3.7 4 .6-2.9 2.8.7 4L8 11l-3.6 1.9.7-4L2.2 6.3l4-.6L8 2z" fill="#18b8c5"/>
+              </svg>
+              {{ s }}
+            </button>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Typing indicator -->
+      <div *ngIf="svc.sending()" class="la-msg la-msg--bot" aria-label="Assistant is thinking">
+        <div class="la-msg-avatar" aria-hidden="true">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="la-ag2" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0b2d57"/><stop offset="1" stop-color="#18b8c5"/>
+              </linearGradient>
+            </defs>
+            <rect width="28" height="28" rx="8" fill="url(#la-ag2)"/>
+            <circle cx="10.5" cy="12" r="1.9" fill="white"/>
+            <circle cx="17.5" cy="12" r="1.9" fill="white"/>
+            <path d="M9 18c1.5 2 9.5 2 11 0" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="la-msg-body">
+          <div class="la-bubble la-bubble--typing">
+            <span class="la-dots"><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+
+      <div #scrollEnd></div>
+    </section>
+
+    <!-- Error banner -->
+    <div *ngIf="svc.lastError() as err" class="la-error" role="alert">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 6v4M10 13.5h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      {{ err }}
+    </div>
+
+    <!-- Composer -->
+    <div class="la-composer-wrap">
+      <form class="la-composer" (ngSubmit)="send()">
+        <textarea
+          name="draft"
+          [(ngModel)]="draft"
+          rows="1"
+          placeholder="Ask anything about your course… (Enter to send)"
+          [disabled]="svc.sending()"
+          (keydown)="onKey($event)"
+          aria-label="Message"
+        ></textarea>
+        <button
+          type="submit"
+          class="la-send-btn"
+          [disabled]="!draft.trim() || svc.sending()"
+          aria-label="Send message">
+          <svg *ngIf="!svc.sending()" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M2.5 10.5L17 4l-4 6 4 6-14.5-5.5z" fill="currentColor"/>
+          </svg>
+          <span *ngIf="svc.sending()" class="la-send-spin" aria-hidden="true"></span>
+        </button>
+      </form>
+      <p class="la-disclaimer">
+        Educational use only · Do not share PHI or private data · AI replies may contain errors
+      </p>
+    </div>
+
+  </ng-container>
+</div>

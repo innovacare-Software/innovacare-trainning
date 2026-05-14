@@ -3,12 +3,14 @@ import {
   Firestore,
   collection,
   collectionData,
+  doc,
+  docData,
   query,
   where,
   orderBy,
 } from '@angular/fire/firestore';
 import { Auth, authState } from '@angular/fire/auth';
-import { Observable, of, switchMap, catchError, map } from 'rxjs';
+import { Observable, of, switchMap, catchError, map, combineLatest, first } from 'rxjs';
 import {
   Program,
   ProgramEnrollment,
@@ -203,17 +205,35 @@ export class LearnerDashboardService {
     lastModule?: string;
     progress: number;
   } | null> {
-    return this.enrollmentsService.getMyEnrollments().pipe(
-      map(enrollments => {
+    return combineLatest([
+      this.enrollmentsService.getMyEnrollments(),
+      authState(this.auth),
+    ]).pipe(
+      first(),
+      switchMap(([enrollments, user]) => {
         const active = enrollments.find((row) => this.enrollmentsService.canAccessLearnerSpace(row));
-        if (!active) return null;
-        return {
-          programTitle: active.programTitle,
-          programId: active.programId,
-          programImage: active.programImage,
-          lastModule: undefined,
-          progress: 35,
-        };
+        if (!active || !user?.uid) return of(null);
+
+        const progressRef = doc(
+          this.firestore,
+          `users/${user.uid}/programProgress/${active.programId}`
+        );
+        return (docData(progressRef) as Observable<{ progressPct?: number } | undefined>).pipe(
+          map((progress) => ({
+            programTitle: active.programTitle,
+            programId: active.programId,
+            programImage: active.programImage,
+            lastModule: undefined,
+            progress: Math.round(Number(progress?.progressPct ?? 0)),
+          })),
+          catchError(() => of({
+            programTitle: active.programTitle,
+            programId: active.programId,
+            programImage: active.programImage,
+            lastModule: undefined,
+            progress: 0,
+          }))
+        );
       }),
       catchError(() => of(null))
     );

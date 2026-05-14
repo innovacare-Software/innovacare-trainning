@@ -42,6 +42,11 @@ export const learnerRoutes: Routes = [
         loadComponent: () =>
           import('./profile/profile-page/profile-page').then(m => m.ProfilePage),
       },
+      {
+        path: 'assistant',
+        loadComponent: () =>
+          import('./assistant/learner-assistant.page').then(m => m.LearnerAssistantPage),
+      },
       
 
    

@@ -39,6 +39,7 @@
         <a
           class="ls-nav-item"
           [routerLink]="[item.route]"
+          [queryParams]="item.queryParams || null"
           (click)="onNavItemActivated()"
           routerLinkActive="ls-nav-active"
           [routerLinkActiveOptions]="{ exact: item.exact }"
@@ -60,6 +61,7 @@
         <a
           class="ls-nav-item"
           [routerLink]="[item.route]"
+          [queryParams]="item.queryParams || null"
           (click)="onNavItemActivated()"
           routerLinkActive="ls-nav-active"
           [routerLinkActiveOptions]="{ exact: item.exact }"

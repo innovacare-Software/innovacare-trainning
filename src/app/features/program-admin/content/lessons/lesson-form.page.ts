@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -8,11 +8,14 @@ import { ProgramLessonsAdminService } from '../services/program-lessons-admin.se
 import { ProgramModulesAdminService } from '../services/program-modules-admin.service';
 import { ContentStatus, LessonType, ProgramContentModule } from '../models/content-builder.models';
 import { LessonPresentationComponent } from '../../../../shared/components/lesson-presentation/lesson-presentation.component';
+import { AiContentStudioComponent } from '../ai/ai-content-studio.component';
+import { AiContentDomain, AiContentLocale } from '../ai/ai-content.models';
+import { OrgContextService } from '../../../../core/organization/org-context.service';
 
 @Component({
   selector: 'app-lesson-form-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, LessonPresentationComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, LessonPresentationComponent, AiContentStudioComponent],
   template: `
     <section class="form-page">
       <header class="form-header">
@@ -78,6 +81,27 @@ import { LessonPresentationComponent } from '../../../../shared/components/lesso
           <div class="field full lesson-content-studio">
             <div class="lesson-content-studio__editor">
               <label>Content HTML</label>
+              <!-- AI action buttons -->
+              <div class="lesson-content-actions lesson-ai-actions">
+                <button type="button" class="btn-ai" (click)="openAiStudio('generateLesson')">
+                  <span aria-hidden="true">✦</span> Generate with AI
+                </button>
+                <button type="button" class="btn-ai btn-ai--secondary" (click)="openAiStudio('improveHtml')">
+                  ✏️ Improve HTML
+                </button>
+                <button type="button" class="btn-ai btn-ai--secondary" (click)="openAiStudio('generateQuiz')">
+                  🧩 Generate Quiz
+                </button>
+                <button type="button" class="btn-ai btn-ai--secondary" (click)="openAiStudio('translate')">
+                  🌐 Translate
+                </button>
+                <button type="button" class="btn-ai btn-ai--secondary" (click)="openAiStudio('summarize')">
+                  📋 Summarize
+                </button>
+                <button type="button" class="btn-ai btn-ai--secondary" (click)="openAiStudio('createObjectives')">
+                  🎯 Learning Objectives
+                </button>
+              </div>
               <div class="lesson-content-actions" *ngIf="isWebLesson">
                 <button type="button" class="btn-template" (click)="insertWebStarterTemplate()">Insert Web Starter</button>
                 <button type="button" class="btn-template btn-template--accent" (click)="insertNgnDemoTemplate()">Insert NGN Demo</button>
@@ -144,6 +168,22 @@ import { LessonPresentationComponent } from '../../../../shared/components/lesso
         <p class="error-msg" *ngIf="error">{{ error }}</p>
       </form>
     </section>
+
+    <!-- AI Content Studio drawer -->
+    <app-ai-content-studio
+      *ngIf="studioOpen()"
+      [orgId]="orgId"
+      [programId]="programId"
+      [moduleId]="form.value.moduleId || ''"
+      [lessonId]="lessonId || ''"
+      [currentTitle]="previewTitle"
+      [currentDescription]="previewDescription"
+      [currentContentHtml]="previewContentHtml"
+      [domain]="aiDomain"
+      [locale]="aiLocale"
+      (generatedHtmlSelected)="onAiHtmlSelected($event)"
+      (studioClose)="studioOpen.set(false)"
+    />
   `,
   styles: [`
     .form-page { display: grid; gap: 1rem; }
@@ -169,6 +209,19 @@ import { LessonPresentationComponent } from '../../../../shared/components/lesso
       background: #eff6ff; color: #1a74c8; font-size: 0.8rem; font-weight: 700; cursor: pointer;
     }
     .btn-template--accent { background: linear-gradient(135deg, #0f3659, #1a74c8); color: #fff; border-color: transparent; }
+    /* AI action buttons */
+    .lesson-ai-actions { margin-bottom: 6px; }
+    .btn-ai {
+      min-height: 34px; padding: 0 0.9rem; border-radius: 0.65rem; border: none;
+      background: linear-gradient(135deg, #0f3659, #1a74c8); color: #fff;
+      font-size: 0.8rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 3px 10px rgba(26,116,200,.28); transition: opacity 0.15s, transform 0.15s;
+    }
+    .btn-ai:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-ai--secondary {
+      background: #eff6ff; color: #1a74c8; border: 1px solid #bfdbfe; box-shadow: none;
+    }
+    .btn-ai--secondary:hover { background: #dbeafe; transform: translateY(-1px); }
     .field-actions { display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap; margin-top: 0.2rem; }
     .upload-btn {
       display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 1rem;
@@ -208,8 +261,10 @@ export class LessonFormPage implements OnInit {
   private readonly storage = inject(Storage);
   private readonly lessonsService = inject(ProgramLessonsAdminService);
   private readonly modulesService = inject(ProgramModulesAdminService);
+  private readonly orgCtx = inject(OrgContextService);
 
   programId = '';
+  orgId = '';
   lessonId: string | null = null;
   isEditMode = false;
   saving = false;
@@ -217,6 +272,12 @@ export class LessonFormPage implements OnInit {
   error = '';
   uploadError = '';
   modules: ProgramContentModule[] = [];
+
+  /* ── AI Content Studio state ── */
+  readonly studioOpen = signal(false);
+  readonly studioInitialAction = signal<import('../ai/ai-content.models').AiContentAction>('generateLesson');
+  readonly aiDomain: AiContentDomain = 'general';
+  readonly aiLocale: AiContentLocale = 'en';
 
   readonly form = this.fb.group({
     moduleId: ['', Validators.required],
@@ -322,6 +383,11 @@ export class LessonFormPage implements OnInit {
     this.programId = this.getRequiredProgramId();
     this.lessonId = this.route.snapshot.params['lessonId'] ?? null;
     this.isEditMode = !!this.lessonId;
+
+    // Resolve orgId from the active org context (the route has no :orgId param)
+    this.orgCtx.context$.subscribe((ctx) => {
+      if (ctx.activeOrgId) this.orgId = ctx.activeOrgId;
+    });
 
     this.modulesService.getModules(this.programId).subscribe((m) => (this.modules = m));
     this.form.controls.lessonType.valueChanges.subscribe(() => {
@@ -441,6 +507,17 @@ export class LessonFormPage implements OnInit {
       description: this.previewDescription || 'Premium LMS lesson page for NGN orientation and clinical judgment practice.',
     }));
     this.form.controls.contentHtml.markAsDirty();
+  }
+
+  openAiStudio(action: import('../ai/ai-content.models').AiContentAction): void {
+    this.studioInitialAction.set(action);
+    this.studioOpen.set(true);
+  }
+
+  onAiHtmlSelected(html: string): void {
+    this.form.controls.contentHtml.setValue(html);
+    this.form.controls.contentHtml.markAsDirty();
+    this.studioOpen.set(false);
   }
 
   private getRequiredProgramId(): string {
