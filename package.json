@@ -3,12 +3,17 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "lint": "npm --prefix functions run lint && npm --prefix innovacare-training run lint",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && npm --prefix functions run typecheck && npm --prefix innovacare-training run typecheck",
     "start": "ng serve",
     "build": "ng build",
     "postbuild": "node scripts/prerender-marketing-seo-locales.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\""
+    "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\"",
+    "security:audit": "npm audit --audit-level=high && npm --prefix functions run security:audit && npm --prefix innovacare-training run security:audit",
+    "deploy:staging": "firebase deploy --project ${FIREBASE_PROJECT_ID_STAGING:?FIREBASE_PROJECT_ID_STAGING is required} --only hosting,functions",
+    "deploy:production": "firebase deploy --project ${FIREBASE_PROJECT_ID_PRODUCTION:?FIREBASE_PROJECT_ID_PRODUCTION is required} --only hosting,functions"
   },
   "prettier": {
     "printWidth": 100,
@@ -24,24 +29,26 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^20.3.2",
-    "@angular/cdk": "^20.2.5",
-    "@angular/common": "^20.3.0",
-    "@angular/compiler": "^20.3.0",
-    "@angular/core": "^20.3.0",
+    "@angular/animations": "20.3.23",
+    "@angular/cdk": "20.2.14",
+    "@angular/common": "20.3.23",
+    "@angular/compiler": "20.3.23",
+    "@angular/core": "20.3.23",
     "@angular/fire": "^20.0.1",
-    "@angular/forms": "^20.3.0",
-    "@angular/material": "^20.2.5",
-    "@angular/platform-browser": "^20.3.0",
-    "@angular/router": "^20.3.0",
-    "@angular/service-worker": "^20.3.2",
+    "@angular/forms": "20.3.23",
+    "@angular/material": "20.2.14",
+    "@angular/platform-browser": "20.3.23",
+    "@angular/platform-browser-dynamic": "20.3.23",
+    "@angular/router": "20.3.23",
+    "@angular/service-worker": "20.3.23",
     "@jsverse/transloco": "^8.3.0",
+    "@popperjs/core": "2.11.8",
     "bootstrap": "^5.3.3",
     "cors": "^2.8.6",
     "echarts": "^6.0.0",
     "firebase": "^11.10.0",
     "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.4",
+    "jspdf": "4.2.1",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.6.82",
     "rxjs": "~7.8.0",
@@ -51,9 +58,9 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular/build": "^20.3.2",
-    "@angular/cli": "^20.3.2",
-    "@angular/compiler-cli": "^20.3.0",
+    "@angular/build": "20.3.26",
+    "@angular/cli": "20.3.26",
+    "@angular/compiler-cli": "20.3.23",
     "@firebase/rules-unit-testing": "^4.0.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/html2canvas": "^0.5.35",
@@ -69,5 +76,9 @@
     "postcss": "^8.5.9",
     "tailwindcss": "^4.2.2",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "flatted": "3.4.2",
+    "lodash": "4.18.1"
   }
 }
