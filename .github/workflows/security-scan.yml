@@ -79,6 +79,7 @@ jobs:
           echo "No tracked hardcoded secrets detected by pattern scan." > secret-scan-report.txt
 
       - name: Run Trivy vulnerability and secret scan
+        id: trivy_scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
