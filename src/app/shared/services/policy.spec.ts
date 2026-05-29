@@ -1,13 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { Firestore } from '@angular/fire/firestore';
 
-import { Policy } from './policy';
+import { PolicyService } from './policy';
 
 describe('Policy', () => {
-  let service: Policy;
+  let service: PolicyService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Policy);
+    TestBed.configureTestingModule({
+      providers: [{ provide: Firestore, useValue: {} }],
+    });
+    service = TestBed.inject(PolicyService);
   });
 
   it('should be created', () => {

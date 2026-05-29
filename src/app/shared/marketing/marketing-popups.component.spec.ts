@@ -16,6 +16,11 @@ class MockLanguageService {
     return (
       {
         'COMMON.close': 'Close',
+        'MARKETING_POPUPS.exit.tag': 'Discount',
+        'MARKETING_POPUPS.exit.title': 'Unlock 20% off your NCLEX review',
+        'MARKETING_POPUPS.exit.body': 'Leave your email to claim your offer.',
+        'MARKETING_POPUPS.exit.cta': 'Claim discount',
+        'MARKETING_POPUPS.exit.skip': 'Skip for now',
         'MARKETING_POPUPS.engagement.tag': 'Community',
         'MARKETING_POPUPS.engagement.title': 'Join 300,000+ students',
         'MARKETING_POPUPS.engagement.body': 'Premium review experience.',
@@ -78,7 +83,7 @@ describe('MarketingPopupsComponent', () => {
 
     root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.popup-backdrop')).not.toBeNull();
-    expect(root.textContent ?? '').toContain('Join 300,000+ students');
-    expect(root.textContent ?? '').not.toContain('MARKETING_POPUPS.engagement.title');
+    expect(root.textContent ?? '').toContain('Unlock 20% off your NCLEX review');
+    expect(root.textContent ?? '').not.toContain('MARKETING_POPUPS.exit.title');
   });
 });

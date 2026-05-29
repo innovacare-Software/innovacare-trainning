@@ -1,20 +1,40 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Auth } from '@angular/fire/auth';
+import { Firestore } from '@angular/fire/firestore';
+import { provideRouter } from '@angular/router';
 
-import { LearnerDashboard } from './learner-dashboard';
+import { LearnerDashboardComponent } from './learner-dashboard';
 
 describe('LearnerDashboard', () => {
-  let component: LearnerDashboard;
-  let fixture: ComponentFixture<LearnerDashboard>;
+  let component: LearnerDashboardComponent;
+  let fixture: ComponentFixture<LearnerDashboardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LearnerDashboard]
+      imports: [LearnerDashboardComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: Auth,
+          useValue: {
+            currentUser: null,
+            onAuthStateChanged: (callback: (user: null) => void) => {
+              callback(null);
+              return () => {};
+            },
+            onIdTokenChanged: (callback: (user: null) => void) => {
+              callback(null);
+              return () => {};
+            },
+          },
+        },
+        { provide: Firestore, useValue: {} },
+      ],
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LearnerDashboard);
+    fixture = TestBed.createComponent(LearnerDashboardComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

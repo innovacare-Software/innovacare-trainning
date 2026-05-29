@@ -1,18 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
-import { Reset } from './reset';
+import { AuthService } from '../../../core/auth';
+import { ResetComponent } from './reset';
 
 describe('Reset', () => {
-  let component: Reset;
-  let fixture: ComponentFixture<Reset>;
+  let component: ResetComponent;
+  let fixture: ComponentFixture<ResetComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Reset]
+      imports: [ResetComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: AuthService,
+          useValue: { resetPassword: async () => {} },
+        },
+      ],
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Reset);
+    fixture = TestBed.createComponent(ResetComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

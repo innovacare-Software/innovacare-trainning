@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Firestore } from '@angular/fire/firestore';
+import { provideRouter } from '@angular/router';
 
+import { PolicyService } from '../../../shared/services/policy';
 import { PolicyAckReportPage } from './policy-ack-report.page';
 
 describe('PolicyAckReportPage', () => {
@@ -8,13 +11,20 @@ describe('PolicyAckReportPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PolicyAckReportPage]
+      imports: [PolicyAckReportPage],
+      providers: [
+        provideRouter([]),
+        { provide: Firestore, useValue: {} },
+        {
+          provide: PolicyService,
+          useValue: { listAcknowledgementsForPolicy: async () => [] },
+        },
+      ],
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(PolicyAckReportPage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
