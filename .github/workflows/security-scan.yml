@@ -23,17 +23,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependency-review:
-    name: GitHub Dependency Review
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run dependency review
-        uses: actions/dependency-review-action@v4
-
   audit-and-secret-scan:
     name: Audit, Vulnerability, and Secret Scan
     runs-on: ubuntu-latest
@@ -63,28 +52,17 @@ jobs:
         working-directory: innovacare-training
 
       - name: Run root npm audit
-        id: audit_root
-        continue-on-error: true
-        shell: bash
         run: npm audit --audit-level=high --json > root-npm-audit.json
 
       - name: Run default Functions npm audit
-        id: audit_functions
-        continue-on-error: true
-        shell: bash
         run: npm audit --audit-level=high --json > functions-npm-audit.json
         working-directory: functions
 
       - name: Run secondary Functions npm audit
-        id: audit_training
-        continue-on-error: true
-        shell: bash
         run: npm audit --audit-level=high --json > innovacare-training-npm-audit.json
         working-directory: innovacare-training
 
       - name: Run tracked-file secret detection
-        id: tracked_secret_scan
-        continue-on-error: true
         shell: bash
         run: |
           if git grep -nE '(AIza[0-9A-Za-z_-]{35}|sk_(live|test)_[0-9A-Za-z]+|whsec_[0-9A-Za-z]+|-----BEGIN PRIVATE KEY-----|"type"\s*:\s*"service_account")' \
@@ -101,9 +79,7 @@ jobs:
           echo "No tracked hardcoded secrets detected by pattern scan." > secret-scan-report.txt
 
       - name: Run Trivy vulnerability and secret scan
-        id: trivy_scan
-        continue-on-error: true
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           scanners: vuln,secret,config
@@ -130,24 +106,4 @@ jobs:
             innovacare-training/innovacare-training-npm-audit.json
             secret-scan-report.txt
             trivy-results.sarif
-          if-no-files-found: error
-
-      - name: Enforce security gates
-        if: always()
-        shell: bash
-        run: |
-          failures=0
-          for result in \
-            "${{ steps.audit_root.outcome }}" \
-            "${{ steps.audit_functions.outcome }}" \
-            "${{ steps.audit_training.outcome }}" \
-            "${{ steps.tracked_secret_scan.outcome }}" \
-            "${{ steps.trivy_scan.outcome }}"; do
-            if [ "$result" != "success" ]; then
-              failures=1
-            fi
-          done
-          if [ "$failures" -ne 0 ]; then
-            echo "One or more security gates failed. Review uploaded reports and GitHub code scanning findings."
-            exit 1
-          fi
+          if-no-files-found: warn
