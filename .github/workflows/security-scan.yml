@@ -55,17 +55,25 @@ jobs:
         working-directory: innovacare-training
 
       - name: Run root npm audit
+        id: root_npm_audit
+        continue-on-error: true
         run: npm audit --audit-level=high --json > root-npm-audit.json
 
       - name: Run default Functions npm audit
+        id: functions_npm_audit
+        continue-on-error: true
         run: npm audit --audit-level=high --json > functions-npm-audit.json
         working-directory: functions
 
       - name: Run secondary Functions npm audit
+        id: secondary_functions_npm_audit
+        continue-on-error: true
         run: npm audit --audit-level=high --json > innovacare-training-npm-audit.json
         working-directory: innovacare-training
 
       - name: Run tracked-file secret detection
+        id: tracked_secret_scan
+        continue-on-error: true
         shell: bash
         run: |
           if git grep -nE '(AIza[0-9A-Za-z_-]{35}|sk_(live|test)_[0-9A-Za-z]+|whsec_[0-9A-Za-z]+|-----BEGIN PRIVATE KEY-----|"type"\s*:\s*"service_account")' \
@@ -83,7 +91,8 @@ jobs:
 
       - name: Run Trivy vulnerability and secret scan
         id: trivy_scan
-        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scanners: vuln,secret,config
@@ -111,3 +120,36 @@ jobs:
             secret-scan-report.txt
             trivy-results.sarif
           if-no-files-found: warn
+
+      - name: Fail job on detected security findings
+        if: always()
+        shell: bash
+        run: |
+          failed=0
+
+          if [ "${{ steps.root_npm_audit.outcome }}" = "failure" ]; then
+            echo "Root npm audit reported high or critical vulnerabilities."
+            failed=1
+          fi
+
+          if [ "${{ steps.functions_npm_audit.outcome }}" = "failure" ]; then
+            echo "Default Functions npm audit reported high or critical vulnerabilities."
+            failed=1
+          fi
+
+          if [ "${{ steps.secondary_functions_npm_audit.outcome }}" = "failure" ]; then
+            echo "Secondary Functions npm audit reported high or critical vulnerabilities."
+            failed=1
+          fi
+
+          if [ "${{ steps.tracked_secret_scan.outcome }}" = "failure" ]; then
+            echo "Tracked-file secret detection reported a potential secret."
+            failed=1
+          fi
+
+          if [ "${{ steps.trivy_scan.outcome }}" = "failure" ]; then
+            echo "Trivy reported a vulnerability, secret, or configuration finding."
+            failed=1
+          fi
+
+          exit "$failed"
