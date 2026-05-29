@@ -1,0 +1,123 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to Firebase Staging
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: staging
+      url: https://${{ vars.FIREBASE_PROJECT_ID_STAGING }}.web.app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_STAGING }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT_EMAIL_STAGING }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install default Functions dependencies
+        run: npm ci
+        working-directory: functions
+
+      - name: Install secondary Functions dependencies
+        run: npm ci
+        working-directory: innovacare-training
+
+      - name: Build Angular application
+        env:
+          CI: true
+        run: npm run build -- --configuration production
+
+      - name: Build default Functions codebase
+        run: npm run build
+        working-directory: functions
+
+      - name: Build secondary Functions codebase
+        run: npm run build
+        working-directory: innovacare-training
+
+      - name: Deploy Hosting and Functions to staging
+        env:
+          GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+          GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+        run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only hosting,functions
+
+      - name: Detect rules changes
+        id: rules_changes
+        shell: bash
+        run: |
+          BASE_SHA="${{ github.event.before }}"
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
+          if [ -n "$BASE_SHA" ]; then
+            CHANGED_FILES="$(git diff --name-only "$BASE_SHA" "$GITHUB_SHA")"
+          else
+            CHANGED_FILES="$(git show --pretty='' --name-only "$GITHUB_SHA")"
+          fi
+          if printf '%s\n' "$CHANGED_FILES" | grep -Eq '^(firestore\.rules|firestore\.indexes\.json)$'; then
+            echo "firestore_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "firestore_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          if printf '%s\n' "$CHANGED_FILES" | grep -Eq '^storage\.rules$'; then
+            echo "storage_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "storage_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Firestore rules smoke test
+        if: steps.rules_changes.outputs.firestore_changed == 'true'
+        run: npm run test:rules:smoke
+
+      - name: Deploy Firestore rules to staging
+        if: steps.rules_changes.outputs.firestore_changed == 'true'
+        env:
+          GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+          GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+        run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only firestore:rules,firestore:indexes
+
+      - name: Deploy Storage rules to staging
+        if: steps.rules_changes.outputs.storage_changed == 'true'
+        env:
+          GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+          GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+        run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only storage

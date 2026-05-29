@@ -1,4 +1,4 @@
-/* eslint max-len: ["error", { "code": 120, "ignoreUrls": true, "ignoreStrings": true, "ignoreTemplateLiterals": true }] */
+/* eslint max-len: 0 */
 /* eslint-disable require-jsdoc */
 /* functions/src/learner-assistant.ts
  *

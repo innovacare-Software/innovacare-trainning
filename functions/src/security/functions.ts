@@ -31,9 +31,22 @@ const ALLOWED_SEVERITIES = new Set(["low", "medium", "high", "critical"]);
 const ALLOWED_APPS = new Set(["innovacare_review", "sygepec"]);
 
 const FORBIDDEN_METADATA_KEYS = [
-  "password", "pwd", "pass", "token", "idtoken", "accesstoken",
-  "refreshtoken", "apikey", "api_key", "secret", "authorization",
-  "cookie", "stripesecret", "webhooksecret", "ssn", "creditcard",
+  "password",
+  "pwd",
+  "pass",
+  "token",
+  "idtoken",
+  "accesstoken",
+  "refreshtoken",
+  "apikey",
+  "api_key",
+  "secret",
+  "authorization",
+  "cookie",
+  "stripesecret",
+  "webhooksecret",
+  "ssn",
+  "creditcard",
   "cardnumber", "cvv", "mrn",
 ];
 
@@ -81,7 +94,9 @@ export const logSecurityEvent = onCall(
     if (!data.severity || !ALLOWED_SEVERITIES.has(data.severity)) {
       throw new HttpsError("invalid-argument", "Invalid severity");
     }
-    const app = data.app && ALLOWED_APPS.has(data.app) ? data.app : "innovacare_review";
+    const app = data.app && ALLOWED_APPS.has(data.app) ?
+      data.app :
+      "innovacare_review";
 
     // Identify caller (anonymous events are allowed for LOGIN_FAILED only).
     const auth = request.auth;
@@ -98,7 +113,10 @@ export const logSecurityEvent = onCall(
       try {
         const userDoc = await db.doc(`users/${auth.uid}`).get();
         const profile = userDoc.data() || {};
-        userEmail = (profile.email as string) || auth.token?.email || null;
+        userEmail =
+          (profile.email as string) ||
+          auth.token?.email ||
+          null;
         userOrgId = (profile.orgId as string) || null;
         role = (profile.role as string) || null;
       } catch (err) {
@@ -119,7 +137,8 @@ export const logSecurityEvent = onCall(
       (request.rawRequest?.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
       (request.rawRequest?.socket?.remoteAddress as string) ||
       null;
-    const userAgent = (request.rawRequest?.headers["user-agent"] as string) || null;
+    const userAgent =
+      (request.rawRequest?.headers["user-agent"] as string) || null;
 
     const doc = {
       eventType: data.eventType,
@@ -128,12 +147,21 @@ export const logSecurityEvent = onCall(
       userId: auth?.uid || null,
       userEmail,
       orgId: userOrgId,
-      attemptedOrgId: typeof data.attemptedOrgId === "string" ? data.attemptedOrgId : null,
+      attemptedOrgId:
+        typeof data.attemptedOrgId === "string" ?
+          data.attemptedOrgId :
+          null,
       role,
       action: typeof data.action === "string" ? data.action.slice(0, 120) : null,
       route: typeof data.route === "string" ? data.route.slice(0, 240) : null,
-      resourceType: typeof data.resourceType === "string" ? data.resourceType.slice(0, 80) : null,
-      resourceId: typeof data.resourceId === "string" ? data.resourceId.slice(0, 240) : null,
+      resourceType:
+        typeof data.resourceType === "string" ?
+          data.resourceType.slice(0, 80) :
+          null,
+      resourceId:
+        typeof data.resourceId === "string" ?
+          data.resourceId.slice(0, 240) :
+          null,
       ip,
       userAgent: userAgent ? userAgent.slice(0, 240) : null,
       metadata: sanitizeMetadata(data.metadata),
@@ -237,11 +265,18 @@ export const onSecurityEventCreated = onDocumentCreated(
     }
 
     const eventType = String(data.eventType || "UNKNOWN");
-    const baseTitle = TITLE_BY_TYPE[eventType] || `Security event: ${eventType}`;
+    const baseTitle =
+      TITLE_BY_TYPE[eventType] || `Security event: ${eventType}`;
     const title =
-      severity === "critical" ? `Critical security alert: ${baseTitle.toLowerCase()}` : baseTitle;
+      severity === "critical" ?
+        `Critical security alert: ${baseTitle.toLowerCase()}` :
+        baseTitle;
 
-    const userPart = data.userEmail ? ` by ${data.userEmail}` : data.userId ? ` by ${data.userId}` : "";
+      const userPart = data.userEmail ?
+        ` by ${data.userEmail}` :
+        data.userId ?
+          ` by ${data.userId}` :
+          "";
     const orgPart = data.attemptedOrgId
       ? ` against org ${data.attemptedOrgId}`
       : data.orgId
@@ -263,7 +298,12 @@ export const onSecurityEventCreated = onDocumentCreated(
       readBy: [],
       actionRequired: severity === "critical",
       // Hooks for future expansion (email/SMS/Slack/WhatsApp).
-      delivery: {email: false, sms: false, slack: false, whatsapp: false},
+      delivery: {
+        email: false,
+        sms: false,
+        slack: false,
+        whatsapp: false,
+      },
     });
   },
 );

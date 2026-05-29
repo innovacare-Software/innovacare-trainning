@@ -57,6 +57,34 @@ async function run() {
         orgId: 'orgB',
         active: true,
       });
+      await setDoc(doc(db, 'userOrgMemberships/mgrA__orgA'), {
+        userId: 'mgrA',
+        orgId: 'orgA',
+        role: 'program_admin',
+        status: 'active',
+        assignedBy: 'superA',
+      });
+      await setDoc(doc(db, 'userOrgMemberships/mgrB__orgB'), {
+        userId: 'mgrB',
+        orgId: 'orgB',
+        role: 'program_admin',
+        status: 'active',
+        assignedBy: 'superA',
+      });
+      await setDoc(doc(db, 'userOrgMemberships/learnerA__orgA'), {
+        userId: 'learnerA',
+        orgId: 'orgA',
+        role: 'learner',
+        status: 'active',
+        assignedBy: 'mgrA',
+      });
+      await setDoc(doc(db, 'userOrgMemberships/learnerB__orgB'), {
+        userId: 'learnerB',
+        orgId: 'orgB',
+        role: 'learner',
+        status: 'active',
+        assignedBy: 'mgrB',
+      });
       await setDoc(doc(db, 'notifications/n1'), {
         title: 'hello',
         body: 'world',

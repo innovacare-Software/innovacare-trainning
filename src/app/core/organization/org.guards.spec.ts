@@ -3,6 +3,7 @@ import { Router, UrlTree } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { isOrgAdminGuard, isSuperAdminGuard, belongsToOrg } from './org.guards';
 import { OrgContextService, OrgContext } from './org-context.service';
+import { SecurityLoggerService } from '../security/security-logger.service';
 
 const BURKINA_ORG = 'burkina-org';
 const MAIN_ORG = 'Waxxi8M4qpTSsoGJ8fJS';
@@ -41,10 +42,16 @@ function setup(initialCtx: OrgContext) {
     createUrlTree: (segs: any[]) => ({ url: '/' + segs.join('/') } as unknown as UrlTree),
   } as unknown as Router;
 
+  const securityLogger = {
+    logCrossTenantDenied: async () => {},
+    logAdminAccessDenied: async () => {},
+  } as unknown as SecurityLoggerService;
+
   TestBed.configureTestingModule({
     providers: [
       { provide: OrgContextService, useValue: orgService },
       { provide: Router, useValue: router },
+      { provide: SecurityLoggerService, useValue: securityLogger },
     ],
   });
   return { subject };
@@ -86,12 +93,13 @@ describe('org.guards (membership-driven)', () => {
             orgId: BURKINA_ORG,
             role: 'program_admin',
             status: 'active',
+            assignedBy: 'super-admin',
           },
         ],
         availableOrgIds: [BURKINA_ORG],
       })
     );
-    const result = await runGuard(belongsToOrg(MAIN_ORG));
+    const result = await runGuard(belongsToOrg(() => MAIN_ORG));
     // belongsToOrg should NOT return true for the main org — it should
     // emit a redirect (UrlTree) or false.
     expect(result === true).toBeFalse();
@@ -112,12 +120,13 @@ describe('org.guards (membership-driven)', () => {
             orgId: BURKINA_ORG,
             role: 'program_admin',
             status: 'active',
+            assignedBy: 'super-admin',
           },
         ],
         availableOrgIds: [BURKINA_ORG],
       })
     );
-    const result = await runGuard(belongsToOrg(BURKINA_ORG));
+    const result = await runGuard(belongsToOrg(() => BURKINA_ORG));
     expect(result).toBe(true);
   });
 

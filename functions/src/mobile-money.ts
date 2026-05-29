@@ -110,7 +110,7 @@ async function postJson(
     method: "POST",
     headers: {
       "content-type": "application/json",
-      accept: "application/json",
+      "accept": "application/json",
       ...headers,
     },
     body: JSON.stringify(payload),
@@ -126,8 +126,16 @@ async function postJson(
   }
 
   if (!response.ok) {
-    const message = String(json.message || json.code || json.error || `Mobile Money provider returned ${response.status}`);
-    console.error("[postJson] provider error", { status: response.status, responseBody: json });
+    const message = String(
+      json.message ||
+      json.code ||
+      json.error ||
+      `Mobile Money provider returned ${response.status}`,
+    );
+    console.error("[postJson] provider error", {
+      status: response.status,
+      responseBody: json,
+    });
     throw new Error(message);
   }
 
@@ -160,9 +168,9 @@ async function createCentpayCharge(
     `${normalizeBaseUrl(config.baseUrl)}/payments/mobile-money`,
     payload,
     {
-      authorization: `Bearer ${config.apiKey}`,
+      "authorization": `Bearer ${config.apiKey}`,
       "x-signature": signPayload(config.apiSecret, body),
-    }
+    },
   );
 
   return {
