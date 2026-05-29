@@ -8,6 +8,8 @@
     "postbuild": "node scripts/prerender-marketing-seo-locales.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "typecheck": "tsc --noEmit",
+    "security:audit": "npm audit --audit-level=high",
     "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\""
   },
   "prettier": {
