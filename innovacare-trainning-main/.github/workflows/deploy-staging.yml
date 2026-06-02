@@ -17,12 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yml
-
   deploy:
     name: Deploy to Firebase Staging
-    needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
@@ -34,6 +30,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
+
+      - name: Set up Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Set up Node.js LTS
         uses: actions/setup-node@v4
@@ -64,6 +66,34 @@ jobs:
         run: npm ci
         working-directory: innovacare-training
 
+      - name: Run root lint if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'lint')" | grep -qx true; then
+            npm run lint
+          else
+            echo "No root lint script configured; skipping."
+          fi
+
+      - name: Run type checks if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'typecheck')" | grep -qx true; then
+            npm run typecheck
+          else
+            echo "No root typecheck script configured; skipping."
+          fi
+
+      - name: Run Angular unit tests
+        env:
+          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
+          CI: true
+        shell: bash
+        run: |
+          sudo chown root:root "$(dirname "$CHROME_BIN")/chrome-sandbox"
+          sudo chmod 4755 "$(dirname "$CHROME_BIN")/chrome-sandbox"
+          npm test -- --watch=false --browsers=ChromeHeadless
+
       - name: Build Angular application
         env:
           CI: true
@@ -76,6 +106,27 @@ jobs:
       - name: Build secondary Functions codebase
         run: npm run build
         working-directory: innovacare-training
+
+      - name: Run Firestore rules smoke test
+        run: npm run test:rules:smoke
+
+      - name: Run Communication Center rules smoke test if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'test:communication:smoke')" | grep -qx true; then
+            npm run test:communication:smoke
+          else
+            echo "No Communication Center smoke script configured; skipping."
+          fi
+
+      - name: Run Communication Center persistence smoke test if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'test:communication:persistence')" | grep -qx true; then
+            npm run test:communication:persistence
+          else
+            echo "No Communication Center persistence script configured; skipping."
+          fi
 
       - name: Deploy Hosting and Functions to staging
         env:
@@ -106,18 +157,6 @@ jobs:
           else
             echo "storage_changed=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Run Firestore rules smoke test
-        if: steps.rules_changes.outputs.firestore_changed == 'true'
-        run: npm run test:rules:smoke
-
-      - name: Run Communication Center rules smoke test
-        if: steps.rules_changes.outputs.firestore_changed == 'true'
-        run: npm run test:communication:smoke
-
-      - name: Run Communication Center persistence smoke test
-        if: steps.rules_changes.outputs.firestore_changed == 'true'
-        run: npm run test:communication:persistence
 
       - name: Deploy Firestore rules to staging
         if: steps.rules_changes.outputs.firestore_changed == 'true'
