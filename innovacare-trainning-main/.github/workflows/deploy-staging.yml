@@ -4,6 +4,18 @@ on:
   push:
     branches:
       - develop
+  workflow_dispatch:
+    inputs:
+      deploy_firestore:
+        description: Force Firestore rules and indexes deployment
+        required: false
+        default: true
+        type: boolean
+      deploy_storage:
+        description: Force Storage rules deployment
+        required: false
+        default: false
+        type: boolean
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -147,12 +159,12 @@ jobs:
           else
             CHANGED_FILES="$(git show --pretty='' --name-only "$GITHUB_SHA")"
           fi
-          if printf '%s\n' "$CHANGED_FILES" | grep -Eq '^(firestore\.rules|firestore\.indexes\.json)$'; then
+          if [ "${{ inputs.deploy_firestore }}" = "true" ] || printf '%s\n' "$CHANGED_FILES" | grep -Eq '^(firestore\.rules|firestore\.indexes\.json)$'; then
             echo "firestore_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "firestore_changed=false" >> "$GITHUB_OUTPUT"
           fi
-          if printf '%s\n' "$CHANGED_FILES" | grep -Eq '^storage\.rules$'; then
+          if [ "${{ inputs.deploy_storage }}" = "true" ] || printf '%s\n' "$CHANGED_FILES" | grep -Eq '^storage\.rules$'; then
             echo "storage_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "storage_changed=false" >> "$GITHUB_OUTPUT"
