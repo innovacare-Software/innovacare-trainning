@@ -86,7 +86,7 @@ export abstract class CommunicationCenterRepository {
       summary: `${input.entityType} draft created in Communication Center.`,
       actionType: 'draft_created',
       beforeState: null,
-      afterState: data,
+      afterState: this.toAuditState(data),
     }));
     await batch.commit();
     return docRef.id;
@@ -143,8 +143,8 @@ export abstract class CommunicationCenterRepository {
       title: `${input.entityType} draft updated`,
       summary: `${input.entityType} draft updated in Communication Center.`,
       actionType: 'draft_updated',
-      beforeState: current,
-      afterState: next,
+      beforeState: this.toAuditState(current),
+      afterState: this.toAuditState(next),
     }));
     await batch.commit();
   }
@@ -242,6 +242,10 @@ export abstract class CommunicationCenterRepository {
       modelVersion: null,
       rollbackReference: null,
     };
+  }
+
+  private toAuditState(value: CommunicationBaseDoc | null): Record<string, unknown> | null {
+    return value ? value as unknown as Record<string, unknown> : null;
   }
 
   private mapErrorCode(error: unknown): RepoErrorCode {
