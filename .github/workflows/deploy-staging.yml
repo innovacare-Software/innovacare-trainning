@@ -51,8 +51,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Install Firebase CLI
-        run: npm install --global firebase-tools
-
+        run: npm install --global firebase-tools@13
       - name: Install root dependencies
         run: npm ci
 
