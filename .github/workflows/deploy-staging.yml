@@ -66,6 +66,7 @@ jobs:
           java-version: '21'
 
       - name: Authenticate to Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_STAGING }}
@@ -156,6 +157,9 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
         run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only hosting,functions
         working-directory: innovacare-trainning-main
 
@@ -188,6 +192,9 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
         run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only firestore:rules,firestore:indexes
         working-directory: innovacare-trainning-main
 
@@ -196,5 +203,8 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
         run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only storage
         working-directory: innovacare-trainning-main
