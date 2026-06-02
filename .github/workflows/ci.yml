@@ -60,6 +60,9 @@ jobs:
         run: npm ci
         working-directory: innovacare-training
 
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
       - name: Run root lint if configured
         shell: bash
         run: |
