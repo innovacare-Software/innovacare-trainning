@@ -245,7 +245,11 @@ export abstract class CommunicationCenterRepository {
   }
 
   private toAuditState(value: CommunicationBaseDoc | null): Record<string, unknown> | null {
-    return value ? value as unknown as Record<string, unknown> : null;
+    if (!value) {
+      return null;
+    }
+
+    return { ...value };
   }
 
   private mapErrorCode(error: unknown): RepoErrorCode {
