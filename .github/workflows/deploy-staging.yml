@@ -65,8 +65,18 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Authenticate to Google Cloud
-        id: auth
+      - name: Authenticate to Google Cloud with service account key
+        id: auth_json
+        if: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_STAGING != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_STAGING }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Authenticate to Google Cloud with workload identity federation
+        id: auth_wif
+        if: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_STAGING == '' }}
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_STAGING }}
@@ -157,9 +167,9 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file_path }}
-          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
         run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only hosting,functions
         working-directory: innovacare-trainning-main
 
@@ -192,9 +202,9 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file_path }}
-          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
         run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only firestore:rules,firestore:indexes
         working-directory: innovacare-trainning-main
 
@@ -203,8 +213,8 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT_ID_STAGING }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file_path }}
-          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth_json.outputs.credentials_file_path || steps.auth_wif.outputs.credentials_file_path }}
         run: firebase deploy --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID_STAGING }}" --only storage
         working-directory: innovacare-trainning-main
