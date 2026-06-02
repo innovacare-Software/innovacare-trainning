@@ -80,6 +80,8 @@ jobs:
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_PRODUCTION }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT_EMAIL_PRODUCTION }}
+          create_credentials_file: true
+          export_environment_variables: true
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
