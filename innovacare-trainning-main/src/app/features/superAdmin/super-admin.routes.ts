@@ -19,6 +19,11 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./dashboard/dashboard').then(m => m.Dashboard),
       },
       {
+        path: 'communication-center',
+        loadChildren: () =>
+          import('../communication-center/communication-center.routes').then(m => m.COMMUNICATION_CENTER_ROUTES),
+      },
+      {
         path: 'organizations',
         loadComponent: () =>
           import('./organizations/organizations').then(m => m.Organizations),

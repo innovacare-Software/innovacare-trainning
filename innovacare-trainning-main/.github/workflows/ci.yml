@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - develop
+      - main
+  workflow_call:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate and Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install default Functions dependencies
+        run: npm ci
+        working-directory: functions
+
+      - name: Install secondary Functions dependencies
+        run: npm ci
+        working-directory: innovacare-training
+
+      - name: Run root lint if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'lint')" | grep -qx true; then
+            npm run lint
+          else
+            echo "No root lint script configured; skipping."
+          fi
+
+      - name: Run type checks if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'typecheck')" | grep -qx true; then
+            npm run typecheck
+          else
+            echo "No root typecheck script configured; skipping."
+          fi
+
+      - name: Run Angular unit tests
+        env:
+          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
+          CI: true
+        shell: bash
+        run: |
+          sudo chown root:root "$(dirname "$CHROME_BIN")/chrome-sandbox"
+          sudo chmod 4755 "$(dirname "$CHROME_BIN")/chrome-sandbox"
+          npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build Angular application
+        env:
+          CI: true
+        run: npm run build -- --configuration production
+
+      - name: Build default Functions codebase
+        run: npm run build
+        working-directory: functions
+
+      - name: Build secondary Functions codebase
+        run: npm run build
+        working-directory: innovacare-training
+
+      - name: Run Firestore rules smoke test
+        run: npm run test:rules:smoke
+
+      - name: Run Communication Center rules smoke test if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'test:communication:smoke')" | grep -qx true; then
+            npm run test:communication:smoke
+          else
+            echo "No Communication Center smoke script configured; skipping."
+          fi
+
+      - name: Run Communication Center persistence smoke test if configured
+        shell: bash
+        run: |
+          if node -p "const scripts=require('./package.json').scripts||{}; Object.prototype.hasOwnProperty.call(scripts,'test:communication:persistence')" | grep -qx true; then
+            npm run test:communication:persistence
+          else
+            echo "No Communication Center persistence script configured; skipping."
+          fi
+
+      - name: Dependency audit handled by Security Scan workflow
+        run: echo "Skipping root audit in Validate and Build. The dedicated Security Scan workflow enforces dependency audits and secret scanning."
+
+      - name: Scan tracked files for hardcoded secrets
+        shell: bash
+        run: |
+          if git grep -nE '(AIza[0-9A-Za-z_-]{35}|sk_(live|test)_[0-9A-Za-z]+|whsec_[0-9A-Za-z]+|-----BEGIN PRIVATE KEY-----|"type"\s*:\s*"service_account")' \
+            -- . \
+            ':(exclude)package-lock.json' \
+            ':(exclude)docs/**' \
+            ':(exclude)build-*.txt' \
+            ':(exclude)deploy-*.txt' \
+            ':(exclude)tmp-*.txt'; then
+            echo "Potential hardcoded secret detected in tracked files."
+            exit 1
+          fi
+          echo "No tracked hardcoded secrets detected by pattern scan."
+
+      - name: Upload CI artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-metadata
+          path: |
+            angular.json
+            firebase.json
+            firestore.rules
+            storage.rules
+          if-no-files-found: error

@@ -20,6 +20,7 @@ import { OrgContextService } from '../../core/organization/org-context.service';
 
       <nav class="oa-nav">
         <a routerLink="/org-admin/dashboard" routerLinkActive="active">Overview</a>
+        <a routerLink="/org-admin/communication-center" routerLinkActive="active">Communication Center</a>
         <a routerLink="/org-admin/users" routerLinkActive="active">Users</a>
         <a routerLink="/org-admin/courses" routerLinkActive="active">Courses</a>
         <a routerLink="/org-admin/assignments" routerLinkActive="active">Assignments</a>
