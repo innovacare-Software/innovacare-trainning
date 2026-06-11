@@ -15,8 +15,8 @@ export class SendgridEmailProvider implements EmailProvider {
         body: JSON.stringify({
           personalizations: [{
             to: [{email: input.to, name: input.toName}],
-            cc: (input.cc || []).map((email) => ({email})),
-            bcc: (input.bcc || []).map((email) => ({email})),
+            ...((input.cc || []).filter(e => !!e).length > 0 && { cc: (input.cc || []).filter(e => !!e).map((email) => ({email})) }),
+            ...((input.bcc || []).filter(e => !!e).length > 0 && { bcc: (input.bcc || []).filter(e => !!e).map((email) => ({email})) }),
             subject: input.subject,
           }],
           from: {
