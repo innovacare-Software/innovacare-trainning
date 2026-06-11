@@ -489,15 +489,19 @@ export class CampaignsPage {
     { initialValue: { items: [] as NewsletterCampaignDoc[], loading: true, error: null } }
   );
 
-  readonly newsletters = computed(() => {
-    const list = toSignal(toObservable(this.orgId).pipe(switchMap((orgId) => this.service.listNewsletters(orgId))));
-    return list()?.items ?? [];
-  });
+  readonly newslettersState = toSignal(
+    toObservable(this.orgId).pipe(switchMap((orgId) => this.service.listNewsletters(orgId))),
+    { initialValue: { items: [], loading: true, error: null } }
+  );
 
-  readonly segments = computed(() => {
-    const list = toSignal(toObservable(this.orgId).pipe(switchMap((orgId) => this.service.listSegments(orgId))));
-    return list()?.items ?? [];
-  });
+  readonly newsletters = computed(() => this.newslettersState().items);
+
+  readonly segmentsState = toSignal(
+    toObservable(this.orgId).pipe(switchMap((orgId) => this.service.listSegments(orgId))),
+    { initialValue: { items: [], loading: true, error: null } }
+  );
+
+  readonly segments = computed(() => this.segmentsState().items);
 
   toggleCreateForm() {
     this.showCreateForm.update((v) => !v);
