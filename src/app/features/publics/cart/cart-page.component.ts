@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
@@ -19,8 +19,8 @@ type CartItem = {
 
 @Component({
   selector: 'app-cart-page',
-  standalone: true,
   imports: [CommonModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="arx-cart-page">
       <header class="arx-cart-hero">
@@ -78,110 +78,123 @@ type CartItem = {
         </div>
       </header>
 
-      <p class="arx-guest-note" *ngIf="!isSignedIn()">
-        You are currently browsing as a guest. Your cart is preserved, but you may be asked to sign in before completing payment.
-      </p>
+      @if (!isSignedIn()) {
+        <p class="arx-guest-note">
+          You are currently browsing as a guest. Your cart is preserved, but you may be asked to sign in before completing payment.
+        </p>
+      }
 
-      <div class="arx-cart-layout" *ngIf="hasItems(); else emptyTpl">
-        <div class="arx-cart-list">
-          <article
-            class="arx-cart-item"
-            *ngFor="let item of items(); let i = index"
-            [style.animationDelay.ms]="i * 70"
-          >
-            <div class="arx-cart-item__thumb">
-              <img
-                [src]="getItemImage(item)"
-                [alt]="item.title || ('Item ' + item.itemId)"
-              />
+      @if (hasItems()) {
+        <div class="arx-cart-layout">
+          <div class="arx-cart-list">
+            @for (item of items(); track item.offerId; let i = $index) {
+              <article
+                class="arx-cart-item"
+                [style.animationDelay.ms]="i * 70"
+              >
+                <div class="arx-cart-item__thumb">
+                  <img
+                    [src]="getItemImage(item)"
+                    [alt]="item.title || ('Item ' + item.itemId)"
+                  />
 
-              <div class="arx-cart-item__overlay"></div>
+                  <div class="arx-cart-item__overlay"></div>
 
-              <div class="arx-cart-item__badges">
-                <span class="arx-pill arx-pill--glass">{{ getItemTypeLabel(item.itemType) }}</span>
-                <span class="arx-pill arx-pill--dark">Qty {{ item.qty }}</span>
-              </div>
-            </div>
+                  <div class="arx-cart-item__badges">
+                    <span class="arx-pill arx-pill--glass">{{ getItemTypeLabel(item.itemType) }}</span>
+                    <span class="arx-pill arx-pill--dark">Qty {{ item.qty }}</span>
+                  </div>
+                </div>
 
-            <div class="arx-cart-item__body">
-              <div class="arx-cart-item__topline">
-                <div>
-                  <h3>{{ item.title || ('Course ' + item.itemId) }}</h3>
-                  <p class="arx-muted">
-                    Ref: {{ item.itemId }} • Offer: {{ item.offerId }}
+                <div class="arx-cart-item__body">
+                  <div class="arx-cart-item__topline">
+                    <div>
+                      <h3>{{ item.title || ('Course ' + item.itemId) }}</h3>
+                      <p class="arx-muted">
+                        Ref: {{ item.itemId }} • Offer: {{ item.offerId }}
+                      </p>
+                    </div>
+
+                    <div class="arx-track-chip">
+                      {{ item.currency }}
+                    </div>
+                  </div>
+
+                  <p class="arx-description">
+                    Premium learning access with fast enrollment flow and secure post-payment activation.
                   </p>
+
+                  <div class="arx-meta-row">
+                    <span class="arx-meta-pill">Instant access after validation</span>
+                    <span class="arx-meta-pill">Secure checkout</span>
+                    <span class="arx-meta-pill">{{ getItemTypeLabel(item.itemType) }}</span>
+                  </div>
                 </div>
 
-                <div class="arx-track-chip">
-                  {{ item.currency }}
+                <div class="arx-cart-item__buybox">
+                  <p class="arx-unit-price">
+                    {{ item.amount | number:'1.2-2' }} {{ item.currency }} / unit
+                  </p>
+                  <strong class="arx-item-total">
+                    {{ item.amount * item.qty | number:'1.2-2' }} {{ item.currency }}
+                  </strong>
+                  
+                  <button
+                    type="button"
+                    class="arx-btn-remove"
+                    (click)="removeItem(item.offerId)"
+                    [disabled]="loading()"
+                  >
+                    <span class="remove-icon">✕</span> Remove
+                  </button>
+
+                  <small class="arx-buybox-note">Taxes and gateway rules may apply at checkout.</small>
                 </div>
-              </div>
+              </article>
+            }
+          </div>
 
-              <p class="arx-description">
-                Premium learning access with fast enrollment flow and secure post-payment activation.
-              </p>
+          <aside class="arx-summary-card">
+            <p class="arx-summary-eyebrow">Order summary</p>
+            <h2>Total cart</h2>
+            <p class="arx-summary-amount">
+              {{ amountTotal() | number:'1.2-2' }} {{ currency() }}
+            </p>
 
-              <div class="arx-meta-row">
-                <span class="arx-meta-pill">Instant access after validation</span>
-                <span class="arx-meta-pill">Secure checkout</span>
-                <span class="arx-meta-pill">{{ getItemTypeLabel(item.itemType) }}</span>
-              </div>
+            <div class="arx-summary-lines">
+              <p><span>Line items</span><strong>{{ items().length }}</strong></p>
+              <p><span>Total seats</span><strong>{{ itemCount() }}</strong></p>
+              <p><span>Payment mode</span><strong>Secure checkout</strong></p>
             </div>
 
-            <div class="arx-cart-item__buybox">
-              <p class="arx-unit-price">
-                {{ item.amount | number:'1.2-2' }} {{ item.currency }} / unit
-              </p>
-              <strong class="arx-item-total">
-                {{ item.amount * item.qty | number:'1.2-2' }} {{ item.currency }}
-              </strong>
-              <small class="arx-buybox-note">Taxes and gateway rules may apply at checkout.</small>
+            <button
+              class="arx-btn arx-btn--primary arx-btn--full"
+              type="button"
+              (click)="checkout()"
+              [disabled]="loading()"
+            >
+              {{ loading() ? 'Redirecting...' : 'Proceed to checkout' }}
+            </button>
+
+            <a class="arx-btn arx-btn--secondary arx-btn--full" routerLink="/catalogue">
+              Add more courses
+            </a>
+
+            <a class="arx-btn arx-btn--ghost arx-btn--full" routerLink="/guest/dashboard">
+              Return to guest dashboard
+            </a>
+
+            <div class="arx-summary-trust">
+              <strong>Why this feels safer</strong>
+              <ul>
+                <li>Encrypted checkout flow</li>
+                <li>Cart preserved across navigation</li>
+                <li>Authentication fallback if required</li>
+              </ul>
             </div>
-          </article>
+          </aside>
         </div>
-
-        <aside class="arx-summary-card">
-          <p class="arx-summary-eyebrow">Order summary</p>
-          <h2>Total cart</h2>
-          <p class="arx-summary-amount">
-            {{ amountTotal() | number:'1.2-2' }} {{ currency() }}
-          </p>
-
-          <div class="arx-summary-lines">
-            <p><span>Line items</span><strong>{{ items().length }}</strong></p>
-            <p><span>Total seats</span><strong>{{ itemCount() }}</strong></p>
-            <p><span>Payment mode</span><strong>Secure checkout</strong></p>
-          </div>
-
-          <button
-            class="arx-btn arx-btn--primary arx-btn--full"
-            type="button"
-            (click)="checkout()"
-            [disabled]="loading()"
-          >
-            {{ loading() ? 'Redirecting...' : 'Proceed to checkout' }}
-          </button>
-
-          <a class="arx-btn arx-btn--secondary arx-btn--full" routerLink="/catalogue">
-            Add more courses
-          </a>
-
-          <a class="arx-btn arx-btn--ghost arx-btn--full" routerLink="/guest/dashboard">
-            Return to guest dashboard
-          </a>
-
-          <div class="arx-summary-trust">
-            <strong>Why this feels safer</strong>
-            <ul>
-              <li>Encrypted checkout flow</li>
-              <li>Cart preserved across navigation</li>
-              <li>Authentication fallback if required</li>
-            </ul>
-          </div>
-        </aside>
-      </div>
-
-      <ng-template #emptyTpl>
+      } @else {
         <div class="arx-empty-card">
           <div class="arx-empty-card__icon">🛒</div>
           <h3>Your cart is empty</h3>
@@ -194,7 +207,7 @@ type CartItem = {
             <a class="arx-btn arx-btn--primary" routerLink="/catalogue">View catalogue</a>
           </div>
         </div>
-      </ng-template>
+      }
     </section>
   `,
   styles: [
@@ -825,6 +838,33 @@ type CartItem = {
           transition: none;
         }
       }
+
+      .arx-btn-remove {
+        background: none;
+        border: none;
+        color: #e02424;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 8px;
+        margin-top: 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .arx-btn-remove:hover:not(:disabled) {
+        background-color: rgba(224, 36, 36, 0.08);
+        color: #9b1c1c;
+      }
+      .arx-btn-remove:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .remove-icon {
+        font-size: 0.75rem;
+      }
     `,
   ],
 })
@@ -899,6 +939,18 @@ export class CartPageComponent implements OnInit {
 
       this.loading.set(false);
       console.error('Cart checkout failed', e);
+    }
+  }
+
+  async removeItem(offerId: string): Promise<void> {
+    this.loading.set(true);
+    try {
+      await this.cart.removeOffer(offerId, 'default');
+      await this.loadRemoteCart();
+    } catch (e) {
+      console.error('Failed to remove item', e);
+    } finally {
+      this.loading.set(false);
     }
   }
 }

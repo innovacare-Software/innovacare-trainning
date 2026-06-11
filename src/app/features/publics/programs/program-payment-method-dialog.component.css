@@ -79,6 +79,36 @@
   color: #678099;
 }
 
+.payment-plan-selector {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.payment-plan-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #d8e5f2;
+  border-radius: 1rem;
+  cursor: pointer;
+  background: #f8fbff;
+}
+
+.payment-plan-card p {
+  margin: 0.2rem 0 0;
+  color: #5f7891;
+  font-size: 0.9rem;
+}
+
+.payment-plan-card--active {
+  border-color: #1c5fa8;
+  box-shadow: 0 0 0 2px rgba(28, 95, 168, 0.12);
+  background: #eef5fd;
+}
+
 .payment-feedback {
   margin-top: 1rem;
   padding: 0.95rem 1rem;

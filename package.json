@@ -10,7 +10,12 @@
     "test": "ng test",
     "typecheck": "tsc --noEmit",
     "security:audit": "npm audit --audit-level=high",
-    "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\""
+    "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\"",
+    "test:ai:org-scope": "npm --prefix functions run build && firebase emulators:exec --config firebase.ai-test.json --only firestore \"node functions/scripts/agentic-org-scope-smoke.cjs\"",
+    "test:ai:org-admin-ui": "ng test --watch=false --browsers=ChromeHeadless --include=src/app/features/superAdmin/ai-command-center/ai-command-center.page.spec.ts",
+    "seed:communication:mocks": "firebase emulators:exec --config firebase.communication-test.json --only firestore \"node scripts/seed-communication-center-mocks.mjs\"",
+    "test:communication:smoke": "firebase emulators:exec --config firebase.communication-test.json --only firestore \"node scripts/communication-center-rules-smoke.mjs\"",
+    "test:communication:persistence": "firebase emulators:exec --config firebase.communication-test.json --only firestore \"node scripts/communication-center-persistence-smoke.mjs\""
   },
   "prettier": {
     "printWidth": 100,

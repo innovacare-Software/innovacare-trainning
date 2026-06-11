@@ -627,6 +627,15 @@ export const routes: Routes = [
   },
 
   {
+    path: 'force-password-change',
+    canActivate: [authenticatedGuard],
+    loadComponent: () =>
+      import('./features/auth/force-password-change/force-password-change.page').then(
+        (m) => m.ForcePasswordChangePage
+      )
+  },
+
+  {
     path: 'admin-spaces',
     canActivate: [authenticatedGuard],
     loadComponent: () =>
@@ -833,6 +842,22 @@ export const routes: Routes = [
     ...marketingChildren('fr'),
   ],
 },
+
+  // ── Lab Engine (learner player + session) ──────────────────────────────────
+  {
+    path: 'labs',
+    loadChildren: () =>
+      import('./features/lab-engine/routes').then((m) => m.LAB_ENGINE_ROUTES),
+  },
+  // Legacy /admin/labs is now program-scoped. Redirect all entry points.
+  { path: 'admin/labs', redirectTo: '/program-admin/programs', pathMatch: 'full' },
+  { path: 'admin/labs/new', redirectTo: '/program-admin/programs', pathMatch: 'full' },
+  { path: 'admin/labs/:labId', redirectTo: '/program-admin/programs', pathMatch: 'full' },
+  {
+    path: 'instructor/lab-submissions',
+    loadChildren: () =>
+      import('./features/lab-engine/routes').then((m) => m.INSTRUCTOR_LAB_ROUTES),
+  },
 
   { path: '**', redirectTo: '/home' }
 ];

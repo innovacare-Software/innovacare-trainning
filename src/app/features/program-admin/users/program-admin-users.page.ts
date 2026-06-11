@@ -51,6 +51,7 @@ const ROLE_LABELS: Record<ProgramAdminUserRole, string> = {
               <th>Status</th>
               <th>Org</th>
               <th>Created</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -65,6 +66,9 @@ const ROLE_LABELS: Record<ProgramAdminUserRole, string> = {
               </td>
               <td>{{ u.orgId || '—' }}</td>
               <td>{{ asDate(u.createdAt) ? (asDate(u.createdAt) | date:'medium') : '—' }}</td>
+              <td>
+                <button type="button" class="btn-secondary" (click)="resetPassword(u)">Reset password</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -160,6 +164,8 @@ const ROLE_LABELS: Record<ProgramAdminUserRole, string> = {
 export class ProgramAdminUsersPage {
   private readonly users = inject(ProgramAdminUsersService);
   private readonly auth = inject(AuthService);
+
+  private readonly passwordAlphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
 
   readonly profile = toSignal(this.auth.profile$, { initialValue: null as any });
   readonly isSuperAdmin = computed(() => {
@@ -272,6 +278,52 @@ export class ProgramAdminUsersPage {
       this.form = this.blankForm();
     } catch (err: any) {
       this.error.set(err?.message || 'Failed to create user.');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  private generateTemporaryPassword(length = 14): string {
+    const bytes = new Uint32Array(length);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (value) => this.passwordAlphabet[value % this.passwordAlphabet.length]).join('');
+  }
+
+  private async copyToClipboard(value: string): Promise<boolean> {
+    try {
+      if (!navigator?.clipboard?.writeText) {
+        return false;
+      }
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async resetPassword(user: OrgUserRow): Promise<void> {
+    this.error.set('');
+    this.successMsg.set('');
+
+    const password = this.generateTemporaryPassword();
+    const confirmed = window.confirm(
+      `Generate and apply a temporary password for ${user.email || user.uid}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loading.set(true);
+    try {
+      const result = await this.users.resetUserPassword({ uid: user.uid, password });
+      const target = result.email || user.email || user.uid;
+      const copied = await this.copyToClipboard(password);
+      this.successMsg.set(
+        `Temporary password set for ${target}: ${password}${copied ? ' (copied to clipboard)' : ''}`
+      );
+    } catch (err: any) {
+      this.error.set(err?.message || 'Failed to reset user password.');
     } finally {
       this.loading.set(false);
     }

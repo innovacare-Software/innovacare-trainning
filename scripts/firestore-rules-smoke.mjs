@@ -57,6 +57,18 @@ async function run() {
         orgId: 'orgB',
         active: true,
       });
+      await setDoc(doc(db, 'users/guestIso'), {
+        role: 'guest',
+        primaryRole: 'guest',
+        isActive: true,
+        onboarding: {
+          version: 'v1',
+          completedStepIds: [],
+          minimized: false,
+          dismissedAt: null,
+          completedAt: null,
+        },
+      });
       await setDoc(doc(db, 'userOrgMemberships/mgrA__orgA'), {
         userId: 'mgrA',
         orgId: 'orgA',
@@ -225,11 +237,13 @@ async function run() {
     const managerCtx = testEnv.authenticatedContext('mgrA');
     const superCtx = testEnv.authenticatedContext('superA');
     const anonCtx = testEnv.unauthenticatedContext();
+    const guestIsoCtx = testEnv.authenticatedContext('guestIso');
 
     const learnerDb = learnerCtx.firestore();
     const managerDb = managerCtx.firestore();
     const superDb = superCtx.firestore();
     const anonDb = anonCtx.firestore();
+    const guestIsoDb = guestIsoCtx.firestore();
 
     // 1) Learner cannot read consolidated admin notifications, but can mark read-state for self.
     await assertFails(getDoc(doc(learnerDb, 'notifications/n1')));
@@ -323,6 +337,42 @@ async function run() {
     );
     await assertFails(getDoc(doc(managerDb, 'adminNotifications/an-orgB')));
     await assertSucceeds(getDoc(doc(superDb, 'adminNotifications/an-orgB')));
+
+    // 11) A signed-in user can persist onboarding state on their own profile.
+    await assertSucceeds(
+      setDoc(
+        doc(learnerDb, 'users/learnerA'),
+        {
+          onboarding: {
+            version: 'v1',
+            completedStepIds: ['welcome'],
+            minimized: true,
+            dismissedAt: null,
+            completedAt: null,
+            updatedAt: serverTimestamp(),
+          },
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      )
+    );
+    await assertSucceeds(
+      setDoc(
+        doc(guestIsoDb, 'users/guestIso'),
+        {
+          onboarding: {
+            version: 'v1',
+            completedStepIds: ['welcome'],
+            minimized: true,
+            dismissedAt: null,
+            completedAt: null,
+            updatedAt: serverTimestamp(),
+          },
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      )
+    );
 
     console.log('Firestore rules smoke test: PASS');
   } finally {

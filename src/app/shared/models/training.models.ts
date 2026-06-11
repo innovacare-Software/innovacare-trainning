@@ -28,6 +28,10 @@ export interface Course {
   orgId?: string | null;   // 🔥
   orgType?: 'health'|'IT'|'school';
   isPublic?: boolean;      // 🔥 B2C vs B2B
+  publicPrice?: number;
+  publicCurrency?: string;
+  stripePriceId?: string;
+  stripeProductId?: string;
   passingScore: number;      // e.g. 80
   lockedSequence: boolean;   // require module order
   published: boolean;

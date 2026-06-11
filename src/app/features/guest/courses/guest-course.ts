@@ -1,4 +1,4 @@
-import { Component, inject, Signal } from '@angular/core';
+import { Component, inject, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { KeyValuePipe } from '@angular/common';
@@ -26,10 +26,10 @@ interface GuestCourseRow {
 
 @Component({
   selector: 'app-guest-courses',
-  standalone: true,
   imports: [CommonModule, RouterModule],
- templateUrl: './guest-course.html',
+  templateUrl: './guest-course.html',
   styleUrls: ['./guest-course.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GuestCoursesComponent {
   private guestEnrollments = inject(GuestEnrollmentsService);
@@ -67,7 +67,7 @@ export class GuestCoursesComponent {
   );
 
   openCourse(row: GuestCourseRow) {
-    if (!row.course?.id || !row.enrollment?.id) return;
+    if (!row.enrollment?.id) return;
     this.router.navigate(['/guest/courses', row.enrollment.id, 'player']);
   }
 

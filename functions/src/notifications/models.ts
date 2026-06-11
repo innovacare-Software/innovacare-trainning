@@ -11,6 +11,7 @@ export type NotificationEventType =
   | "CHECKOUT_STARTED"
   | "PAYMENT_SUCCEEDED"
   | "PAYMENT_FAILED"
+  | "LOGIN_SUCCESS_NEW_DEVICE"
   | "PURCHASE_CONFIRMATION"
   | "COURSE_ACCESS_GRANTED"
   | "ACCOUNT_CREATED"
@@ -42,6 +43,9 @@ export type NotificationEventType =
   | "READINESS_DECISION_READY"
   | "AI_PROJECT_SUBMITTED"
   | "DEVOPS_LAB_SUBMITTED"
+  | "LAB_ADDED_TO_PROGRAM"
+  | "MODULE_ADDED_TO_PROGRAM"
+  | "LAB_SUBMITTED_LEARNER"
   | "SYSTEM_ERROR"
   | "WEBHOOK_ERROR";
 
@@ -173,6 +177,19 @@ export type SendEmailInput = {
 };
 
 export type SendEmailResult = {
+  success: boolean;
+  provider: string;
+  providerMessageId?: string;
+  errorMessage?: string;
+};
+
+export type SendSmsInput = {
+  to: string;
+  from: string;
+  body: string;
+};
+
+export type SendSmsResult = {
   success: boolean;
   provider: string;
   providerMessageId?: string;

@@ -69,6 +69,10 @@ export interface Course {
   releaseAt?: any;
   publishedAt?: any;
   isPublic?: boolean;
+  publicPrice?: number;
+  publicCurrency?: string;
+  stripePriceId?: string;
+  stripeProductId?: string;
   passingScore: number;
   lockedSequence: boolean;
   exipirationDate?: any;

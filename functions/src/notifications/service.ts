@@ -236,6 +236,16 @@ export async function seedDefaultTemplatesIfMissing(): Promise<void> {
   }
 }
 
+/**
+ * Removes all keys whose value is strictly `undefined` so Firestore does not
+ * throw "Cannot use undefined as a Firestore value".
+ */
+function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined),
+  ) as Partial<T>;
+}
+
 export async function createNotificationEvent(input: CreateNotificationEventInput): Promise<{id: string; created: boolean}> {
   if (input.idempotencyKey) {
     const existing = await db()
@@ -250,14 +260,14 @@ export async function createNotificationEvent(input: CreateNotificationEventInpu
   }
 
   const ref = db().collection(EVENTS_COLLECTION).doc();
-  await ref.set({
+  await ref.set(stripUndefined({
     ...input,
     id: ref.id,
-    status: "PENDING",
+    status: "PENDING" as const,
     retryCount: 0,
     createdAt: timestampNow(),
     updatedAt: timestampNow(),
-  });
+  }));
 
   return {id: ref.id, created: true};
 }

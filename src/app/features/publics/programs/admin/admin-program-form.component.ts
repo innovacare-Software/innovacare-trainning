@@ -8,6 +8,7 @@ import {
   ProgramCategory,
   ProgramDeliveryMode,
   ProgramLevel,
+  ProgramPaymentPlanType,
   ProgramStatus,
 } from '../program.models';
 import { ProgramsService } from '../programs.service';
@@ -31,6 +32,7 @@ export class AdminProgramFormComponent {
   readonly levels = Object.values(ProgramLevel);
   readonly modes = Object.values(ProgramDeliveryMode);
   readonly statuses = Object.values(ProgramStatus);
+  readonly paymentPlanTypes: ProgramPaymentPlanType[] = ['one_time', 'monthly_subscription', 'installments'];
 
   readonly form = this.fb.group({
     title: this.fb.nonNullable.control('', [Validators.required]),
@@ -47,6 +49,14 @@ export class AdminProgramFormComponent {
     price: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
     discountPrice: this.fb.control<number | null>(null),
     currency: this.fb.nonNullable.control('USD'),
+    availablePaymentPlans: this.fb.nonNullable.control<ProgramPaymentPlanType[]>(['one_time']),
+    defaultPaymentPlan: this.fb.nonNullable.control<ProgramPaymentPlanType>('one_time'),
+    stripeOneTimePriceId: this.fb.nonNullable.control(''),
+    stripeMonthlyPriceId: this.fb.nonNullable.control(''),
+    monthlyPrice: this.fb.control<number | null>(null),
+    stripeInstallmentPriceId: this.fb.nonNullable.control(''),
+    installmentPrice: this.fb.control<number | null>(null),
+    installmentCount: this.fb.control<number | null>(null),
     level: this.fb.nonNullable.control(ProgramLevel.BEGINNER),
     deliveryMode: this.fb.nonNullable.control(ProgramDeliveryMode.ONLINE),
     isFeatured: this.fb.nonNullable.control(false),
@@ -105,6 +115,14 @@ export class AdminProgramFormComponent {
       price: Number(value.price || 0),
       discountPrice: value.discountPrice,
       currency: value.currency as Program['currency'],
+      availablePaymentPlans: this.normalizePaymentPlans(value.availablePaymentPlans),
+      defaultPaymentPlan: this.resolveDefaultPaymentPlan(value.defaultPaymentPlan, value.availablePaymentPlans),
+      stripeOneTimePriceId: value.stripeOneTimePriceId.trim() || null,
+      stripeMonthlyPriceId: value.stripeMonthlyPriceId.trim() || null,
+      monthlyPrice: value.monthlyPrice != null ? Number(value.monthlyPrice) : null,
+      stripeInstallmentPriceId: value.stripeInstallmentPriceId.trim() || null,
+      installmentPrice: value.installmentPrice != null ? Number(value.installmentPrice) : null,
+      installmentCount: value.installmentCount != null ? Number(value.installmentCount) : null,
       level: value.level,
       deliveryMode: value.deliveryMode,
       isFeatured: value.isFeatured,
@@ -136,6 +154,31 @@ export class AdminProgramFormComponent {
       .filter(Boolean);
   }
 
+  paymentPlanLabel(plan: ProgramPaymentPlanType): string {
+    switch (plan) {
+      case 'monthly_subscription':
+        return 'Monthly subscription';
+      case 'installments':
+        return 'Installments';
+      case 'one_time':
+      default:
+        return 'One-time payment';
+    }
+  }
+
+  togglePaymentPlan(plan: ProgramPaymentPlanType, enabled: boolean): void {
+    const currentPlans = this.normalizePaymentPlans(this.form.controls.availablePaymentPlans.value);
+    const nextPlans = enabled
+      ? Array.from(new Set([...currentPlans, plan]))
+      : currentPlans.filter((item) => item !== plan);
+    const normalizedNextPlans = this.normalizePaymentPlans(nextPlans);
+
+    this.form.controls.availablePaymentPlans.setValue(normalizedNextPlans);
+    this.form.controls.defaultPaymentPlan.setValue(
+      this.resolveDefaultPaymentPlan(this.form.controls.defaultPaymentPlan.value, normalizedNextPlans)
+    );
+  }
+
   private patchForm(program: Program): void {
     this.form.patchValue({
       title: program.title,
@@ -152,6 +195,14 @@ export class AdminProgramFormComponent {
       price: program.price,
       discountPrice: program.discountPrice ?? null,
       currency: program.currency,
+      availablePaymentPlans: this.normalizePaymentPlans(program.availablePaymentPlans),
+      defaultPaymentPlan: this.resolveDefaultPaymentPlan(program.defaultPaymentPlan, program.availablePaymentPlans),
+      stripeOneTimePriceId: program.stripeOneTimePriceId || '',
+      stripeMonthlyPriceId: program.stripeMonthlyPriceId || '',
+      monthlyPrice: program.monthlyPrice ?? null,
+      stripeInstallmentPriceId: program.stripeInstallmentPriceId || '',
+      installmentPrice: program.installmentPrice ?? null,
+      installmentCount: program.installmentCount ?? null,
       level: program.level,
       deliveryMode: program.deliveryMode,
       isFeatured: !!program.isFeatured,
@@ -165,5 +216,20 @@ export class AdminProgramFormComponent {
       ownerId: program.ownerId || '',
       orgId: program.orgId || '',
     });
+  }
+
+  private normalizePaymentPlans(
+    plans: ProgramPaymentPlanType[] | readonly ProgramPaymentPlanType[] | null | undefined
+  ): ProgramPaymentPlanType[] {
+    const normalized = (plans || []).filter((plan): plan is ProgramPaymentPlanType => this.paymentPlanTypes.includes(plan));
+    return normalized.length ? Array.from(new Set(normalized)) : ['one_time'];
+  }
+
+  private resolveDefaultPaymentPlan(
+    selected: ProgramPaymentPlanType | null | undefined,
+    available: ProgramPaymentPlanType[] | readonly ProgramPaymentPlanType[] | null | undefined
+  ): ProgramPaymentPlanType {
+    const normalized = this.normalizePaymentPlans(available);
+    return selected && normalized.includes(selected) ? selected : normalized[0];
   }
 }

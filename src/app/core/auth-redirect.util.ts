@@ -72,6 +72,10 @@ export function resolveDefaultRoute(
     return '/login';
   }
 
+  if (profile.requirePasswordChange === true) {
+    return '/force-password-change';
+  }
+
   const role = profile.role ?? profile.primaryRole ?? 'guest';
   const capabilities = new AccessCapabilitiesService();
   const adminSpaces = capabilities.getAdminSpaces(profile, ctx);

@@ -19,6 +19,17 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./dashboard/dashboard').then(m => m.Dashboard),
       },
       {
+        path: 'ai-command-center',
+        data: { aiScopeMode: 'global' },
+        loadComponent: () =>
+          import('./ai-command-center/ai-command-center.page').then(m => m.AiCommandCenterPage),
+      },
+      {
+        path: 'communication-center',
+        loadChildren: () =>
+          import('../communication-center/communication-center.routes').then(m => m.COMMUNICATION_CENTER_ROUTES),
+      },
+      {
         path: 'organizations',
         loadComponent: () =>
           import('./organizations/organizations').then(m => m.Organizations),

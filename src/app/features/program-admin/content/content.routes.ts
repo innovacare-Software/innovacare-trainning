@@ -122,6 +122,26 @@ export const CONTENT_ROUTES: Routes = [
           import('./case-studies/case-study-form.page').then((m) => m.CaseStudyFormPage),
       },
       {
+        path: 'labs',
+        loadComponent: () =>
+          import('./labs/labs-list.page').then((m) => m.ProgramLabsListPage),
+      },
+      {
+        path: 'labs/new',
+        loadComponent: () =>
+          import('./labs/lab-form.page').then((m) => m.LabFormPage),
+      },
+      {
+        path: 'labs/:labId/edit',
+        loadComponent: () =>
+          import('./labs/lab-form.page').then((m) => m.LabFormPage),
+      },
+      {
+        path: 'labs/:labId/tasks',
+        loadComponent: () =>
+          import('./labs/lab-tasks.page').then((m) => m.LabTasksPage),
+      },
+      {
         path: 'resources',
         loadComponent: () =>
           import('./resources/resources.page').then((m) => m.ResourcesPage),

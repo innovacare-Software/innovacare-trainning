@@ -76,6 +76,9 @@
           <div>
             <strong>{{ u.displayName || 'Sans nom' }}</strong>
             <p>{{ u.email || 'email inconnu' }}</p>
+            <button class="btn btn-secondary" type="button" (click)="resetUserPassword(u)" [disabled]="saving()">
+              Réinitialiser le mot de passe
+            </button>
           </div>
           <div class="meta">
             <span>{{ u.role || 'n/a' }}</span>

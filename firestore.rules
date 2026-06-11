@@ -131,6 +131,33 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/organizations/$(orgId)/users/$(uid));
     }
 
+    function sameUserActivationState() {
+      return (
+        request.resource.data.active == resource.data.active
+        || (
+          !('active' in resource.data)
+          && !('active' in request.resource.data)
+        )
+      )
+      && (
+        request.resource.data.isActive == resource.data.isActive
+        || (
+          !('isActive' in resource.data)
+          && !('isActive' in request.resource.data)
+        )
+      );
+    }
+
+    function sameUserOrgBinding() {
+      return (
+        request.resource.data.orgId == resource.data.orgId
+        || (
+          !('orgId' in resource.data)
+          && !('orgId' in request.resource.data)
+        )
+      );
+    }
+
     function hasOrgCourse(orgId, courseId) {
       return exists(/databases/$(database)/documents/organizations/$(orgId)/courses/$(courseId));
     }
@@ -245,6 +272,127 @@ service cloud.firestore {
       && request.resource.data.isPublic is bool;
     }
 
+    function canReadCommunicationOrg(orgId) {
+      return isSuperAdmin() || (
+        orgId is string
+        && orgId.size() > 0
+        && sameRequesterOrg(orgId)
+        && requesterOrgId() is string
+        && requesterOrgId().size() > 0
+        && hasActiveMembershipRole(requesterOrgId(), ['org_admin', 'program_admin'])
+      );
+    }
+
+    function canWriteCommunicationOrg(orgId) {
+      return isSuperAdmin() || (
+        orgId is string
+        && orgId.size() > 0
+        && sameRequesterOrg(orgId)
+        && requesterOrgId() is string
+        && requesterOrgId().size() > 0
+        && hasActiveMembershipRole(requesterOrgId(), ['org_admin', 'program_admin'])
+      );
+    }
+
+    function validCommunicationDraftSafety(data) {
+      return data.keys().hasAll(['safety'])
+        && data.safety is map
+        && data.safety.mode == 'draft_only'
+        && data.safety.mockOnly == true
+        && data.safety.provider == 'none'
+        && data.safety.canAutoSend == false;
+    }
+
+    function validCommunicationReadableSafety(data) {
+      return validCommunicationDraftSafety(data)
+        || (
+          data.keys().hasAll(['safety'])
+          && data.safety is map
+          && data.safety.mode == 'live_send'
+          && data.safety.mockOnly == false
+          && data.safety.provider == 'sendgrid'
+          && data.safety.canAutoSend == true
+        );
+    }
+
+    function validCommunicationDraftWrite() {
+      return request.resource.data.orgId is string
+        && request.resource.data.orgId.size() > 0
+        && validCommunicationDraftSafety(request.resource.data);
+    }
+
+    function validCommunicationDraftResource() {
+      return resource.data.orgId is string
+        && resource.data.orgId.size() > 0
+        && validCommunicationReadableSafety(resource.data);
+    }
+
+    function isCommunicationDraftStatus(status) {
+      return status == 'draft'
+        || status == 'approval_pending'
+        || status == 'approved'
+        || status == 'archived';
+    }
+
+    function isApprovalPriority(priority) {
+      return priority == 'low'
+        || priority == 'normal'
+        || priority == 'high'
+        || priority == 'critical';
+    }
+
+    function validTemplateDraftWrite() {
+      return request.resource.data.status is string
+        && isCommunicationDraftStatus(request.resource.data.status);
+    }
+
+    function validSegmentDraftWrite() {
+      return request.resource.data.status is string
+        && isCommunicationDraftStatus(request.resource.data.status);
+    }
+
+    function validNewsletterDraftWrite() {
+      return request.resource.data.status is string
+        && isCommunicationDraftStatus(request.resource.data.status);
+    }
+
+    function validCampaignDraftWrite() {
+      return request.resource.data.status is string
+        && (
+          request.resource.data.status == 'draft'
+          || request.resource.data.status == 'approval_pending'
+          || request.resource.data.status == 'approved'
+          || (
+            request.resource.data.status == 'scheduled'
+            && request.resource.data.scheduledAt is string
+            && resource != null
+            && resource.data.status == 'approved'
+          )
+        );
+    }
+
+    function validApprovalDraftWrite() {
+      return request.resource.data.status is string
+        && (
+          request.resource.data.status == 'pending'
+          || request.resource.data.status == 'approved'
+          || request.resource.data.status == 'rejected'
+        )
+        && request.resource.data.priority is string
+        && isApprovalPriority(request.resource.data.priority);
+    }
+
+    function validAuditDraftWrite() {
+      return request.resource.data.actionType is string
+        && (
+          request.resource.data.actionType == 'draft_created'
+          || request.resource.data.actionType == 'draft_updated'
+          || request.resource.data.actionType == 'approval_requested'
+          || request.resource.data.actionType == 'approval_decision'
+          || request.resource.data.actionType == 'preview_generated'
+        );
+    }
+
     // ---------- Small utils ----------
     function hasOnlyKeys(m, keys) {
       return m.keys().hasOnly(keys);
@@ -269,6 +417,7 @@ service cloud.firestore {
         'active','tags','imageUrl','createdAt','updatedAt','kind','sections','url','code',
         'type','level','lecturer','disclosures','targetAudience','prerequisites',
         'requirements','accomodations','passingScore','lockedSequence','isPublic',
+        'publicPrice','publicCurrency','stripePriceId','stripeProductId',
         'orgId','orgType','healthMeta','releaseAt','publishedAt','exipirationDate',
         'confirmAt','confirmBy','confirmMessage'
       ])
@@ -296,6 +445,10 @@ service cloud.firestore {
       && (!('passingScore' in d) || isNumber(d.passingScore))
       && (!('lockedSequence' in d) || isBool(d.lockedSequence))
       && (!('isPublic' in d) || isBool(d.isPublic))
+      && (!('publicPrice' in d) || isNumber(d.publicPrice))
+      && (!('publicCurrency' in d) || isString(d.publicCurrency))
+      && (!('stripePriceId' in d) || isString(d.stripePriceId))
+      && (!('stripeProductId' in d) || isString(d.stripeProductId))
       && (!('orgId' in d) || d.orgId == null || isString(d.orgId))
       && (!('orgType' in d) || isString(d.orgType))
       && (!('healthMeta' in d) || d.healthMeta is map)
@@ -403,8 +556,8 @@ service cloud.firestore {
         || (
           isSignedIn() && request.auth.uid == uid
           && request.resource.data.role == resource.data.role
-          && request.resource.data.active == resource.data.active
-          && request.resource.data.orgId == resource.data.orgId
+          && sameUserOrgBinding()
+          && sameUserActivationState()
         );
 
       allow delete: if isSuperAdmin();
@@ -683,7 +836,8 @@ service cloud.firestore {
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
         );
-      allow create, update, delete: if false;
+      allow create, update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isSuperAdmin();
     }
 
     match /users/{uid}/guestPrograms/{programAccessId} {
@@ -692,7 +846,8 @@ service cloud.firestore {
           isSignedIn() && request.auth.uid == uid
           && (!('orgId' in resource.data) || sameRequesterOrg(resource.data.orgId))
         );
-      allow create, update, delete: if false;
+      allow create, update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isSuperAdmin();
     }
 
     match /users/{uid}/bookings/{bookingId} {
@@ -997,6 +1152,112 @@ service cloud.firestore {
     match /orgSettings/{orgId} {
       allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       allow write: if isSuperAdmin() || isOrgAdmin(orgId);
+    }
+
+    match /communication_templates/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && validTemplateDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && validTemplateDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /newsletters/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && validNewsletterDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && validNewsletterDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /newsletter_campaigns/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && validCampaignDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && validCampaignDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /newsletter_recipients/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /newsletter_events/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /newsletter_analytics/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /communication_segments/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && validSegmentDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && validSegmentDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /communication_automations/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /communication_approvals/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && validApprovalDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && validApprovalDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
+    }
+
+    match /communication_audits/{docId} {
+      allow get: if validCommunicationDraftResource() && canReadCommunicationOrg(resource.data.orgId);
+      allow list: if canReadCommunicationOrg(resource.data.orgId);
+      allow create: if validCommunicationDraftWrite() && validAuditDraftWrite() && canWriteCommunicationOrg(request.resource.data.orgId);
+      allow update, delete: if validCommunicationDraftResource()
+        && validCommunicationDraftWrite()
+        && validAuditDraftWrite()
+        && request.resource.data.orgId == resource.data.orgId
+        && canWriteCommunicationOrg(resource.data.orgId);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -1793,5 +2054,189 @@ match /bookings/{doc} {
       allow create, update: if false;
       allow delete: if isSuperAdmin();
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // ██  LAB ENGINE  — Innovacare Interactive Lab Engine
+    //     C-1 FIX: Merged from firestore.rules.lab-engine.rules
+    //     Helpers reused from main file: isSignedIn(), isAdmin(), isOwner()
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // ── Lab-engine role helpers ────────────────────────────────────────────────
+    //
+    // ROLE MODEL ALIGNMENT NOTE (P3-Step 2 migration):
+    //
+    // The platform uses two authoritative role sources:
+    //   1. users/{uid}.role — legacy global identity field.
+    //      Currently reliable only for: 'super_admin', 'guest', 'learner'.
+    //      NOT authoritative for instructor/tutor/staff in multi-tenant context.
+    //   2. userOrgMemberships/{uid}__{orgId}.role — membership-based, authoritative
+    //      for all org-scoped admin/instructor/tutor/staff roles.
+    //
+    // For lab engine access:
+    //   - "Admin" = can write lab definitions, seed files (super_admin/admin/manager
+    //     from users.role, OR org_admin from any active membership).
+    //   - "Instructor" = can read solution files, review sessions, grade submissions
+    //     (instructor/tutor/staff from users.role, OR instructor from any active
+    //     membership in any org — labs are platform-wide, not org-scoped).
+    //
+    // The helper below checks BOTH sources to ensure instructors whose role only
+    // appears in userOrgMemberships (not in the legacy users.role field) are covered.
+
+    // Check if the user has an active membership with an instructor-grade role
+    // in ANY organization. Labs are platform-wide, so org is not filtered.
+    // NOTE: Firestore Security Rules do not support collection group queries;
+    // we check the legacy users.role as the primary gate, and rely on the
+    // membership check only when a specific orgId is available in context.
+    // For platform-wide lab access, users.role is the practical gate.
+
+    function isLabAdminRole() {
+      return isSignedIn() && (
+        isAdmin()  // covers super_admin + /admins/{uid} allow-list
+        || userRole(request.auth.uid) in ['admin', 'manager']
+      );
+    }
+
+    function isLabInstructorOrAdmin() {
+      return isSignedIn() && (
+        // Global roles from users/{uid}.role (super_admin, admin, manager,
+        // instructor, tutor, staff — these are set explicitly by super_admin
+        // for platform-level instructors who are not tenant-specific).
+        userRole(request.auth.uid) in ['super_admin', 'admin', 'manager', 'instructor', 'tutor', 'staff']
+        // /admins/{uid} allow-list (belt-and-suspenders for super_admin proxies)
+        || (
+          exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+          && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true
+        )
+      );
+    }
+
+    // ── Lab Definitions (platform-managed, read-only for learners) ────────────
+    // Learners can only see PUBLISHED labs.
+    // Admins/instructors can read ALL statuses (including DRAFT).
+    // Only admins can write — learners CANNOT write labDefinitions.
+
+    match /labDefinitions/{labId} {
+      allow read: if isSignedIn() && (
+        resource.data.status == 'PUBLISHED' || isLabInstructorOrAdmin()
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /labDefinitions/{labId}/tasks/{taskId} {
+      // Only PUBLISHED lab tasks readable by learners; admins see all
+      allow read: if isSignedIn() && (
+        get(/databases/$(database)/documents/labDefinitions/$(labId)).data.status == 'PUBLISHED'
+        || isLabInstructorOrAdmin()
+      );
+      allow write: if isAdmin();
+    }
+
+    match /labDefinitions/{labId}/fileDefs/{fileDefId} {
+      allow read: if isSignedIn() && (
+        get(/databases/$(database)/documents/labDefinitions/$(labId)).data.status == 'PUBLISHED'
+        || isLabInstructorOrAdmin()
+      );
+      allow write: if isAdmin();
+    }
+
+    // ── Lab Sessions (learner-owned) ───────────────────────────────────────────
+    // Learners read/write ONLY their own session.
+    // Immutable userId and labId prevent session hijacking.
+    // Instructors/admins can read all for review.
+
+    match /labSessions/{sessionId} {
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isLabInstructorOrAdmin()
+      );
+
+      // Learner creates session for themselves only; initial statuses only
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status in ['NOT_STARTED', 'IN_PROGRESS'];
+
+      // Learner updates own session but CANNOT change userId or labId
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.labId  == resource.data.labId;
+
+      allow delete: if isAdmin();
+
+      // ── Workspace file metadata (sub-collection) ──────────────────────────
+      // Metadata only — actual file content lives in Firebase Storage.
+      // contentPreview is capped at 500 chars to enforce small doc size.
+
+      match /workspaceFiles/{fileId} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/labSessions/$(sessionId)).data.userId == request.auth.uid
+          || isLabInstructorOrAdmin()
+        );
+
+        allow create: if isSignedIn()
+          && get(/databases/$(database)/documents/labSessions/$(sessionId)).data.userId == request.auth.uid
+          && (!('contentPreview' in request.resource.data)
+              || request.resource.data.contentPreview.size() <= 500);
+
+        allow update: if isSignedIn()
+          && get(/databases/$(database)/documents/labSessions/$(sessionId)).data.userId == request.auth.uid
+          && (!('contentPreview' in request.resource.data)
+              || request.resource.data.contentPreview.size() <= 500);
+
+        allow delete: if isAdmin();
+      }
+
+      // ── Validation Runs (sub-collection) ──────────────────────────────────
+      // Learner creates; instructor/admin can read all.
+
+      match /validationRuns/{runId} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/labSessions/$(sessionId)).data.userId == request.auth.uid
+          || isLabInstructorOrAdmin()
+        );
+        // Only the session owner may create a validation run
+        allow create: if isSignedIn()
+          && get(/databases/$(database)/documents/labSessions/$(sessionId)).data.userId == request.auth.uid;
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // ── Lab Submissions (learner creates, instructor reviews) ─────────────────
+    // Learner can read own submission. Instructors/admins read all.
+    // Only instructor/admin can update (review feedback).
+
+    match /labSubmissions/{submissionId} {
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isLabInstructorOrAdmin()
+      );
+
+      // Learner submits their own; must start PENDING and match their uid
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.instructorReviewStatus == 'PENDING';
+
+      // Instructors may update review status/feedback only;
+      // userId, labId, sessionId are immutable after creation
+      allow update: if isLabInstructorOrAdmin()
+        && request.resource.data.userId    == resource.data.userId
+        && request.resource.data.labId     == resource.data.labId
+        && request.resource.data.sessionId == resource.data.sessionId;
+
+      allow delete: if isAdmin();
+    }
+
+    // ── AI Coach Interaction Log (rate-limiting audit trail) ──────────────────
+    // Only learner can create their own log; instructors/admins can read all.
+
+    match /labCoachLogs/{logId} {
+      allow read: if isLabInstructorOrAdmin();
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // END LAB ENGINE
+    // ══════════════════════════════════════════════════════════════════════════
+
   }
 }

@@ -619,14 +619,21 @@ export class CataloguePage  {
       source: 'catalog-page',
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.snackBar.open(`"${course.title}" ajouté au parcours.`, 'Fermer', {
+        this.snackBar.open(`"${course.title}" ajouté à votre catalogue.`, 'Fermer', {
           duration: 4000,
         });
       },
-      error: (error) => {
+      error: async (error) => {
+        if (error?.message === 'AUTH_REQUIRED_FOR_CATALOGUE') {
+          await this.router.navigate(['/register'], {
+            queryParams: { returnUrl: this.router.url },
+          });
+          return;
+        }
+
         console.error('Erreur addToPathway', error);
         this.snackBar.open(
-          'Impossible d’ajouter ce cours au parcours.',
+          'Impossible d’ajouter ce cours à votre catalogue.',
           'Fermer',
           { duration: 5000 }
         );

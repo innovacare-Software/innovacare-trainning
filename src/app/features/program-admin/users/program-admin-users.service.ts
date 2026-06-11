@@ -37,6 +37,17 @@ export interface CreateOrgUserResult {
   email: string;
 }
 
+export interface ResetOrgUserPasswordPayload {
+  uid: string;
+  password: string;
+}
+
+export interface ResetOrgUserPasswordResult {
+  ok: boolean;
+  uid: string;
+  email: string | null;
+}
+
 export interface InviteLearnerPayload {
   programId: string;
   email: string;
@@ -81,6 +92,14 @@ export class ProgramAdminUsersService {
     const callable = httpsCallable<CreateOrgUserPayload, CreateOrgUserResult>(
       this.functions,
       'createOrgUser'
+    );
+    return callable(payload).then((r) => r.data);
+  }
+
+  resetUserPassword(payload: ResetOrgUserPasswordPayload): Promise<ResetOrgUserPasswordResult> {
+    const callable = httpsCallable<ResetOrgUserPasswordPayload, ResetOrgUserPasswordResult>(
+      this.functions,
+      'resetOrgUserPassword'
     );
     return callable(payload).then((r) => r.data);
   }

@@ -128,6 +128,8 @@ export class LearnerSpaceShellComponent {
       { route: 'exam-prep', label: this.t('programs.learnerSpace.shell.nav.examPrep'), icon: 'school', exact: false, badge: undefined, queryParams: undefined },
       { route: 'simulations', label: this.t('programs.learnerSpace.shell.nav.simulations'), icon: 'monitor_heart', exact: false, badge: undefined, queryParams: undefined },
       { route: 'case-studies', label: this.t('programs.learnerSpace.shell.nav.caseStudies'), icon: 'assignment', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'labs', label: this.t('programs.learnerSpace.shell.nav.labs'), icon: 'science', exact: false, badge: undefined, queryParams: undefined },
+      { route: 'resources', label: this.t('programs.learnerSpace.shell.nav.resources'), icon: 'folder_open', exact: false, badge: undefined, queryParams: undefined },
       { route: 'study-calendar', label: this.t('programs.learnerSpace.shell.nav.studyCalendar'), icon: 'calendar_month', exact: false, badge: undefined, queryParams: undefined },
       { route: 'assistant', label: this.t('nav.aiAssistant'), icon: 'smart_toy', exact: false, badge: undefined, queryParams: assistantQp },
       { route: 'wallet', label: this.t('programs.learnerSpace.shell.wallet'), icon: 'account_balance_wallet', exact: false, badge: experience?.walletPoints ? String(experience.walletPoints) : undefined, queryParams: undefined },

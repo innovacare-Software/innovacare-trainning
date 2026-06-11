@@ -75,6 +75,18 @@
       }
     </nav>
 
+    <!-- ── Sidebar Logout ─────────────────────────────────────── -->
+    <div class="ls-sidebar-divider"></div>
+    <button
+      id="learner-sidebar-logout"
+      type="button"
+      class="ls-logout-btn"
+      (click)="logout()"
+      aria-label="Sign out of your account">
+      <span class="ls-nav-icon"><mat-icon>logout</mat-icon></span>
+      <span class="ls-nav-label">Sign Out</span>
+    </button>
+
     <div class="ls-app-card">
       <p class="ls-app-card__title">{{ t('programs.learnerSpace.shell.appPromoTitle') }}<span>{{ t('programs.learnerSpace.shell.appPromoSubtitle') }}</span></p>
       <div class="ls-app-btns">
@@ -134,6 +146,15 @@
               <a [routerLink]="['/my-programs', programId(), 'dashboard']">{{ t('nav.dashboard') }}</a>
               <a [routerLink]="['/my-programs', programId(), 'wallet']">{{ t('programs.learnerSpace.shell.wallet') }}</a>
               <a [routerLink]="['/my-programs', programId(), 'order-history']">{{ t('programs.learnerSpace.shell.nav.orderHistory') }}</a>
+              <button
+                id="learner-topbar-logout"
+                type="button"
+                class="ls-dropdown-logout"
+                (click)="logout()"
+                aria-label="Sign out">
+                <mat-icon>logout</mat-icon>
+                Sign Out
+              </button>
             </div>
           </div>
         </div>

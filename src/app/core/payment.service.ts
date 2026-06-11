@@ -11,6 +11,7 @@ export interface CreateProgramPaymentIntentInput {
   programId: string;
   enrollmentId: string;
   paymentMethod: HybridPaymentMethod;
+  paymentPlan?: 'one_time' | 'monthly_subscription' | 'installments';
   phone?: string;
   provider?: string;
 }
@@ -90,6 +91,7 @@ export class PaymentService {
         programId: string;
         enrollmentId: string;
         paymentMethod: HybridPaymentMethod;
+        paymentPlan?: 'one_time' | 'monthly_subscription' | 'installments';
         phone?: string;
         provider?: string;
         successUrl: string;

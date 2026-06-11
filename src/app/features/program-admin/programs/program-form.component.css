@@ -49,6 +49,20 @@ h3 {
   grid-column: 1 / -1;
 }
 
+.payment-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #35516f;
+  font-size: 0.9rem;
+}
+
 .seed-picker__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

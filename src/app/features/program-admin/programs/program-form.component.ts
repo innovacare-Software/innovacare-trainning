@@ -8,6 +8,7 @@ import {
   ProgramCategory,
   ProgramDeliveryMode,
   ProgramLevel,
+  ProgramPaymentPlanType,
   ProgramStatus,
 } from '../shared/program-admin.models';
 import { ProgramsAdminService } from '../services/programs-admin.service';
@@ -34,6 +35,7 @@ export class ProgramFormComponent {
   readonly levels = Object.values(ProgramLevel);
   readonly deliveryModes = Object.values(ProgramDeliveryMode);
   readonly statuses = Object.values(ProgramStatus);
+  readonly paymentPlanTypes: ProgramPaymentPlanType[] = ['one_time', 'monthly_subscription', 'installments'];
   readonly selectedSeedSlug = signal('');
   readonly seedTemplates = DEFAULT_PROGRAMS_SEED.map((program) => ({
     slug: program.slug || '',
@@ -56,6 +58,14 @@ export class ProgramFormComponent {
     price: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
     discountPrice: this.fb.control<number | null>(null),
     currency: this.fb.nonNullable.control('USD'),
+    availablePaymentPlans: this.fb.nonNullable.control<ProgramPaymentPlanType[]>(['one_time']),
+    defaultPaymentPlan: this.fb.nonNullable.control<ProgramPaymentPlanType>('one_time'),
+    stripeOneTimePriceId: this.fb.nonNullable.control(''),
+    stripeMonthlyPriceId: this.fb.nonNullable.control(''),
+    monthlyPrice: this.fb.control<number | null>(null),
+    stripeInstallmentPriceId: this.fb.nonNullable.control(''),
+    installmentPrice: this.fb.control<number | null>(null),
+    installmentCount: this.fb.control<number | null>(null),
 
     durationWeeks: this.fb.control<number | null>(null),
     durationText: this.fb.nonNullable.control('', [Validators.required]),
@@ -130,6 +140,14 @@ export class ProgramFormComponent {
       price: Number(v.price || 0),
       discountPrice: v.discountPrice,
       currency: v.currency as Program['currency'],
+      availablePaymentPlans: this.normalizePaymentPlans(v.availablePaymentPlans),
+      defaultPaymentPlan: this.resolveDefaultPaymentPlan(v.defaultPaymentPlan, v.availablePaymentPlans),
+      stripeOneTimePriceId: v.stripeOneTimePriceId.trim() || null,
+      stripeMonthlyPriceId: v.stripeMonthlyPriceId.trim() || null,
+      monthlyPrice: v.monthlyPrice != null ? Number(v.monthlyPrice) : null,
+      stripeInstallmentPriceId: v.stripeInstallmentPriceId.trim() || null,
+      installmentPrice: v.installmentPrice != null ? Number(v.installmentPrice) : null,
+      installmentCount: v.installmentCount != null ? Number(v.installmentCount) : null,
       level: v.level,
       deliveryMode: v.deliveryMode,
       isFeatured: v.isFeatured,
@@ -174,6 +192,14 @@ export class ProgramFormComponent {
       price: seed.price,
       discountPrice: seed.discountPrice ?? null,
       currency: seed.currency,
+      availablePaymentPlans: this.normalizePaymentPlans(seed.availablePaymentPlans),
+      defaultPaymentPlan: this.resolveDefaultPaymentPlan(seed.defaultPaymentPlan, seed.availablePaymentPlans),
+      stripeOneTimePriceId: seed.stripeOneTimePriceId || '',
+      stripeMonthlyPriceId: seed.stripeMonthlyPriceId || '',
+      monthlyPrice: seed.monthlyPrice ?? null,
+      stripeInstallmentPriceId: seed.stripeInstallmentPriceId || '',
+      installmentPrice: seed.installmentPrice ?? null,
+      installmentCount: seed.installmentCount ?? null,
       durationWeeks: seed.durationWeeks ?? null,
       durationText: seed.durationText,
       scheduleText: seed.scheduleText,
@@ -279,6 +305,31 @@ export class ProgramFormComponent {
     }
   }
 
+  paymentPlanLabel(plan: ProgramPaymentPlanType): string {
+    switch (plan) {
+      case 'monthly_subscription':
+        return 'Monthly subscription';
+      case 'installments':
+        return 'Installments';
+      case 'one_time':
+      default:
+        return 'One-time payment';
+    }
+  }
+
+  togglePaymentPlan(plan: ProgramPaymentPlanType, enabled: boolean): void {
+    const currentPlans = this.normalizePaymentPlans(this.form.controls.availablePaymentPlans.value);
+    const nextPlans = enabled
+      ? Array.from(new Set([...currentPlans, plan]))
+      : currentPlans.filter((item) => item !== plan);
+    const normalizedNextPlans = this.normalizePaymentPlans(nextPlans);
+
+    this.form.controls.availablePaymentPlans.setValue(normalizedNextPlans);
+    this.form.controls.defaultPaymentPlan.setValue(
+      this.resolveDefaultPaymentPlan(this.form.controls.defaultPaymentPlan.value, normalizedNextPlans)
+    );
+  }
+
   private patchForm(program: Program): void {
     this.form.patchValue({
       title: program.title,
@@ -295,6 +346,14 @@ export class ProgramFormComponent {
       price: program.price,
       discountPrice: program.discountPrice ?? null,
       currency: program.currency,
+      availablePaymentPlans: this.normalizePaymentPlans(program.availablePaymentPlans),
+      defaultPaymentPlan: this.resolveDefaultPaymentPlan(program.defaultPaymentPlan, program.availablePaymentPlans),
+      stripeOneTimePriceId: program.stripeOneTimePriceId || '',
+      stripeMonthlyPriceId: program.stripeMonthlyPriceId || '',
+      monthlyPrice: program.monthlyPrice ?? null,
+      stripeInstallmentPriceId: program.stripeInstallmentPriceId || '',
+      installmentPrice: program.installmentPrice ?? null,
+      installmentCount: program.installmentCount ?? null,
       level: program.level,
       deliveryMode: program.deliveryMode,
       modules: (program.modules || []).map((m) => m.title).join('\n'),
@@ -425,5 +484,20 @@ export class ProgramFormComponent {
       default:
         return undefined;
     }
+  }
+
+  private normalizePaymentPlans(
+    plans: ProgramPaymentPlanType[] | readonly ProgramPaymentPlanType[] | null | undefined
+  ): ProgramPaymentPlanType[] {
+    const normalized = (plans || []).filter((plan): plan is ProgramPaymentPlanType => this.paymentPlanTypes.includes(plan));
+    return normalized.length ? Array.from(new Set(normalized)) : ['one_time'];
+  }
+
+  private resolveDefaultPaymentPlan(
+    selected: ProgramPaymentPlanType | null | undefined,
+    available: ProgramPaymentPlanType[] | readonly ProgramPaymentPlanType[] | null | undefined
+  ): ProgramPaymentPlanType {
+    const normalized = this.normalizePaymentPlans(available);
+    return selected && normalized.includes(selected) ? selected : normalized[0];
   }
 }

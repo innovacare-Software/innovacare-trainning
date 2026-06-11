@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { Auth, authState } from '@angular/fire/auth';
-import { Firestore, collection, collectionData, doc, docData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, doc, docData, limit, query, where } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 
@@ -38,6 +38,25 @@ interface RecentItem {
   date: string;
   link: string;
   ts: number;
+}
+
+interface AgenticRecommendation {
+  title: string;
+  body: string;
+  cta: string;
+  link: string;
+  queryParams: Record<string, string>;
+  tone: 'urgent' | 'focus' | 'growth';
+  source: 'persisted' | 'derived';
+}
+
+interface PersistedRecommendationDoc {
+  id: string;
+  agentId?: string;
+  title?: string;
+  summary?: string;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  createdAt?: any;
 }
 
 // ---- Helpers ----
@@ -166,6 +185,148 @@ export class LearnerDashboardComponent {
     })
   );
   recent = toSignal(this.recent$, { initialValue: [] as RecentItem[] });
+
+  private persistedRecommendations$ = this.auth$.pipe(
+    switchMap((user) => {
+      if (!user) return of([] as PersistedRecommendationDoc[]);
+      const recommendationsRef = collection(this.afs, 'aiRecommendations');
+      const recommendationsQuery = query(
+        recommendationsRef,
+        where('learnerUid', '==', user.uid),
+        where('status', '==', 'open'),
+        limit(6)
+      );
+      return collectionData(recommendationsQuery, { idField: 'id' }).pipe(
+        map((docs) => (docs as PersistedRecommendationDoc[]).sort((a, b) => {
+          return (epochMs(b.createdAt) ?? 0) - (epochMs(a.createdAt) ?? 0);
+        }))
+      );
+    })
+  );
+
+  private derivedRecommendations$ = this.rows$.pipe(
+    map((rows): AgenticRecommendation[] => {
+      const recommendations: AgenticRecommendation[] = [];
+      const now = Date.now();
+      const activeRows = rows.filter(({ enr }) => enr.status !== 'completed');
+
+      const enriched = activeRows.map((row) => {
+        const enrDue = epochMs(row.enr.dueDate);
+        const courseDue = epochMs(row.course?.dueDate);
+        const assignedTs = epochMs(row.enr.assignedAt) ?? now;
+        const dueTs = firstDefined(enrDue, courseDue, assignedTs + DEFAULT_DUE_DAYS * DAY) ?? now;
+        return { ...row, dueTs };
+      });
+
+      const overdue = enriched
+        .filter((row) => row.dueTs < now)
+        .sort((a, b) => a.dueTs - b.dueTs)[0];
+
+      if (overdue) {
+        recommendations.push({
+          title: 'AI rescue plan',
+          body: `You have an overdue assignment in ${overdue.course.title || 'your course'}. Ask the assistant for a catch-up plan.`,
+          cta: 'Open rescue coach',
+          link: '/learner/assistant',
+          queryParams: {
+            domain: 'general',
+            courseId: overdue.course.id || overdue.enr.courseId,
+            courseTitle: overdue.course.title || 'Overdue course',
+            prompt: `Build me a catch-up plan for my overdue course ${overdue.course.title || overdue.enr.courseId}. Prioritize the first 3 actions for today.`,
+          },
+          tone: 'urgent',
+          source: 'derived',
+        });
+      }
+
+      const dueSoon = enriched
+        .filter((row) => row.dueTs >= now && row.dueTs - now <= 7 * DAY)
+        .sort((a, b) => a.dueTs - b.dueTs)[0];
+
+      if (dueSoon) {
+        recommendations.push({
+          title: 'This week focus',
+          body: `${dueSoon.course.title || 'One assignment'} is due soon. Let AI break it into a realistic 7-day plan.`,
+          cta: 'Plan my week',
+          link: '/learner/assistant',
+          queryParams: {
+            domain: 'general',
+            courseId: dueSoon.course.id || dueSoon.enr.courseId,
+            courseTitle: dueSoon.course.title || 'Upcoming assignment',
+            prompt: `Create a 7-day study plan so I finish ${dueSoon.course.title || dueSoon.enr.courseId} before its deadline.`,
+          },
+          tone: 'focus',
+          source: 'derived',
+        });
+      }
+
+      const started = activeRows.find(({ enr }) => enr.status === 'started');
+      if (started) {
+        recommendations.push({
+          title: 'Next best step',
+          body: `You already started ${started.course.title || 'a course'}. Ask the coach what to do next instead of guessing.`,
+          cta: 'Resume with AI',
+          link: '/learner/assistant',
+          queryParams: {
+            domain: 'general',
+            courseId: started.course.id || started.enr.courseId,
+            courseTitle: started.course.title || 'Current course',
+            prompt: `I already started ${started.course.title || started.enr.courseId}. What is the smartest next step to finish efficiently?`,
+          },
+          tone: 'growth',
+          source: 'derived',
+        });
+      }
+
+      if (!recommendations.length) {
+        recommendations.push({
+          title: 'Personal learning copilot',
+          body: 'Use the assistant to build your study plan, revise faster, or prepare your next certification target.',
+          cta: 'Open AI assistant',
+          link: '/learner/assistant',
+          queryParams: {
+            domain: 'general',
+            prompt: 'Review my current learner dashboard context and suggest the best next study action.',
+          },
+          tone: 'growth',
+          source: 'derived',
+        });
+      }
+
+      return recommendations.slice(0, 3);
+    })
+  );
+
+  readonly aiRecommendations = toSignal(
+    combineLatest([this.persistedRecommendations$, this.derivedRecommendations$]).pipe(
+      map(([persisted, derived]): AgenticRecommendation[] => {
+        if (persisted.length) {
+          return persisted.slice(0, 3).map((item) => {
+            const prompt = `Help me act on this AI recommendation: ${item.title || 'Recommendation'}. Summary: ${item.summary || 'No summary provided.'}. Give me the top 3 next actions.`;
+            const tone: AgenticRecommendation['tone'] = item.priority === 'critical'
+              ? 'urgent'
+              : item.priority === 'high'
+                ? 'focus'
+                : 'growth';
+            return {
+              title: item.title || 'AI recommendation',
+              body: item.summary || 'A platform agent generated a personalized next-best action for you.',
+              cta: 'Open guided help',
+              link: '/learner/assistant',
+              queryParams: {
+                domain: 'general',
+                prompt,
+              },
+              tone,
+              source: 'persisted',
+            };
+          });
+        }
+        return derived;
+      })
+    ),
+    { initialValue: [] as AgenticRecommendation[] }
+  );
 
   // ---------------- Static links/resources ----------------
   links = [

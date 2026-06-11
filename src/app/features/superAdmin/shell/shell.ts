@@ -25,6 +25,8 @@ export class Shell {
 
  nav = [
   { labelKey: 'nav.dashboard', path: '/super-admin/dashboard' },
+  { labelKey: 'AI Command Center', path: '/super-admin/ai-command-center' },
+  { labelKey: 'Communication Center', path: '/super-admin/communication-center' },
   { labelKey: 'nav.organizations', path: '/super-admin/organizations' },
   { labelKey: 'nav.createCourse', path: '/super-admin/courses/create' },
   { labelKey: 'nav.createPolicy', path: '/super-admin/policy/create' },

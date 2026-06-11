@@ -362,6 +362,63 @@ ng build
 ng test
 ```
 
+### CI/CD
+
+GitHub Actions now enforces a branch-based delivery model for this repository.
+
+- `feature/*` branches are validated through pull requests into `develop`.
+- `develop` runs CI and automatically deploys to the `staging` GitHub Environment.
+- `main` is the production branch and can only be deployed through the manual `Deploy Production` workflow.
+- The `production` GitHub Environment must require reviewer approval before deployment.
+
+Workflows added in [.github/workflows/ci.yml](.github/workflows/ci.yml), [.github/workflows/deploy-staging.yml](.github/workflows/deploy-staging.yml), [.github/workflows/deploy-production.yml](.github/workflows/deploy-production.yml), and [.github/workflows/codeql.yml](.github/workflows/codeql.yml).
+
+OIDC setup guide: [docs/github-oidc-wif.md](docs/github-oidc-wif.md).
+Credential rotation guide: [docs/credential-rotation.md](docs/credential-rotation.md).
+
+Required GitHub Variables:
+
+- `FIREBASE_PROJECT_ID_STAGING`
+- `FIREBASE_PROJECT_ID_PRODUCTION`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER_STAGING`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER_PRODUCTION`
+- `GCP_SERVICE_ACCOUNT_EMAIL_STAGING`
+- `GCP_SERVICE_ACCOUNT_EMAIL_PRODUCTION`
+
+Required GitHub Secrets:
+
+- `STRIPE_SECRET_KEY_STAGING`
+- `STRIPE_SECRET_KEY_PRODUCTION`
+- `STRIPE_WEBHOOK_SECRET_STAGING`
+- `STRIPE_WEBHOOK_SECRET_PRODUCTION`
+
+Recommended GitHub Environments:
+
+- `staging`
+- `production`
+
+Recommended Firebase project model:
+
+- one Firebase project for staging
+- one Firebase project for production
+
+Local commands aligned with the workflows:
+
+```bash
+npm run lint
+npm run test -- --watch=false --browsers=ChromeHeadless
+npm run build -- --configuration production
+npm run security:audit
+```
+
+Deployment notes:
+
+- `npm run deploy:staging` and `npm run deploy:production` deploy Hosting and Functions only.
+- Firestore rules and indexes are deployed separately in GitHub Actions only when the rule files changed and the smoke test passes.
+- Storage rules are deployed separately in GitHub Actions only when `storage.rules` changed.
+- The deployment workflows now use GitHub OIDC with Google Workload Identity Federation instead of storing service account JSON in GitHub.
+- Stripe secrets must stay in Firebase Functions secrets or Google Secret Manager for runtime use; they are not injected into the frontend build.
+
 Environment Configuration
 
 The application requires environment configuration for Firebase, Stripe, and media services.

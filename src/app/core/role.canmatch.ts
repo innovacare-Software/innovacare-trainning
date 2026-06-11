@@ -43,6 +43,10 @@ function checkRoleAccess(roles: AppRole[]) {
         return router.createUrlTree(['/login']);
       }
 
+      if (profile.requirePasswordChange === true) {
+        return router.createUrlTree(['/force-password-change']);
+      }
+
       // Super admin always passes if requested.
       if (profile.role === 'super_admin' && roles.includes('super_admin')) {
         return true;

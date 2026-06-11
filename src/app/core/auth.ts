@@ -14,6 +14,7 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   getIdToken,
+  updatePassword,
 } from '@angular/fire/auth';
 import {
   Firestore,
@@ -52,6 +53,9 @@ export interface AppProfile {
   isProgramAdmin?: boolean;
   isProgramStaff?: boolean;
   isProgramLearner?: boolean;
+  requirePasswordChange?: boolean;
+  temporaryPasswordIssuedAt?: any;
+  passwordChangedAt?: any;
   displayName?: string;
   createdAt?: any;
   updatedAt?: any;
@@ -392,6 +396,40 @@ export class AuthService {
     }
 
     await sendPasswordResetEmail(this.auth, clean);
+  }
+
+  async completeTemporaryPasswordChange(newPassword: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user?.uid) {
+      throw new Error('You must be signed in to change your password.');
+    }
+
+    const clean = String(newPassword || '').trim();
+    if (clean.length < 8) {
+      throw new Error('Password must be at least 8 characters.');
+    }
+
+    await updatePassword(user, clean);
+
+    await setDoc(
+      doc(this.afs, `users/${user.uid}`),
+      {
+        requirePasswordChange: false,
+        temporaryPasswordIssuedAt: null,
+        passwordChangedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    const current = this.profileSubject.value;
+    if (current?.uid === user.uid) {
+      this.profileSubject.next({
+        ...current,
+        requirePasswordChange: false,
+        temporaryPasswordIssuedAt: null,
+      });
+    }
   }
 
   private async ensureAuthTokenReady(): Promise<void> {

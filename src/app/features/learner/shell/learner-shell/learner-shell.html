@@ -16,9 +16,9 @@
 
     <div class="top-actions">
       <span class="role" aria-label="User role">{{ t('roles.learner') }}</span>
-      <button class="avatar" type="button" aria-label="User profile" title="Profile"></button>
-      <app-notification-bell-plain aria-label="Notifications"></app-notification-bell-plain>
-      <app-language-switcher></app-language-switcher>
+      <button class="avatar top-action--desktop" type="button" aria-label="User profile" title="Profile"></button>
+      <app-notification-bell-plain class="top-action--tablet" aria-label="Notifications"></app-notification-bell-plain>
+      <app-language-switcher class="top-action--desktop"></app-language-switcher>
       <button class="btn logout" type="button" (click)="logout()" aria-label="Logout from system">{{ t('actions.logout') }}</button>
     </div>
   </header>

@@ -54,6 +54,20 @@ export class SuperAdminOrganizationCoursesService {
       { merge: true }
     );
 
+    // Write to canonical assignedCourses path for org admin access
+    const assignedRef = doc(this.afs, `organizations/${orgId}/assignedCourses/${courseId}`);
+    await setDoc(
+      assignedRef,
+      {
+        orgId,
+        courseId,
+        active: true,
+        assignedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
     // Compatibility with legacy global mapping used in parts of the app.
     const legacyRef = doc(this.afs, `organizationCourseAssignments/${orgId}_${courseId}`);
     await setDoc(
@@ -71,6 +85,7 @@ export class SuperAdminOrganizationCoursesService {
 
   async removeCourseFromOrganization(orgId: string, courseId: string): Promise<void> {
     await deleteDoc(doc(this.afs, `organizations/${orgId}/courses/${courseId}`));
+    await deleteDoc(doc(this.afs, `organizations/${orgId}/assignedCourses/${courseId}`));
     await deleteDoc(doc(this.afs, `organizationCourseAssignments/${orgId}_${courseId}`));
   }
 

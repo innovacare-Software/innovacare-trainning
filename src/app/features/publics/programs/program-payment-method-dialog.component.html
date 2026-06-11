@@ -15,8 +15,23 @@
 
   <div class="payment-amount-card">
     <span>Total due</span>
-    <strong>{{ data.amount | currency: data.currency:'symbol':'1.0-0' }}</strong>
+    <strong>{{ activePaymentPlan.amount | currency: activePaymentPlan.currency:'symbol':'1.0-0' }}</strong>
     <small>{{ data.currency }} billed securely from the server</small>
+  </div>
+
+  <div class="payment-plan-selector" *ngIf="paymentPlans.length > 1">
+    <article
+      class="payment-plan-card"
+      *ngFor="let plan of paymentPlans"
+      [class.payment-plan-card--active]="plan.type === selectedPaymentPlan()"
+      (click)="selectPaymentPlan(plan.type)"
+    >
+      <div>
+        <strong>{{ plan.label }}</strong>
+        <p>{{ plan.description }}</p>
+      </div>
+      <span>{{ plan.amount | currency: plan.currency:'symbol':'1.0-0' }}</span>
+    </article>
   </div>
 
   <div class="payment-feedback payment-feedback--error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
@@ -26,7 +41,7 @@
         <div>
           <span class="payment-option-badge">Card</span>
           <h3>Pay with Stripe</h3>
-          <p>Use Visa, Mastercard, or other international cards through your existing Stripe flow.</p>
+          <p>Use Visa, Mastercard, or other international cards for {{ activePaymentPlan.label.toLowerCase() }}.</p>
         </div>
 
         <button type="button" class="payment-btn payment-btn--primary" [disabled]="loadingMethod() !== null" (click)="payWithCard()">

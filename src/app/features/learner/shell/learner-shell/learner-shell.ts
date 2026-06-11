@@ -14,9 +14,10 @@ import { AuthService } from '../../../../core/auth';
   styleUrl: './learner-shell.css'
 })
 export class LearnerShell implements OnDestroy {
+  private static readonly MOBILE_BREAKPOINT = 860;
   private router = inject(Router);
   private auth = inject(AuthService);
-  private mq = window.matchMedia('(max-width: 860px)');
+  private mq = window.matchMedia(`(max-width: ${LearnerShell.MOBILE_BREAKPOINT}px)`);
 
   isMobile = signal(this.mq.matches);
   sidebarOpen = signal(!this.mq.matches); // open by default on desktop, closed on mobile
@@ -65,6 +66,7 @@ export class LearnerShell implements OnDestroy {
   links = [
     { path: '/learner', labelKey: 'nav.dashboard' },
     { path: '/learner/assignments', labelKey: 'nav.assignments' },
+    { path: '/labs', labelKey: 'nav.labs' },
     { path: '/learner/assistant', labelKey: 'nav.aiAssistant' },
     { path: '/learner/wound', labelKey: 'nav.woundLibrary' },
     { path: '/learner/profile', labelKey: 'nav.yourProfile' },

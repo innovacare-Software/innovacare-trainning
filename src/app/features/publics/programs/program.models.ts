@@ -127,6 +127,7 @@ export type ProgramCurrency = 'USD' | 'CAD' | 'AED' | 'EUR' | 'GBP';
 export type ProgramOwnerType = 'platform' | 'partner';
 export type ProgramPayoutMode = 'manual' | 'stripe_connect';
 export type PartnerPayoutMethod = 'MTN_MOBILE_MONEY' | 'ORANGE_MONEY' | 'WISE' | 'BANK_TRANSFER' | 'MANUAL_OTHER';
+export type ProgramPaymentPlanType = 'one_time' | 'monthly_subscription' | 'installments';
 
 export type FirestoreDateValue = unknown;
 
@@ -177,6 +178,14 @@ export interface Program {
   price: number;
   discountPrice?: number | null;
   currency: ProgramCurrency;
+  availablePaymentPlans?: ProgramPaymentPlanType[];
+  defaultPaymentPlan?: ProgramPaymentPlanType;
+  stripeOneTimePriceId?: string | null;
+  stripeMonthlyPriceId?: string | null;
+  monthlyPrice?: number | null;
+  stripeInstallmentPriceId?: string | null;
+  installmentPrice?: number | null;
+  installmentCount?: number | null;
   level: ProgramLevel;
   deliveryMode: ProgramDeliveryMode;
   isFeatured: boolean;
@@ -228,6 +237,14 @@ export interface CreateProgramPayload {
   price: number;
   discountPrice?: number | null;
   currency: ProgramCurrency;
+  availablePaymentPlans?: ProgramPaymentPlanType[];
+  defaultPaymentPlan?: ProgramPaymentPlanType;
+  stripeOneTimePriceId?: string | null;
+  stripeMonthlyPriceId?: string | null;
+  monthlyPrice?: number | null;
+  stripeInstallmentPriceId?: string | null;
+  installmentPrice?: number | null;
+  installmentCount?: number | null;
   level: ProgramLevel;
   deliveryMode: ProgramDeliveryMode;
   isFeatured: boolean;
@@ -490,6 +507,12 @@ export interface ProgramEnrollment {
   amount: number;
   currency: ProgramCurrency;
   paymentStatus: PaymentStatus;
+  selectedPaymentPlan?: ProgramPaymentPlanType;
+  paymentPlanLabel?: string;
+  subscriptionId?: string;
+  subscriptionStatus?: string;
+  installmentCount?: number | null;
+  installmentsPaid?: number;
   pendingPaymentId?: string;
   paymentId?: string;
   paymentMethod?: 'stripe' | 'mobile_money' | 'manual';
@@ -516,6 +539,17 @@ export interface ProgramEnrollmentFilters {
   search?: string;
 }
 
+export interface ProgramCheckoutPlanOption {
+  type: ProgramPaymentPlanType;
+  label: string;
+  amount: number;
+  currency: ProgramCurrency;
+  description: string;
+  isRecurring: boolean;
+  installmentCount?: number | null;
+  stripePriceId?: string | null;
+}
+
 export interface UserProgramProgress {
   id: string;
   userId: string;
@@ -532,6 +566,8 @@ export interface UserProgramProgress {
   totalCaseStudies: number;
   completedAssessments: number;
   totalAssessments: number;
+  completedLabs: number;
+  totalLabs: number;
   averageScore: number;
   readinessScore: number;
   streakDays: number;
@@ -587,6 +623,7 @@ export interface DashboardStatCards {
   modulesCompleted: number;
   simulationsCompleted: number;
   caseStudiesCompleted: number;
+  labsCompleted?: number;
   totalStudyMinutes: number;
   currentStreak: number;
   weakestArea: string;
@@ -692,3 +729,80 @@ export const DOCUMENT_FILE_TYPE_LABELS: Record<DocumentFileType, string> = {
   [DocumentFileType.IMAGE]: 'Image',
   [DocumentFileType.OTHER]: 'Other',
 };
+
+export const PROGRAM_PAYMENT_PLAN_LABELS: Record<ProgramPaymentPlanType, string> = {
+  one_time: 'One-time payment',
+  monthly_subscription: 'Monthly subscription',
+  installments: 'Installments',
+};
+
+export function resolveProgramCheckoutPlanOptions(program: Program): ProgramCheckoutPlanOption[] {
+  const baseAmount = Number(program.discountPrice ?? program.price ?? 0);
+  const currency = program.currency;
+  const enabledPlans = Array.from(new Set(program.availablePaymentPlans?.length ? program.availablePaymentPlans : ['one_time']));
+  const installmentCount = Number(program.installmentCount || 0) >= 2 ? Number(program.installmentCount) : null;
+
+  return enabledPlans
+    .map((plan): ProgramCheckoutPlanOption | null => {
+      if (plan === 'monthly_subscription') {
+        const amount = Number(program.monthlyPrice ?? baseAmount);
+        if (!Number.isFinite(amount) || amount <= 0) {
+          return null;
+        }
+
+        return {
+          type: plan,
+          label: PROGRAM_PAYMENT_PLAN_LABELS[plan],
+          amount,
+          currency,
+          description: 'Recurring monthly billing until cancellation.',
+          isRecurring: true,
+          stripePriceId: program.stripeMonthlyPriceId ?? null,
+        };
+      }
+
+      if (plan === 'installments') {
+        const fallbackAmount = installmentCount ? Math.round((baseAmount / installmentCount) * 100) / 100 : baseAmount;
+        const amount = Number(program.installmentPrice ?? fallbackAmount);
+        if (!Number.isFinite(amount) || amount <= 0 || !installmentCount) {
+          return null;
+        }
+
+        return {
+          type: plan,
+          label: PROGRAM_PAYMENT_PLAN_LABELS[plan],
+          amount,
+          currency,
+          description: `${installmentCount} scheduled monthly payments.`,
+          isRecurring: true,
+          installmentCount,
+          stripePriceId: program.stripeInstallmentPriceId ?? null,
+        };
+      }
+
+      if (!Number.isFinite(baseAmount) || baseAmount <= 0) {
+        return null;
+      }
+
+      return {
+        type: 'one_time',
+        label: PROGRAM_PAYMENT_PLAN_LABELS.one_time,
+        amount: baseAmount,
+        currency,
+        description: 'Single payment for immediate access.',
+        isRecurring: false,
+        stripePriceId: program.stripeOneTimePriceId ?? null,
+      };
+    })
+    .filter((plan): plan is ProgramCheckoutPlanOption => Boolean(plan));
+}
+
+export function resolveDefaultProgramCheckoutPlan(program: Program): ProgramCheckoutPlanOption | null {
+  const options = resolveProgramCheckoutPlanOptions(program);
+  if (!options.length) {
+    return null;
+  }
+
+  const preferred = program.defaultPaymentPlan;
+  return options.find((option) => option.type === preferred) || options[0];
+}

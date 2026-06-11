@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Program } from './program.models';
+import { Program, resolveDefaultProgramCheckoutPlan, resolveProgramCheckoutPlanOptions } from './program.models';
 import { ProgramsService } from './programs.service';
 import { ProgramEnrollmentsService } from './program-enrollments.service';
 import {
@@ -91,6 +91,8 @@ export class ProgramBookingPageComponent {
       });
 
       const price = selectedProgram.discountPrice ?? selectedProgram.price ?? 0;
+      const paymentPlans = resolveProgramCheckoutPlanOptions(selectedProgram);
+      const defaultPaymentPlan = resolveDefaultProgramCheckoutPlan(selectedProgram);
 
       if (price > 0) {
         const dialogRef = this.dialog.open(
@@ -105,6 +107,8 @@ export class ProgramBookingPageComponent {
               programTitle: selectedProgram.title,
               amount: price,
               currency: selectedProgram.currency,
+              paymentPlans,
+              defaultPaymentPlan: defaultPaymentPlan?.type,
               defaultPhone: this.bookingForm.controls.learnerPhone.value,
               autoMethod: this.preferredPayment() ?? undefined,
             },

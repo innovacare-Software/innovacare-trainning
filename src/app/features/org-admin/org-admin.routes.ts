@@ -9,6 +9,15 @@ export const ORG_ADMIN_ROUTES: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', loadComponent: () => import('./pages/dashboard/org-admin-dashboard.page').then((m) => m.OrgAdminDashboardPage) },
+      {
+        path: 'ai-command-center',
+        data: { aiScopeMode: 'org' },
+        loadComponent: () => import('../superAdmin/ai-command-center/ai-command-center.page').then((m) => m.AiCommandCenterPage),
+      },
+      {
+        path: 'communication-center',
+        loadChildren: () => import('../communication-center/communication-center.routes').then((m) => m.COMMUNICATION_CENTER_ROUTES),
+      },
       { path: 'learner', redirectTo: '/learner', pathMatch: 'full' },
       { path: 'users', loadComponent: () => import('./pages/users/org-admin-users.page').then((m) => m.OrgAdminUsersPage) },
       { path: 'users/:uid', loadComponent: () => import('./pages/users/org-admin-user-detail.page').then((m) => m.OrgAdminUserDetailPage) },

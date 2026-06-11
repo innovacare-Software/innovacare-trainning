@@ -219,7 +219,8 @@
     "analytics": "Analytique",
     "createProgram": "Créer un programme",
     "progress": "Progression",
-    "overdue": "En retard"
+    "overdue": "En retard",
+    "labs": "Labs"
   },
   "roles": {
     "learner": "Apprenant",
@@ -1549,6 +1550,8 @@
           "examPrep": "Préparation examen",
           "simulations": "Simulations",
           "caseStudies": "Études de cas",
+          "labs": "Labs",
+          "resources": "Ressources",
           "studyCalendar": "Calendrier d'étude",
           "orderHistory": "Historique des commandes",
           "exploreProducts": "Explorer les produits",

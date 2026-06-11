@@ -16,6 +16,7 @@ import type {
   Program,
   ProgramEnrollment,
   UserProgramProgress,
+  ProgramPaymentPlanType,
 } from '../../publics/programs/program.models';
 
 export type {
@@ -38,6 +39,8 @@ export {
   PaymentStatus,
   ReviewStatus,
 };
+
+export type { ProgramPaymentPlanType };
 
 export interface ProgramAdminStatCards {
   totalPrograms: number;

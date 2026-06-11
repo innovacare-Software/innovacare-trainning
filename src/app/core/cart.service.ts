@@ -401,6 +401,44 @@ export class CartService {
     }
   }
 
+  async removeOffer(offerId: string, cartId = 'default'): Promise<void> {
+    const clean = String(offerId || '').trim();
+    if (!clean) return;
+
+    if (!this.auth.currentUser?.uid) {
+      const items = this.getLocalItems().filter((x) => x.offerId !== clean);
+      this.saveLocalItems(items);
+      return;
+    }
+
+    if (this.serverCartEnabled) {
+      try {
+        const cart = await this.getMyCart(cartId);
+        const remainingItems = cart.items
+          .filter((x) => x.offerId !== clean)
+          .map((x) => ({ offerId: x.offerId, qty: x.qty }));
+
+        const fn = httpsCallable<
+          { cartId?: string; items: Array<{ offerId: string; qty?: number }> },
+          { cartId: string; itemCount: number; distinctCount: number }
+        >(this.functions, 'upsertMyCart');
+        await fn({ cartId, items: remainingItems });
+        this.clearLocal();
+      } catch (error) {
+        if (this.isAuthCallableError(error)) {
+          this.serverCartEnabled = false;
+          const items = this.getLocalItems().filter((x) => x.offerId !== clean);
+          this.saveLocalItems(items);
+          return;
+        }
+        throw error;
+      }
+    } else {
+      const items = this.getLocalItems().filter((x) => x.offerId !== clean);
+      this.saveLocalItems(items);
+    }
+  }
+
   async checkoutFromCart(cartId = 'default'): Promise<string | null> {
     if (!this.auth.currentUser?.uid) {
       throw new Error('AUTH_REQUIRED');

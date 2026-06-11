@@ -30,6 +30,17 @@ type CreateOrgUserResult = {
   email: string;
 };
 
+type ResetOrgUserPasswordPayload = {
+  uid: string;
+  password: string;
+};
+
+type ResetOrgUserPasswordResult = {
+  ok: boolean;
+  uid: string;
+  email: string | null;
+};
+
 type OrgUserRow = {
   uid: string;
   email?: string;
@@ -56,10 +67,15 @@ export class OrgUsersComponent {
   private auth = inject(AuthService);
   private orgUsers = inject(OrganizationUsersService);
   private fb = inject(FormBuilder);
+  private readonly passwordAlphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
 
   private createOrgUserFn = httpsCallable<CreateOrgUserPayload, CreateOrgUserResult>(
     this.functions,
     'createOrgUser'
+  );
+  private resetOrgUserPasswordFn = httpsCallable<ResetOrgUserPasswordPayload, ResetOrgUserPasswordResult>(
+    this.functions,
+    'resetOrgUserPassword'
   );
 
   readonly saving = signal(false);
@@ -158,6 +174,52 @@ export class OrgUsersComponent {
       this.form.markAsUntouched();
     } catch (error: any) {
       this.notice.set(error?.message || 'Impossible d\'ajouter cet utilisateur.');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  private generateTemporaryPassword(length = 14): string {
+    const bytes = new Uint32Array(length);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (value) => this.passwordAlphabet[value % this.passwordAlphabet.length]).join('');
+  }
+
+  private async copyToClipboard(value: string): Promise<boolean> {
+    try {
+      if (!navigator?.clipboard?.writeText) {
+        return false;
+      }
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async resetUserPassword(user: OrgUserRow): Promise<void> {
+    const password = this.generateTemporaryPassword();
+    const confirmed = window.confirm(
+      `Générer et appliquer un mot de passe temporaire pour ${user.email || user.uid} ?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.saving.set(true);
+    this.notice.set(null);
+
+    try {
+      const result = await this.resetOrgUserPasswordFn({
+        uid: user.uid,
+        password,
+      });
+      const target = result.data.email || user.email || user.uid;
+      const copied = await this.copyToClipboard(password);
+      this.notice.set(`Mot de passe temporaire défini pour ${target} : ${password}${copied ? ' (copié dans le presse-papiers)' : ''}`);
+    } catch (error: any) {
+      this.notice.set(error?.message || 'Impossible de modifier ce mot de passe.');
     } finally {
       this.saving.set(false);
     }

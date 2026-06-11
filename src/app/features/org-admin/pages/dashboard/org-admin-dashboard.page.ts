@@ -10,6 +10,7 @@ import { OrganizationAuditService } from '../../../../core/organization/services
 import { OrganizationFollowUpService } from '../../../../core/organization/services/organization-follow-up.service';
 import { OrganizationTroubleshootingService } from '../../../../core/organization/services/organization-troubleshooting.service';
 import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organization/org-context.service';
+import { AiCommandCenterService, CommandCenterSnapshot } from '../../../superAdmin/ai-command-center/ai-command-center.service';
 
 @Component({
   standalone: true,
@@ -68,6 +69,52 @@ import { EMPTY_ORG_CONTEXT, OrgContextService } from '../../../../core/organizat
             <li>{{ s.overdueCount }} overdue learners need follow-up</li>
             <li>{{ s.stalledLearners }} stalled learner records under 25%</li>
             <li>{{ s.criticalAuditEvents }} critical audit events require review</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="agentic-band" *ngIf="aiSnapshot() as ai">
+        <article class="panel copilot-panel">
+          <div class="copilot-head">
+            <div>
+              <p class="copilot-kicker">Instructor Copilot</p>
+              <h3>AI command layer for this organization</h3>
+            </div>
+            <a routerLink="/org-admin/ai-command-center">Open full Command Center</a>
+          </div>
+          <div class="copilot-metrics">
+            <div>
+              <strong>{{ ai.metrics.openRecommendations }}</strong>
+              <span>Open recommendations</span>
+            </div>
+            <div>
+              <strong>{{ ai.metrics.pendingApprovals }}</strong>
+              <span>Pending approvals</span>
+            </div>
+            <div>
+              <strong>{{ ai.metrics.completedRuns7d }}</strong>
+              <span>Completed runs (7d)</span>
+            </div>
+          </div>
+          <div class="copilot-actions">
+            <button type="button" class="ac-btn" (click)="runOrgAgent('student_success')" [disabled]="agentRunning() === 'student_success'">
+              {{ agentRunning() === 'student_success' ? 'Running…' : 'Run learner success sweep' }}
+            </button>
+            <button type="button" class="ac-btn" (click)="runOrgAgent('instructor_assistant')" [disabled]="agentRunning() === 'instructor_assistant'">
+              {{ agentRunning() === 'instructor_assistant' ? 'Running…' : 'Run instructor copilot' }}
+            </button>
+          </div>
+        </article>
+
+        <article class="panel copilot-panel">
+          <h3>Top AI recommendations</h3>
+          <ul class="copilot-list">
+            <li *ngFor="let rec of ai.recommendations | slice:0:3">
+              <strong>{{ rec.title }}</strong>
+              <span class="copilot-priority" [class]="'copilot-priority ' + rec.priority">{{ rec.priority }}</span>
+              <p>{{ rec.summary }}</p>
+            </li>
+            <li *ngIf="!ai.recommendations.length">No open AI recommendation for this organization.</li>
           </ul>
         </article>
       </section>
@@ -242,9 +289,28 @@ Enroll -> Assign -> Learn -> Measure
     .hero-card ul { margin: .5rem 0 0; padding-left: 1rem; }
     .hero-card li { color: inherit; }
     .hero-kicker { margin: 0; text-transform: uppercase; letter-spacing: .1em; font-size: .72rem; font-weight: 800; color: inherit; opacity: .82; }
+    .agentic-band { display: grid; grid-template-columns: 1.15fr .85fr; gap: .7rem; margin-top: .7rem; }
     .story { display: grid; grid-template-columns: 1.2fr .8fr; gap: .7rem; margin-top: .7rem; }
     .panel { background: #fff; border: 1px solid #d9e4ef; border-radius: 12px; padding: .8rem; }
     .panel h3 { margin: 0 0 .45rem; color: #1b4062; }
+    .copilot-panel { border-color: #c8dbed; background: linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%); }
+    .copilot-head { display: flex; justify-content: space-between; gap: .75rem; align-items: start; }
+    .copilot-head a { text-decoration: none; background: #fff; border: 1px solid #c9d9ea; color: #1f486c; border-radius: 9px; padding: .45rem .6rem; font-weight: 700; }
+    .copilot-kicker { margin: 0 0 .2rem; text-transform: uppercase; letter-spacing: .1em; font-size: .72rem; font-weight: 800; color: #68839d; }
+    .copilot-metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .6rem; margin-top: .8rem; }
+    .copilot-metrics div { background: #fff; border: 1px solid #d7e4f1; border-radius: 12px; padding: .75rem; }
+    .copilot-metrics strong { display: block; color: #102f4f; font-size: 1.4rem; }
+    .copilot-metrics span { color: #627f9b; font-size: .82rem; }
+    .copilot-actions { display: flex; gap: .5rem; margin-top: .75rem; flex-wrap: wrap; }
+    .copilot-list { list-style: none; padding: 0; margin: .2rem 0 0; }
+    .copilot-list li { border-top: 1px solid #dce8f3; padding: .7rem 0 0; margin-top: .7rem; }
+    .copilot-list li:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+    .copilot-list p { margin: .28rem 0 0; color: #5a7590; }
+    .copilot-priority { display: inline-flex; margin-left: .5rem; text-transform: uppercase; font-size: .68rem; font-weight: 800; border-radius: 999px; padding: .14rem .45rem; }
+    .copilot-priority.critical { background: #ffe4e4; color: #9c1717; }
+    .copilot-priority.high { background: #fff0dc; color: #8a4f00; }
+    .copilot-priority.medium { background: #edf5ff; color: #1f4d78; }
+    .copilot-priority.low { background: #eef4f9; color: #4e6b88; }
     .focus-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .7rem; margin-top: .7rem; }
     .focus-card p { margin: 0; color: #294b6d; }
     .focus-card small { display: block; margin-top: .35rem; color: #68839d; }
@@ -277,7 +343,7 @@ Enroll -> Assign -> Learn -> Measure
     .sev { text-transform: uppercase; font-size: .75rem; font-weight: 700; }
     .sev.critical { color: #a12727; }
     .sev.high { color: #b45b0e; }
-    @media (max-width: 980px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .executive-band, .story, .focus-grid, .panels, .architecture-diagrams { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .executive-band, .agentic-band, .story, .focus-grid, .panels, .architecture-diagrams { grid-template-columns: 1fr; } .copilot-metrics { grid-template-columns: 1fr; } }
   `],
 })
 export class OrgAdminDashboardPage {
@@ -288,6 +354,7 @@ export class OrgAdminDashboardPage {
   private readonly followUp = inject(OrganizationFollowUpService);
   private readonly troubleshooting = inject(OrganizationTroubleshootingService);
   private readonly firestore = inject(Firestore);
+  private readonly aiCommandCenter = inject(AiCommandCenterService);
 
   private readonly context = toSignal(this.ctx.context$, { initialValue: EMPTY_ORG_CONTEXT });
 
@@ -314,6 +381,8 @@ export class OrgAdminDashboardPage {
   // Local UX state for the access code reveal/copy controls.
   readonly codeRevealed = signal(false);
   readonly codeCopied = signal(false);
+  readonly aiSnapshot = signal<CommandCenterSnapshot | null>(null);
+  readonly agentRunning = signal<string | null>(null);
 
   toggleCode(): void {
     this.codeRevealed.update((v) => !v);
@@ -388,6 +457,16 @@ export class OrgAdminDashboardPage {
     { initialValue: [] as string[] }
   );
 
+  constructor() {
+    this.orgId$.subscribe((id) => {
+      if (!id) {
+        this.aiSnapshot.set(null);
+        return;
+      }
+      void this.refreshAiSnapshot(id);
+    });
+  }
+
   readonly riskSummary = computed(() => {
     const s = this.stats();
     return s ? this.dashboard.strongestWeakest(s) : null;
@@ -445,6 +524,31 @@ export class OrgAdminDashboardPage {
     }
     return 'Completion momentum is currently stronger than operational drag. Keep assignment coverage disciplined.';
   });
+
+  async runOrgAgent(agentId: 'student_success' | 'instructor_assistant'): Promise<void> {
+    const orgId = this.orgId();
+    if (!orgId) {
+      return;
+    }
+    this.agentRunning.set(agentId);
+    try {
+      await this.aiCommandCenter.runAgent({ agentId, organizationId: orgId });
+      await this.refreshAiSnapshot(orgId);
+    } catch (error) {
+      this.logPanelError(`ai-command-center/${agentId}`, orgId, error);
+    } finally {
+      this.agentRunning.set(null);
+    }
+  }
+
+  private async refreshAiSnapshot(orgId: string): Promise<void> {
+    try {
+      this.aiSnapshot.set(await this.aiCommandCenter.getSnapshot({ organizationId: orgId }));
+    } catch (error) {
+      this.logPanelError('ai-command-center snapshot', orgId, error);
+      this.aiSnapshot.set(null);
+    }
+  }
 
   private logPanelError(scope: string, orgId: string, error: unknown): void {
     console.error('[OrgAdminDashboardPage] Firestore panel fallback', {

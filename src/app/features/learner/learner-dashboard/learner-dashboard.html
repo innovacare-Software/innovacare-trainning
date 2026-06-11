@@ -53,6 +53,22 @@
     </div>
   </section>
 
+  <section class="ld-section">
+    <div class="ld-section-head">
+      <h2>AI Next Best Actions</h2>
+      <a routerLink="/learner/assistant" class="btn outline">Open full assistant</a>
+    </div>
+
+    <div class="ld-ai-grid">
+      <article class="card ld-ai-card" *ngFor="let item of aiRecommendations()" [class.ld-ai-card--urgent]="item.tone === 'urgent'" [class.ld-ai-card--focus]="item.tone === 'focus'" [class.ld-ai-card--growth]="item.tone === 'growth'">
+        <div class="ld-ai-card__eyebrow">{{ item.source === 'persisted' ? 'AI agent' : item.tone === 'urgent' ? 'Urgent' : item.tone === 'focus' ? 'Focus' : 'Growth' }}</div>
+        <h3>{{ item.title }}</h3>
+        <p class="muted">{{ item.body }}</p>
+        <a [routerLink]="item.link" [queryParams]="item.queryParams" class="btn">{{ item.cta }}</a>
+      </article>
+    </div>
+  </section>
+
   <!-- My Assignments -->
   <section class="ld-section">
     <div class="ld-section-head">

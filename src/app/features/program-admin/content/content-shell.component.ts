@@ -72,6 +72,10 @@ import { ProgramsAdminService } from '../services/programs-admin.service';
            routerLinkActive="active">
            <span class="cs-tab-icon">🩺</span> Case Studies
         </a>
+        <a [routerLink]="['/program-admin/programs', programId, 'labs']"
+           routerLinkActive="active">
+           <span class="cs-tab-icon">🧪</span> Labs
+        </a>
         <a [routerLink]="['/program-admin/programs', programId, 'resources']"
            routerLinkActive="active">
            <span class="cs-tab-icon">🗂️</span> Resources

@@ -147,6 +147,7 @@ export class LearnerAssistantPage implements AfterViewChecked {
   draft = '';
   readonly suggestions = computed(() => DOMAIN_HINTS[this.context().domain ?? 'general']);
   readonly domainLabel = computed(() => DOMAIN_LABEL[this.context().domain ?? 'general']);
+  private appliedInitialPrompt = false;
 
   private static readonly DOMAIN_ICONS: Record<AssistantDomain, string> = {
     general:    '✦',
@@ -185,6 +186,16 @@ export class LearnerAssistantPage implements AfterViewChecked {
     void this.svc.getEntitlement()
       .then((e) => this.entitlement.set(e))
       .catch(() => this.entitlement.set({ hasAccess: false, allowedDomains: [] }));
+
+    effect(() => {
+      const qp = this.rawContext();
+      const initialPrompt = String(qp.get('prompt') || '').trim();
+      if (!initialPrompt || this.appliedInitialPrompt) {
+        return;
+      }
+      this.draft = initialPrompt;
+      this.appliedInitialPrompt = true;
+    }, { allowSignalWrites: true });
   }
 
   pickDomain(d: AssistantDomain): void {

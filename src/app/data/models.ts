@@ -49,6 +49,10 @@ export interface Course {
   releaseAt?: any;              // serverTimestamp
   publishedAt?: any;            // serverTimestamp
   isPublic?: boolean;           // B2C vs B2B
+  publicPrice?: number;
+  publicCurrency?: string;
+  stripePriceId?: string;
+  stripeProductId?: string;
   passingScore: number;         // e.g. 80
   lockedSequence: boolean;      // require module order
   exipirationDate?: any;        // serverTimestamp

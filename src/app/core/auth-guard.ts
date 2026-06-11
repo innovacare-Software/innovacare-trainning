@@ -28,6 +28,10 @@ function checkRoleAccess(roles: AppRole[]) {
         return router.createUrlTree(['/login']);
       }
 
+      if (profile.requirePasswordChange === true) {
+        return router.createUrlTree(['/force-password-change']);
+      }
+
       const role = profile.role as AppRole;
 
       if (roles.includes(role)) {
@@ -70,6 +74,9 @@ export const authCanMatch: CanMatchFn = () => {
     filter(([ready]) => ready),
     take(1),
     map(([_, profile]): boolean | UrlTree => {
+      if (profile?.requirePasswordChange === true) {
+        return router.createUrlTree(['/force-password-change']);
+      }
       if (profile) return true;
       return router.createUrlTree(['/login']);
     })
@@ -84,6 +91,9 @@ export const authenticatedGuard: CanActivateFn = (_, state) => {
     filter(([ready]) => ready),
     take(1),
     map(([_, profile]): boolean | UrlTree => {
+      if (profile?.requirePasswordChange === true && state.url !== '/force-password-change') {
+        return router.createUrlTree(['/force-password-change']);
+      }
       if (profile) return true;
       return router.createUrlTree(['/login'], {
         queryParams: { returnUrl: state.url },

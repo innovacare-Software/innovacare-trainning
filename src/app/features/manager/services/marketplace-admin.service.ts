@@ -6,6 +6,7 @@ export type PublishCoursePayload = {
   price: number;
   currency: string;
   stripePriceId: string;
+  stripeProductId?: string;
   isPublic: boolean;
 };
 

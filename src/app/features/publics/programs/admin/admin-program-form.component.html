@@ -15,6 +15,26 @@
     <div class="field"><label>Price</label><input type="number" formControlName="price" /></div>
     <div class="field"><label>Discount Price</label><input type="number" formControlName="discountPrice" /></div>
     <div class="field"><label>Currency</label><input formControlName="currency" /></div>
+    <div class="field full">
+      <label>Available Payment Plans</label>
+      <div class="payment-plan-grid">
+        <label class="checkbox-row" *ngFor="let plan of paymentPlanTypes">
+          <input
+            type="checkbox"
+            [checked]="form.controls.availablePaymentPlans.value.includes(plan)"
+            (change)="togglePaymentPlan(plan, $any($event.target).checked)"
+          />
+          <span>{{ paymentPlanLabel(plan) }}</span>
+        </label>
+      </div>
+    </div>
+    <div class="field"><label>Default Payment Plan</label><select formControlName="defaultPaymentPlan"><option *ngFor="let plan of paymentPlanTypes" [value]="plan">{{ paymentPlanLabel(plan) }}</option></select></div>
+    <div class="field"><label>Stripe one-time price ID</label><input formControlName="stripeOneTimePriceId" placeholder="price_..." /></div>
+    <div class="field"><label>Stripe monthly price ID</label><input formControlName="stripeMonthlyPriceId" placeholder="price_..." /></div>
+    <div class="field"><label>Monthly amount</label><input type="number" formControlName="monthlyPrice" /></div>
+    <div class="field"><label>Stripe installment price ID</label><input formControlName="stripeInstallmentPriceId" placeholder="price_..." /></div>
+    <div class="field"><label>Installment amount</label><input type="number" formControlName="installmentPrice" /></div>
+    <div class="field"><label>Installment count</label><input type="number" formControlName="installmentCount" min="2" /></div>
 
     <h3>Learning Structure</h3>
     <div class="field"><label>Category</label><select formControlName="category"><option *ngFor="let c of categories" [value]="c">{{ c }}</option></select></div>

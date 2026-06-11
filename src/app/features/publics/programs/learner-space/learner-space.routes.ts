@@ -136,6 +136,11 @@ export const LEARNER_SPACE_ROUTES: Routes = [
           import('./case-studies/case-study-detail.page').then((m) => m.CaseStudyDetailPage),
       },
       {
+        path: 'labs',
+        loadComponent: () =>
+          import('./labs/program-labs.page').then((m) => m.ProgramLabsPage),
+      },
+      {
         path: 'study-calendar',
         loadComponent: () =>
           import('./study-calendar/study-calendar.page').then((m) => m.StudyCalendarPage),

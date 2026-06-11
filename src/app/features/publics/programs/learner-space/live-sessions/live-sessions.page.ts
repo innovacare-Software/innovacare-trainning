@@ -3,7 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { ActivatedRoute } from '@angular/router';
-import { map, switchMap } from 'rxjs';
+import { distinctUntilChanged, map, switchMap } from 'rxjs';
 import { LanguageService } from '../../../../../core/language.service';
 import { ProgramEnrollmentsService } from '../../program-enrollments.service';
 import {
@@ -229,7 +229,10 @@ export class LiveSessionsPage {
   private readonly language = inject(LanguageService);
   private readonly transloco = inject(TranslocoService);
 
-  private readonly programId$ = this.route.parent!.paramMap.pipe(map((p) => p.get('programId') || ''));
+  private readonly programId$ = this.route.paramMap.pipe(
+    map(() => this.resolveProgramId()),
+    distinctUntilChanged()
+  );
 
   readonly programId = toSignal(this.programId$, { initialValue: '' });
 
@@ -252,6 +255,7 @@ export class LiveSessionsPage {
   readonly busySessionId = signal<string | null>(null);
   readonly error = signal('');
   readonly message = signal('');
+  readonly optimisticReservedSessionIds = signal<Set<string>>(new Set());
   private readonly activeTranslation = toSignal(this.transloco.selectTranslation(), {
     initialValue: null,
   });
@@ -274,7 +278,23 @@ export class LiveSessionsPage {
   }
 
   bookingFor(session: ProgramLiveSession): ProgramLiveSessionBooking | undefined {
-    return this.bookingMap().get(session.id);
+    const existing = this.bookingMap().get(session.id);
+    if (existing) {
+      return existing;
+    }
+
+    if (!this.optimisticReservedSessionIds().has(session.id)) {
+      return undefined;
+    }
+
+    return {
+      id: `optimistic-${session.id}`,
+      uid: '',
+      programId: this.programId(),
+      sessionId: session.id,
+      status: 'reserved',
+      accessMode: this.accessMode(session),
+    };
   }
 
   isPaidSession(session: ProgramLiveSession): boolean {
@@ -384,7 +404,17 @@ export class LiveSessionsPage {
 
   async reserve(session: ProgramLiveSession): Promise<void> {
     await this.runAction(session.id, async () => {
-      await this.sessionsService.reserveSession(this.programId(), session.id);
+      const programId = this.programId().trim();
+      if (!programId) {
+        throw new Error(this.t('programs.learnerSpace.liveSessions.genericError'));
+      }
+
+      await this.sessionsService.reserveSession(programId, session.id);
+      this.optimisticReservedSessionIds.update((ids) => {
+        const next = new Set(ids);
+        next.add(session.id);
+        return next;
+      });
       this.message.set(this.t('programs.learnerSpace.liveSessions.reserveSuccess'));
     });
   }
@@ -414,6 +444,20 @@ export class LiveSessionsPage {
 
   isPast(s: ProgramLiveSession): boolean {
     return this.toDate(s.endAt).getTime() < Date.now();
+  }
+
+  private resolveProgramId(): string {
+    const fromCurrent = this.route.snapshot.paramMap.get('programId');
+    if (fromCurrent) {
+      return fromCurrent;
+    }
+
+    const fromParent = this.route.parent?.snapshot.paramMap.get('programId');
+    if (fromParent) {
+      return fromParent;
+    }
+
+    return this.route.parent?.parent?.snapshot.paramMap.get('programId') || '';
   }
 
   private hasLearnerProgramAccess(): boolean {

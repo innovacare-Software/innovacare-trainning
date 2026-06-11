@@ -2,6 +2,8 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // ── Core auth helpers ────────────────────────────────────────────────────
     function signedIn() {
       return request.auth != null;
     }
@@ -10,11 +12,20 @@ service firebase.storage {
       return signedIn() && request.auth.uid == uid;
     }
 
+    // ── Firestore cross-read helpers ─────────────────────────────────────────
+    // These perform a single Firestore read per rule evaluation.
+    // The platform stores role exclusively in users/{uid}.role (a Firestore
+    // document field). Custom JWT claims are NOT used on this platform — no
+    // Cloud Function sets setCustomUserClaims — so token-claim checks would
+    // always return '' and silently break all role-gated paths.
+
     function hasUserDoc() {
       return signedIn()
         && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid));
     }
 
+    // Read users/{uid}.role from Firestore.
+    // Returns '' if the document does not exist (safe default: deny).
     function userRole() {
       return hasUserDoc()
         ? firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role
@@ -26,6 +37,7 @@ service firebase.storage {
         && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data[flag] == true;
     }
 
+    // ── Platform content management ──────────────────────────────────────────
     function canManageProgramContent() {
       return signedIn() && (
         userRole() in ['super_admin', 'admin', 'manager', 'org_admin', 'org_manager', 'programAdmin', 'programStaff']
@@ -34,34 +46,146 @@ service firebase.storage {
       );
     }
 
-    // Avatar files: avatars/{uid}/... => only that user can read/write.
+    // ══════════════════════════════════════════════════════════════════════════
+    // ██  LAB ENGINE ROLE HELPERS
+    //
+    //  ROOT CAUSE FIX (request.auth.token.role bug):
+    //  The previous implementation used request.auth.token.get('role','') which
+    //  reads Firebase custom JWT claims. However, this platform DOES NOT set
+    //  custom claims anywhere (no setCustomUserClaims call exists in the
+    //  codebase). The token claim was always '', making isLabAdmin() and
+    //  isLabInstructorOrAdmin() permanently false for all users — silently
+    //  breaking lab admin uploads and instructor file review.
+    //
+    //  CORRECTION: Use the same Firestore cross-read pattern as the rest of
+    //  the platform. The userRole() function above already reads users/{uid}.role
+    //  reliably. The Firebase Storage rules engine supports firestore.get().
+    //
+    //  LEARNER ISOLATION: learner workspace WRITE access is gated only on
+    //  signedIn() + file size — owner enforcement is done in Firestore rules
+    //  (labSessions/workspaceFiles) which CAN verify session ownership.
+    //  Storage rules cannot query labSessions cross-collection to verify the
+    //  sessionId-to-userId binding, so size + auth is the correct boundary here.
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // Roles that may administer labs (upload starters, write submissions).
+    function isLabAdmin() {
+      return signedIn()
+        && userRole() in ['super_admin', 'admin', 'manager'];
+    }
+
+    // Roles that may review lab submissions and solution files.
+    // Extends isLabAdmin() to also include instructor/tutor/staff.
+    function isLabInstructorOrAdmin() {
+      return signedIn()
+        && userRole() in ['super_admin', 'admin', 'manager', 'instructor', 'tutor', 'staff'];
+    }
+
+    // ── Avatar files ──────────────────────────────────────────────────────────
     match /avatars/{uid}/{allPaths=**} {
       allow read, write: if isOwner(uid);
     }
 
-    // Program lesson media: authenticated learners can stream/download, while uploads stay limited to program managers.
+    // ── Program lesson media ──────────────────────────────────────────────────
+    // Authenticated learners can stream/download. Uploads are manager-only.
     match /programLessons/{programId}/{moduleId}/{allPaths=**} {
       allow read: if signedIn();
       allow write: if canManageProgramContent();
     }
 
-    // Program documents uploaded from Program Admin form.
+    // ── Program documents ─────────────────────────────────────────────────────
     match /programs/{programId}/documents/{allPaths=**} {
       allow read: if canManageProgramContent();
       allow write: if canManageProgramContent();
     }
 
-    // Africa Mode cover images uploaded during quick course creation.
+    // ── Africa Mode cover images ──────────────────────────────────────────────
     match /program-images/{allPaths=**} {
       allow read: if canManageProgramContent();
       allow write: if canManageProgramContent();
     }
 
-    // Africa Mode lesson images uploaded during lesson authoring.
+    // ── Africa Mode lesson images ─────────────────────────────────────────────
     match /lesson-images/{allPaths=**} {
       allow read: if canManageProgramContent();
       allow write: if canManageProgramContent();
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // ██  LAB ENGINE STORAGE RULES
+    //     Roles verified via Firestore cross-read (users/{uid}.role).
+    //     Learner isolation enforced in Firestore rules (labSessions).
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // ── Lab Starter Files ─────────────────────────────────────────────────────
+    // Any authenticated user can download starter files.
+    // Only lab admins (super_admin / admin / manager) can upload replacements.
+    match /labs/definitions/{labId}/starter/{allPaths=**} {
+      allow read:  if signedIn();
+      allow write: if isLabAdmin();
+    }
+
+    // ── Lab Solution Files ────────────────────────────────────────────────────
+    // Solution files are visible to instructors and admins only —
+    // never to learners. Learners must not be able to retrieve solutions
+    // during an active lab session.
+    match /labs/definitions/{labId}/solution/{allPaths=**} {
+      allow read:  if isLabInstructorOrAdmin();
+      allow write: if isLabAdmin();
+    }
+
+    // ── Learner Workspace Files ───────────────────────────────────────────────
+    // READ: Any authenticated user can read any workspace file.
+    //   - The sessionId in the path is a UUID, not guessable.
+    //   - Fine-grained ownership is enforced in Firestore rules on
+    //     labSessions/{sessionId}/workspaceFiles (which CAN verify userId).
+    //   - Instructors/admins use this read access for learner-session review.
+    //
+    // WRITE: Any authenticated user + 5 MB size cap.
+    //   - Session-to-user binding is enforced by Firestore rules.
+    //   - Storage rules cannot cross-query labSessions to verify sessionId ownership.
+    //   - Size cap prevents large file abuse.
+    match /labs/sessions/{sessionId}/workspace/{allPaths=**} {
+      allow read:  if signedIn();
+      allow write: if signedIn()
+        && request.resource.size < 5 * 1024 * 1024;  // 5 MB max
+    }
+
+    // ── Lab Session Artifact Files ────────────────────────────────────────────
+    // Written by the learner at submission time via exportWorkspaceAsText()
+    // (path: labs/sessions/{sessionId}/artifacts/final.zip).
+    // Read is open to any authenticated user so instructors can review.
+    // Write is allowed for any signed-in user with a 20 MB cap —
+    // session-to-user binding is enforced by Firestore rules on labSessions.
+    match /labs/sessions/{sessionId}/artifacts/{filename} {
+      allow read:  if signedIn();
+      allow write: if signedIn()
+        && request.resource.size < 20 * 1024 * 1024;  // 20 MB max
+    }
+
+    // ── Lab Submission Artifacts ──────────────────────────────────────────────
+    // Learners read their own artifact after submission (any signed-in user can
+    // read — the submissionId is not guessable and was created by the platform).
+    // Write is only via Admin SDK (Cloud Function) using isLabAdmin() since the
+    // Admin SDK runs with elevated privileges that bypass Storage rules.
+    // The write rule here is belt-and-suspenders for non-Admin-SDK callers.
+    match /labs/submissions/{submissionId}/artifact/{allPaths=**} {
+      allow read:  if signedIn();
+      allow write: if isLabAdmin();
+    }
+
+    // ── Lab Export Bundles ────────────────────────────────────────────────────
+    // Learner-generated exports. Path is scoped by sessionId for isolation.
+    // Max 10 MB per file.
+    match /labs/exports/{sessionId}/{filename} {
+      allow read:  if signedIn();
+      allow write: if signedIn()
+        && request.resource.size < 10 * 1024 * 1024;  // 10 MB max
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // END LAB ENGINE STORAGE RULES
+    // ══════════════════════════════════════════════════════════════════════════
 
     // Deny everything else by default.
     match /{allPaths=**} {

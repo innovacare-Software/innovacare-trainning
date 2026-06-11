@@ -6,6 +6,8 @@
 import * as admin from "firebase-admin";
 import {onCall, HttpsError, CallableRequest} from "firebase-functions/v2/https";
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
+import {emitNotificationEvent} from "../notifications/events";
+import {createAgentRun} from "../agentic/service";
 
 const REGION = "us-central1";
 
@@ -173,6 +175,38 @@ export const logSecurityEvent = onCall(
     };
 
     const ref = await db.collection("securityEvents").add(doc);
+
+    if (data.eventType === "LOGIN_SUCCESS_NEW_DEVICE" && auth?.uid) {
+      try {
+        await emitNotificationEvent({
+          type: "LOGIN_SUCCESS_NEW_DEVICE",
+          templateKey: "login_new_device_alert",
+          recipientType: "LEARNER",
+          recipientUserId: auth.uid,
+          orgId: userOrgId,
+          relatedEntityType: "security_event",
+          relatedEntityId: ref.id,
+          idempotencyKey: `login_new_device:${auth.uid}:${ref.id}`,
+          templateData: {
+            learnerName: (userEmail || "Learner").split("@")[0] || "Learner",
+            ctaUrl: "https://www.innovacarereview.com/profile/security",
+          },
+        });
+
+        await createAgentRun({
+          agentId: "student_success",
+          scope: {
+            organizationId: userOrgId,
+            learnerUid: auth.uid,
+            source: "event",
+            requestedBy: auth.uid,
+          },
+        });
+      } catch (error) {
+        console.warn("LOGIN_SUCCESS_NEW_DEVICE side effects failed", error);
+      }
+    }
+
     return {ok: true, id: ref.id};
   },
 );

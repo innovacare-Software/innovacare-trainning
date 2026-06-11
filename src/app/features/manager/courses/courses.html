@@ -1,3 +1,161 @@
+<!-- JSON Import Panel Toolbar -->
+<div class="json-toolbar" *ngIf="isSuperAdmin">
+  <div class="json-toolbar-left">
+    <span class="json-toolbar-title">⚡ Quick Course Import</span>
+    <span class="json-toolbar-sub">Build courses fast from JSON</span>
+  </div>
+  <div class="json-toolbar-actions">
+    <button type="button" class="btn json-dl-btn" (click)="downloadJsonTemplate()" title="Download blank JSON template">
+      📥 Download Template
+    </button>
+    <button type="button" class="btn json-toggle-btn" [class.active]="jsonPanelOpen()" (click)="toggleJsonPanel()">
+      {{ jsonPanelOpen() ? '✕ Close Import' : '📂 Import JSON' }}
+    </button>
+  </div>
+</div>
+
+<!-- JSON Import Panel -->
+<div class="json-import-panel" *ngIf="isSuperAdmin && jsonPanelOpen()">
+  <div class="json-import-header">
+    <h3>📂 Import Course from JSON</h3>
+    <p class="json-import-subtitle">Paste a JSON object or upload a <code>.json</code> file. Preview it, then apply to the form with one click.</p>
+  </div>
+
+  <div class="json-import-body">
+    <!-- Left: Input -->
+    <div class="json-input-col">
+      <label class="json-label" for="json-upload">Upload JSON file</label>
+      <input
+        id="json-upload"
+        type="file"
+        accept=".json,application/json"
+        class="json-file-input"
+        (change)="onJsonFileChange($event)"
+      />
+
+      <label class="json-label" for="json-paste">— or paste JSON —</label>
+      <textarea
+        id="json-paste"
+        class="json-textarea"
+        rows="14"
+        placeholder='{ "title": "My Course", "sections": [...] }'
+        [value]="jsonRaw()"
+        (input)="jsonRaw.set($any($event.target).value)"
+      ></textarea>
+
+      <div class="json-input-actions">
+        <button type="button" class="btn json-parse-btn" (click)="parseJson()">
+          🔍 Validate &amp; Preview
+        </button>
+        <button
+          type="button"
+          class="btn json-apply-btn"
+          [disabled]="!jsonParsed() || jsonApplied()"
+          (click)="applyJsonToForm()"
+        >
+          @if (jsonApplied()) { ✅ Applied } @else { ⚡ Apply to Form }
+        </button>
+      </div>
+
+      @if (jsonError()) {
+        <div class="json-error">❌ {{ jsonError() }}</div>
+      }
+    </div>
+
+    <!-- Right: Preview -->
+    <div class="json-preview-col">
+      @if (!jsonParsed()) {
+        <div class="json-preview-empty">
+          <div class="json-preview-empty-icon">📄</div>
+          <p>Paste JSON on the left and click <strong>Validate &amp; Preview</strong> to see a summary here.</p>
+        </div>
+      } @else {
+        <div class="json-preview-card" [class.applied]="jsonApplied()">
+          <div class="json-preview-badge">
+            @if (jsonApplied()) { <span class="badge-applied">✅ Applied to form</span> }
+            @else { <span class="badge-ready">✔ Valid — Ready to apply</span> }
+          </div>
+
+          <!-- Course meta -->
+          <div class="json-preview-section">
+            <div class="json-preview-field">
+              <span class="jpf-label">Title</span>
+              <span class="jpf-value">{{ jsonParsed()?.title }}</span>
+            </div>
+            <div class="json-preview-field" *ngIf="jsonParsed()?.subtitle">
+              <span class="jpf-label">Subtitle</span>
+              <span class="jpf-value">{{ jsonParsed()?.subtitle }}</span>
+            </div>
+            <div class="json-preview-row">
+              <div class="json-preview-field">
+                <span class="jpf-label">Kind</span>
+                <span class="jpf-chip">{{ jsonParsed()?.kind || '—' }}</span>
+              </div>
+              <div class="json-preview-field">
+                <span class="jpf-label">Lang</span>
+                <span class="jpf-chip">{{ jsonParsed()?.lang || '—' }}</span>
+              </div>
+              <div class="json-preview-field">
+                <span class="jpf-label">Duration</span>
+                <span class="jpf-chip">{{ jsonParsed()?.durationMin || 0 }} min</span>
+              </div>
+              <div class="json-preview-field">
+                <span class="jpf-label">CE Credit</span>
+                <span class="jpf-chip">{{ jsonParsed()?.ceCredit || 0 }}</span>
+              </div>
+            </div>
+            <div class="json-preview-row">
+              <div class="json-preview-field">
+                <span class="jpf-label">Active</span>
+                <span class="jpf-chip" [class.chip-green]="jsonParsed()?.active" [class.chip-red]="!jsonParsed()?.active">
+                  {{ jsonParsed()?.active ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div class="json-preview-field">
+                <span class="jpf-label">Public</span>
+                <span class="jpf-chip" [class.chip-green]="jsonParsed()?.isPublic" [class.chip-red]="!jsonParsed()?.isPublic">
+                  {{ jsonParsed()?.isPublic ? 'Yes ($' + (jsonParsed()?.publicPrice || 0) + ')' : 'No' }}
+                </span>
+              </div>
+              <div class="json-preview-field" *ngIf="jsonParsed()?.lecturer">
+                <span class="jpf-label">Lecturer</span>
+                <span class="jpf-value">{{ jsonParsed()?.lecturer }}</span>
+              </div>
+            </div>
+            <div class="json-preview-field" *ngIf="jsonParsed()?.tags?.length">
+              <span class="jpf-label">Tags</span>
+              <span class="jpf-value">{{ jsonParsed()?.tags?.join(', ') }}</span>
+            </div>
+          </div>
+
+          <!-- Sections tree -->
+          <div class="json-preview-section">
+            <div class="json-preview-section-title">📚 Content Structure</div>
+            @if (!jsonPreviewSections().length) {
+              <p class="json-muted">No sections defined in JSON.</p>
+            } @else {
+              <div class="json-tree">
+                @for (sec of jsonPreviewSections(); track $index) {
+                  <div class="json-tree-section">
+                    <div class="json-tree-section-title">📁 {{ sec.title || 'Untitled section' }}</div>
+                    @for (les of (sec.lessons || []); track $index) {
+                      <div class="json-tree-lesson">
+                        <span class="json-tree-lesson-icon">📄</span>
+                        <span>{{ les.title || 'Untitled lesson' }}</span>
+                        <span class="json-tree-meta">{{ les.estMin || 0 }} min · {{ (les.blocks || []).length }} block(s)</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
 <!-- Create / Edit Course -->
 <div class="card" *ngIf="!isSuperAdmin">
   <h2>Creation is centralized to Super Admin</h2>
@@ -142,6 +300,34 @@
       <label for="imageUrl">Course Image URL</label>
       <input id="imageUrl" type="url" formControlName="imageUrl" placeholder="https://example.com/image.jpg" />
     </div>
+  </fieldset>
+
+  <fieldset class="form-section">
+    <legend>Marketplace & Stripe</legend>
+
+    <div class="row grid">
+      <div>
+        <label for="publicPrice">Public Price</label>
+        <input id="publicPrice" type="number" min="0" step="0.01" formControlName="publicPrice" placeholder="49" />
+      </div>
+
+      <div>
+        <label for="publicCurrency">Currency</label>
+        <input id="publicCurrency" type="text" maxlength="8" formControlName="publicCurrency" placeholder="USD" />
+      </div>
+    </div>
+
+    <div class="row">
+      <label for="stripePriceId">Stripe Price ID</label>
+      <input id="stripePriceId" type="text" formControlName="stripePriceId" placeholder="price_..." />
+    </div>
+
+    <div class="row">
+      <label for="stripeProductId">Stripe Product ID</label>
+      <input id="stripeProductId" type="text" formControlName="stripeProductId" placeholder="prod_..." />
+    </div>
+
+    <p class="muted">Quand le cours est public, la sauvegarde synchronise automatiquement son offre marketplace.</p>
   </fieldset>
 
   <!-- Metadata Section -->
@@ -464,6 +650,10 @@
 
     <button *ngIf="editId" type="button" class="btn outline" (click)="cancelEdit()">
       Cancel edit
+    </button>
+
+    <button type="button" class="btn json-dl-btn" title="Download current form as JSON" (click)="downloadCurrentFormAsJson()">
+      💾 Export form as JSON
     </button>
 
     <span *ngIf="loadingEdit" class="muted">Loading…</span>

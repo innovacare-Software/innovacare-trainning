@@ -64,6 +64,33 @@
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json"
             },
+            "staging": {
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              },
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "50000kB",
+                  "maximumError": "1000MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4000kB",
+                  "maximumError": "8000kB"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json",
+              "fileReplacements": [
+                {
+                  "replace": "src/enviroments/enviroment.ts",
+                  "with": "src/enviroments/enviroment.staging.ts"
+                }
+              ]
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -77,6 +104,9 @@
           "configurations": {
             "production": {
               "buildTarget": "myapp:build:production"
+            },
+            "staging": {
+              "buildTarget": "myapp:build:staging"
             },
             "development": {
               "buildTarget": "myapp:build:development"

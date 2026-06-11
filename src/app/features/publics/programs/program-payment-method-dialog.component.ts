@@ -6,7 +6,11 @@ import {
   PaymentService,
 } from '../../../core/payment.service';
 import { CheckoutService } from '../../../core/checkout.service';
-import { ProgramCurrency } from './program.models';
+import {
+  ProgramCheckoutPlanOption,
+  ProgramCurrency,
+  ProgramPaymentPlanType,
+} from './program.models';
 import { ProgramEnrollmentsService } from './program-enrollments.service';
 
 export interface ProgramPaymentMethodDialogData {
@@ -15,6 +19,8 @@ export interface ProgramPaymentMethodDialogData {
   programTitle: string;
   amount: number;
   currency: ProgramCurrency;
+  paymentPlans?: ProgramCheckoutPlanOption[];
+  defaultPaymentPlan?: ProgramPaymentPlanType;
   defaultPhone?: string;
   autoMethod?: 'stripe' | 'cinetpay';
 }
@@ -45,12 +51,34 @@ export class ProgramPaymentMethodDialogComponent implements OnInit {
   readonly data = inject<ProgramPaymentMethodDialogData>(MAT_DIALOG_DATA);
   readonly loadingMethod = signal<null | 'stripe' | 'cinetpay'>(null);
   readonly errorMessage = signal('');
+  readonly selectedPaymentPlan = signal<ProgramPaymentPlanType>('one_time');
+
+  get paymentPlans(): ProgramCheckoutPlanOption[] {
+    return this.data.paymentPlans?.length
+      ? this.data.paymentPlans
+      : [{
+          type: 'one_time',
+          label: 'One-time payment',
+          amount: this.data.amount,
+          currency: this.data.currency,
+          description: 'Single payment for immediate access.',
+          isRecurring: false,
+        }];
+  }
+
+  get activePaymentPlan(): ProgramCheckoutPlanOption {
+    return this.paymentPlans.find((plan) => plan.type === this.selectedPaymentPlan()) || this.paymentPlans[0];
+  }
 
   close(): void {
     this.dialogRef.close({ status: 'closed' });
   }
 
   ngOnInit(): void {
+    this.selectedPaymentPlan.set(
+      this.paymentPlans.find((plan) => plan.type === this.data.defaultPaymentPlan)?.type || this.paymentPlans[0].type
+    );
+
     if (this.data.autoMethod === 'cinetpay') {
       void this.payWithCinetPay();
       return;
@@ -70,6 +98,7 @@ export class ProgramPaymentMethodDialogComponent implements OnInit {
         programId: this.data.programId,
         enrollmentId: this.data.enrollmentId,
         paymentMethod: 'stripe',
+        paymentPlan: this.activePaymentPlan.type,
         provider: 'stripe',
       });
 
@@ -123,5 +152,9 @@ export class ProgramPaymentMethodDialogComponent implements OnInit {
   contactTrainer(): void {
     const message = encodeURIComponent(`Hello, I need help to complete payment for ${this.data.programTitle}.`);
     window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener');
+  }
+
+  selectPaymentPlan(plan: ProgramPaymentPlanType): void {
+    this.selectedPaymentPlan.set(plan);
   }
 }

@@ -28,6 +28,7 @@ import {
   handleAutomationCheckoutCompleted,
   handleStripeRecurringEvent,
 } from "./automation/recurring";
+import {createAgentRun} from "./agentic/service";
 import {recordServerSecurityEvent} from "./security/functions";
 
 /* ─────────── Init & global opts ─────────── */
@@ -572,7 +573,8 @@ type PublishCoursePayload = {
   courseId: string;
   price: number;
   currency?: string;
-  stripePriceId: string;
+  stripePriceId?: string;
+  stripeProductId?: string;
   isPublic?: boolean;
 };
 
@@ -585,6 +587,17 @@ type CreateOrgUserPayload = {
   title?: string;
   role?: "admin" | "manager" | "learner" | "guest" | "instructor" | "tutor" | "staff";
   status?: "active" | "inactive";
+};
+
+type ResetOrgUserPasswordPayload = {
+  uid?: string;
+  password?: string;
+};
+
+type ResetOrgUserPasswordResult = {
+  ok: boolean;
+  uid: string;
+  email: string | null;
 };
 
 type NotificationRole = "learner" | "nurse" | "staff" | "admin" | "manager";
@@ -957,6 +970,7 @@ type UserProfileDoc = {
 };
 
 type HybridPaymentMethod = "stripe" | "mobile_money";
+type ProgramPaymentPlanType = "one_time" | "monthly_subscription" | "installments";
 
 type PaymentStored = {
   id?: string;
@@ -979,6 +993,11 @@ type PaymentStored = {
   webhookEventId?: string | null;
   orgId?: string | null;
   title?: string;
+  paymentPlan?: ProgramPaymentPlanType;
+  paymentPlanLabel?: string | null;
+  subscriptionId?: string | null;
+  installmentCount?: number | null;
+  installmentsPaid?: number;
 };
 
 type ProgramPaymentContext = {
@@ -991,6 +1010,11 @@ type ProgramPaymentContext = {
   programImageUrl?: string;
   amount: number;
   currency: string;
+  paymentPlan: ProgramPaymentPlanType;
+  paymentPlanLabel: string;
+  stripePriceId: string | null;
+  isRecurring: boolean;
+  installmentCount: number | null;
   orgId: string | null;
   email?: string;
   displayName?: string;
@@ -1010,11 +1034,35 @@ type CreatePaymentIntentPayload = {
   enrollmentId?: string;
   amountUSD?: number;
   paymentMethod?: HybridPaymentMethod;
+  paymentPlan?: ProgramPaymentPlanType;
   phone?: string;
   provider?: string;
   successUrl?: string;
   cancelUrl?: string;
 };
+
+function normalizeProgramPaymentPlan(value: unknown): ProgramPaymentPlanType {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "monthly_subscription" || normalized === "installments") {
+    return normalized;
+  }
+
+  return "one_time";
+}
+
+function programPaymentPlanLabel(plan: ProgramPaymentPlanType, installmentCount?: number | null): string {
+  if (plan === "monthly_subscription") {
+    return "Monthly subscription";
+  }
+
+  if (plan === "installments") {
+    return installmentCount && installmentCount > 1 ?
+      `${installmentCount} installments` :
+      "Installments";
+  }
+
+  return "One-time payment";
+}
 
 const PROGRAM_LIVE_SESSION_ITEM_PREFIX = "program_live_session:";
 
@@ -1137,6 +1185,14 @@ async function resolveProgramPaymentContext(
     price?: number;
     discountPrice?: number | null;
     currency?: string;
+    availablePaymentPlans?: unknown[];
+    defaultPaymentPlan?: ProgramPaymentPlanType;
+    stripeOneTimePriceId?: string | null;
+    stripeMonthlyPriceId?: string | null;
+    monthlyPrice?: number | null;
+    stripeInstallmentPriceId?: string | null;
+    installmentPrice?: number | null;
+    installmentCount?: number | null;
     orgId?: string | null;
     ownerType?: OwnerType;
     ownerId?: string;
@@ -1148,11 +1204,34 @@ async function resolveProgramPaymentContext(
   };
   const userData = (userSnap.data() || {}) as UserProfileDoc;
 
-  const amount = Number(enrollment.amount || program.discountPrice || program.price || 0);
+  const availablePaymentPlans = Array.isArray(program.availablePaymentPlans) && program.availablePaymentPlans.length ?
+    program.availablePaymentPlans.map((plan) => normalizeProgramPaymentPlan(plan)) :
+    ["one_time"];
+  const requestedPaymentPlan = normalizeProgramPaymentPlan(payload.paymentPlan);
+  const defaultPaymentPlan = normalizeProgramPaymentPlan(program.defaultPaymentPlan || availablePaymentPlans[0] || "one_time");
+  const paymentPlan = availablePaymentPlans.includes(requestedPaymentPlan) ? requestedPaymentPlan : defaultPaymentPlan;
+  const baseAmount = Number(program.discountPrice ?? program.price ?? enrollment.amount ?? 0);
+  const installmentCount = Number(program.installmentCount || 0) >= 2 ? Number(program.installmentCount) : null;
+  const fallbackInstallmentAmount = installmentCount ? Math.round((baseAmount / installmentCount) * 100) / 100 : baseAmount;
+  const amount = paymentPlan === "monthly_subscription" ?
+    Number(program.monthlyPrice ?? baseAmount) :
+    paymentPlan === "installments" ?
+      Number(program.installmentPrice ?? fallbackInstallmentAmount) :
+      Number(baseAmount);
   const currency = String(enrollment.currency || program.currency || "USD").trim().toUpperCase();
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new HttpsError("failed-precondition", "Invalid program price.");
   }
+
+  if (paymentPlan === "installments" && !installmentCount) {
+    throw new HttpsError("failed-precondition", "Installment plan requires installmentCount >= 2.");
+  }
+
+  const stripePriceId = paymentPlan === "monthly_subscription" ?
+    String(program.stripeMonthlyPriceId || "").trim() || null :
+    paymentPlan === "installments" ?
+      String(program.stripeInstallmentPriceId || "").trim() || null :
+      String(program.stripeOneTimePriceId || "").trim() || null;
 
   return {
     uid,
@@ -1164,6 +1243,11 @@ async function resolveProgramPaymentContext(
     programImageUrl: String(program.imageUrl || "").trim() || undefined,
     amount,
     currency,
+    paymentPlan,
+    paymentPlanLabel: programPaymentPlanLabel(paymentPlan, installmentCount),
+    stripePriceId,
+    isRecurring: paymentPlan !== "one_time",
+    installmentCount,
     orgId: String(enrollment.orgId || program.orgId || userData.orgId || "").trim() || null,
     email: (typeof userData.email === "string" && userData.email.trim())
       ? userData.email.trim()
@@ -1229,6 +1313,7 @@ async function finalizeProgramEnrollmentPayment(args: {
   providerTransactionId?: string | null;
   checkoutSessionId?: string | null;
   paymentIntentId?: string | null;
+  subscriptionId?: string | null;
   rawPayload?: unknown;
 }): Promise<{uid: string; programId: string; programTitle: string; orgId: string | null}> {
   const paymentRef = db.doc(`payments/${args.paymentId}`);
@@ -1286,6 +1371,7 @@ async function finalizeProgramEnrollmentPayment(args: {
       providerTransactionId: args.providerTransactionId || null,
       checkoutSessionId: args.checkoutSessionId || null,
       paymentIntentId: args.paymentIntentId || null,
+      subscriptionId: args.subscriptionId || null,
       rawPayload: args.rawPayload || null,
       succeededAt: nowTs(),
       updatedAt: nowTs(),
@@ -1296,6 +1382,8 @@ async function finalizeProgramEnrollmentPayment(args: {
       status: "active",
       activatedAt: nowTs(),
       paymentId: args.paymentId,
+      subscriptionId: args.subscriptionId || null,
+      subscriptionStatus: args.subscriptionId ? "active" : null,
       paymentMethod: payment.method || null,
       paymentProvider: payment.provider || null,
       paymentReference: payment.reference || null,
@@ -1357,6 +1445,23 @@ async function finalizeProgramEnrollmentPayment(args: {
   });
 
   await emitNotificationEvent({
+    type: "PAYMENT_SUCCEEDED",
+    templateKey: "payment_succeeded",
+    recipientType: "LEARNER",
+    recipientUserId: finalized.uid,
+    orgId: finalized.orgId,
+    courseId: finalized.programId,
+    relatedEntityType: "payment",
+    relatedEntityId: args.paymentId,
+    idempotencyKey: `payment_succeeded:${args.paymentId}`,
+    templateData: {
+      learnerName: "Learner",
+      courseTitle: finalized.programTitle,
+      ctaUrl: `${APP_ORIGIN}/my-programs/${finalized.programId}`,
+    },
+  });
+
+  await emitNotificationEvent({
     type: "PURCHASE_CONFIRMATION",
     templateKey: "purchase_confirmation",
     recipientType: "LEARNER",
@@ -1392,6 +1497,193 @@ async function finalizeProgramEnrollmentPayment(args: {
   });
 
   return finalized;
+}
+
+async function findProgramEnrollmentBySubscriptionId(subscriptionId: string): Promise<FirebaseFirestore.QueryDocumentSnapshot | null> {
+  if (!subscriptionId) {
+    return null;
+  }
+
+  const snap = await db.collection("programEnrollments")
+    .where("subscriptionId", "==", subscriptionId)
+    .limit(1)
+    .get();
+  return snap.empty ? null : snap.docs[0];
+}
+
+async function handleProgramRecurringStripeEvent(event: Stripe.Event): Promise<boolean> {
+  const readSubscriptionId = (value: unknown): string => {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (value && typeof value === "object" && "id" in (value as Record<string, unknown>)) {
+      return String((value as Record<string, unknown>).id || "").trim();
+    }
+    return "";
+  };
+
+  if (event.type === "invoice.payment_succeeded") {
+    const invoice = event.data.object as Stripe.Invoice;
+    const subscriptionId = readSubscriptionId((invoice as Stripe.Invoice & {subscription?: unknown}).subscription);
+    const enrollmentDoc = await findProgramEnrollmentBySubscriptionId(subscriptionId);
+    if (!enrollmentDoc) {
+      return false;
+    }
+
+    let shouldCancelInstallments = false;
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(enrollmentDoc.ref);
+      const data = (snap.data() || {}) as {
+        selectedPaymentPlan?: ProgramPaymentPlanType;
+        installmentCount?: number | null;
+        installmentsPaid?: number;
+      };
+      const installmentCount = Number(data.installmentCount || 0) >= 2 ? Number(data.installmentCount) : null;
+      const nextInstallmentsPaid = data.selectedPaymentPlan === "installments" ? Number(data.installmentsPaid || 0) + 1 : Number(data.installmentsPaid || 0);
+      shouldCancelInstallments = data.selectedPaymentPlan === "installments" && !!installmentCount && nextInstallmentsPaid >= installmentCount;
+
+      tx.set(enrollmentDoc.ref, {
+        paymentStatus: "paid",
+        status: "active",
+        subscriptionStatus: "active",
+        installmentsPaid: nextInstallmentsPaid,
+        lastInvoiceId: invoice.id,
+        lastInvoicePaidAt: nowTs(),
+        updatedAt: nowTs(),
+      }, {merge: true});
+    });
+
+    if (shouldCancelInstallments) {
+      try {
+        await getStripe().subscriptions.update(subscriptionId, {
+          cancel_at_period_end: true,
+        });
+        await enrollmentDoc.ref.set({
+          cancelAtPeriodEnd: true,
+          updatedAt: nowTs(),
+        }, {merge: true});
+      } catch (error) {
+        console.warn("Unable to schedule installment subscription cancellation", {subscriptionId, error});
+      }
+    }
+
+    return true;
+  }
+
+  if (event.type === "invoice.payment_failed") {
+    const invoice = event.data.object as Stripe.Invoice;
+    const subscriptionId = readSubscriptionId((invoice as Stripe.Invoice & {subscription?: unknown}).subscription);
+    const enrollmentDoc = await findProgramEnrollmentBySubscriptionId(subscriptionId);
+    if (!enrollmentDoc) {
+      return false;
+    }
+
+    const enrollmentData = (enrollmentDoc.data() || {}) as {
+      userId?: string;
+      orgId?: string;
+      programId?: string;
+      programTitle?: string;
+      title?: string;
+    };
+
+    await enrollmentDoc.ref.set({
+      paymentStatus: "pending",
+      status: "pending",
+      subscriptionStatus: "past_due",
+      lastInvoiceId: invoice.id,
+      lastInvoiceFailedAt: nowTs(),
+      updatedAt: nowTs(),
+    }, {merge: true});
+
+    const learnerUid = String(enrollmentData.userId || "").trim();
+    if (learnerUid) {
+      await emitNotificationEvent({
+        type: "PAYMENT_FAILED",
+        templateKey: "payment_failed",
+        recipientType: "LEARNER",
+        recipientUserId: learnerUid,
+        orgId: String(enrollmentData.orgId || "").trim() || null,
+        courseId: String(enrollmentData.programId || "").trim() || undefined,
+        relatedEntityType: "subscription_invoice",
+        relatedEntityId: invoice.id,
+        idempotencyKey: `payment_failed:invoice:${invoice.id}`,
+        templateData: {
+          learnerName: "Learner",
+          courseTitle: String(enrollmentData.programTitle || enrollmentData.title || "your program").trim() || "your program",
+          ctaUrl: `${APP_ORIGIN}/my-programs`,
+        },
+      });
+
+      await createAgentRun({
+        agentId: "sales_enrollment",
+        scope: {
+          organizationId: String(enrollmentData.orgId || "").trim() || null,
+          learnerUid,
+          programId: String(enrollmentData.programId || "").trim() || null,
+          source: "event",
+          requestedBy: "system_payments",
+        },
+      });
+    }
+
+    return true;
+  }
+
+  if (event.type === "customer.subscription.updated") {
+    const subscription = event.data.object as Stripe.Subscription;
+    const enrollmentDoc = await findProgramEnrollmentBySubscriptionId(subscription.id);
+    if (!enrollmentDoc) {
+      return false;
+    }
+
+    const subscriptionStatus = String(subscription.status || "").trim();
+    const enrollmentPatch: Record<string, unknown> = {
+      subscriptionStatus,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end === true,
+      updatedAt: nowTs(),
+    };
+
+    if (subscriptionStatus === "past_due" || subscriptionStatus === "unpaid") {
+      enrollmentPatch.paymentStatus = "pending";
+      enrollmentPatch.status = "pending";
+    } else if (subscriptionStatus === "active" || subscriptionStatus === "trialing") {
+      enrollmentPatch.status = "active";
+    } else if (subscriptionStatus === "canceled" || subscriptionStatus === "incomplete_expired") {
+      enrollmentPatch.status = "cancelled";
+      enrollmentPatch.paymentStatus = "pending";
+    }
+
+    await enrollmentDoc.ref.set(enrollmentPatch, {merge: true});
+    return true;
+  }
+
+  if (event.type === "customer.subscription.deleted") {
+    const subscription = event.data.object as Stripe.Subscription;
+    const enrollmentDoc = await findProgramEnrollmentBySubscriptionId(subscription.id);
+    if (!enrollmentDoc) {
+      return false;
+    }
+
+    const data = (enrollmentDoc.data() || {}) as {
+      selectedPaymentPlan?: ProgramPaymentPlanType;
+      installmentCount?: number | null;
+      installmentsPaid?: number;
+    };
+    const installmentCount = Number(data.installmentCount || 0) >= 2 ? Number(data.installmentCount) : null;
+    const installmentsPaid = Number(data.installmentsPaid || 0);
+    const installmentPlanCompleted = data.selectedPaymentPlan === "installments" && !!installmentCount && installmentsPaid >= installmentCount;
+
+    await enrollmentDoc.ref.set({
+      subscriptionStatus: String(subscription.status || "canceled").trim() || "canceled",
+      status: installmentPlanCompleted ? "active" : "cancelled",
+      paymentStatus: installmentPlanCompleted ? "paid" : "pending",
+      cancelledAt: nowTs(),
+      updatedAt: nowTs(),
+    }, {merge: true});
+    return true;
+  }
+
+  return false;
 }
 
 async function markPaymentFailed(args: {
@@ -1445,6 +1737,17 @@ async function markPaymentFailed(args: {
         learnerName: "Learner",
         courseTitle: String(payment.title || "your program"),
         ctaUrl: `${APP_ORIGIN}/pricing`,
+      },
+    });
+
+    await createAgentRun({
+      agentId: "sales_enrollment",
+      scope: {
+        organizationId: String(payment.orgId || "").trim() || null,
+        learnerUid: uid,
+        programId: String(payment.programId || "").trim() || null,
+        source: "event",
+        requestedBy: "system_payments",
       },
     });
   }
@@ -1763,6 +2066,12 @@ async function handleStripeWebhookRequest(req: any, res: any): Promise<void> {
       event.type === "customer.subscription.deleted"
     ) {
       try {
+        const handledProgramRecurring = await handleProgramRecurringStripeEvent(event);
+        if (handledProgramRecurring) {
+          res.status(200).send({received: true, recurring: true, scope: "programs"});
+          return;
+        }
+
         const handled = await handleStripeRecurringEvent(event);
         if (handled) {
           res.status(200).send({received: true, recurring: true});
@@ -1966,6 +2275,7 @@ async function handleStripeWebhookRequest(req: any, res: any): Promise<void> {
           providerTransactionId: String(session.payment_intent || session.id),
           checkoutSessionId: session.id,
           paymentIntentId: String(session.payment_intent || "").trim() || null,
+          subscriptionId: typeof session.subscription === "string" ? session.subscription : session.subscription?.id || null,
           rawPayload: session,
         });
       } else if (enrollmentId) {
@@ -5184,22 +5494,38 @@ async function grantPurchasedAccessInternal(params: GrantAccessParams) {
       .limit(1)
       .get();
 
-    if (!existingSnap.empty) return;
+    if (existingSnap.empty) {
+      const ref = db.collection(`users/${uid}/guestEnrollments`).doc();
+      await ref.set({
+        id: ref.id,
+        uid,
+        courseId: itemId,
+        source: "purchase",
+        orderId,
+        status: "active",
+        progressPct: 0,
+        currentLessonId: null,
+        completedLessonIds: [],
+        createdAt: nowTs(),
+        updatedAt: nowTs(),
+      });
+    }
 
-    const ref = db.collection(`users/${uid}/guestEnrollments`).doc();
-    await ref.set({
-      id: ref.id,
-      uid,
+    // Standard enrollment for fallback / primary dashboard consistency
+    await db.doc(`users/${uid}/enrollments/${itemId}`).set({
+      id: itemId,
       courseId: itemId,
-      source: "purchase",
-      orderId,
+      userId: uid,
       status: "active",
       progressPct: 0,
       currentLessonId: null,
       completedLessonIds: [],
+      orderId,
+      source: "purchase",
       createdAt: nowTs(),
       updatedAt: nowTs(),
-    });
+    }, {merge: true});
+
     return;
   }
 
@@ -6154,6 +6480,103 @@ export const createOrgUser = onCall(
   }
 );
 
+export const resetOrgUserPassword = onCall(
+  {invoker: HTTPS_PUBLIC},
+  async (request: CallableRequest<ResetOrgUserPasswordPayload>) => {
+    const callerUid = request.auth?.uid;
+    if (!callerUid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const callerCtx = await getUserContext(callerUid);
+    if (!callerCtx.active) {
+      throw new HttpsError("permission-denied", "Caller account is inactive.");
+    }
+
+    const callerProfileSnap = await db.doc(`users/${callerUid}`).get();
+    const normalizedCallerRole = inferNormalizedProgramAccessRole(callerProfileSnap.data() || {role: callerCtx.role})
+      .trim()
+      .toLowerCase();
+    const allowedRoles = new Set(["super_admin", "admin", "manager", "programadmin"]);
+    if (!allowedRoles.has(normalizedCallerRole)) {
+      throw new HttpsError("permission-denied", "Only admins can reset user passwords.");
+    }
+
+    const data = request.data || ({} as ResetOrgUserPasswordPayload);
+    const targetUid = String(data.uid || "").trim();
+    const password = String(data.password || "");
+
+    if (!targetUid) {
+      throw new HttpsError("invalid-argument", "A target user uid is required.");
+    }
+    if (password.length < 8) {
+      throw new HttpsError("invalid-argument", "Password must be at least 8 characters.");
+    }
+
+    const targetUserRef = db.doc(`users/${targetUid}`);
+    const targetUserSnap = await targetUserRef.get();
+    if (!targetUserSnap.exists) {
+      throw new HttpsError("not-found", "Target user not found.");
+    }
+
+    const targetOrgId = String(targetUserSnap.get("orgId") || "").trim() || null;
+    if (normalizedCallerRole !== "super_admin") {
+      const callerOrgId = String(callerCtx.orgId || "").trim() || null;
+      if (!callerOrgId) {
+        throw new HttpsError("failed-precondition", "No organization attached to caller account.");
+      }
+      if (!targetOrgId || targetOrgId !== callerOrgId) {
+        throw new HttpsError("permission-denied", "You can only reset passwords inside your organization.");
+      }
+    }
+
+    try {
+      const userRecord = await admin.auth().updateUser(targetUid, {password});
+      await targetUserRef.set({
+        requirePasswordChange: true,
+        temporaryPasswordIssuedAt: nowTs(),
+        updatedAt: nowTs(),
+      }, {merge: true});
+
+      const targetEmail = String(userRecord.email || targetUserSnap.get("email") || "").trim() || null;
+      const actorName = String(
+        callerProfileSnap.get("displayName") ||
+        callerProfileSnap.get("email") ||
+        request.auth?.token?.name ||
+        "Admin"
+      ).trim() || "Admin";
+
+      const notificationId = db.collection("_notificationIds").doc().id;
+      await writeAdminNotificationLog({
+        notificationId,
+        title: "User password reset",
+        body: targetEmail ? `Password reset for ${targetEmail}.` : `Password reset for user ${targetUid}.`,
+        link: null,
+        severity: "warning",
+        category: "account",
+        audience: {type: "role", role: "admin"},
+        createdBy: {
+          uid: callerUid,
+          name: actorName,
+        },
+        orgId: targetOrgId || String(callerCtx.orgId || "").trim() || null,
+        recipientsCount: 1,
+      });
+
+      return {
+        ok: true,
+        uid: targetUid,
+        email: targetEmail,
+      } satisfies ResetOrgUserPasswordResult;
+    } catch (error: any) {
+      if (error?.code === "auth/user-not-found") {
+        throw new HttpsError("not-found", "Target auth account not found.");
+      }
+      throw new HttpsError("internal", error?.message || "Unable to reset password.");
+    }
+  },
+);
+
 export const normalizeLegacyProgramAccessRoles = onCall(
   {invoker: HTTPS_PUBLIC},
   async (request: CallableRequest<NormalizeLegacyProgramAccessRolesPayload>) => {
@@ -6828,6 +7251,22 @@ export const createCheckoutSession = onCall(
       updatedAt: nowTs(),
     });
 
+    await emitNotificationEvent({
+      type: "CHECKOUT_STARTED",
+      templateKey: "checkout_started",
+      recipientType: "LEARNER",
+      recipientUserId: uid,
+      orgId,
+      relatedEntityType: "order",
+      relatedEntityId: orderRef.id,
+      idempotencyKey: `checkout_started:${orderRef.id}:${session.id}`,
+      templateData: {
+        learnerName: "Learner",
+        courseTitle: orderTitle,
+        ctaUrl: session.url || `${APP_ORIGIN}/pricing`,
+      },
+    });
+
     return {url: session.url};
   },
 );
@@ -7366,6 +7805,9 @@ export const createPaymentIntent = onCall(
     const itemType = request.data?.itemType === "wallet_topup" ? "wallet_topup" : "program";
     const programContext = itemType === "program" ? await resolveProgramPaymentContext(uid, request.data || {}) : null;
     const walletContext = itemType === "wallet_topup" ? await resolveWalletTopUpPaymentContext(uid, request.data || {}) : null;
+    if (itemType === "program" && programContext?.isRecurring && method !== "stripe") {
+      throw new HttpsError("failed-precondition", "Recurring program plans require Stripe checkout.");
+    }
     const programConnectDestination = itemType === "program" && programContext ?
       await buildProgramStripeConnectPaymentIntentData(
         String(programContext.programId || ""),
@@ -7398,6 +7840,9 @@ export const createPaymentIntent = onCall(
       itemType,
       title: itemType === "program" ? programContext?.programTitle : walletContext?.title,
       orgId: itemType === "program" ? programContext?.orgId : walletContext?.orgId,
+      paymentPlan: itemType === "program" ? programContext?.paymentPlan : null,
+      paymentPlanLabel: itemType === "program" ? programContext?.paymentPlanLabel : null,
+      installmentCount: itemType === "program" ? programContext?.installmentCount : null,
       ownerType: itemType === "program" ? programConnectDestination.ownerType : "platform",
       ownerId: itemType === "program" ? programConnectDestination.ownerId : null,
       payoutMode: itemType === "program" ? programConnectDestination.payoutMode : "manual",
@@ -7435,6 +7880,9 @@ export const createPaymentIntent = onCall(
         amount: itemType === "program" ? programContext?.amount : walletContext?.amount,
         currency: itemType === "program" ? programContext?.currency : walletContext?.currency,
         enrollmentId: itemType === "program" ? programContext?.enrollmentId : null,
+        paymentPlan: itemType === "program" ? programContext?.paymentPlan : null,
+        paymentPlanLabel: itemType === "program" ? programContext?.paymentPlanLabel : null,
+        installmentCount: itemType === "program" ? programContext?.installmentCount : null,
         paymentId: paymentRef.id,
         reference,
         ownerType: itemType === "program" ? programConnectDestination.ownerType : "platform",
@@ -7452,6 +7900,8 @@ export const createPaymentIntent = onCall(
           amount: itemType === "program" ? programContext?.amount || 0 : walletContext?.amount || 0,
           currency: itemType === "program" ? programContext?.currency || "USD" : walletContext?.currency || "USD",
           qty: 1,
+          stripePriceId: itemType === "program" ? programContext?.stripePriceId || null : null,
+          paymentPlan: itemType === "program" ? programContext?.paymentPlan || null : null,
           ownerType: itemType === "program" ? programConnectDestination.ownerType : "platform",
           ownerId: itemType === "program" ? programConnectDestination.ownerId : null,
           payoutMode: itemType === "program" ? programConnectDestination.payoutMode : "manual",
@@ -7470,7 +7920,13 @@ export const createPaymentIntent = onCall(
     if (itemType === "program" && programContext) {
       writes.push(
         db.doc(`programEnrollments/${programContext.enrollmentId}`).set({
+          amount: programContext.amount,
+          currency: programContext.currency,
           paymentStatus: "pending",
+          selectedPaymentPlan: programContext.paymentPlan,
+          paymentPlanLabel: programContext.paymentPlanLabel,
+          installmentCount: programContext.installmentCount,
+          installmentsPaid: 0,
           pendingPaymentId: paymentRef.id,
           paymentMethod: method,
           paymentProvider: provider,
@@ -7507,6 +7963,9 @@ export const createPaymentIntent = onCall(
       if (itemType === "program") {
         sessionMetadata.enrollmentId = String(programContext?.enrollmentId || "");
         sessionMetadata.programId = String(programContext?.programId || "");
+        sessionMetadata.paymentPlan = String(programContext?.paymentPlan || "one_time");
+        sessionMetadata.paymentPlanLabel = String(programContext?.paymentPlanLabel || "One-time payment");
+        sessionMetadata.installmentCount = String(programContext?.installmentCount || "");
         sessionMetadata.ownerType = String(programConnectDestination.ownerType);
         sessionMetadata.ownerId = String(programConnectDestination.ownerId || "");
         sessionMetadata.courseId = "";
@@ -7522,27 +7981,43 @@ export const createPaymentIntent = onCall(
 
       let session: Stripe.Checkout.Session;
       try {
+        const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = programContext?.stripePriceId ? {
+          price: programContext.stripePriceId,
+          quantity: 1,
+        } : {
+          price_data: {
+            currency: String(itemType === "program" ? programContext?.currency : walletContext?.currency || "USD").toLowerCase(),
+            product_data: {
+              name: itemType === "program" ? programContext?.programTitle || "Program" : "Innovacare Review — Wallet Credits",
+              description: itemType === "program" ?
+                String(programContext?.programSubtitle || programContext?.programDescription || "").trim().slice(0, 500) || undefined :
+                `Add $${Number(walletContext?.amount || 0).toFixed(2)} to your Innovacare Review wallet`,
+              ...(imageUrl ? {images: [imageUrl]} : {}),
+            },
+            unit_amount: unitAmount,
+            ...(itemType === "program" && programContext?.isRecurring ? {
+              recurring: {
+                interval: "month",
+                interval_count: 1,
+              },
+            } : {}),
+          },
+          quantity: 1,
+        };
+
         session = await stripe.checkout.sessions.create({
-          mode: "payment",
+          mode: itemType === "program" && programContext?.isRecurring ? "subscription" : "payment",
           customer_email: itemType === "program" ? programContext?.email : walletContext?.email,
           metadata: sessionMetadata,
-          line_items: [{
-            price_data: {
-              currency: String(itemType === "program" ? programContext?.currency : walletContext?.currency || "USD").toLowerCase(),
-              product_data: {
-                name: itemType === "program" ? programContext?.programTitle || "Program" : "Innovacare Review — Wallet Credits",
-                description: itemType === "program" ?
-                  String(programContext?.programSubtitle || programContext?.programDescription || "").trim().slice(0, 500) || undefined :
-                  `Add $${Number(walletContext?.amount || 0).toFixed(2)} to your Innovacare Review wallet`,
-                ...(imageUrl ? {images: [imageUrl]} : {}),
-              },
-              unit_amount: unitAmount,
-            },
-            quantity: 1,
-          }],
+          line_items: [lineItem],
           success_url: successUrl,
           cancel_url: cancelUrl,
-          ...(programConnectDestination.paymentIntentData ? {payment_intent_data: programConnectDestination.paymentIntentData} : {}),
+          ...(itemType === "program" && programContext?.isRecurring ? {
+            subscription_data: {
+              metadata: sessionMetadata,
+            },
+          } : {}),
+          ...(!programContext?.isRecurring && programConnectDestination.paymentIntentData ? {payment_intent_data: programConnectDestination.paymentIntentData} : {}),
         });
       } catch (stripeError: unknown) {
         const errType = String((stripeError as Record<string, unknown>)?.type || "");
@@ -7586,6 +8061,8 @@ export const createPaymentIntent = onCall(
       if (itemType === "program" && programContext) {
         await db.doc(`programEnrollments/${programContext.enrollmentId}`).set({
           checkoutSessionId: session.id,
+          subscriptionId: typeof session.subscription === "string" ? session.subscription : session.subscription?.id || null,
+          subscriptionStatus: programContext.isRecurring ? "pending" : null,
           paymentProvider: programConnectDestination.stripeAccountId ? "stripe_connect" : "stripe",
           updatedAt: nowTs(),
         }, {merge: true});
@@ -8367,6 +8844,23 @@ export const createProgramCheckoutSession = onCall(
       updatedAt: nowTs(),
     });
 
+    await emitNotificationEvent({
+      type: "CHECKOUT_STARTED",
+      templateKey: "checkout_started",
+      recipientType: "LEARNER",
+      recipientUserId: uid,
+      orgId,
+      courseId: programId,
+      relatedEntityType: "program_enrollment",
+      relatedEntityId: enrollmentId,
+      idempotencyKey: `program_checkout_started:${orderRef.id}:${session.id}`,
+      templateData: {
+        learnerName: "Learner",
+        courseTitle: String(program.title || "Program").trim() || "Program",
+        ctaUrl: session.url || `${APP_ORIGIN}/my-programs`,
+      },
+    });
+
     return {url: session.url};
   },
 );
@@ -8386,6 +8880,7 @@ export const publishCourseToMarketplace = onCall(
 
     const courseId = String(request.data?.courseId || "").trim();
     const stripePriceId = String(request.data?.stripePriceId || "").trim();
+    const stripeProductId = String(request.data?.stripeProductId || "").trim();
     const price = Number(request.data?.price || 0);
     const currency = String(request.data?.currency || "USD").trim().toUpperCase();
     const isPublic = request.data?.isPublic !== false;
@@ -8393,10 +8888,10 @@ export const publishCourseToMarketplace = onCall(
     if (!courseId) {
       throw new HttpsError("invalid-argument", "courseId is required.");
     }
-    if (!stripePriceId) {
+    if (isPublic && !stripePriceId) {
       throw new HttpsError("invalid-argument", "stripePriceId is required.");
     }
-    if (!Number.isFinite(price) || price <= 0) {
+    if (isPublic && (!Number.isFinite(price) || price <= 0)) {
       throw new HttpsError("invalid-argument", "price must be > 0.");
     }
 
@@ -8412,18 +8907,13 @@ export const publishCourseToMarketplace = onCall(
       throw new HttpsError("not-found", "Course not found.");
     }
 
-    const dupQuery = await db
+    const offerQuery = await db
       .collection("publicOffers")
       .where("type", "==", "course")
       .where("courseId", "==", courseId)
       .where("orgId", "==", orgId)
-      .where("isActive", "==", true)
       .limit(1)
       .get();
-
-    if (!dupQuery.empty) {
-      return {ok: true, alreadyExists: true, offerId: dupQuery.docs[0].id};
-    }
 
     const course = courseSnap.data() as {
       title?: string;
@@ -8433,8 +8923,7 @@ export const publishCourseToMarketplace = onCall(
       tags?: string[];
     };
 
-    const offerRef = db.collection("publicOffers").doc();
-    await offerRef.set({
+    const baseOffer = {
       type: "course",
       orgId,
       courseId,
@@ -8449,14 +8938,45 @@ export const publishCourseToMarketplace = onCall(
       imageUrl: String(course?.imageUrl || "").trim(),
       category: String(course?.category || "").trim() || null,
       tags: Array.isArray(course?.tags) ? course.tags : [],
+      updatedAt: nowTs(),
+    };
+
+    if (!offerQuery.empty) {
+      const offerRef = offerQuery.docs[0].ref;
+      await offerRef.set({
+        ...baseOffer,
+        ...(isPublic ? {
+          price,
+          currency,
+          stripePriceId,
+          stripeProductId: stripeProductId || null,
+          isActive: true,
+          isPublic: true,
+          publishedBy: uid,
+        } : {
+          isActive: false,
+          isPublic: false,
+        }),
+      }, {merge: true});
+
+      return {ok: true, alreadyExists: true, offerId: offerRef.id};
+    }
+
+    if (!isPublic) {
+      return {ok: true};
+    }
+
+    const offerRef = db.collection("publicOffers").doc();
+    await offerRef.set({
+      ...baseOffer,
       price,
       currency,
       stripePriceId,
+      stripeProductId: stripeProductId || null,
       isActive: true,
       isPublic,
       publishedBy: uid,
       createdAt: nowTs(),
-      updatedAt: nowTs(),
     });
 
     await sendSystemNotificationToUser({
@@ -10365,11 +10885,13 @@ export const submitMarketingLead = onCall(async (request: CallableRequest<Submit
 });
 
 export * from "./notifications/functions";
+export * from "./notifications/lab-notifications";
 export * from "./security/functions";
 export * from "./automation/triggers";
 export * from "./automation/verify";
 export * from "./learner-assistant";
 export * from "./ai-content";
+export * from "./agentic/functions";
 
 export const chatWithAI = onCall(
   {secrets: [OPENAI_API_KEY], cors: true},

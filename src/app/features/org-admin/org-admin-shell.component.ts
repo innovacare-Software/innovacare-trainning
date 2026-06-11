@@ -72,6 +72,8 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
 
       <nav class="oa-nav">
         <a routerLink="/org-admin/dashboard" routerLinkActive="active">Overview</a>
+        <a routerLink="/org-admin/ai-command-center" routerLinkActive="active">AI Command Center</a>
+        <a routerLink="/org-admin/communication-center" routerLinkActive="active">Communication Center</a>
         <a routerLink="/org-admin/users" routerLinkActive="active">Users</a>
         <a routerLink="/org-admin/courses" routerLinkActive="active">Courses</a>
         <a routerLink="/org-admin/assignments" routerLinkActive="active">Assignments</a>
@@ -129,7 +131,7 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
     .oa-summary strong { display: block; margin-top: .35rem; font-size: 1.45rem; color: #14385a; }
     .oa-summary p { margin: .35rem 0 0; color: #607d98; font-size: .85rem; }
     .oa-summary--loading strong { opacity: .55; }
-    .oa-nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .55rem; margin-bottom: .95rem; }
+    .oa-nav { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: .55rem; margin-bottom: .95rem; }
     .oa-nav a { text-decoration: none; text-align: center; border-radius: 10px; border: 1px solid #ccdced; background: #fff; padding: .55rem .6rem; color: #26496d; font-weight: 700; font-size: .86rem; }
     .oa-nav a.active { background: #0f3e68; border-color: #0f3e68; color: #f3f8ff; }
     .oa-content { border-radius: 14px; }

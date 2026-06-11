@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -14,6 +14,8 @@ import { CoursesRepo } from '../../../data/courses.repo';
 import { Course, Section, Lesson, Block } from '../../../data/models';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MarketplaceAdminService } from '../services/marketplace-admin.service';
 
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -79,12 +81,67 @@ type SectionForm = FormGroup<{
   url: FormControl<string>;
 }>;
 
+/* ─── JSON import template ─────────────────────────────────────────────── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const COURSE_JSON_TEMPLATE: Record<string, any> = {
+  title: 'My New Course',
+  subtitle: 'A concise subtitle',
+  description: 'Full course description…',
+  lang: 'EN',
+  kind: 'Course',
+  type: 'Health',
+  durationMin: 60,
+  ceCredit: 1,
+  active: true,
+  isPublic: false,
+  publicPrice: 49,
+  publicCurrency: 'USD',
+  stripePriceId: '',
+  stripeProductId: '',
+  passingScore: 80,
+  lockedSequence: false,
+  lecturer: 'Jane Doe, RN',
+  imageUrl: 'https://example.com/image.jpg',
+  tags: ['wound care', 'nursing'],
+  disclosures: ['No conflicts of interest'],
+  targetAudience: ['RN', 'LPN', 'CNA'],
+  prerequisites: ['Basic anatomy'],
+  requirements: ['Internet connection'],
+  accomodations: 'Closed captions available',
+  sections: [
+    {
+      id: crypto.randomUUID(),
+      title: 'Section 1: Introduction',
+      lessons: [
+        {
+          id: crypto.randomUUID(),
+          title: 'Lesson 1.1: Welcome',
+          estMin: 10,
+          blocks: [
+            { type: 'heading', level: 2, text: 'Welcome to the course' },
+            { type: 'text', html: '<p>This lesson introduces the core concepts.</p>' },
+            {
+              type: 'quiz',
+              mode: 'single',
+              question: 'What is the primary goal of wound care?',
+              choices: [
+                { id: crypto.randomUUID(), text: 'Prevent infection', correct: true },
+                { id: crypto.randomUUID(), text: 'Increase scarring', correct: false },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 @Component({
   selector: 'app-courses',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, DragDropModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DragDropModule, MatSnackBarModule],
   templateUrl: './courses.html',
   styleUrl: './courses.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Courses {
   private fb = inject(FormBuilder).nonNullable;
@@ -92,6 +149,8 @@ export class Courses {
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
   private auth = inject(AuthService);
+  private snackBar = inject(MatSnackBar);
+  private marketplaceAdmin = inject(MarketplaceAdminService);
 
   editId: string | null = null;
   loadingEdit = false;
@@ -100,6 +159,22 @@ export class Courses {
   searchTerm = '';
   sortBy = 'newest';
   isSuperAdmin = false;
+
+  /* ── JSON Import panel ─────────────────────────────── */
+  jsonPanelOpen = signal(false);
+  jsonRaw = signal('');
+  jsonError = signal<string | null>(null);
+  jsonParsed = signal<Partial<Course> | null>(null);
+  jsonApplied = signal(false);
+
+  readonly jsonPreviewSections = computed(() => {
+    const p = this.jsonParsed();
+    if (!p) return [];
+    return Array.isArray(p.sections) ? p.sections as Array<{
+      title?: string;
+      lessons?: Array<{ title?: string; estMin?: number; blocks?: unknown[] }>;
+    }> : [];
+  });
 
   constructor() {
     this.auth.profile$.subscribe((p) => {
@@ -139,6 +214,12 @@ export class Courses {
     }),
     lockedSequence: this.fb.control<boolean>(false),
     isPublic: this.fb.control<boolean>(false),
+    publicPrice: this.fb.control<number>(49, {
+      validators: [Validators.min(0)],
+    }),
+    publicCurrency: this.fb.control<string>('USD'),
+    stripePriceId: this.fb.control<string>(''),
+    stripeProductId: this.fb.control<string>(''),
     level: this.fb.control<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner'),
 
     tagsText: this.fb.control<string>(''),
@@ -494,170 +575,177 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
       const data = full ?? c;
 
       this.editId = id;
-
-      this.form.patchValue({
-        title: data.title ?? '',
-        subtitle: data.subtitle ?? '',
-        description: data.description ?? '',
-        lang: data.lang ?? 'EN',
-        durationMin: Number(data.durationMin ?? 60),
-        ceCredit: Number(data.ceCredit ?? 0),
-        active: !!data.active,
-        kind: data.kind ?? 'Course',
-        type: data.type ?? 'Health',
-        imageUrl: data.imageUrl ?? '',
-        url: data.url ?? '',
-        lecturer: data.lecturer ?? '',
-        accomodations: data.accomodations ?? '',
-        passingScore: Number(data.passingScore ?? 80),
-        lockedSequence: !!data.lockedSequence,
-        isPublic: !!data.isPublic,
-        tagsText: this.arrayToCsv(data.tags),
-        disclosuresText: this.arrayToCsv(data.disclosures),
-        targetAudienceText: this.arrayToCsv(data.targetAudience),
-        prerequisitesText: this.arrayToCsv(data.prerequisites),
-        requirementsText: this.arrayToCsv(data.requirements),
-      });
-
-      this.sectionsFA.clear();
-
-      const secs = Array.isArray(data.sections) ? data.sections : [];
-      if (!secs.length) {
-        this.addSection();
-        return;
-      }
-
-      secs.forEach((s) => {
-        const sfg = this.newSection();
-        sfg.patchValue({
-          id: s.id,
-          title: s.title ?? '',
-          url: '',
-        });
-
-        sfg.controls.lessons.clear();
-
-        const lessons = Array.isArray(s.lessons) ? s.lessons : [];
-        if (!lessons.length) {
-          sfg.controls.lessons.push(this.newLesson());
-        } else {
-          lessons.forEach((l) => {
-            const lfg = this.newLesson();
-            lfg.patchValue({
-              id: l.id,
-              title: l.title ?? 'Lesson',
-              estMin: Number(l.estMin ?? 0),
-            });
-
-            lfg.controls.blocks.clear();
-
-            const blocks = Array.isArray(l.blocks) ? l.blocks : [];
-            if (!blocks.length) {
-              lfg.controls.blocks.push(this.newBlock('heading'));
-              lfg.controls.blocks.push(this.newBlock('text'));
-            } else {
-              blocks.forEach((b) => {
-                const bfg = this.newBlock(b.type);
-
-                if (b.type === 'heading') {
-                  bfg.patchValue({
-                    level: (b.level ?? 2) as 1 | 2 | 3,
-                    text: b.text ?? '',
-                  });
-                } else if (b.type === 'text') {
-                  bfg.patchValue({ html: b.html ?? '' });
-                } else if (b.type === 'image') {
-                  bfg.patchValue({
-                    url: b.url ?? '',
-                    alt: b.alt ?? '',
-                    caption: b.caption ?? '',
-                  });
-                } else if (b.type === 'audio') {
-                  bfg.patchValue({
-                    url: b.url ?? '',
-                    transcript: b.transcript ?? '',
-                  });
-                } else if (b.type === 'video') {
-                  bfg.patchValue({
-                    url: b.url ?? '',
-                    transcript: b.transcript ?? '',
-                  });
-                } else if (b.type === 'narrated_slides') {
-  bfg.patchValue({
-    title2: b.title ?? '',
-    description2: b.description ?? '',
-    audioUrl: b.audioUrl ?? '',
-    autoplay: b.autoplay ?? true,
-    allowManualNavigation: b.allowManualNavigation ?? true,
-    showTranscript: b.showTranscript ?? true,
-    completionMode: b.completionMode ?? 'all_audio_finished',
-  });
-
-  bfg.controls.slides.clear();
-
-  (b.slides ?? []).forEach((sl) => {
-    bfg.controls.slides.push(
-      this.fb.group({
-        id: this.fb.control<string>(sl.id ?? crypto.randomUUID()),
-        title: this.fb.control<string>(sl.title ?? ''),
-        body: this.fb.control<string>(sl.body ?? ''),
-        imageUrl: this.fb.control<string>(sl.imageUrl ?? ''),
-        caption: this.fb.control<string>(sl.caption ?? ''),
-        transcript: this.fb.control<string>(sl.transcript ?? ''),
-        audioUrl: this.fb.control<string>(sl.audioUrl ?? ''),
-        autoAdvance: this.fb.control<boolean>(sl.autoAdvance ?? true),
-      })
-    );
-  });
-
-  if (bfg.controls.slides.length === 0) {
-    bfg.controls.slides.push(this.newSlide());
-  }
-}else if (b.type === 'callout') {
-                  bfg.patchValue({
-                    style: (b.style ?? 'info') as 'info' | 'warn' | 'success',
-                    html: b.html ?? '',
-                  });
-                } else if (b.type === 'quiz') {
-                  bfg.patchValue({
-                    mode: (b.mode ?? 'single') as 'single' | 'multi' | 'caseStudy',
-                    question: b.question ?? '',
-                  });
-
-                  bfg.controls.choices.clear();
-                  (b.choices ?? []).forEach((ch) => {
-                    bfg.controls.choices.push(
-                      this.fb.group({
-                        id: this.fb.control<string>(ch.id ?? crypto.randomUUID()),
-                        text: this.fb.control<string>(ch.text ?? ''),
-                        correct: this.fb.control<boolean>(!!ch.correct),
-                      })
-                    );
-                  });
-
-                  if (bfg.controls.choices.length === 0) {
-                    bfg.controls.choices.push(this.newChoice('Option A'));
-                    bfg.controls.choices.push(this.newChoice('Option B'));
-                  }
-                }
-
-                lfg.controls.blocks.push(bfg);
-              });
-            }
-
-            sfg.controls.lessons.push(lfg);
-          });
-        }
-
-        this.sectionsFA.push(sfg);
-      });
-
-      try {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch {}
+      this.populateFormFromCourse(data);
     } finally {
       this.loadingEdit = false;
     }
+  }
+
+  populateFormFromCourse(data: Partial<Course>) {
+    this.form.patchValue({
+      title: data.title ?? '',
+      subtitle: data.subtitle ?? '',
+      description: data.description ?? '',
+      lang: data.lang ?? 'EN',
+      durationMin: Number(data.durationMin ?? 60),
+      ceCredit: Number(data.ceCredit ?? 0),
+      active: !!data.active,
+      kind: data.kind ?? 'Course',
+      type: data.type ?? 'Health',
+      imageUrl: data.imageUrl ?? '',
+      url: data.url ?? '',
+      lecturer: data.lecturer ?? '',
+      accomodations: data.accomodations ?? '',
+      passingScore: Number(data.passingScore ?? 80),
+      lockedSequence: !!data.lockedSequence,
+      isPublic: !!data.isPublic,
+      publicPrice: Number(data.publicPrice ?? 49),
+      publicCurrency: data.publicCurrency ?? 'USD',
+      stripePriceId: data.stripePriceId ?? '',
+      stripeProductId: data.stripeProductId ?? '',
+      tagsText: this.arrayToCsv(data.tags),
+      disclosuresText: this.arrayToCsv(data.disclosures),
+      targetAudienceText: this.arrayToCsv(data.targetAudience),
+      prerequisitesText: this.arrayToCsv(data.prerequisites),
+      requirementsText: this.arrayToCsv(data.requirements),
+    });
+
+    this.sectionsFA.clear();
+
+    const secs = Array.isArray(data.sections) ? data.sections : [];
+    if (!secs.length) {
+      this.addSection();
+      return;
+    }
+
+    secs.forEach((s) => {
+      const sfg = this.newSection();
+      sfg.patchValue({
+        id: s.id,
+        title: s.title ?? '',
+        url: '',
+      });
+
+      sfg.controls.lessons.clear();
+
+      const lessons = Array.isArray(s.lessons) ? s.lessons : [];
+      if (!lessons.length) {
+        sfg.controls.lessons.push(this.newLesson());
+      } else {
+        lessons.forEach((l) => {
+          const lfg = this.newLesson();
+          lfg.patchValue({
+            id: l.id,
+            title: l.title ?? 'Lesson',
+            estMin: Number(l.estMin ?? 0),
+          });
+
+          lfg.controls.blocks.clear();
+
+          const blocks = Array.isArray(l.blocks) ? l.blocks : [];
+          if (!blocks.length) {
+            lfg.controls.blocks.push(this.newBlock('heading'));
+            lfg.controls.blocks.push(this.newBlock('text'));
+          } else {
+            blocks.forEach((b) => {
+              const bfg = this.newBlock(b.type);
+
+              if (b.type === 'heading') {
+                bfg.patchValue({
+                  level: (b.level ?? 2) as 1 | 2 | 3,
+                  text: b.text ?? '',
+                });
+              } else if (b.type === 'text') {
+                bfg.patchValue({ html: b.html ?? '' });
+              } else if (b.type === 'image') {
+                bfg.patchValue({
+                  url: b.url ?? '',
+                  alt: b.alt ?? '',
+                  caption: b.caption ?? '',
+                });
+              } else if (b.type === 'audio') {
+                bfg.patchValue({
+                  url: b.url ?? '',
+                  transcript: b.transcript ?? '',
+                });
+              } else if (b.type === 'video') {
+                bfg.patchValue({
+                  url: b.url ?? '',
+                  transcript: b.transcript ?? '',
+                });
+              } else if (b.type === 'narrated_slides') {
+                bfg.patchValue({
+                  title2: b.title ?? '',
+                  description2: b.description ?? '',
+                  audioUrl: b.audioUrl ?? '',
+                  autoplay: b.autoplay ?? true,
+                  allowManualNavigation: b.allowManualNavigation ?? true,
+                  showTranscript: b.showTranscript ?? true,
+                  completionMode: b.completionMode ?? 'all_audio_finished',
+                });
+
+                bfg.controls.slides.clear();
+
+                (b.slides ?? []).forEach((sl) => {
+                  bfg.controls.slides.push(
+                    this.fb.group({
+                      id: this.fb.control<string>(sl.id ?? crypto.randomUUID()),
+                      title: this.fb.control<string>(sl.title ?? ''),
+                      body: this.fb.control<string>(sl.body ?? ''),
+                      imageUrl: this.fb.control<string>(sl.imageUrl ?? ''),
+                      caption: this.fb.control<string>(sl.caption ?? ''),
+                      transcript: this.fb.control<string>(sl.transcript ?? ''),
+                      audioUrl: this.fb.control<string>(sl.audioUrl ?? ''),
+                      autoAdvance: this.fb.control<boolean>(sl.autoAdvance ?? true),
+                    })
+                  );
+                });
+
+                if (bfg.controls.slides.length === 0) {
+                  bfg.controls.slides.push(this.newSlide());
+                }
+              } else if (b.type === 'callout') {
+                bfg.patchValue({
+                  style: (b.style ?? 'info') as 'info' | 'warn' | 'success',
+                  html: b.html ?? '',
+                });
+              } else if (b.type === 'quiz') {
+                bfg.patchValue({
+                  mode: (b.mode ?? 'single') as 'single' | 'multi' | 'caseStudy',
+                  question: b.question ?? '',
+                });
+
+                bfg.controls.choices.clear();
+                (b.choices ?? []).forEach((ch) => {
+                  bfg.controls.choices.push(
+                    this.fb.group({
+                      id: this.fb.control<string>(ch.id ?? crypto.randomUUID()),
+                      text: this.fb.control<string>(ch.text ?? ''),
+                      correct: this.fb.control<boolean>(!!ch.correct),
+                    })
+                  );
+                });
+
+                if (bfg.controls.choices.length === 0) {
+                  bfg.controls.choices.push(this.newChoice('Option A'));
+                  bfg.controls.choices.push(this.newChoice('Option B'));
+                }
+              }
+
+              lfg.controls.blocks.push(bfg);
+            });
+          }
+
+          sfg.controls.lessons.push(lfg);
+        });
+      }
+
+      this.sectionsFA.push(sfg);
+    });
+
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {}
   }
 
   cancelEdit() {
@@ -683,6 +771,10 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
       passingScore: 80,
       lockedSequence: false,
       isPublic: false,
+      publicPrice: 49,
+      publicCurrency: 'USD',
+      stripePriceId: '',
+      stripeProductId: '',
       tagsText: '',
       disclosuresText: '',
       targetAudienceText: '',
@@ -736,7 +828,11 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
         accomodations: src.accomodations ?? '',
         passingScore: Number(src.passingScore ?? 80),
         lockedSequence: !!src.lockedSequence,
-        isPublic: !!src.isPublic,
+        isPublic: false,
+        publicPrice: Number(src.publicPrice ?? 49),
+        publicCurrency: src.publicCurrency ?? 'USD',
+        stripePriceId: '',
+        stripeProductId: '',
         healthMeta: src.healthMeta,
         orgId: src.orgId ?? null,
         orgType: src.orgType,
@@ -871,6 +967,26 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
       return;
     }
 
+    const publicPrice = Number(this.form.value.publicPrice ?? 0);
+    const publicCurrency = String(this.form.value.publicCurrency || 'USD').trim().toUpperCase();
+    const stripePriceId = String(this.form.value.stripePriceId || '').trim();
+    const stripeProductId = String(this.form.value.stripeProductId || '').trim();
+
+    if (this.form.value.isPublic) {
+      if (!Number.isFinite(publicPrice) || publicPrice <= 0) {
+        this.snackBar.open('Le prix public du cours est requis.', 'Fermer', { duration: 5000 });
+        return;
+      }
+      if (!stripePriceId) {
+        this.snackBar.open('Le Stripe Price ID est requis pour un cours public.', 'Fermer', { duration: 5000 });
+        return;
+      }
+      if (!stripeProductId) {
+        this.snackBar.open('Le Stripe Product ID est requis pour un cours public.', 'Fermer', { duration: 5000 });
+        return;
+      }
+    }
+
     const payload: Course = {
       title: this.form.value.title!,
       subtitle: this.form.value.subtitle || '',
@@ -895,6 +1011,10 @@ removeSlide(si: number, li: number, bi: number, sj: number) {
       passingScore: Number(this.form.value.passingScore ?? 80),
       lockedSequence: !!this.form.value.lockedSequence,
       isPublic: !!this.form.value.isPublic,
+      publicPrice,
+      publicCurrency,
+      stripePriceId,
+      stripeProductId,
 
       sections: this.sectionsFA.controls.map<Section>((s, si) => ({
         id: s.value.id!,
@@ -1003,14 +1123,45 @@ return {
       })),
     };
 
+    let savedCourseId = this.editId;
+
     if (this.editId) {
       await this.repo.update(this.editId, payload);
       this.editId = null;
     } else {
-      await this.repo.add(payload);
+      const created = await this.repo.add(payload);
+      savedCourseId = created.id;
+    }
+
+    try {
+      await this.syncMarketplaceOffer(savedCourseId, payload);
+      this.snackBar.open('Cours enregistre et offre marketplace synchronisee.', 'Fermer', {
+        duration: 4000,
+      });
+    } catch (error) {
+      console.error('Marketplace sync failed:', error);
+      this.snackBar.open('Cours enregistre, mais la synchronisation marketplace a echoue.', 'Fermer', {
+        duration: 6000,
+      });
     }
 
     this.resetForm();
+  }
+
+  private async syncMarketplaceOffer(courseId: string | null, payload: Course): Promise<void> {
+    const cleanCourseId = String(courseId || '').trim();
+    if (!cleanCourseId) {
+      throw new Error('COURSE_ID_REQUIRED_FOR_MARKETPLACE_SYNC');
+    }
+
+    await this.marketplaceAdmin.publishCourse({
+      courseId: cleanCourseId,
+      price: Number(payload.publicPrice ?? 0),
+      currency: String(payload.publicCurrency || 'USD').trim().toUpperCase(),
+      stripePriceId: String(payload.stripePriceId || '').trim(),
+      stripeProductId: String(payload.stripeProductId || '').trim() || undefined,
+      isPublic: !!payload.isPublic && !!payload.active,
+    });
   }
 
   trackById = (_: number, c: Course) => c.id ?? c.title;
@@ -1052,5 +1203,185 @@ return {
 
   goToSuperAdmin() {
     this.router.navigate(['/super-admin/dashboard']);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     JSON Import / Preview / Download
+  ═══════════════════════════════════════════════════════ */
+
+  toggleJsonPanel() {
+    this.jsonPanelOpen.update(v => !v);
+    if (!this.jsonPanelOpen()) {
+      this.resetJsonPanel();
+    }
+  }
+
+  private resetJsonPanel() {
+    this.jsonRaw.set('');
+    this.jsonError.set(null);
+    this.jsonParsed.set(null);
+    this.jsonApplied.set(false);
+  }
+
+  /** Parse the raw JSON and show preview or error */
+  parseJson() {
+    const raw = this.jsonRaw().trim();
+    if (!raw) {
+      this.jsonError.set('Paste or upload a JSON file first.');
+      this.jsonParsed.set(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw) as Partial<Course>;
+      if (typeof parsed !== 'object' || Array.isArray(parsed) || !parsed) {
+        this.jsonError.set('JSON must be an object, not an array or primitive.');
+        this.jsonParsed.set(null);
+        return;
+      }
+      if (!parsed.title || typeof parsed.title !== 'string') {
+        this.jsonError.set('JSON must contain a "title" string field.');
+        this.jsonParsed.set(null);
+        return;
+      }
+      this.jsonError.set(null);
+      this.jsonParsed.set(parsed);
+      this.jsonApplied.set(false);
+    } catch (e: unknown) {
+      this.jsonError.set(`Invalid JSON: ${e instanceof Error ? e.message : String(e)}`);
+      this.jsonParsed.set(null);
+    }
+  }
+
+  /** Handle file upload via <input type=file> */
+  onJsonFileChange(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.jsonRaw.set(String(e.target?.result ?? ''));
+      this.parseJson();
+    };
+    reader.readAsText(file);
+  }
+
+  /** Apply parsed JSON → populate all form fields */
+  applyJsonToForm() {
+    const p = this.jsonParsed();
+    if (!p) return;
+
+    this.form.patchValue({
+      title: String(p.title ?? ''),
+      subtitle: String(p.subtitle ?? ''),
+      description: String(p.description ?? ''),
+      lang: (['EN', 'FR', 'ES'].includes(String(p.lang ?? '')) ? p.lang : 'EN') as 'EN' | 'FR' | 'ES',
+      durationMin: Number(p.durationMin ?? 60),
+      ceCredit: Number(p.ceCredit ?? 0),
+      active: p.active !== false,
+      kind: (['Course', 'Text', 'Module'].includes(String(p.kind ?? '')) ? p.kind : 'Course') as Course['kind'],
+      type: (['Health', 'It', 'Hr', 'safety'].includes(String(p.type ?? '')) ? p.type : 'Health') as Course['type'],
+      imageUrl: String(p.imageUrl ?? ''),
+      url: String(p.url ?? ''),
+      lecturer: String(p.lecturer ?? ''),
+      accomodations: String(p.accomodations ?? ''),
+      passingScore: Number(p.passingScore ?? 80),
+      lockedSequence: !!p.lockedSequence,
+      isPublic: !!p.isPublic,
+      publicPrice: Number(p.publicPrice ?? 49),
+      publicCurrency: String(p.publicCurrency ?? 'USD'),
+      stripePriceId: String(p.stripePriceId ?? ''),
+      stripeProductId: String(p.stripeProductId ?? ''),
+      tagsText: this.arrayToCsv(p.tags),
+      disclosuresText: this.arrayToCsv(p.disclosures),
+      targetAudienceText: this.arrayToCsv(p.targetAudience),
+      prerequisitesText: this.arrayToCsv(p.prerequisites),
+      requirementsText: this.arrayToCsv(p.requirements),
+    });
+
+    // Rebuild sections
+    this.sectionsFA.clear();
+    const secs = Array.isArray(p.sections) ? p.sections as Section[] : [];
+    if (secs.length) {
+      this.populateFormFromCourse(p as Course);   // populate all sections, lessons, and blocks
+    } else {
+      this.addSection();
+    }
+
+    this.jsonApplied.set(true);
+    this.snackBar.open('✅ JSON applied to form — review and save.', 'Close', { duration: 4000 });
+  }
+
+  /** Download the sample JSON template */
+  downloadJsonTemplate() {
+    const blob = new Blob([JSON.stringify(COURSE_JSON_TEMPLATE, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'course-template.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /** Download the current form state as JSON */
+  downloadCurrentFormAsJson() {
+    const v = this.form.value;
+    const payload = {
+      title: v.title ?? '',
+      subtitle: v.subtitle ?? '',
+      description: v.description ?? '',
+      lang: v.lang ?? 'EN',
+      kind: v.kind ?? 'Course',
+      type: v.type ?? 'Health',
+      durationMin: v.durationMin ?? 60,
+      ceCredit: v.ceCredit ?? 0,
+      active: v.active ?? true,
+      isPublic: v.isPublic ?? false,
+      publicPrice: v.publicPrice ?? 49,
+      publicCurrency: v.publicCurrency ?? 'USD',
+      stripePriceId: v.stripePriceId ?? '',
+      stripeProductId: v.stripeProductId ?? '',
+      passingScore: v.passingScore ?? 80,
+      lockedSequence: v.lockedSequence ?? false,
+      lecturer: v.lecturer ?? '',
+      imageUrl: v.imageUrl ?? '',
+      url: v.url ?? '',
+      accomodations: v.accomodations ?? '',
+      tags: this.csvToArray(v.tagsText),
+      disclosures: this.csvToArray(v.disclosuresText),
+      targetAudience: this.csvToArray(v.targetAudienceText),
+      prerequisites: this.csvToArray(v.prerequisitesText),
+      requirements: this.csvToArray(v.requirementsText),
+      sections: this.sectionsFA.controls.map((s, si) => ({
+        id: s.value.id ?? crypto.randomUUID(),
+        title: s.value.title ?? '',
+        order: si,
+        lessons: s.controls.lessons.controls.map((l, li) => ({
+          id: l.value.id ?? crypto.randomUUID(),
+          title: l.value.title ?? '',
+          estMin: l.value.estMin ?? 0,
+          order: li,
+          blocks: l.controls.blocks.controls.map(b => {
+            const t = b.value.type;
+            if (t === 'heading') return { type: 'heading', level: b.value.level ?? 2, text: b.value.text ?? '' };
+            if (t === 'text') return { type: 'text', html: b.value.html ?? '' };
+            if (t === 'image') return { type: 'image', url: b.value.url ?? '', alt: b.value.alt ?? '', caption: b.value.caption ?? '' };
+            if (t === 'audio') return { type: 'audio', url: b.value.url ?? '', transcript: b.value.transcript ?? '' };
+            if (t === 'video') return { type: 'video', url: b.value.url ?? '', transcript: b.value.transcript ?? '' };
+            if (t === 'callout') return { type: 'callout', style: b.value.style ?? 'info', html: b.value.html ?? '' };
+            if (t === 'quiz') return { type: 'quiz', mode: b.value.mode ?? 'single', question: b.value.question ?? '', choices: b.controls.choices.controls.map(c => ({ id: c.value.id, text: c.value.text ?? '', correct: !!c.value.correct })) };
+            if (t === 'narrated_slides') return { type: 'narrated_slides', title: b.value.title2 ?? '', description: b.value.description2 ?? '', audioUrl: b.value.audioUrl ?? '', autoplay: !!b.value.autoplay, allowManualNavigation: !!b.value.allowManualNavigation, showTranscript: !!b.value.showTranscript, completionMode: b.value.completionMode ?? 'all_audio_finished', slides: b.controls.slides.controls.map(s => ({ id: s.value.id, title: s.value.title ?? '', body: s.value.body ?? '', imageUrl: s.value.imageUrl ?? '', caption: s.value.caption ?? '', transcript: s.value.transcript ?? '', audioUrl: s.value.audioUrl ?? '', autoAdvance: !!s.value.autoAdvance })) };
+            return { type: 'text', html: '' };
+          }),
+        })),
+      })),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `course-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

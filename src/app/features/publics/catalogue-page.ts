@@ -9,9 +9,10 @@ import {
   query,
   where,
 } from '@angular/fire/firestore';
-import { addDoc, getDoc, getDocs, serverTimestamp } from 'firebase/firestore';
+import { getDoc, getDocs } from 'firebase/firestore';
 import { catchError, combineLatest, from, map, Observable, of, switchMap, throwError } from 'rxjs';
 import { Course } from '../../data/models';
+import { EnrollmentService } from '../../shared/services/enrollement';
 
 
 export interface PathwayRequest {
@@ -26,6 +27,7 @@ export interface PathwayRequest {
 export class CourseCatalogService {
   private readonly firestore = inject(Firestore);
   private readonly auth = inject(Auth);
+  private readonly enrollmentService = inject(EnrollmentService);
 
   private loadActiveCourses(): Observable<Course[]> {
     const coursesRef = collection(this.firestore, 'courses');
@@ -33,7 +35,7 @@ export class CourseCatalogService {
       map((coursesSnap) =>
         coursesSnap.docs
           .map((d) => ({ id: d.id, ...(d.data() as object) }) as Course)
-          .filter((course) => course.active === true)
+          .filter((course) => course.active === true && course.isPublic === true)
       )
     );
   }
@@ -197,18 +199,19 @@ export class CourseCatalogService {
   addToPathway(payload: PathwayRequest): Observable<void> {
     const currentUser = this.auth.currentUser;
     if (!currentUser?.uid) {
-      return throwError(() => new Error('AUTH_REQUIRED_FOR_PATHWAY'));
+      return throwError(() => new Error('AUTH_REQUIRED_FOR_CATALOGUE'));
     }
 
-    const ref = collection(this.firestore, 'pathwayRequests');
+    const cleanCourseId = String(payload.courseId || '').trim();
+    if (!cleanCourseId) {
+      return throwError(() => new Error('COURSE_ID_REQUIRED'));
+    }
 
-    const promise = addDoc(ref, {
-      ...payload,
-      source: payload.source ?? 'catalog-page',
-      status: 'new',
-      requesterUid: currentUser.uid,
-      addedAt: serverTimestamp(),
-    }).then(() => void 0);
+    const promise = this.enrollmentService.ensureEnrollment(
+      currentUser.uid,
+      cleanCourseId,
+      'self'
+    ).then(() => void 0);
 
     return new Observable<void>((subscriber) => {
       promise

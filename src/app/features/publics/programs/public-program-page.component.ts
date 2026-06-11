@@ -1,12 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Auth } from '@angular/fire/auth';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth';
 import { PaymentService } from '../../../core/payment.service';
-import { Program } from './program.models';
+import {
+  Program,
+  ProgramCheckoutPlanOption,
+  ProgramPaymentPlanType,
+  resolveDefaultProgramCheckoutPlan,
+  resolveProgramCheckoutPlanOptions,
+} from './program.models';
 import { ProgramEnrollmentsService } from './program-enrollments.service';
 import { ProgramsService } from './programs.service';
 
@@ -46,13 +52,25 @@ const DEFAULT_IMAGE =
           </div>
 
           <div class="price-block">
-            <span class="price-amount" *ngIf="program()!.price > 0; else freePrice">
-              {{ program()!.price | number:'1.0-2' }}
-              <span class="price-currency">{{ program()!.currency }}</span>
+            <span class="price-amount" *ngIf="activePaymentPlan()?.amount; else freePrice">
+              {{ activePaymentPlan()!.amount | number:'1.0-2' }}
+              <span class="price-currency">{{ activePaymentPlan()!.currency }}</span>
             </span>
             <ng-template #freePrice>
               <span class="price-free">Free</span>
             </ng-template>
+          </div>
+
+          <div class="plan-chip-list" *ngIf="paymentPlans().length > 1">
+            <button
+              type="button"
+              class="plan-chip"
+              *ngFor="let plan of paymentPlans()"
+              [class.plan-chip--active]="plan.type === selectedPaymentPlan()"
+              (click)="selectPaymentPlan(plan.type)"
+            >
+              {{ plan.label }}
+            </button>
           </div>
 
           <button class="btn-enroll" type="button" (click)="showPaymentModal.set(true)">
@@ -75,7 +93,7 @@ const DEFAULT_IMAGE =
       <div class="sticky-enroll-bar" *ngIf="program()">
         <div class="sticky-enroll-meta">
           <p>{{ program()!.title }}</p>
-          <strong *ngIf="program()!.price > 0; else stickyFreePrice">{{ program()!.price | number:'1.0-2' }} {{ program()!.currency }}</strong>
+          <strong *ngIf="activePaymentPlan()?.amount; else stickyFreePrice">{{ activePaymentPlan()!.amount | number:'1.0-2' }} {{ activePaymentPlan()!.currency }}</strong>
           <ng-template #stickyFreePrice><strong>Free</strong></ng-template>
         </div>
         <button class="btn-enroll btn-enroll--sticky" type="button" (click)="showPaymentModal.set(true)">
@@ -93,6 +111,19 @@ const DEFAULT_IMAGE =
           <p class="payment-copy">
             Pick the easiest way to join {{ program()!.title }}.
           </p>
+
+          <div class="payment-plan-picker" *ngIf="paymentPlans().length > 1">
+            <button
+              type="button"
+              class="payment-plan-pill"
+              *ngFor="let plan of paymentPlans()"
+              [class.payment-plan-pill--active]="plan.type === selectedPaymentPlan()"
+              (click)="selectPaymentPlan(plan.type)"
+            >
+              <strong>{{ plan.label }}</strong>
+              <span>{{ plan.amount | number:'1.0-2' }} {{ plan.currency }}</span>
+            </button>
+          </div>
 
           <button type="button" class="payment-option payment-option--primary" (click)="payWithStripe()" [disabled]="paymentBusy()">
             {{ paymentBusy() === 'stripe' ? 'Preparing your card payment...' : '💳 Pay with Card' }}
@@ -544,6 +575,7 @@ export class PublicProgramPageComponent {
   readonly paymentBusy = signal<null | 'stripe' | 'manual'>(null);
   readonly paymentError = signal('');
   readonly paymentNotice = signal('');
+  readonly selectedPaymentPlan = signal<ProgramPaymentPlanType>('one_time');
   readonly profile = toSignal(this.authService.profile$, { initialValue: null });
 
   readonly program = toSignal<Program | undefined>(
@@ -556,12 +588,34 @@ export class PublicProgramPageComponent {
     { initialValue: undefined },
   );
 
+  constructor() {
+    effect(() => {
+      const selectedProgram = this.program();
+      const defaultPlan = selectedProgram ? resolveDefaultProgramCheckoutPlan(selectedProgram) : null;
+      this.selectedPaymentPlan.set(defaultPlan?.type || 'one_time');
+    });
+  }
+
   closePaymentModal(): void {
     if (this.paymentBusy()) {
       return;
     }
 
     this.showPaymentModal.set(false);
+  }
+
+  paymentPlans(): ProgramCheckoutPlanOption[] {
+    const selectedProgram = this.program();
+    return selectedProgram ? resolveProgramCheckoutPlanOptions(selectedProgram) : [];
+  }
+
+  activePaymentPlan(): ProgramCheckoutPlanOption | null {
+    const plans = this.paymentPlans();
+    return plans.find((plan) => plan.type === this.selectedPaymentPlan()) || plans[0] || null;
+  }
+
+  selectPaymentPlan(plan: ProgramPaymentPlanType): void {
+    this.selectedPaymentPlan.set(plan);
   }
 
   async payWithStripe(): Promise<void> {
@@ -581,6 +635,7 @@ export class PublicProgramPageComponent {
         programId: selectedProgram.id,
         enrollmentId,
         paymentMethod: 'stripe',
+        paymentPlan: this.activePaymentPlan()?.type || 'one_time',
         provider: 'stripe',
       });
 
@@ -672,4 +727,5 @@ export class PublicProgramPageComponent {
     const img = event.target as HTMLImageElement;
     img.src = DEFAULT_IMAGE;
   }
+
 }
