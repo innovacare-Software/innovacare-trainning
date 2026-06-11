@@ -50,12 +50,12 @@ export class TemplateRepository extends CommunicationCenterRepository {
       docId: templateId,
       patch: {
         ...patch,
-        title: patch.title?.trim(),
-        summary: patch.summary?.trim(),
-        subjectTemplate: patch.subjectTemplate?.trim(),
-        previewTextTemplate: patch.previewTextTemplate?.trim(),
-        htmlTemplate: patch.htmlTemplate?.trim(),
-        category: patch.type,
+        ...(patch.title !== undefined && { title: patch.title.trim() }),
+        ...(patch.summary !== undefined && { summary: patch.summary.trim() }),
+        ...(patch.subjectTemplate !== undefined && { subjectTemplate: patch.subjectTemplate.trim() }),
+        ...(patch.previewTextTemplate !== undefined && { previewTextTemplate: patch.previewTextTemplate.trim() }),
+        ...(patch.htmlTemplate !== undefined && { htmlTemplate: patch.htmlTemplate.trim() }),
+        ...(patch.type !== undefined && { category: patch.type }),
       },
       validateNext: (next) => {
         if (!WRITEABLE_TEMPLATE_STATUSES.includes(next.status)) {

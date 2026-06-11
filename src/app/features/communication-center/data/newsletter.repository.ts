@@ -55,11 +55,11 @@ export class NewsletterRepository extends CommunicationCenterRepository {
       docId: newsletterId,
       patch: {
         ...patch,
-        title: patch.title?.trim(),
-        summary: patch.summary?.trim(),
-        subject: patch.subject?.trim(),
-        previewText: patch.previewText?.trim(),
-        html: patch.html?.trim(),
+        ...(patch.title !== undefined && { title: patch.title.trim() }),
+        ...(patch.summary !== undefined && { summary: patch.summary.trim() }),
+        ...(patch.subject !== undefined && { subject: patch.subject.trim() }),
+        ...(patch.previewText !== undefined && { previewText: patch.previewText.trim() }),
+        ...(patch.html !== undefined && { html: patch.html.trim() }),
       },
       validateCurrent: (current) => {
         if (current.status === 'sent') {
