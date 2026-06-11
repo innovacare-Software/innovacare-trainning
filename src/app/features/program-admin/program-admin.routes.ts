@@ -72,6 +72,15 @@ export const PROGRAM_ADMIN_ROUTES: Routes = [
           ),
       },
       {
+        path: 'ai-command-center',
+        data: { aiScopeMode: 'org' },
+        loadComponent: () => import('../superAdmin/ai-command-center/ai-command-center.page').then((m) => m.AiCommandCenterPage),
+      },
+      {
+        path: 'communication-center',
+        loadChildren: () => import('../communication-center/communication-center.routes').then((m) => m.COMMUNICATION_CENTER_ROUTES),
+      },
+      {
         path: 'exam-prep',
         loadChildren: () => import('./exam-prep/exam-prep.routes').then((m) => m.EXAM_PREP_ROUTES),
       },

@@ -58,6 +58,12 @@ import { OnboardingTriggerComponent } from '../../shared/onboarding/onboarding-t
           <a routerLink="/program-admin/analytics" routerLinkActive="active" [title]="sidebarCollapsed ? 'Analytics' : ''">
             <span class="nav-icon">📊</span><span class="nav-label" *ngIf="!sidebarCollapsed">Analytics</span>
           </a>
+          <a routerLink="/program-admin/communication-center" routerLinkActive="active" [title]="sidebarCollapsed ? 'Communication Center' : ''">
+            <span class="nav-icon">✉️</span><span class="nav-label" *ngIf="!sidebarCollapsed">Communication Center</span>
+          </a>
+          <a routerLink="/program-admin/ai-command-center" routerLinkActive="active" [title]="sidebarCollapsed ? 'AI Command Center' : ''">
+            <span class="nav-icon">🤖</span><span class="nav-label" *ngIf="!sidebarCollapsed">AI Command Center</span>
+          </a>
           <a routerLink="/admin/security" routerLinkActive="active" [title]="sidebarCollapsed ? 'Security' : ''">
             <span class="nav-icon">🛡️</span><span class="nav-label" *ngIf="!sidebarCollapsed">Security</span>
           </a>
