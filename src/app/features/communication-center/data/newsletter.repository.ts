@@ -48,19 +48,25 @@ export class NewsletterRepository extends CommunicationCenterRepository {
   }
 
   async updateNewsletterDraft(orgId: string, newsletterId: string, patch: UpdateNewsletterDraftPayload): Promise<void> {
+    const cleanPatch: any = { ...patch };
+    if (cleanPatch.title !== undefined) cleanPatch.title = cleanPatch.title.trim();
+    if (cleanPatch.summary !== undefined) cleanPatch.summary = cleanPatch.summary.trim();
+    if (cleanPatch.subject !== undefined) cleanPatch.subject = cleanPatch.subject.trim();
+    if (cleanPatch.previewText !== undefined) cleanPatch.previewText = cleanPatch.previewText.trim();
+    if (cleanPatch.html !== undefined) cleanPatch.html = cleanPatch.html.trim();
+
+    Object.keys(cleanPatch).forEach(key => {
+      if (cleanPatch[key] === undefined) {
+        delete cleanPatch[key];
+      }
+    });
+
     return this.updateWithAudit<NewsletterDoc>({
       collectionName: 'newsletters',
       entityType: 'newsletter',
       orgId,
       docId: newsletterId,
-      patch: {
-        ...patch,
-        ...(patch.title !== undefined && { title: patch.title.trim() }),
-        ...(patch.summary !== undefined && { summary: patch.summary.trim() }),
-        ...(patch.subject !== undefined && { subject: patch.subject.trim() }),
-        ...(patch.previewText !== undefined && { previewText: patch.previewText.trim() }),
-        ...(patch.html !== undefined && { html: patch.html.trim() }),
-      },
+      patch: cleanPatch,
       validateCurrent: (current) => {
         if (current.status === 'sent') {
           throw new Error('invalid-status');

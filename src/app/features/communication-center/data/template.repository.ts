@@ -43,20 +43,26 @@ export class TemplateRepository extends CommunicationCenterRepository {
   }
 
   async updateTemplateDraft(orgId: string, templateId: string, patch: UpdateTemplateDraftPayload): Promise<void> {
+    const cleanPatch: any = { ...patch };
+    if (cleanPatch.title !== undefined) cleanPatch.title = cleanPatch.title.trim();
+    if (cleanPatch.summary !== undefined) cleanPatch.summary = cleanPatch.summary.trim();
+    if (cleanPatch.subjectTemplate !== undefined) cleanPatch.subjectTemplate = cleanPatch.subjectTemplate.trim();
+    if (cleanPatch.previewTextTemplate !== undefined) cleanPatch.previewTextTemplate = cleanPatch.previewTextTemplate.trim();
+    if (cleanPatch.htmlTemplate !== undefined) cleanPatch.htmlTemplate = cleanPatch.htmlTemplate.trim();
+    if (cleanPatch.type !== undefined) cleanPatch.category = cleanPatch.type;
+
+    Object.keys(cleanPatch).forEach(key => {
+      if (cleanPatch[key] === undefined) {
+        delete cleanPatch[key];
+      }
+    });
+
     return this.updateWithAudit<CommunicationTemplateDoc>({
       collectionName: 'communication_templates',
       entityType: 'template',
       orgId,
       docId: templateId,
-      patch: {
-        ...patch,
-        ...(patch.title !== undefined && { title: patch.title.trim() }),
-        ...(patch.summary !== undefined && { summary: patch.summary.trim() }),
-        ...(patch.subjectTemplate !== undefined && { subjectTemplate: patch.subjectTemplate.trim() }),
-        ...(patch.previewTextTemplate !== undefined && { previewTextTemplate: patch.previewTextTemplate.trim() }),
-        ...(patch.htmlTemplate !== undefined && { htmlTemplate: patch.htmlTemplate.trim() }),
-        ...(patch.type !== undefined && { category: patch.type }),
-      },
+      patch: cleanPatch,
       validateNext: (next) => {
         if (!WRITEABLE_TEMPLATE_STATUSES.includes(next.status)) {
           throw new Error('invalid-status');
