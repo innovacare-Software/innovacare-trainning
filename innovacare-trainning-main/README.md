@@ -136,3 +136,46 @@ ng build
 ```bash
 ng test
 ```
+
+## Mobile App
+
+Innovacare Training ships as a mobile app two ways, both built from this same
+Angular codebase.
+
+### Progressive Web App (PWA)
+
+A production build (`ng build --configuration production`) registers a service
+worker (`@angular/service-worker`) and installable web manifest
+(`public/manifest.webmanifest`). Users can install the app from the browser
+("Add to Home Screen" on Android/iOS, the install icon on desktop Chrome/Edge)
+with offline app-shell caching. Configuration lives in `ngsw-config.json`.
+
+The service worker is disabled in dev mode (`isDevMode()`), so `ng serve`
+behaves as before.
+
+### Native apps via Capacitor
+
+[Capacitor](https://capacitorjs.com) wraps the built web app into native
+Android and iOS projects under `android/` and `ios/`. `capacitor.config.ts`
+points Capacitor at the compiled output (`dist/myapp/browser`).
+
+```bash
+# Build the web app, copy it into the native projects, and open Android Studio
+npm run cap:open:android
+
+# Build the web app, copy it into the native projects, and open Xcode
+npm run cap:open:ios
+
+# Build + sync only (CI, or before running from the IDE)
+npm run cap:sync
+```
+
+Requirements: Android Studio + JDK for Android, Xcode (macOS only) for iOS.
+
+**Known follow-ups for native builds:**
+- Google sign-in currently uses `signInWithPopup` (`src/app/core/auth.ts`),
+  which does not work reliably inside a native WebView. Native Google auth
+  should move to a Capacitor-aware flow (e.g. `@capacitor-firebase/authentication`
+  or an in-app browser + redirect) before shipping to app stores.
+- The generated app icons/splash screens (`public/icons/`) are Angular CLI
+  placeholders and should be replaced with Innovacare branding before release.
