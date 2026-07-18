@@ -1482,5 +1482,54 @@ match /bookings/{doc} {
     match /adminNotifications/{id} {
       allow read, write: if isAdmin();
     }
+
+    // ---------- PROGRAM CONTENT SUBCOLLECTIONS ----------
+    match /programs/{programId}/modules/{moduleId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/lessons/{lessonId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/documents/{documentId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/liveSessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/assessments/{assessmentId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/simulations/{simulationId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/caseStudies/{caseStudyId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
+
+    match /programs/{programId}/resources/{resourceId} {
+      allow read: if isSignedIn();
+      allow write: if canManagePrograms();
+      allow delete: if canManagePrograms();
+    }
   }
 }
