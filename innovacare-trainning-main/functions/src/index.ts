@@ -1657,7 +1657,7 @@ export const publishCourseToMarketplace = onCall(
   },
 );
 
-/* ─────────── AI Chatbot ─────────── */
+/* ─────────── AI Chatbot & Clinical Assistant ─────────── */
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -1667,7 +1667,88 @@ type ChatPayload = {
     userRole?: string;
     currentPage?: string;
     userName?: string;
+    courseContext?: string;
+    intentHint?: string;
   };
+};
+
+type QuizPayload = {
+  topic: string;
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  count?: number;
+  courseContext?: string;
+};
+
+type ClinicalCasePayload = {
+  caseId?: string;
+  userAnswer: {
+    stage?: string;
+    treatment?: string;
+    risks?: string;
+  };
+  scenario: string;
+};
+
+type NursingNotePayload = {
+  noteType: "sbar" | "progress" | "care_plan";
+  patientInfo: string;
+  woundAssessment: string;
+  interventions: string;
+  patientResponse?: string;
+};
+
+const INNOVAASSIST_BASE_SYSTEM = `You are InnovaAssist, a premium AI Clinical Training Assistant \
+for the InnovaCare Training platform — a healthcare LMS focused on wound care education, \
+compliance training, and clinical skill development.
+
+You function as:
+1) AI Tutor: Provide adaptive, personalized clinical education
+2) Clinical Simulator: Present and evaluate realistic wound care scenarios
+3) Documentation Assistant: Generate professional nursing notes and care plans
+4) Course Assistant: Guide learners through their educational journey
+
+Clinical knowledge domains:
+- Wound assessment and staging (NPUAP/EPUAP pressure injury classification)
+- Wound care treatments (dressings, debridement, compression, negative pressure)
+- Infection control and wound cultures
+- Moisture-associated skin damage (MASD) vs pressure injuries
+- Wound healing phases (inflammatory, proliferative, remodeling)
+- Nutrition and patient factors affecting wound healing
+- Documentation standards (SBAR, SNF-ready nursing notes)
+- Care planning and evidence-based interventions
+
+Always respond in the same language the user writes in (English or French).
+Be concise, clinically accurate, and use professional healthcare terminology.`;
+
+/** Strip characters that could be used for prompt injection from user-supplied context values */
+const sanitizeContextValue = (value: string, maxLen = 300): string => {
+  return value
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[<>{}\\]/g, "")
+    .slice(0, maxLen)
+    .trim();
+};
+
+const buildSystemPrompt = (context: ChatPayload["context"]): string => {
+  const lines: string[] = [INNOVAASSIST_BASE_SYSTEM];
+
+  if (context?.userName) {
+    lines.push(`\nUser name: ${sanitizeContextValue(context.userName, 80)}`);
+  }
+  if (context?.userRole) {
+    lines.push(`User role: ${sanitizeContextValue(context.userRole, 40)}`);
+  }
+  if (context?.currentPage) {
+    lines.push(`Current page: ${sanitizeContextValue(context.currentPage, 120)}`);
+  }
+  if (context?.courseContext) {
+    lines.push(`Course context: ${sanitizeContextValue(context.courseContext, 300)}`);
+  }
+  if (context?.intentHint) {
+    lines.push(`\nIMPORTANT TASK INSTRUCTION:\n${context.intentHint}`);
+  }
+
+  return lines.join("\n");
 };
 
 export const chatWithAI = onCall(
@@ -1693,40 +1774,11 @@ export const chatWithAI = onCall(
     }
 
     const anthropic = new Anthropic({apiKey: ANTHROPIC_API_KEY.value()});
-
-    const userNameLine = context?.userName
-      ? `The user's name is: ${context.userName}.`
-      : "";
-    const roleLine = context?.userRole
-      ? `The user's role on the platform is: ${context.userRole}.`
-      : "";
-    const pageLine = context?.currentPage
-      ? `The user is currently on the page: ${context.currentPage}.`
-      : "";
-
-    const systemPrompt = `You are InnovaAssist, a helpful AI assistant for the Innovacare Training platform — \
-a healthcare e-learning system focused on wound care education and compliance training.
-
-Your role is to help learners, managers, and admins navigate the platform and succeed in their training.
-
-You can help with:
-- Navigating courses, modules, lessons, and assessments
-- Understanding wound care concepts (pressure injuries, wound healing, dressings, infection control)
-- Tracking learning progress, certifications, and assignments
-- Explaining platform features (programs, live sessions, case studies, simulations)
-- Answering questions about policies, compliance requirements, and transcripts
-- Guiding users through enrollment, checkout, and program management
-
-${userNameLine}
-${roleLine}
-${pageLine}
-
-Always respond in the same language the user writes in (English or French).
-Keep answers concise, accurate, and professional. If a question is outside your knowledge, say so honestly.`;
+    const systemPrompt = buildSystemPrompt(context);
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: systemPrompt,
       messages: messages as Anthropic.MessageParam[],
     });
@@ -1736,7 +1788,220 @@ Keep answers concise, accurate, and professional. If a question is outside your 
       .map((b) => b.text)
       .join("");
 
+    // Optionally persist chat to Firestore if user is authenticated
+    const uid = request.auth?.uid;
+    if (uid) {
+      db.collection(`users/${uid}/aiChats`).add({
+        messages: messages.slice(-2),
+        reply: text,
+        page: context?.currentPage ?? null,
+        createdAt: nowTs(),
+      }).catch((err) => {
+        console.warn("[chatWithAI] Failed to persist chat:", err);
+      });
+    }
+
     return {reply: text};
+  },
+);
+
+export const generateAIQuiz = onCall(
+  {secrets: [ANTHROPIC_API_KEY], cors: true},
+  async (request: CallableRequest<QuizPayload>) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError("unauthenticated", "Authentication required");
+
+    const {topic, difficulty = "intermediate", count = 3, courseContext} = request.data;
+
+    if (!topic || typeof topic !== "string" || topic.length > 200) {
+      throw new HttpsError("invalid-argument", "Invalid topic");
+    }
+
+    const anthropic = new Anthropic({apiKey: ANTHROPIC_API_KEY.value()});
+
+    const prompt = `Generate ${count} multiple-choice questions about "${topic}" \
+for a ${difficulty} nursing/wound care learner.
+
+Format EXACTLY as follows for each question (no extra text before or after):
+
+Q: [The question text]
+A) [Option A]
+B) [Option B]
+C) [Option C]
+D) [Option D]
+Correct: [Single letter: A, B, C, or D]
+Explanation: [Brief 1-2 sentence rationale explaining why the answer is correct]
+
+${courseContext ? `Course context: ${courseContext}` : ""}
+
+Focus on clinically relevant, evidence-based content. Make distractors plausible.`;
+
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      messages: [{role: "user", content: prompt}],
+    });
+
+    const text = response.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    // Save quiz generation record
+    await db.collection(`users/${uid}/quizSessions`).add({
+      topic,
+      difficulty,
+      rawQuestions: text,
+      courseContext: courseContext ?? null,
+      createdAt: nowTs(),
+      score: null,
+    });
+
+    return {questions: text, topic, difficulty};
+  },
+);
+
+export const gradeClinicalCase = onCall(
+  {secrets: [ANTHROPIC_API_KEY], cors: true},
+  async (request: CallableRequest<ClinicalCasePayload>) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError("unauthenticated", "Authentication required");
+
+    const {scenario, userAnswer} = request.data;
+
+    if (!scenario || typeof scenario !== "string") {
+      throw new HttpsError("invalid-argument", "Scenario is required");
+    }
+
+    const answerText = [
+      userAnswer.stage ? `Stage assessment: ${userAnswer.stage}` : "",
+      userAnswer.treatment ? `Treatment choice: ${userAnswer.treatment}` : "",
+      userAnswer.risks ? `Risk factors identified: ${userAnswer.risks}` : "",
+    ].filter(Boolean).join("\n");
+
+    if (!answerText) {
+      throw new HttpsError("invalid-argument", "At least one answer field is required");
+    }
+
+    const anthropic = new Anthropic({apiKey: ANTHROPIC_API_KEY.value()});
+
+    const prompt = `You are evaluating a nursing student's response to a clinical wound care scenario.
+
+SCENARIO:
+${scenario}
+
+STUDENT'S ANSWERS:
+${answerText}
+
+Provide a structured evaluation with:
+1. **Overall Assessment**: Correct / Partially Correct / Incorrect
+2. **Stage Evaluation**: [if provided] Was the staging correct? Explain.
+3. **Treatment Evaluation**: [if provided] Are the interventions appropriate? What's evidence-based?
+4. **Risk Identification**: [if provided] Did they identify the key risks?
+5. **Clinical Rationale**: What should the correct approach be and why?
+6. **Learning Points**: 2-3 key takeaways for this student.
+
+Be encouraging but clinically precise. Use professional nursing terminology.`;
+
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1200,
+      messages: [{role: "user", content: prompt}],
+    });
+
+    const evaluation = response.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    return {evaluation};
+  },
+);
+
+export const generateNursingNote = onCall(
+  {secrets: [ANTHROPIC_API_KEY], cors: true},
+  async (request: CallableRequest<NursingNotePayload>) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError("unauthenticated", "Authentication required");
+
+    const {noteType, patientInfo, woundAssessment, interventions, patientResponse} = request.data;
+
+    const validNoteTypes = ["sbar", "progress", "care_plan"];
+    if (!validNoteTypes.includes(noteType)) {
+      throw new HttpsError("invalid-argument", "Invalid note type");
+    }
+
+    for (const [field, value] of Object.entries({patientInfo, woundAssessment, interventions})) {
+      if (!value || typeof value !== "string" || value.length > 2000) {
+        throw new HttpsError("invalid-argument", `Invalid ${field}`);
+      }
+    }
+
+    const anthropic = new Anthropic({apiKey: ANTHROPIC_API_KEY.value()});
+
+    let noteInstructions = "";
+    if (noteType === "sbar") {
+      noteInstructions = `Generate a professional SBAR nursing note with these sections:
+**S - Situation:** [Current patient status and reason for note]
+**B - Background:** [Relevant medical history, wound history]
+**A - Assessment:** [Current wound assessment findings]
+**R - Recommendation:** [Proposed interventions and follow-up]`;
+    } else if (noteType === "progress") {
+      noteInstructions = `Generate an SNF-ready wound care progress note including:
+- Date/Time header
+- Wound location and dimensions (if provided)
+- Wound bed description (tissue type, exudate, odor, periwound)
+- Interventions performed
+- Patient response and tolerance
+- Plan and next scheduled assessment`;
+    } else {
+      noteInstructions = `Generate a comprehensive wound care plan including:
+- Problem statement
+- Short-term goals (1-2 weeks)
+- Long-term goals (4-8 weeks)
+- Nursing interventions (wound care, positioning, nutrition, education)
+- Frequency of reassessment
+- Expected outcomes`;
+    }
+
+    const prompt = `You are an expert wound care nurse generating clinical documentation.
+
+Patient Information:
+${patientInfo}
+
+Wound Assessment:
+${woundAssessment}
+
+Interventions Performed:
+${interventions}
+
+${patientResponse ? `Patient Response:\n${patientResponse}\n` : ""}
+
+${noteInstructions}
+
+Use professional clinical language, SNF-appropriate terminology, and be thorough yet concise.
+Do NOT include any placeholder text like [brackets] in the final output.`;
+
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      messages: [{role: "user", content: prompt}],
+    });
+
+    const note = response.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    // Save note to Firestore
+    await db.collection(`users/${uid}/generatedNotes`).add({
+      noteType,
+      patientInfo,
+      note,
+      createdAt: nowTs(),
+    });
+
+    return {note, noteType};
   },
 );
 
