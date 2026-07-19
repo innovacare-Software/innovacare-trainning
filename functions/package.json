@@ -2,7 +2,9 @@
   "name": "functions",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
+    "typecheck": "tsc --noEmit",
     "build": "tsc",
+    "security:audit": "npm audit --audit-level=high",
     "build:watch": "tsc --watch",
     "backfill:program-progress": "node scripts/backfill-program-progress.cjs",
     "backfill:exam-prep-runtime": "node scripts/backfill-exam-prep-runtime.cjs",
@@ -23,10 +25,10 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.82.0",
+    "@anthropic-ai/sdk": "^0.100.1",
     "@sendgrid/mail": "^8.1.6",
     "cors": "^2.8.6",
-    "firebase-admin": "^12.6.0",
+    "firebase-admin": "^13.10.0",
     "firebase-functions": "^6.5.0",
     "myapp": "file:..",
     "nanoid": "^5.0.4",
@@ -41,6 +43,9 @@
     "eslint-plugin-import": "^2.25.4",
     "firebase-functions-test": "^3.1.0",
     "typescript": "^5.2.0"
+  },
+  "overrides": {
+    "axios": "1.16.1"
   },
   "private": true
 }
