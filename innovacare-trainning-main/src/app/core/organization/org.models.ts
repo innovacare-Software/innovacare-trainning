@@ -106,6 +106,37 @@ export interface Organization {
   ancestorOrgIds?: string[];
   /** Set only by Super Admin. When true, this org's admins may create child sub-orgs and get read-only rollup visibility into them (default: false). */
   canCreateSubOrgs?: boolean;
+
+  // ---- Branding / white-label ----
+  /** Cosmetic customization, self-serve by this org's own admin. Absent = platform default styling. */
+  branding?: OrganizationBranding;
+  /**
+   * Set only by Super Admin. Gates the identity-hiding parts of branding
+   * (hidePlatformBranding, customDomain) — basic cosmetic fields (logo,
+   * colors, sender identity) are self-serve regardless of this flag.
+   * Default: false.
+   */
+  canWhiteLabel?: boolean;
+}
+
+export interface OrganizationBranding {
+  /** Shown-as name if different from org.name (e.g. a reseller's product name). */
+  displayName?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  /** Hex color; matches the field name already used by the legacy SuperAdminOrganization.branding stub. */
+  primaryColor?: string;
+  accentColor?: string;
+  /** "From" name on notification emails. */
+  senderName?: string;
+  senderEmail?: string;
+  supportEmail?: string;
+  /** Requires canWhiteLabel. Hides the platform's own identity (e.g. a "Powered by" footer). */
+  hidePlatformBranding?: boolean;
+  /** Requires canWhiteLabel. A self-serve write may only ever request this, never activate it. */
+  customDomain?: string;
+  /** 'none'/'pending' settable by this org's own admin; only Super Admin may set 'active' once DNS/SSL is actually provisioned. */
+  customDomainStatus?: 'none' | 'pending' | 'active';
 }
 
 export interface OrganizationStats {

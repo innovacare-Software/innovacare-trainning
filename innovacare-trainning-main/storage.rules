@@ -15,6 +15,20 @@ service firebase.storage {
       allow read, write: if isOwner(uid);
     }
 
+    // Org branding assets (logo/favicon): world-readable (rendered directly
+    // in the app shell, incl. before auth on a login screen), writable only
+    // by that org's own admin/manager — mirrors firestore.rules' isOrgAdmin
+    // via Storage's cross-service firestore.get(), since Storage rules can't
+    // reference Firestore custom functions directly.
+    match /organizations/{orgId}/branding/{allPaths=**} {
+      allow read: if true;
+      allow write: if signedIn()
+        && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.orgId == orgId
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role
+             in ['admin', 'org_admin', 'manager', 'org_manager'];
+    }
+
     // Deny everything else by default.
     match /{allPaths=**} {
       allow read, write: if false;
