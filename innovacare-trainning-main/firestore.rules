@@ -58,6 +58,43 @@ service cloud.firestore {
       return isOrgMember(orgId) && userRole(request.auth.uid) in ["learner", "guest", "org_learner"];
     }
 
+    // ---------- Org hierarchy (council / regional sub-org support) ----------
+    // canCreateSubOrgs/ancestorOrgIds are absent on every pre-existing
+    // organization doc; .get(field, default) below treats a missing field
+    // the same as its default, so no backfill is required for old orgs.
+    function orgExists(orgId) {
+      return exists(/databases/$(database)/documents/organizations/$(orgId));
+    }
+
+    function orgData(orgId) {
+      return get(/databases/$(database)/documents/organizations/$(orgId)).data;
+    }
+
+    function orgCanCreateSubOrgs(orgId) {
+      return orgExists(orgId) && orgData(orgId).get('canCreateSubOrgs', false) == true;
+    }
+
+    function orgAncestorIds(orgId) {
+      return orgExists(orgId) ? orgData(orgId).get('ancestorOrgIds', []) : [];
+    }
+
+    // Org admin/manager of an org Super Admin has explicitly flagged as a
+    // council (canCreateSubOrgs == true) — allowed to create child sub-orgs.
+    function isCouncilAdmin(orgId) {
+      return isOrgAdmin(orgId) && orgCanCreateSubOrgs(orgId);
+    }
+
+    // Read-only rollup visibility for a council admin into any descendant
+    // region's data. Never grants write access: regions keep full autonomy
+    // over their own records, writable only by Super Admin or that region's
+    // own admins/managers.
+    function isCouncilAncestorAdmin(orgId) {
+      return isSignedIn()
+        && requesterOrgId() != null
+        && isCouncilAdmin(requesterOrgId())
+        && requesterOrgId() in orgAncestorIds(orgId);
+    }
+
     function hasActiveOrgMembership(orgId) {
       return isSignedIn()
         && exists(/databases/$(database)/documents/userOrgMemberships/$(request.auth.uid + '__' + orgId))
@@ -498,7 +535,26 @@ service cloud.firestore {
         || isOrgMember(orgId)
         || isOrgAdmin(orgId);
 
-      allow create, update, delete: if isSuperAdmin();
+      // Super Admin always creates the first org (council or standalone
+      // facility). A council admin (org whose canCreateSubOrgs == true) may
+      // additionally create *its own* child regions: the new doc's
+      // parentOrgId must be the caller's own org, its ancestorOrgIds must
+      // exactly extend the parent's own chain (materialized path integrity
+      // is enforced here, not trusted from the client), and it may not be
+      // born with canCreateSubOrgs == true — nesting a new council requires
+      // Super Admin, so regions can't self-grant further sub-org powers.
+      allow create: if isSuperAdmin()
+        || (
+          request.resource.data.parentOrgId is string
+          && isCouncilAdmin(request.resource.data.parentOrgId)
+          && request.resource.data.get('canCreateSubOrgs', false) == false
+          && request.resource.data.get('ancestorOrgIds', []) ==
+               orgAncestorIds(request.resource.data.parentOrgId).concat([request.resource.data.parentOrgId])
+        );
+
+      // Only Super Admin may change hierarchy pointers or deactivate/delete
+      // an org — a council cannot rewrite its own or a region's hierarchy.
+      allow update, delete: if isSuperAdmin();
 
       match /orgUsers/{uid} {
         allow read: if isSuperAdmin() || isOrgMember(orgId) || isOrgAdmin(orgId);
@@ -510,7 +566,8 @@ service cloud.firestore {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
           || isOrgManager(orgId)
-          || (isOrgMember(orgId) && request.auth.uid == uid);
+          || (isOrgMember(orgId) && request.auth.uid == uid)
+          || isCouncilAncestorAdmin(orgId); // rollup: registered member counts
 
         allow create, update: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
         allow delete: if isSuperAdmin() || isOrgAdmin(orgId);
@@ -530,7 +587,7 @@ service cloud.firestore {
       }
 
       match /courseAssignments/{assignmentId} {
-        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId) || isCouncilAncestorAdmin(orgId);
 
         // Org admin/manager can assign only approved org courses to users of same org.
         allow create: if isSuperAdmin()
@@ -553,7 +610,8 @@ service cloud.firestore {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
           || isOrgManager(orgId)
-          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
+          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid)
+          || isCouncilAncestorAdmin(orgId); // rollup: courses taken
 
         allow create, update: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
         allow delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
@@ -563,7 +621,8 @@ service cloud.firestore {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
           || isOrgManager(orgId)
-          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
+          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid)
+          || isCouncilAncestorAdmin(orgId); // rollup: completion/progress stats
 
         allow create, update: if isSuperAdmin()
           || isOrgAdmin(orgId)
@@ -577,7 +636,8 @@ service cloud.firestore {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
           || isOrgManager(orgId)
-          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
+          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid)
+          || isCouncilAncestorAdmin(orgId); // rollup: overdue counts
 
         allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
@@ -591,7 +651,8 @@ service cloud.firestore {
         allow read: if isSuperAdmin()
           || isOrgAdmin(orgId)
           || isOrgManager(orgId)
-          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid);
+          || (isOrgMember(orgId) && resource.data.userId == request.auth.uid)
+          || isCouncilAncestorAdmin(orgId); // rollup: policy acknowledgment rate
 
         allow create, update: if isSuperAdmin()
           || isOrgAdmin(orgId)
@@ -612,7 +673,7 @@ service cloud.firestore {
       }
 
       match /reports/{reportId} {
-        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId) || isCouncilAncestorAdmin(orgId);
         allow create, update, delete: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
       }
 
@@ -635,7 +696,7 @@ service cloud.firestore {
       }
 
       match /auditLogs/{logId} {
-        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
+        allow read: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId) || isCouncilAncestorAdmin(orgId);
         allow create: if isSuperAdmin() || isOrgAdmin(orgId) || isOrgManager(orgId);
         allow update, delete: if false;
       }

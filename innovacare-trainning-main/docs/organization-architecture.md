@@ -142,3 +142,40 @@ The model enforces:
 - Organization admins see only courses assigned to their own organization.
 - Organization admins assign only approved organization courses to their own users.
 - Organization admins/managers see progress only for users in their own organization.
+
+## 10) Org Hierarchy (Council / Regional Sub-Orgs)
+
+Schema and Firestore rules only in this pass; council admin UI (create-location
+screen, rollup dashboard) is a follow-up. Design:
+
+- `Organization` gains three optional fields (`org.models.ts`): `parentOrgId`
+  (direct parent, null for top-level), `ancestorOrgIds` (materialized path
+  from root, since Firestore rules cannot do recursive parent lookups), and
+  `canCreateSubOrgs` (Super-Admin-only flag marking an org as a "council").
+  All three are optional and absent on every pre-existing org; `firestore.rules`
+  treats a missing value as its default via `.get(field, default)`, so no
+  backfill is required.
+- **Creation stays Super-Admin-gated at the root**: only Super Admin can
+  create a brand-new top-level org, exactly as before.
+- **A council may create its own regions**: an `org_admin`/`org_manager` of
+  an org with `canCreateSubOrgs == true` can create a child
+  `organizations/{orgId}` doc, but only with `parentOrgId` equal to their own
+  org, `ancestorOrgIds` exactly extending their own chain (enforced
+  server-side, not trusted from the client), and `canCreateSubOrgs == false`
+  on the new doc — a region cannot itself spawn further nested councils;
+  only Super Admin grants that.
+- **Regions keep full autonomy**: `allow update, delete` on `/organizations/{orgId}`
+  stays Super-Admin-only, and no region's own data becomes writable by the
+  council. The council only gets **read-only** rollup visibility (via
+  `isCouncilAncestorAdmin(orgId)`) into a descendant region's `users`,
+  `courseAssignments`, `enrollments`, `progress`, `overdue`,
+  `policyAcknowledgments`, `reports`, and `auditLogs` — the collections that
+  feed `OrganizationStats`/`OrganizationDashboardStats` (registered members,
+  courses taken, completion/overdue, audit activity). A region's own admins
+  are completely unaware a council exists above them; nothing about their
+  guards, services, or isolation changes.
+- At the expected scale (a national council with on the order of 10 regions),
+  the follow-up rollup dashboard can read `OrganizationStats` per descendant
+  org live and aggregate client-side. If a council ever grows past ~30-50
+  regions, switch to a scheduled Cloud Function that pre-aggregates into a
+  single summary doc instead of fanning out on every dashboard load.
