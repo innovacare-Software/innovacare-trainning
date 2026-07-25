@@ -9,6 +9,8 @@ import { OrgDashboardComponent } from './org-dashboard/org-dashboard';
 import { authCanMatch } from '../../core/auth.canmatch';
 import { roleCanMatch } from '../../core/role.canmatch';
 import { PolicyAckReportPage } from './policy-ack-report.page/policy-ack-report.page';
+import { CouncilComponent } from './council/council';
+import { isCouncilAdminCanMatch } from './council/council.canmatch';
 
 const routes: Routes = [
   {
@@ -23,6 +25,7 @@ const routes: Routes = [
       { path: 'learners',  component: Learners },
       { path: 'reports',  component: Reports },
       { path: 'policy-report', component: PolicyAckReportPage },
+      { path: 'council', component: CouncilComponent, canMatch: [isCouncilAdminCanMatch] },
 
     ]
   }

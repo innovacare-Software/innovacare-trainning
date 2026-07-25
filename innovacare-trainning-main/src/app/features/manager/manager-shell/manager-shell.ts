@@ -1,13 +1,15 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, of, switchMap } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 
 import { NotificationBell } from '../../../shared/components/notifications/notification-bell/notification-bell';
 import { NotificationBellPlainComponent } from '../../../shared/components/notifications/notification-bell-plain/notification-bell-plain';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
 import { AuthService } from '../../../core/auth';
+import { OrganizationHierarchyService } from '../../../core/organization/services/organization-hierarchy.service';
 
 @Component({
   selector: 'app-manager-shell',
@@ -19,6 +21,18 @@ import { AuthService } from '../../../core/auth';
 export class ManagerShell {
   private router = inject(Router);
   private auth = inject(AuthService);
+  private hierarchy = inject(OrganizationHierarchyService);
+
+  isCouncilAdmin = toSignal(
+    this.auth.profile$.pipe(
+      switchMap((profile) => {
+        const orgId = String(profile?.orgId || '').trim();
+        return orgId ? this.hierarchy.getOrg(orgId) : of(null);
+      }),
+      map((org) => org?.canCreateSubOrgs === true)
+    ),
+    { initialValue: false }
+  );
 
   sidebarOpen = signal(false);
   toggleSidebar() { this.sidebarOpen.update(v => !v); }
