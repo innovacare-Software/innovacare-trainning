@@ -95,6 +95,17 @@ export interface Organization {
   accessCode?: string;
   createdAt?: OrgTimestamp;
   updatedAt?: OrgTimestamp;
+
+  // ---- Org hierarchy (council / regional sub-org support) ----
+  // All three are optional and absent on every pre-existing organization
+  // doc; firestore.rules treats a missing value the same as its default
+  // below, so existing orgs need no backfill/migration.
+  /** orgId of the direct parent, or null/absent for a top-level org (default: null). */
+  parentOrgId?: string | null;
+  /** Materialized path from root to (not including) this org, e.g. [councilOrgId] for a region (default: []). */
+  ancestorOrgIds?: string[];
+  /** Set only by Super Admin. When true, this org's admins may create child sub-orgs and get read-only rollup visibility into them (default: false). */
+  canCreateSubOrgs?: boolean;
 }
 
 export interface OrganizationStats {
