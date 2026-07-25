@@ -179,3 +179,43 @@ screen, rollup dashboard) is a follow-up. Design:
   org live and aggregate client-side. If a council ever grows past ~30-50
   regions, switch to a scheduled Cloud Function that pre-aggregates into a
   single summary doc instead of fanning out on every dashboard load.
+
+## 11) Branding / White-Label (Schema + Rules)
+
+Schema and rules only in this pass; the branding settings UI (logo/color
+upload, custom-domain request flow) is a follow-up. Design:
+
+- `Organization` gains `branding?: OrganizationBranding` and `canWhiteLabel?: boolean`
+  (`org.models.ts`). `OrganizationBranding` covers cosmetic fields
+  (`displayName`, `logoUrl`, `faviconUrl`, `primaryColor`, `accentColor`,
+  `senderName`, `senderEmail`, `supportEmail`) plus two identity-hiding
+  fields (`hidePlatformBranding`, `customDomain`) and `customDomainStatus`.
+- **Two independent capabilities, not one flag.** Cosmetic branding (logo,
+  colors, sender identity) is self-serve by any org's own `org_admin`/`org_manager`
+  regardless of tier — a single hospital wanting its own logo is a much
+  lower-stakes ask than a reseller wanting to hide the platform's identity
+  entirely. `canWhiteLabel` (Super-Admin-only, independent of `canCreateSubOrgs`)
+  gates only `hidePlatformBranding` and `customDomain`.
+- **`customDomain` is a request, not a live toggle.** DNS + SSL provisioning
+  on Firebase Hosting is a real infra action a human performs; a self-serve
+  write can only ever set `customDomainStatus` to `'none'` or `'pending'`.
+  Only Super Admin (full `update` access, unrestricted) can set `'active'`
+  once the domain is actually provisioned.
+- **Firestore rules carve out one field-scoped exception**, not a broader
+  permission: `isValidSelfServeBrandingWrite(orgId)` requires the caller be
+  that org's own admin/manager AND that the write's changed keys are exactly
+  `branding` (and `updatedAt`) — `.diff(resource.data).affectedKeys().hasOnly([...])`.
+  `name`, `plan`, `accessCode`, and every hierarchy pointer remain reachable
+  only through the existing Super-Admin-only path. `delete` stays
+  Super-Admin-only, full stop.
+- **Storage rules** add `organizations/{orgId}/branding/{allPaths=**}`:
+  world-readable (the app shell needs to render a logo before/without auth),
+  writable only by that org's own admin/manager, checked via Storage's
+  cross-service `firestore.get()` against the same `users/{uid}` doc
+  `firestore.rules` itself reads.
+- Branding **cascades down the org hierarchy** (§10): the follow-up UI
+  resolves effective branding as a per-field merge — an org's own value if
+  set, else its nearest ancestor's, else platform default — walking
+  `ancestorOrgIds` client-side. A region can inherit a council's logo/colors
+  while overriding its own `supportEmail`. No new collection or Cloud
+  Function is needed at hierarchy depths this shallow.

@@ -95,6 +95,31 @@ service cloud.firestore {
         && requesterOrgId() in orgAncestorIds(orgId);
     }
 
+    // ---------- Branding / white-label (self-serve, field-scoped) ----------
+    function orgCanWhiteLabel(orgId) {
+      return orgExists(orgId) && orgData(orgId).get('canWhiteLabel', false) == true;
+    }
+
+    // An org_admin/manager may update ONLY their own org's `branding` map
+    // (plus updatedAt) — never name/plan/accessCode/hierarchy pointers,
+    // which stay Super-Admin-only via the existing top-level update rule.
+    // Identity-hiding fields require canWhiteLabel; customDomainStatus can
+    // only ever be self-set to 'none'/'pending' — 'active' means Super
+    // Admin has actually provisioned DNS/SSL for it.
+    function isValidSelfServeBrandingWrite(orgId) {
+      let before = resource.data.get('branding', {});
+      let after = request.resource.data.get('branding', {});
+      return isOrgAdmin(orgId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['branding', 'updatedAt'])
+        && (!('hidePlatformBranding' in after) || orgCanWhiteLabel(orgId))
+        && (!('customDomain' in after) || orgCanWhiteLabel(orgId))
+        && (
+          !('customDomainStatus' in after)
+          || after.customDomainStatus in ['none', 'pending']
+          || after.customDomainStatus == before.get('customDomainStatus', 'none')
+        );
+    }
+
     function hasActiveOrgMembership(orgId) {
       return isSignedIn()
         && exists(/databases/$(database)/documents/userOrgMemberships/$(request.auth.uid + '__' + orgId))
@@ -552,9 +577,13 @@ service cloud.firestore {
                orgAncestorIds(request.resource.data.parentOrgId).concat([request.resource.data.parentOrgId])
         );
 
-      // Only Super Admin may change hierarchy pointers or deactivate/delete
-      // an org — a council cannot rewrite its own or a region's hierarchy.
-      allow update, delete: if isSuperAdmin();
+      // Only Super Admin may change hierarchy pointers, name/plan/accessCode,
+      // or deactivate/delete an org. The one carve-out: an org's own admin
+      // may update *only* its own `branding` map (see
+      // isValidSelfServeBrandingWrite) — everything else about an org
+      // remains exactly as locked down as before this field existed.
+      allow update: if isSuperAdmin() || isValidSelfServeBrandingWrite(orgId);
+      allow delete: if isSuperAdmin();
 
       match /orgUsers/{uid} {
         allow read: if isSuperAdmin() || isOrgMember(orgId) || isOrgAdmin(orgId);
