@@ -1,0 +1,123 @@
+<section class="council-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Conseil / Organisation nationale</p>
+      <h1>Régions</h1>
+      <p class="sub">Créez des régions et consultez les statistiques agrégées de votre conseil.</p>
+    </div>
+    <span class="org-chip" *ngIf="orgId() as oid">Org ID: {{ oid }}</span>
+  </header>
+
+  <div class="layout">
+    <article class="card form-card">
+      <h2>Créer une région</h2>
+      <form [formGroup]="regionForm" (ngSubmit)="createRegion()" class="form-grid">
+        <label>
+          Nom de la région
+          <input formControlName="name" placeholder="Ex: Région Est" />
+        </label>
+        <label>
+          Contact
+          <input formControlName="contactName" placeholder="Nom du contact régional" />
+        </label>
+        <label>
+          Courriel du contact
+          <input formControlName="contactEmail" type="email" placeholder="contact@region.org" />
+        </label>
+        <label>
+          Téléphone du contact
+          <input formControlName="contactPhone" type="tel" placeholder="+1 514 000 0000" />
+        </label>
+        <button class="btn" type="submit" [disabled]="creatingRegion()">
+          {{ creatingRegion() ? 'Création en cours...' : 'Créer la région' }}
+        </button>
+      </form>
+      <p class="notice" *ngIf="regionNotice()">{{ regionNotice() }}</p>
+    </article>
+
+    <article class="card form-card">
+      <h2>Nommer un administrateur régional</h2>
+      <p class="sub">L'administrateur reçoit un courriel pour définir son mot de passe.</p>
+      <form [formGroup]="adminForm" (ngSubmit)="createRegionAdmin()" class="form-grid">
+        <label>
+          Région
+          <select formControlName="targetOrgId">
+            <option value="" disabled>Choisir une région</option>
+            <option *ngFor="let r of regions()" [value]="r.orgId || r.id">{{ r.name }}</option>
+          </select>
+        </label>
+        <label>
+          Courriel
+          <input formControlName="email" type="email" placeholder="admin@region.org" />
+        </label>
+        <label>
+          Mot de passe initial
+          <input formControlName="initialPassword" type="password" placeholder="Minimum 8 caractères" />
+        </label>
+        <label>
+          Nom affiché
+          <input formControlName="displayName" placeholder="Nom complet" />
+        </label>
+        <button class="btn" type="submit" [disabled]="creatingAdmin() || !regions().length">
+          {{ creatingAdmin() ? 'Création en cours...' : "Créer l'administrateur régional" }}
+        </button>
+      </form>
+      <p class="notice" *ngIf="adminNotice()">{{ adminNotice() }}</p>
+    </article>
+  </div>
+
+  <article class="card">
+    <h2>Vue d'ensemble du conseil</h2>
+    <ng-container *ngIf="rollup() as r; else noRollup">
+      <div class="totals" *ngIf="r.totals.regionCount; else noRegions">
+        <div class="stat">
+          <span class="value">{{ r.totals.regionCount }}</span>
+          <span class="label">Régions</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ r.totals.totalUsers }}</span>
+          <span class="label">Membres inscrits</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ r.totals.activeLearners }}</span>
+          <span class="label">Apprenants actifs</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ r.averageCompletionRate }}%</span>
+          <span class="label">Taux de complétion moyen</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ r.totals.overdueCount }}</span>
+          <span class="label">Formations en retard</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ r.totals.criticalAuditEvents }}</span>
+          <span class="label">Événements d'audit critiques</span>
+        </div>
+      </div>
+
+      <div class="rows" *ngIf="r.regions.length">
+        <div class="row" *ngFor="let row of r.regions">
+          <div>
+            <strong>{{ row.org.name }}</strong>
+            <p>Code d'accès: {{ row.org.accessCode }}</p>
+          </div>
+          <div class="meta">
+            <span>{{ row.stats.totalUsers }} membres</span>
+            <span>{{ row.stats.completionRate }}% complété</span>
+            <span [class.off]="row.stats.overdueCount > 0" [class.ok]="row.stats.overdueCount === 0">
+              {{ row.stats.overdueCount }} en retard
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noRegions>
+        <p class="empty">Aucune région créée pour l'instant.</p>
+      </ng-template>
+    </ng-container>
+    <ng-template #noRollup>
+      <p class="empty">Chargement des statistiques...</p>
+    </ng-template>
+  </article>
+</section>

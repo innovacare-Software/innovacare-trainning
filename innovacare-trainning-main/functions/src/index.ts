@@ -89,6 +89,12 @@ type CreateOrgUserPayload = {
   title?: string;
   role?: "admin" | "manager" | "learner" | "guest";
   status?: "active" | "inactive";
+  // A council admin (caller's own org has canCreateSubOrgs == true) may set
+  // this to one of that org's own descendant regions (ancestorOrgIds
+  // includes the caller's orgId) to create that region's own admin.
+  // Ignored for a caller whose own org isn't a council; super_admin may set
+  // it to any org.
+  targetOrgId?: string;
 };
 
 type CartItemInput = {
@@ -690,16 +696,52 @@ export const createOrgUser = onCall(
       throw new HttpsError("invalid-argument", "Invalid status.");
     }
 
-    if (callerCtx.role !== "super_admin") {
+    // A council admin may create a user in one of its own descendant
+    // regions by passing targetOrgId; otherwise every caller acts on their
+    // own org exactly as before. This mirrors firestore.rules'
+    // isCouncilAdmin/ancestorOrgIds check for org creation (see
+    // docs/organization-architecture.md §10) but for user creation instead.
+    const requestedTargetOrgId = String(data.targetOrgId || "").trim();
+    let isCouncilCrossOrgCreation = false;
+    let orgId = callerCtx.orgId;
+
+    if (callerCtx.role === "super_admin") {
+      if (requestedTargetOrgId) {
+        orgId = requestedTargetOrgId;
+      }
+    } else {
       if (!callerCtx.orgId) {
         throw new HttpsError("failed-precondition", "No organization attached to caller account.");
       }
-      if (role === "admin") {
+
+      if (requestedTargetOrgId && requestedTargetOrgId !== callerCtx.orgId) {
+        const callerOrgSnap = await db.doc(`organizations/${callerCtx.orgId}`).get();
+        const callerCanCreateSubOrgs = callerOrgSnap.exists && callerOrgSnap.get("canCreateSubOrgs") === true;
+        if (!callerCanCreateSubOrgs) {
+          throw new HttpsError("permission-denied", "Only a council admin can create users in another organization.");
+        }
+
+        const targetOrgSnap = await db.doc(`organizations/${requestedTargetOrgId}`).get();
+        if (!targetOrgSnap.exists) {
+          throw new HttpsError("failed-precondition", "Target organization not found.");
+        }
+        const targetAncestorOrgIds: string[] = targetOrgSnap.get("ancestorOrgIds") || [];
+        if (!targetAncestorOrgIds.includes(callerCtx.orgId)) {
+          throw new HttpsError("permission-denied", "Target organization is not one of your regions.");
+        }
+
+        isCouncilCrossOrgCreation = true;
+        orgId = requestedTargetOrgId;
+      }
+
+      // Council-to-descendant admin creation is the one carve-out; an
+      // org_admin/manager still cannot create another admin *within their
+      // own org* — that stays super_admin-only, unchanged.
+      if (role === "admin" && !isCouncilCrossOrgCreation) {
         throw new HttpsError("permission-denied", "Only super admin can create admin users.");
       }
     }
 
-    const orgId = callerCtx.orgId;
     const normalizedOrgId = String(orgId || "").trim();
     let orgAccessCode: string | null = null;
 

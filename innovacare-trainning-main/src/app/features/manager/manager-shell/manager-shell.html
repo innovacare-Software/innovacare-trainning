@@ -31,7 +31,15 @@
            routerLinkActive="active"
            class="menu-item"
            (click)="closeSidebar()">{{ t(r.labelKey) }}</a>
-           
+
+      </div>
+
+      <div class="menu-group" *ngIf="isCouncilAdmin()">
+        <div class="menu-title">Conseil</div>
+        <a routerLink="/manager/council"
+           routerLinkActive="active"
+           class="menu-item"
+           (click)="closeSidebar()">Régions</a>
       </div>
     </nav>
   </aside>
