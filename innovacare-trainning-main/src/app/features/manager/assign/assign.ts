@@ -67,7 +67,7 @@ export class Assign {
         if (!orgId) return of([] as CourseItem[]);
 
         return this.orgCourses.listAssigned(orgId).pipe(
-          map((rows) => rows.map((c) => ({
+          map((rows) => rows.filter((c) => c.active !== false).map((c) => ({
             id: c.courseId,
             title: c.title,
             active: c.active,

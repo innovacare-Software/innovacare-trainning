@@ -4,17 +4,23 @@ import {
   collection,
   collectionData,
   doc,
-  setDoc,
-  deleteDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  writeBatch,
   serverTimestamp,
 } from '@angular/fire/firestore';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { Course } from '../../../data/models';
 import { OrganizationAssignedCourse } from '../models/super-admin.models';
+import { OrgFirestorePaths } from '../../../core/organization/org-firestore-paths';
+import { OrganizationCoursesService } from '../../../core/organization/services/organization-courses.service';
 
 @Injectable({ providedIn: 'root' })
 export class SuperAdminOrganizationCoursesService {
   private afs = inject(Firestore);
+  private orgCourses = inject(OrganizationCoursesService);
 
   getPlatformCourses(): Observable<Course[]> {
     const ref = collection(this.afs, 'courses');
@@ -28,50 +34,56 @@ export class SuperAdminOrganizationCoursesService {
   }
 
   getAssignedCoursesForOrganization(orgId: string): Observable<OrganizationAssignedCourse[]> {
-    const ref = collection(this.afs, `organizations/${orgId}/courses`);
-    return collectionData(ref, { idField: 'id' }).pipe(
-      map((rows: any[]) =>
-        rows.map((row) => ({
-          ...(row as OrganizationAssignedCourse),
-          orgId,
-          courseId: row.courseId || row.id,
-        }))
-      )
-    ) as Observable<OrganizationAssignedCourse[]>;
+    return this.orgCourses.listAssigned(orgId);
   }
 
-  async assignCourseToOrganization(orgId: string, courseId: string): Promise<void> {
-    const assignmentRef = doc(this.afs, `organizations/${orgId}/courses/${courseId}`);
-    await setDoc(
-      assignmentRef,
-      {
-        orgId,
-        courseId,
-        active: true,
-        assignedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
-
-    // Compatibility with legacy global mapping used in parts of the app.
-    const legacyRef = doc(this.afs, `organizationCourseAssignments/${orgId}_${courseId}`);
-    await setDoc(
-      legacyRef,
-      {
-        orgId,
-        courseId,
-        active: true,
-        assignedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
+  async assignCourseToOrganization(
+    orgId: string, courseId: string, actor?: { uid?: string; email?: string }
+  ): Promise<void> {
+    const [course, canonical, legacy] = await Promise.all([
+      getDoc(doc(this.afs, 'courses', courseId)),
+      getDoc(doc(this.afs, OrgFirestorePaths.course(orgId, courseId))),
+      getDoc(doc(this.afs, `organizations/${orgId}/courses/${courseId}`)),
+    ]);
+    if (!course.exists()) throw new Error('Course not found.');
+    const assignment = {
+      orgId,
+      courseId,
+      title: course.data()['title'] || courseId,
+      active: true,
+      ...(actor ? { assignedByUid: actor.uid ?? null, assignedByEmail: actor.email ?? null } : {}),
+      assignedAt: canonical.data()?.['assignedAt'] ?? legacy.data()?.['assignedAt'] ?? serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    const batch = writeBatch(this.afs);
+    // Commit all supported paths together so a successful assignment is visible everywhere.
+    for (const path of this.assignmentPaths(orgId, courseId)) {
+      batch.set(doc(this.afs, path), assignment, { merge: true });
+    }
+    await batch.commit();
   }
 
   async removeCourseFromOrganization(orgId: string, courseId: string): Promise<void> {
-    await deleteDoc(doc(this.afs, `organizations/${orgId}/courses/${courseId}`));
-    await deleteDoc(doc(this.afs, `organizationCourseAssignments/${orgId}_${courseId}`));
+    const oldAssignments = await getDocs(query(
+      collection(this.afs, 'organizationCourseAssignments'),
+      where('orgId', '==', orgId), where('courseId', '==', courseId)
+    ));
+    const batch = writeBatch(this.afs);
+    for (const path of this.assignmentPaths(orgId, courseId)) {
+      batch.delete(doc(this.afs, path));
+    }
+    for (const assignment of oldAssignments.docs) {
+      if (assignment.id !== `${orgId}_${courseId}`) batch.delete(assignment.ref);
+    }
+    await batch.commit();
+  }
+
+  private assignmentPaths(orgId: string, courseId: string): string[] {
+    return [
+      OrgFirestorePaths.course(orgId, courseId),
+      `organizations/${orgId}/courses/${courseId}`,
+      `organizationCourseAssignments/${orgId}_${courseId}`,
+    ];
   }
 
   async syncOrganizationAssignedCourses(orgId: string, courseIds: string[]): Promise<void> {
@@ -83,9 +95,7 @@ export class SuperAdminOrganizationCoursesService {
     const targetSet = new Set(unique);
 
     for (const courseId of unique) {
-      if (!currentSet.has(courseId)) {
-        await this.assignCourseToOrganization(orgId, courseId);
-      }
+      await this.assignCourseToOrganization(orgId, courseId);
     }
 
     for (const courseId of currentSet) {

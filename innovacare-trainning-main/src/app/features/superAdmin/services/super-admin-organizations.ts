@@ -15,6 +15,8 @@ import {
 } from '@angular/fire/firestore';
 import { combineLatest, map, Observable } from 'rxjs';
 import { SuperAdminLogsService } from './super-admin-logs';
+import { OrganizationCoursesService } from '../../../core/organization/services/organization-courses.service';
+import { SuperAdminOrganizationCoursesService } from './super-admin-organization-courses.service';
 import {
   OrganizationAssignedCourse,
   OrganizationCourseAssignment,
@@ -35,6 +37,8 @@ import {
 export class SuperAdminOrganizationsService {
   private afs = inject(Firestore);
   private logs = inject(SuperAdminLogsService);
+  private orgCourses = inject(OrganizationCoursesService);
+  private platformCourses = inject(SuperAdminOrganizationCoursesService);
 
   private colRef = collection(this.afs, 'organizations');
   private assignmentColRef = collection(this.afs, 'organizationCourseAssignments');
@@ -235,19 +239,13 @@ export class SuperAdminOrganizationsService {
     courseId: string;
     actor?: { uid?: string; email?: string };
   }): Promise<string> {
-    const ref = await addDoc(this.assignmentColRef, {
-      orgId: params.orgId,
-      courseId: params.courseId,
-      active: true,
-      assignedByUid: params.actor?.uid ?? null,
-      assignedByEmail: params.actor?.email ?? null,
-      assignedAt: serverTimestamp(),
-    } satisfies OrganizationCourseAssignment);
+    await this.platformCourses.assignCourseToOrganization(params.orgId, params.courseId, params.actor);
+    const assignmentId = `${params.orgId}_${params.courseId}`;
 
     await this.logs.audit({
       action: 'ASSIGN_COURSE_TO_ORGANIZATION',
       targetType: 'organizationCourseAssignment',
-      targetId: ref.id,
+      targetId: assignmentId,
       actorUid: params.actor?.uid,
       actorEmail: params.actor?.email,
       message: `Course assigned to organization`,
@@ -257,7 +255,7 @@ export class SuperAdminOrganizationsService {
       },
     });
 
-    return ref.id;
+    return assignmentId;
   }
 
   listAssignmentsForOrg(orgId: string): Observable<OrganizationCourseAssignment[]> {
@@ -303,41 +301,7 @@ export class SuperAdminOrganizationsService {
   }
 
   getAssignedCoursesForOrganization(orgId: string): Observable<OrganizationAssignedCourse[]> {
-    const scopedRef = collection(this.afs, `organizations/${orgId}/courses`);
-
-    const scoped$ = collectionData(scopedRef, { idField: 'id' }).pipe(
-      map((rows: any[]) =>
-        rows.map((x) => ({
-          ...(x as OrganizationAssignedCourse),
-          id: x.id,
-          orgId,
-          courseId: x.courseId || x.id,
-        }))
-      )
-    ) as Observable<OrganizationAssignedCourse[]>;
-
-    const legacy$ = this.listAssignmentsForOrg(orgId).pipe(
-      map((rows) =>
-        rows.map((x) => ({
-          id: x.id,
-          orgId,
-          courseId: x.courseId,
-          active: x.active,
-          assignedAt: x.assignedAt,
-          assignedByEmail: x.assignedByEmail,
-          assignedByUid: x.assignedByUid,
-        }))
-      )
-    );
-
-    return combineLatest([scoped$, legacy$]).pipe(
-      map(([scopedRows, legacyRows]) => {
-        const byCourse = new Map<string, OrganizationAssignedCourse>();
-        for (const row of legacyRows) byCourse.set(row.courseId, row);
-        for (const row of scopedRows) byCourse.set(row.courseId, { ...byCourse.get(row.courseId), ...row });
-        return Array.from(byCourse.values());
-      })
-    );
+    return this.orgCourses.listAssigned(orgId);
   }
 
   getOrganizationPolicies(orgId: string): Observable<OrganizationPolicy[]> {
