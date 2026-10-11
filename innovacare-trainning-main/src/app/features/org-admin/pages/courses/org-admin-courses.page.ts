@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { OrgContextService } from '../../../../core/organization/org-context.service';
 import { OrganizationCoursesVisibilityService } from '../../../../core/organization/services/organization-courses-visibility.service';
 
@@ -26,5 +27,7 @@ export class OrgAdminCoursesPage {
   private readonly service = inject(OrganizationCoursesVisibilityService);
   private readonly context = toSignal(this.ctx.context$, { initialValue: { uid: '', orgId: null, role: '', orgRole: null, isSuperAdmin: false, isOrgAdmin: false, isOrgManager: false, isOrgLearner: false } });
   readonly orgId = computed(() => this.context().orgId || '');
-  readonly rows = toSignal(this.service.listVisibleCourses(this.orgId()), { initialValue: [] as any[] });
+  readonly rows = toSignal(this.ctx.context$.pipe(
+    switchMap((context) => this.service.listVisibleCourses(context.orgId || ''))
+  ), { initialValue: [] });
 }

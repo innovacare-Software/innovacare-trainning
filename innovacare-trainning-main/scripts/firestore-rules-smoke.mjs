@@ -7,8 +7,13 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
+  query,
+  where,
+  writeBatch,
   setDoc,
   updateDoc,
   serverTimestamp,
@@ -134,6 +139,50 @@ async function run() {
         updatedAt: serverTimestamp(),
       })
     );
+
+    // Course grants remain readable only within the target organization.
+    const grantBatch = writeBatch(superDb);
+    for (const grantPath of [
+      'organizations/orgA/assignedCourses/course1',
+      'organizations/orgA/courses/course1',
+      'organizationCourseAssignments/orgA_course1',
+    ]) {
+      grantBatch.set(doc(superDb, grantPath), {
+        orgId: 'orgA', courseId: 'course1', title: 'Assigned course', active: true,
+      });
+    }
+    await assertSucceeds(grantBatch.commit());
+    for (const tenantPath of ['assignedCourses', 'courses']) {
+      await assertSucceeds(getDocs(collection(managerDb, `organizations/orgA/${tenantPath}`)));
+      await assertFails(getDocs(collection(managerDb, `organizations/orgB/${tenantPath}`)));
+    }
+    await assertSucceeds(getDocs(query(
+      collection(managerDb, 'organizationCourseAssignments'), where('orgId', '==', 'orgA')
+    )));
+    await assertFails(getDocs(query(
+      collection(managerDb, 'organizationCourseAssignments'), where('orgId', '==', 'orgB')
+    )));
+    await assertFails(setDoc(doc(managerDb, 'organizations/orgA/assignedCourses/unauthorized'), {
+      orgId: 'orgA', courseId: 'unauthorized', active: true,
+    }));
+
+    const revokeBatch = writeBatch(superDb);
+    for (const grantPath of [
+      'organizations/orgA/assignedCourses/course1',
+      'organizations/orgA/courses/course1',
+      'organizationCourseAssignments/orgA_course1',
+    ]) {
+      revokeBatch.delete(doc(superDb, grantPath));
+    }
+    await assertSucceeds(revokeBatch.commit());
+    for (const tenantPath of ['assignedCourses', 'courses']) {
+      const remaining = await getDocs(collection(managerDb, `organizations/orgA/${tenantPath}`));
+      if (!remaining.empty) throw new Error('Revoked course is still visible to the organization.');
+    }
+    const remainingLegacy = await getDocs(query(
+      collection(managerDb, 'organizationCourseAssignments'), where('orgId', '==', 'orgA')
+    ));
+    if (!remainingLegacy.empty) throw new Error('Revoked legacy course is still visible.');
 
     console.log('Firestore rules smoke test: PASS');
   } finally {

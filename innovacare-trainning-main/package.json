@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:org-courses": "ng test --watch=false --browsers=ChromeHeadless --ts-config=tsconfig.org-course-tests.json --include=src/app/core/organization/services/organization-course-assignments.spec.ts --include=src/app/features/org-admin/pages/courses/org-admin-course-context.spec.ts",
     "typecheck": "tsc --noEmit",
     "test:rules:smoke": "firebase emulators:exec --config firebase.rules-test.json --only firestore \"node scripts/firestore-rules-smoke.mjs\"",
     "seed:communication:mocks": "firebase emulators:exec --config firebase.communication-test.json --only firestore \"node scripts/seed-communication-center-mocks.mjs\"",
